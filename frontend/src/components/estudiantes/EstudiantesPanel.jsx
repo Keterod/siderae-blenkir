@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import {
   createEstudiante,
   getEstudiante,
   getEstudiantes,
   updateEstudiante,
 } from '../../lib/api';
+import EstudiantePerfilDatos from './EstudiantePerfilDatos';
 
 function formularioVacio() {
   return {
@@ -44,6 +46,7 @@ function llenarFormulario(desdeServidor) {
 }
 
 export default function EstudiantesPanel({ onClose }) {
+  const { permissions } = useAuth();
 
   const [vista, setVista] = useState('lista');
 
@@ -678,6 +681,13 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
 
           </dl>
+
+          {permissions.includes('registrar_datos_academicos') ? (
+            <EstudiantePerfilDatos
+              estudianteId={detalle.id}
+              anioEscolarPorDefecto={detalle.anio_escolar}
+            />
+          ) : null}
 
           <button
             type="button"

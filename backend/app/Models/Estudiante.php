@@ -6,6 +6,7 @@ use Database\Factories\EstudianteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'codigo',
@@ -24,6 +25,21 @@ class Estudiante extends Model
 {
     /** @use HasFactory<EstudianteFactory> */
     use HasFactory;
+
+    public function notas(): HasMany
+    {
+        return $this->hasMany(Nota::class);
+    }
+
+    public function asistencias(): HasMany
+    {
+        return $this->hasMany(Asistencia::class);
+    }
+
+    public function variablesSocioeconomicas(): HasMany
+    {
+        return $this->hasMany(VariableSocioeconomica::class);
+    }
 
     protected function casts(): array
     {

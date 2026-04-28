@@ -95,3 +95,37 @@ export function updateEstudiante(id, datos) {
     body: datos,
   });
 }
+
+export function getNotas(estudianteId) {
+  return request(`/api/estudiantes/${estudianteId}/notas`);
+}
+
+export function postNota(estudianteId, datos) {
+  return request(`/api/estudiantes/${estudianteId}/notas`, {
+    method: 'POST',
+    body: datos,
+  });
+}
+
+export function getAsistencias(estudianteId) {
+  return request(`/api/estudiantes/${estudianteId}/asistencias`);
+}
+
+export function postAsistencia(estudianteId, datos) {
+  return request(`/api/estudiantes/${estudianteId}/asistencias`, {
+    method: 'POST',
+    body: datos,
+  });
+}
+
+export function getVariablesSocio(estudianteId) {
+  return request(`/api/estudiantes/${estudianteId}/variables-socioeconomicas`);
+}
+
+export function postVariablesSocio(estudianteId, datos) {
+  return request(`/api/estudiantes/${estudianteId}/variables-socioeconomicas`, {
+    method: 'POST',
+    body: datos,
+  });
+}
+
