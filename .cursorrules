@@ -1,0 +1,41 @@
+# SIDERAE-Blenkir - Project Rules & Standards
+
+## 1. Contexto del Proyecto
+- **Nombre:** SIDERAE-Blenkir (Sistema Inteligente de Detección Temprana de Riesgo Académico).
+- **Cliente:** Colegio Blenkir (Sedes Chilca y Auquimarca, Huancayo).
+- **Objetivo:** Automatizar la identificación de riesgo académico mediante Machine Learning y asegurar la trazabilidad ISO 9001.
+
+## 2. Stack Tecnológico Obligatorio
+- **Backend:** Laravel 11 (PHP 8.3) - API REST.
+- **Frontend:** React 18 (Vite) + Tailwind CSS.
+- **IA/ML Service:** Python 3.11 + Flask.
+- **Base de Datos:** MySQL 8.x.
+- **Infraestructura:** Docker & Docker Compose.
+
+## 3. Reglas de Comportamiento (Anti-Alucinación)
+- **Fuente de Verdad:** Antes de sugerir cualquier código, consulta el archivo `DRS_SIDERAE_Blenkir_v1.pdf`. Prioriza los Requerimientos Funcionales (RF) y Reglas de Negocio (RN) allí descritos.
+- **Prohibido Inventar:** No generes módulos, campos de base de datos o funcionalidades que no existan en el DRS (ej. no pasarelas de pago, no redes sociales).
+- **Realismo Técnico:** No asumas que el usuario tiene servidores externos; todo debe configurarse para funcionar en los contenedores Docker definidos.
+- **Enfoque de Ingeniería:** Eres un Senior Tech Lead. Tu código debe ser modular, limpio y seguir principios SOLID.
+
+## 4. Estándares de Codificación
+- **Backend (Laravel):**
+  - Seguir el patrón de diseño sugerido en el DRS.
+  - Usar FormRequests para validaciones.
+  - Respuestas siempre en formato JSON coherente.
+- **Frontend (React):**
+  - Componentes funcionales con Hooks.
+  - Uso de Tailwind CSS para el diseño UI.
+  - Separar lógica de negocio (hooks personalizados) de la vista.
+- **IA (Flask):**
+  - Endpoints específicos para predicción (Random Forest, SVM, XGBoost).
+  - Manejo estricto de tipos de datos para evitar errores de matriz en scikit-learn.
+
+## 5. Reglas de Negocio Críticas (Prioridad Alta)
+- **RN-01 (Umbral de Riesgo):** El sistema debe marcar riesgo si el promedio de notas es < 11 o el índice de riesgo ML es > 0.7.
+- **RN-05 (Privacidad):** Acceso restringido estrictamente por roles (Administrador, Docente, Coordinador, Psicólogo, Directivo).
+- **RF-19 (Semáforo):** Implementar visualmente el estado de completitud de datos (Rojo/Amarillo/Verde).
+
+## 6. Instrucciones de Salida
+- Siempre que generes un cambio en el código, verifica si afecta a la integración entre servicios (Laravel-Flask-React).
+- Si una instrucción contradice el DRS, detente y pide aclaración.

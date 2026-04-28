@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db-mysql:
+    image: mysql:8.0
+    container_name: siderae_mysql
+    restart: unless-stopped
+    ports:
+    - "3307:3306"
+    environment:
+      MYSQL_DATABASE: siderae_db
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - ./docker/mysql_data:/var/lib/mysql
+
+  app-backend:
+    image: php:8.3-cli
+    container_name: siderae_backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    command: sh -c "tail -f /dev/null" 
+    depends_on:
+      - db-mysql
+
+  app-frontend:
+    image: node:20-alpine
+    container_name: siderae_frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    command: sh -c "tail -f /dev/null"
+
+  ml-engine:
+    image: python:3.11-slim
+    container_name: siderae_ml
+    working_dir: /app
+    volumes:
+      - ./ml-service:/app
+    ports:
+      - "5000:5000"
+    command: sh -c "pip install Flask && tail -f /dev/null"

@@ -1,0 +1,39 @@
+# GENERAL
+.env
+.env.*
+*.log
+node_modules/
+vendor/
+dist/
+build/
+
+# LARAVEL
+backend/.env
+backend/vendor/
+backend/node_modules/
+backend/storage/*.key
+backend/storage/logs/
+backend/bootstrap/cache/
+
+# REACT
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+
+# PYTHON / ML
+ml-service/__pycache__/
+ml-service/*.pyc
+ml-service/.env
+ml-service/venv/
+ml-service/.venv/
+
+# DOCKER
+docker/mysql/data/
+docker/mysql_data/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
