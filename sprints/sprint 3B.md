@@ -44,3 +44,28 @@ Habilita Sprint 4.
 - APIs de datos base.
 - UI de captura en perfil.
 - Resumen de features mínimo para ML.
+
+## Pruebas asociadas
+
+### Pruebas manuales
+- Verificar que se pueden registrar notas de un estudiante.
+- Verificar que el sistema rechaza notas fuera del rango 0 a 20.
+- Verificar que se puede registrar asistencia con estados válidos: `presente`, `tardanza`, `falta`.
+- Verificar que se pueden registrar variables socioeconómicas del estudiante.
+- Verificar que el perfil del estudiante muestra notas, asistencia y variables registradas.
+
+### Pruebas automatizadas
+- Ejecutar pruebas relacionadas a RF-01:
+  - `test_importar_xlsx_valido_vincula_notas_al_perfil`
+  - `test_importar_rechaza_nota_fuera_de_rango`
+- Ejecutar pruebas relacionadas a RF-02:
+  - `test_docente_registra_asistencia_de_su_aula`
+  - `test_calcula_porcentaje_inasistencias_por_bimestre`
+- Ejecutar pruebas relacionadas a RF-05:
+  - `test_variables_socioeconómicas_se_almacenan_en_perfil`
+
+### Criterios de validación
+- Las notas se guardan correctamente y respetan el rango permitido.
+- La asistencia se registra con estados válidos.
+- Las variables socioeconómicas quedan asociadas al perfil del estudiante.
+- Los datos base quedan listos para el procesamiento ML del Sprint 4.

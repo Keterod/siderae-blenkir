@@ -40,3 +40,26 @@ Habilita Sprint 3B.
 ## Entregables
 - API estudiantes.
 - Páginas de listado/formulario/perfil básico.
+
+## Pruebas asociadas
+
+### Pruebas manuales
+- Verificar que se puede registrar un nuevo estudiante con datos válidos.
+- Verificar que el sistema no permite registrar dos estudiantes con el mismo código.
+- Verificar que se puede editar la información básica de un estudiante.
+- Verificar que se puede visualizar el perfil básico del estudiante.
+- Verificar la navegación desde el listado hacia el perfil del estudiante.
+
+### Pruebas automatizadas
+- Crear prueba de endpoint para listar estudiantes.
+- Crear prueba de endpoint para registrar estudiante.
+- Crear prueba de validación para código único.
+- Crear prueba de endpoint para actualizar estudiante.
+- Crear prueba básica de acceso protegido con permiso `gestionar_estudiantes`.
+
+### Criterios de validación
+- El CRUD de estudiantes funciona correctamente.
+- Los datos se guardan en MySQL.
+- El código del estudiante es único.
+- El perfil básico muestra la información registrada.
+- Solo usuarios autorizados pueden gestionar estudiantes.

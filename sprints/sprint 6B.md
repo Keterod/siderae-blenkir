@@ -44,3 +44,29 @@ Sprint 6A completado.
 ## Definición de terminado
 Flujo completo demostrable:
 `Login -> Estudiantes -> Datos -> ML -> Alertas -> Intervención -> Dashboard`.
+
+## Pruebas asociadas
+
+### Pruebas manuales
+- Verificar que se pueden aplicar filtros en el dashboard (por aula, nivel, sede).
+- Verificar que los resultados cambian correctamente según los filtros.
+- Verificar que se puede exportar un reporte en PDF.
+- Verificar que el PDF contiene datos correctos del estudiante o aula.
+- Verificar que los permisos afectan la visualización (docente vs directivo).
+- Verificar que los usuarios solo ven lo que su rol permite.
+
+### Pruebas automatizadas
+- Ejecutar pruebas relacionadas a RF-14 (avanzado):
+  - validación de filtros por rol y contexto
+- Ejecutar pruebas relacionadas a RF-16:
+  - `test_genera_pdf_reporte_individual_con_datos_completos`
+  - `test_genera_pdf_reporte_de_aula`
+- Ejecutar pruebas relacionadas a RF-17:
+  - `test_carga_de_datos_registrada_en_activity_log`
+  - `test_ningún_rol_puede_eliminar_registros_del_log`
+
+### Criterios de validación
+- Los filtros funcionan correctamente y afectan los datos mostrados.
+- La exportación PDF genera documentos válidos y completos.
+- El sistema respeta los permisos de cada rol en visualización y acciones.
+- El sistema está listo para uso como prototipo funcional completo.

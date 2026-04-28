@@ -51,3 +51,22 @@ Habilita Sprint 3A.
 - Endpoint `/api/me`.
 - Roles y permisos aplicados.
 - Middleware de autorización activo.
+
+## Pruebas asociadas
+
+### Pruebas manuales
+- Verificar que el usuario puede iniciar sesión con credenciales válidas.
+- Verificar que no se permite login con credenciales incorrectas.
+- Verificar que el usuario autenticado accede correctamente a su panel.
+- Verificar que usuarios sin permisos no acceden a rutas restringidas.
+
+### Pruebas automatizadas
+- Ejecutar pruebas relacionadas a RF-15:
+  - `test_admin_crea_usuario_con_rol_docente`
+  - `test_backend_bloquea_acceso_sin_permiso_vía_api`
+
+### Criterios de validación
+- El login funciona correctamente desde el frontend.
+- El endpoint `/api/me` devuelve el usuario autenticado.
+- Los roles y permisos funcionan correctamente con Spatie.
+- No existen accesos no autorizados.

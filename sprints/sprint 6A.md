@@ -42,3 +42,24 @@ Habilita Sprint 6B.
 - Endpoint `/api/dashboard`.
 - `DashboardPage` mínimo.
 - KPIs y tabla operativa.
+
+## Pruebas asociadas
+
+### Pruebas manuales
+- Verificar que el dashboard muestra la distribución de riesgo (alto, medio, bajo).
+- Verificar que se muestra la lista de estudiantes con su nivel de riesgo.
+- Verificar que el docente solo visualiza su aula.
+- Verificar que el directivo visualiza todas las sedes.
+- Verificar que los datos cambian al procesar nuevos riesgos.
+
+### Pruebas automatizadas
+- Ejecutar pruebas relacionadas a RF-14:
+  - `test_docente_ve_solo_su_aula_en_dashboard`
+  - `test_directivo_ve_todas_las_sedes_en_dashboard`
+  - `test_dashboard_actualiza_al_procesar_nuevo_índice`
+
+### Criterios de validación
+- El dashboard consume correctamente la API.
+- Los datos reflejan el estado actual del sistema.
+- Los filtros por rol funcionan correctamente.
+- La visualización es coherente con los datos almacenados.

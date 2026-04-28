@@ -59,3 +59,28 @@ Habilita Sprint 5.
 - Endpoint de procesamiento de riesgo.
 - Persistencia en `indices_riesgo`.
 - UI de resultado en perfil.
+
+## Pruebas asociadas
+
+### Pruebas manuales
+- Verificar que el botón `Procesar riesgo` aparece en el perfil del estudiante.
+- Verificar que el sistema no permite procesar riesgo si faltan datos mínimos.
+- Verificar que el sistema calcula y muestra el índice de riesgo.
+- Verificar que el nivel de riesgo se clasifica como `Alto`, `Medio` o `Bajo`.
+- Verificar que el resultado queda guardado en el historial del estudiante.
+
+### Pruebas automatizadas
+- Ejecutar pruebas relacionadas a RF-06:
+  - `test_envía_perfil_completo_al_microservicio_flask`
+  - `test_registra_fallo_cuando_flask_no_responde`
+  - `test_procesamiento_completa_en_menos_de_10_segundos`
+- Ejecutar pruebas relacionadas a RF-07:
+  - `test_clasifica_índice_0_82_como_alto`
+  - `test_clasifica_índice_0_55_como_medio`
+  - `test_clasifica_índice_0_25_como_bajo`
+
+### Criterios de validación
+- Laravel se comunica correctamente con Flask.
+- El índice de riesgo se guarda en `indices_riesgo`.
+- El nivel de riesgo se clasifica correctamente.
+- El sistema maneja errores si el microservicio ML no responde.

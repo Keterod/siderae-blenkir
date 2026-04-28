@@ -50,3 +50,30 @@ Habilita Sprint 6A.
 - API de alertas e intervenciones.
 - Lógica de generación automática.
 - UI de lista/detalle/cierre de alertas.
+
+## Pruebas asociadas
+
+### Pruebas manuales
+- Verificar que se genera una alerta cuando el riesgo es alto.
+- Verificar que la alerta muestra: estudiante, nivel, índice y recomendación.
+- Verificar que el estado inicial de la alerta es `Pendiente`.
+- Verificar que el docente puede registrar una intervención.
+- Verificar que el estado de la alerta cambia a `En atención`.
+- Verificar que se puede cerrar una alerta con intervención registrada.
+- Verificar que no se puede cerrar una alerta sin intervención previa.
+
+### Pruebas automatizadas
+- Ejecutar pruebas relacionadas a RF-08:
+  - `test_genera_alerta_cuando_índice_supera_umbral_alto`
+  - `test_alerta_tiene_estado_inicial_pendiente`
+- Ejecutar pruebas relacionadas a RF-09:
+  - `test_docente_registra_intervención_y_actualiza_alerta`
+- Ejecutar pruebas relacionadas a RF-13:
+  - `test_cierra_alerta_con_intervención_previa_registrada`
+  - `test_bloquea_cierre_sin_intervención_previa`
+
+### Criterios de validación
+- Las alertas se generan automáticamente al superar el umbral.
+- Las alertas tienen estados correctamente gestionados.
+- Las intervenciones quedan registradas y vinculadas a la alerta.
+- El flujo completo (alerta → intervención → cierre) funciona correctamente.
