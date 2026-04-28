@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\EstudianteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,3 +31,7 @@ Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])->get('/dashboard
         'message' => 'Acceso autorizado a dashboard',
     ]);
 });
+
+Route::middleware(['auth:sanctum', 'permission:gestionar_estudiantes'])
+    ->apiResource('estudiantes', EstudianteController::class)
+    ->only(['index', 'store', 'show', 'update']);

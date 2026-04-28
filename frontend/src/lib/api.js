@@ -73,3 +73,25 @@ export async function getMe() {
     method: 'GET',
   });
 }
+
+export function getEstudiantes() {
+  return request('/api/estudiantes');
+}
+
+export function getEstudiante(id) {
+  return request(`/api/estudiantes/${id}`);
+}
+
+export function createEstudiante(datos) {
+  return request('/api/estudiantes', {
+    method: 'POST',
+    body: datos,
+  });
+}
+
+export function updateEstudiante(id, datos) {
+  return request(`/api/estudiantes/${id}`, {
+    method: 'PUT',
+    body: datos,
+  });
+}
