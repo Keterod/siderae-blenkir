@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db-mysql:
     image: mysql:8.0
@@ -12,35 +10,55 @@ services:
       MYSQL_ROOT_PASSWORD: secret
     volumes:
       - ./docker/mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   app-backend:
-    image: php:8.3-cli
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: siderae_backend
     working_dir: /app
     volumes:
       - ./backend:/app
     ports:
       - "8000:8000"
-    command: sh -c "tail -f /dev/null" 
+    command: >
+      sh -lc "composer install &&
+              php artisan key:generate --force &&
+              until php artisan migrate --seed --force; do sleep 3; done &&
+              php artisan serve --host=0.0.0.0 --port=8000"
     depends_on:
-      - db-mysql
+      db-mysql:
+        condition: service_healthy
 
   app-frontend:
-    image: node:20-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: siderae_frontend
     working_dir: /app
     volumes:
       - ./frontend:/app
     ports:
       - "5173:5173"
-    command: sh -c "tail -f /dev/null"
+    command: >
+      sh -lc "npm install &&
+              npm run dev -- --host 0.0.0.0 --port 5173"
 
   ml-engine:
-    image: python:3.11-slim
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
     container_name: siderae_ml
     working_dir: /app
     volumes:
       - ./ml-service:/app
     ports:
       - "5000:5000"
-    command: sh -c "pip install Flask && tail -f /dev/null"
+    command: >
+      sh -lc "pip install --no-cache-dir -r requirements.txt &&
+              python main.py"
