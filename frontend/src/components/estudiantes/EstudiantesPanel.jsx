@@ -7,6 +7,7 @@ import {
   updateEstudiante,
 } from '../../lib/api';
 import EstudiantePerfilDatos from './EstudiantePerfilDatos';
+import EstudiantePerfilRiesgo from './EstudiantePerfilRiesgo';
 
 function formularioVacio() {
   return {
@@ -681,6 +682,13 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
 
           </dl>
+
+          <EstudiantePerfilRiesgo
+            estudianteId={detalle.id}
+            ultimoIndice={detalle.ultimo_indice_riesgo}
+            puedeProcesar={permissions.includes('procesar_riesgo')}
+            onDetalleRefrescado={setDetalle}
+          />
 
           {permissions.includes('registrar_datos_academicos') ? (
             <EstudiantePerfilDatos

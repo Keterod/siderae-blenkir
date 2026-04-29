@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\EstudianteController;
 use App\Http\Controllers\Api\NotaController;
+use App\Http\Controllers\Api\ProcesarRiesgoController;
 use App\Http\Controllers\Api\VariableSocioeconomicaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,3 +51,6 @@ Route::middleware(['auth:sanctum', 'permission:registrar_datos_academicos'])
         Route::get('estudiantes/{estudiante}/variables-socioeconomicas', [VariableSocioeconomicaController::class, 'index']);
         Route::post('estudiantes/{estudiante}/variables-socioeconomicas', [VariableSocioeconomicaController::class, 'store']);
     });
+
+Route::middleware(['auth:sanctum', 'permission:procesar_riesgo'])
+    ->post('estudiantes/{estudiante}/procesar-riesgo', [ProcesarRiesgoController::class, 'store']);

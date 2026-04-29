@@ -34,7 +34,10 @@ class EstudianteController extends Controller
 
     public function show(Estudiante $estudiante): JsonResponse
     {
-        return response()->json($estudiante);
+        $data = $estudiante->toArray();
+        $data['ultimo_indice_riesgo'] = $estudiante->indicesRiesgo()->latest('id')->first();
+
+        return response()->json($data);
     }
 
     public function update(UpdateEstudianteRequest $request, Estudiante $estudiante): JsonResponse

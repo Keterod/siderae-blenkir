@@ -129,3 +129,10 @@ export function postVariablesSocio(estudianteId, datos) {
   });
 }
 
+export function postProcesarRiesgo(estudianteId, datos = {}) {
+  return request(`/api/estudiantes/${estudianteId}/procesar-riesgo`, {
+    method: 'POST',
+    body: datos,
+  });
+}
+

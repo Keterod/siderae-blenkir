@@ -41,6 +41,16 @@ class Estudiante extends Model
         return $this->hasMany(VariableSocioeconomica::class);
     }
 
+    public function indicesRiesgo(): HasMany
+    {
+        return $this->hasMany(IndiceRiesgo::class);
+    }
+
+    public function reportesConductuales(): HasMany
+    {
+        return $this->hasMany(ReporteConductual::class);
+    }
+
     protected function casts(): array
     {
         return [
