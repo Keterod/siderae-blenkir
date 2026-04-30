@@ -1,4 +1,5 @@
 import LoginForm from './components/LoginForm';
+import AlertasPanel from './components/alertas/AlertasPanel';
 import EstudiantesPanel from './components/estudiantes/EstudiantesPanel';
 import { useAuth } from './context/AuthContext';
 import { useState } from 'react';
@@ -6,6 +7,7 @@ import { useState } from 'react';
 function App() {
   const { authUser, roles, permissions, logout, isLoading, error } = useAuth();
   const [mostrarEstudiantes, setMostrarEstudiantes] = useState(false);
+  const [mostrarAlertas, setMostrarAlertas] = useState(false);
 
 
   if (isLoading && !authUser) {
@@ -61,13 +63,25 @@ function App() {
           ) : null}
           {permissions.includes('registrar_datos_academicos') ? <span className="rounded bg-slate-100 px-2 py-1 text-sm">Datos Académicos</span> : null}
           {permissions.includes('procesar_riesgo') ? <span className="rounded bg-slate-100 px-2 py-1 text-sm">Procesar Riesgo</span> : null}
-          {permissions.includes('ver_alertas') ? <span className="rounded bg-slate-100 px-2 py-1 text-sm">Alertas</span> : null}
+          {permissions.includes('ver_alertas') ? (
+            <button
+              type="button"
+              onClick={() => setMostrarAlertas((valor) => !valor)}
+              className={`rounded px-2 py-1 text-sm ${mostrarAlertas ? 'bg-slate-300' : 'bg-slate-100'}`}
+            >
+              Alertas
+            </button>
+          ) : null}
           {permissions.includes('registrar_intervencion') ? <span className="rounded bg-slate-100 px-2 py-1 text-sm">Intervenciones</span> : null}
         </div>
       </section>
 
       {permissions.includes('gestionar_estudiantes') && mostrarEstudiantes ? (
         <EstudiantesPanel onClose={() => setMostrarEstudiantes(false)} />
+      ) : null}
+
+      {permissions.includes('ver_alertas') && mostrarAlertas ? (
+        <AlertasPanel onClose={() => setMostrarAlertas(false)} />
       ) : null}
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}

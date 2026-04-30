@@ -10,7 +10,7 @@ SIDERAE-Blenkir es un sistema web que permite:
 - Gestionar estudiantes
 - Registrar datos académicos (notas, asistencia, variables socioeconómicas)
 - Detectar riesgo académico mediante Machine Learning
-- Gestionar alertas e intervenciones (futuro)
+- Gestionar alertas e intervenciones sobre estudiantes en riesgo
 
 ---
 
@@ -122,6 +122,15 @@ Persistencia del riesgo en base de datos
 Visualización en el perfil del estudiante
 Pruebas automatizadas
 
+✔ Sprint 5
+
+Generación automática de alertas
+Listado y detalle de alertas
+Registro de intervenciones
+Cambio de estado: pendiente → en atención → cerrada
+Validaciones de cierre de alertas
+Pruebas automatizadas
+
 ## 🧪 Pruebas automatizadas
 
 Ejecutar:
@@ -132,9 +141,11 @@ docker compose exec app-backend php artisan test
 ## 🧠 Estado del proyecto
 ✔ Sistema funcional
 ✔ Base de datos estructurada
-✔ Machine Learning integrado y funcionando
+✔ Sistema inteligente completo funcionando
+✔ Machine Learning integrado
+✔ Alertas e intervenciones operativas
+
 ## 🚧 Próximos desarrollos
-- Sprint 5: Alertas e intervenciones
 - Sprint 6: Dashboard y visualización
 ## 👥 Equipo
 - Diego Carhuamaca Vasquez

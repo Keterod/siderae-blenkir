@@ -136,3 +136,25 @@ export function postProcesarRiesgo(estudianteId, datos = {}) {
   });
 }
 
+export function getAlertas() {
+  return request('/api/alertas');
+}
+
+export function getAlerta(alertaId) {
+  return request(`/api/alertas/${alertaId}`);
+}
+
+export function postIntervencion(alertaId, datos) {
+  return request(`/api/alertas/${alertaId}/intervenciones`, {
+    method: 'POST',
+    body: datos,
+  });
+}
+
+export function postCerrarAlerta(alertaId, datos) {
+  return request(`/api/alertas/${alertaId}/cerrar`, {
+    method: 'POST',
+    body: datos,
+  });
+}
+

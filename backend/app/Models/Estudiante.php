@@ -51,6 +51,11 @@ class Estudiante extends Model
         return $this->hasMany(ReporteConductual::class);
     }
 
+    public function alertas(): HasMany
+    {
+        return $this->hasMany(Alerta::class);
+    }
+
     protected function casts(): array
     {
         return [

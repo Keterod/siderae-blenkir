@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\AlertaCierreController;
+use App\Http\Controllers\Api\AlertaController;
 use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\EstudianteController;
+use App\Http\Controllers\Api\IntervencionController;
 use App\Http\Controllers\Api\NotaController;
 use App\Http\Controllers\Api\ProcesarRiesgoController;
 use App\Http\Controllers\Api\VariableSocioeconomicaController;
@@ -54,3 +57,15 @@ Route::middleware(['auth:sanctum', 'permission:registrar_datos_academicos'])
 
 Route::middleware(['auth:sanctum', 'permission:procesar_riesgo'])
     ->post('estudiantes/{estudiante}/procesar-riesgo', [ProcesarRiesgoController::class, 'store']);
+
+Route::middleware(['auth:sanctum', 'permission:ver_alertas'])
+    ->group(function (): void {
+        Route::get('alertas', [AlertaController::class, 'index']);
+        Route::get('alertas/{alerta}', [AlertaController::class, 'show']);
+    });
+
+Route::middleware(['auth:sanctum', 'permission:registrar_intervencion'])
+    ->group(function (): void {
+        Route::post('alertas/{alerta}/intervenciones', [IntervencionController::class, 'store']);
+        Route::post('alertas/{alerta}/cerrar', [AlertaCierreController::class, 'store']);
+    });

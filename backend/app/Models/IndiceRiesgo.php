@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'estudiante_id',
@@ -22,6 +23,11 @@ class IndiceRiesgo extends Model
     public function estudiante(): BelongsTo
     {
         return $this->belongsTo(Estudiante::class);
+    }
+
+    public function alertas(): HasMany
+    {
+        return $this->hasMany(Alerta::class, 'indice_riesgo_id');
     }
 
     protected function casts(): array

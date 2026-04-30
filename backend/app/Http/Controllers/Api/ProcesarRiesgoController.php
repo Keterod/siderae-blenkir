@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alerta;
 use App\Models\Asistencia;
 use App\Models\Estudiante;
 use App\Models\IndiceRiesgo;
@@ -69,7 +70,14 @@ class ProcesarRiesgoController extends Controller
             'modelos_scores' => $modelosScores,
         ]);
 
-        return response()->json($registro, 201);
+        $alertaGenerada = Alerta::crearPorRiesgoAltoSiAplica($estudiante, $registro);
+
+        return response()->json(array_merge(
+            $registro->toArray(),
+            [
+                'alerta_generada' => $alertaGenerada ? $alertaGenerada->toArray() : null,
+            ]
+        ), 201);
     }
 
     /**
