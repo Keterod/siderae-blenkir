@@ -55,7 +55,67 @@ Proyecto/
 
 ---
 
+## Configuración del entorno local
+
+Sigue estos pasos para clonar el repositorio y levantar todo el proyecto con Docker.
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/Keterod/siderae-blenkir.git
+cd siderae-blenkir
+```
+
+(Si el remoto cambia en el futuro, usa la URL que te dé el equipo o la que figure en tu plataforma Git.)
+
+### 2. Crear los archivos `.env` desde los `.env.example`
+
+Cada carpeta tiene una plantilla. Copiala con:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+cp ml-service/.env.example ml-service/.env
+```
+
+Luego revisa `backend/.env` en particular (credenciales de base de datos y URLs) para que coincida con tu uso local o Docker.
+
+### 3. Levantar el proyecto con Docker
+
+```bash
+docker compose up -d --build
+```
+
+### 4. Generar `APP_KEY` de Laravel si es necesario
+
+Si el backend avisa que falta `APP_KEY`, genera una clave dentro del contenedor:
+
+```bash
+docker compose exec app-backend php artisan key:generate
+```
+
+### 5. Verificar servicios
+
+Con los contenedores en marcha puedes abrir:
+
+- **Frontend:** http://localhost:5173
+- **Backend (API Laravel):** http://localhost:8000
+- **ML Service:** http://localhost:5000
+- **MySQL (desde tu máquina, host puerto expuesto por Compose):** `localhost:3307`
+
+### 6. Archivos `.env` y seguridad en GitHub
+
+Los archivos `.env` reales **no** deben subirse al repositorio: contienen datos sensibles locales (clave de aplicación, contraseñas, etc.). El proyecto los ignora con `.gitignore` para esa razón.
+
+### 7. Archivos `.env.example`
+
+Las plantillas **`.env.example`** **sí** se suben porque no incluyen secretos reales y sirven de referencia para que cada persona copie los nombres de variables correctos después de clonar.
+
+---
+
 ## ▶️ Cómo ejecutar el proyecto
+
+Si ya completaste [Configuración del entorno local](#configuración-del-entorno-local) (clonar, crear `.env` y `docker compose up -d --build`), pasa directamente a preparar el backend (**paso 3**).
 
 ### 1. Clonar repositorio
 
