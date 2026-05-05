@@ -67,13 +67,18 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 |---|---|---|---|---|
 | RF-01 Carga/importacion de datos academicos | Si | Parcial | Implementado parcialmente | Carga manual de notas confirmada; importacion `.xlsx/.csv` no confirmada en rutas/controladores revisados |
 | RF-02 Registro de asistencia | Si | Si | Confirmado en codigo | Endpoints y UI de asistencia presentes |
+| RF-03 Importacion Fast Test | Si | No | Pendiente de verificar | DRS RF-03 define import Excel Fast Test por Coordinador Academico |
+| RF-04 Reportes conductuales | Si | Parcial | Pendiente de verificar | Modelo `ReporteConductual` en backend; cumplimiento REQ-04.x no auditado aqui |
 | RF-05 Variables socioeconomicas | Si | Si | Confirmado en codigo | Endpoints, modelo y UI presentes |
 | RF-06 Calculo de indice de riesgo | Si | Si | Confirmado en codigo | Laravel llama Flask y persiste indice |
 | RF-07 Clasificacion de nivel de riesgo | Si | Si | Confirmado en codigo | Clasificacion Alto/Medio/Bajo en backend |
 | RF-08 Alertas tempranas | Si | Si | Confirmado en codigo | Generacion y listado de alertas presentes |
 | RF-09 Intervencion preventiva | Si | Si | Confirmado en codigo | Registro de intervenciones presente |
-| RF-13 Cierre de alerta | Si | Si | Confirmado en codigo | Cierre validado con precondicion de intervencion |
-| RF-14 Dashboard | Si | Parcial | Pendiente de verificar | Permiso/menu visible; implementacion completa no confirmada en codigo actual revisado |
+| RF-10 Derivacion por directivo | Si | No | Pendiente de verificar | DRS REQ-10.x (derivar psicologo, filtros sede); flujo completo no confirmado |
+| RF-11 Atencion psicologica perfil integrado | Si | Parcial | Pendiente de verificar | Depende RF-10; acceso perfil estudiante parcialmente cubierto en otros RF segun contexto proyecto |
+| RF-12 Comunicacion familia | Si | No | Pendiente de desarrollo | Modulo comunicacion trazable DRS REQ-12.x |
+| RF-13 Cierre de alerta | Si | Si | Confirmado en codigo | Cierre con intervencion validado; DRS tambien admite derivacion (RF-10) o comunicacion (RF-12) como prerequisito |
+| RF-14 Dashboard | Si | Parcial | Implementado parcialmente | DRS REQ-14.1-14.5 (graficos, filtros directivo, export PNG/PDF, % alertas, actualizacion automatica); API dashboard minima puede existir sin cerrar RF-14 |
 | RF-15 Roles y permisos | Si | Si | Confirmado en codigo | Spatie + middleware + `/api/me` |
 | RF-16 Exportacion PDF | Si | Parcial | Pendiente de verificar | Dependencia DomPDF presente; endpoints/flujo de export no confirmados |
 | RF-17 Auditoria | Si | Parcial | Pendiente de verificar | Dependencia activitylog y tabla existen; cobertura funcional completa no confirmada |
@@ -82,11 +87,12 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 | RF-20 Historial de riesgo | Si | Parcial | Implementado parcialmente | Persistencia historica en `indices_riesgo`; visualizacion historica en UI no confirmada completa |
 
 ## Limites actuales del prototipo
-- El ML actual es un prototipo deterministico en `ml-service/main.py`; no se confirma ejecucion real de Random Forest, SVM y XGBoost en codigo actual.
-- Varias capacidades del DRS (RF-10, RF-11, RF-12, RF-18, RF-19) no se confirman como implementadas totalmente en el estado revisado.
+- El ML actual es un prototipo deterministico en `ml-service/main.py`; no se confirma ejecucion real de Random Forest, SVM y XGBoost en codigo actual (DRS RF-06 REQ-06.2).
+- Capacidades DRS pendientes de cierre incluyen entre otras RF-03 (Fast Test), RF-10–RF-12 (derivacion, perfil psicologo extendido segun DER, comunicacion familia), RF-18 (reentrenamiento), RF-19 (semaforo completitud); ver `docs/arquitectura/contexto-drs-requerimientos.md` para checklist formal.
 - Parte del contenido de `ARCHITECTURE.md` no coincide con evidencia actual y se toma como no confirmado hasta validar en codigo.
 
 ## Documentos de contexto por componente
+- `docs/arquitectura/contexto-drs-requerimientos.md` (resumen operativo RFs/RN/RNF para IA; **no sustituye** `DRS_SIDERAE_Blenkir_v1.pdf`)
 - `docs/arquitectura/contexto-backend-laravel.md`
 - `docs/arquitectura/contexto-frontend-react.md`
 - `docs/arquitectura/contexto-ml-service-flask.md`
