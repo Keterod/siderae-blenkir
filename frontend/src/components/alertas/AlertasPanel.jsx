@@ -6,6 +6,11 @@ import {
   postCerrarAlerta,
   postIntervencion,
 } from '../../lib/api';
+import AlertMessage from '../ui/AlertMessage';
+import Button from '../ui/Button';
+import Card from '../ui/Card';
+import EmptyState from '../ui/EmptyState';
+import LoadingState from '../ui/LoadingState';
 
 function etiquetaEstado(estado) {
   if (estado === 'pendiente') {
@@ -163,27 +168,28 @@ export default function AlertasPanel({ onClose }) {
 
   if (!puedeVer) {
     return (
-      <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-sm text-slate-600">No tienes permiso para ver alertas.</p>
-        <button type="button" onClick={onClose} className="rounded border border-slate-300 px-3 py-2 text-sm">
+      <Card className="space-y-3">
+        <p className="text-sm text-muted">No tienes permiso para ver alertas.</p>
+        <Button type="button" variant="danger" size="sm" onClick={onClose}>
           Cerrar módulo
-        </button>
-      </section>
+        </Button>
+      </Card>
     );
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-        <h2 className="text-xl font-semibold text-slate-900">
+    <Card className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
+        <h2 className="text-xl font-semibold text-[var(--text)]">
           {vista === 'lista' ? 'Alertas' : 'Detalle de alerta'}
         </h2>
 
         <div className="flex flex-wrap gap-2">
           {vista === 'detalle' ? (
-            <button
+            <Button
               type="button"
-              className="rounded border border-slate-300 px-3 py-2 text-sm text-slate-700"
+              variant="outline"
+              size="sm"
               onClick={() => {
                 setDetalle(null);
                 setErrorAccion(null);
@@ -192,42 +198,43 @@ export default function AlertasPanel({ onClose }) {
               }}
             >
               Volver al listado
-            </button>
+            </Button>
           ) : null}
 
           {vista === 'lista' ? (
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => {
                 void cargarLista();
               }}
-              className="rounded border border-slate-300 px-3 py-2 text-sm text-slate-700"
             >
               Actualizar
-            </button>
+            </Button>
           ) : null}
 
-          <button type="button" onClick={onClose} className="rounded border border-red-100 px-3 py-2 text-sm text-red-700">
+          <Button type="button" variant="danger" size="sm" onClick={onClose}>
             Cerrar módulo
-          </button>
+          </Button>
         </div>
       </div>
 
-      {errorGeneral ? <p className="text-sm text-red-600">{errorGeneral}</p> : null}
-      {errorAccion ? <p className="text-sm text-red-600">{errorAccion}</p> : null}
+      {errorGeneral ? <AlertMessage>{errorGeneral}</AlertMessage> : null}
+      {errorAccion ? <AlertMessage>{errorAccion}</AlertMessage> : null}
 
-      {vista === 'lista' && cargando ? <p className="text-sm text-slate-500">Cargando…</p> : null}
+      {vista === 'lista' && cargando ? <LoadingState label="Cargando alertas…" /> : null}
 
       {vista === 'lista' && !cargando ? (
-        <ul className="divide-y divide-slate-100">
-          {lista.length === 0 ? (
-            <li className="py-3 text-sm text-slate-500">No hay alertas registradas.</li>
-          ) : (
-            lista.map((item) => (
+        lista.length === 0 ? (
+          <EmptyState title="Sin alertas registradas" description="Las alertas aparecerán cuando el sistema las genere desde el cálculo de riesgo." />
+        ) : (
+          <ul className="divide-y divide-[var(--border)]">
+            {lista.map((item) => (
               <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                 <button
                   type="button"
-                  className="text-left text-sm text-slate-900 hover:underline"
+                  className="text-left text-sm text-[var(--text)] hover:text-[var(--primary-dark)] hover:underline"
                   onClick={() => {
                     void abrirDetalle(item.id);
                   }}
@@ -235,95 +242,95 @@ export default function AlertasPanel({ onClose }) {
                   <span className="font-medium">
                     {item.estudiante?.apellidos}, {item.estudiante?.nombres}
                   </span>
-                  <span className="block text-xs text-slate-500">
+                  <span className="block text-xs text-muted">
                     Estado: {etiquetaEstado(item.estado)} · Índice: {item.indice_riesgo?.indice ?? '—'} (
                     {item.indice_riesgo?.nivel ?? '—'})
                   </span>
                 </button>
               </li>
-            ))
-          )}
-        </ul>
+            ))}
+          </ul>
+        )
       ) : null}
 
       {vista === 'detalle' && detalle ? (
-        <div className="space-y-6 text-sm text-slate-800">
+        <div className="space-y-6 text-sm text-[var(--text)]">
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Estado</p>
-            <p className="text-lg font-semibold text-slate-900">{etiquetaEstado(detalle.estado)}</p>
+            <p className="text-xs uppercase tracking-wide text-muted">Estado</p>
+            <p className="text-lg font-semibold text-[var(--text)]">{etiquetaEstado(detalle.estado)}</p>
           </div>
 
           <dl className="grid gap-3 sm:grid-cols-2">
             <div>
-              <dt className="text-slate-500">Estudiante</dt>
+              <dt className="text-muted">Estudiante</dt>
               <dd className="font-medium">
                 {detalle.estudiante?.apellidos}, {detalle.estudiante?.nombres} ({detalle.estudiante?.codigo})
               </dd>
             </div>
             <div>
-              <dt className="text-slate-500">Grado / sección</dt>
+              <dt className="text-muted">Grado / sección</dt>
               <dd>
                 {detalle.estudiante?.grado} {detalle.estudiante?.seccion} · Año {detalle.estudiante?.anio_escolar}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-500">Índice de riesgo</dt>
+              <dt className="text-muted">Índice de riesgo</dt>
               <dd>{detalle.indice_riesgo?.indice ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-slate-500">Nivel (cálculo)</dt>
+              <dt className="text-muted">Nivel (cálculo)</dt>
               <dd>{detalle.indice_riesgo?.nivel ?? '—'}</dd>
             </div>
           </dl>
 
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-500">Recomendación</dt>
-            <dd className="mt-1 whitespace-pre-wrap text-slate-800">{detalle.recomendacion ?? '—'}</dd>
+            <dt className="text-xs uppercase tracking-wide text-muted">Recomendación</dt>
+            <dd className="mt-1 whitespace-pre-wrap text-[var(--text)]">{detalle.recomendacion ?? '—'}</dd>
           </div>
 
           {detalle.estado === 'cerrada' ? (
-            <div className="rounded border border-slate-100 bg-slate-50 p-3">
-              <p className="text-xs uppercase tracking-wide text-slate-500">Cierre</p>
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
+              <p className="text-xs uppercase tracking-wide text-muted">Cierre</p>
               <p className="mt-1 whitespace-pre-wrap">{detalle.resultado_cierre ?? '—'}</p>
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-xs text-muted">
                 Fecha cierre: {fechaLegible(detalle.fecha_cierre)} · Por: {detalle.cerrada_por?.email ?? '—'}
               </p>
             </div>
           ) : null}
 
           <div>
-            <h3 className="mb-2 text-sm font-semibold text-slate-900">Historial de intervenciones</h3>
+            <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">Historial de intervenciones</h3>
             {detalle.intervenciones?.length ? (
-              <ul className="divide-y divide-slate-100 rounded border border-slate-100">
+              <ul className="divide-y divide-[var(--border)] rounded-lg border border-[var(--border)]">
                 {detalle.intervenciones.map((row) => (
                   <li key={row.id} className="p-3">
                     <p className="font-medium capitalize">{row.tipo}</p>
-                    <p className="text-slate-600">{row.descripcion}</p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="text-muted">{row.descripcion}</p>
+                    <p className="mt-1 text-xs text-muted">
                       {fechaLegible(row.fecha)} · {row.registrado_por?.email ?? '—'}
                     </p>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-slate-500">Sin intervenciones registradas.</p>
+              <p className="text-muted">Sin intervenciones registradas.</p>
             )}
           </div>
 
           {puedeRegistrar && detalle.estado !== 'cerrada' ? (
             <form
-              className="space-y-3 rounded border border-slate-100 p-3"
+              className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)]/80 p-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 void enviarIntervencion();
               }}
             >
-              <h3 className="text-sm font-semibold text-slate-900">Registrar intervención</h3>
+              <h3 className="text-sm font-semibold text-[var(--text)]">Registrar intervención</h3>
 
               <div className="space-y-1">
-                <label className="text-xs text-slate-600">Tipo</label>
+                <label className="text-xs font-medium text-muted">Tipo</label>
                 <select
-                  className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                  className="sb-field"
                   value={fmInter.tipo}
                   onChange={(e) => setFmInter((v) => ({ ...v, tipo: e.target.value }))}
                 >
@@ -334,10 +341,10 @@ export default function AlertasPanel({ onClose }) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs text-slate-600">Descripción</label>
+                <label className="text-xs font-medium text-muted">Descripción</label>
                 <textarea
                   required
-                  className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                  className="sb-field"
                   rows={3}
                   value={fmInter.descripcion}
                   onChange={(e) => setFmInter((v) => ({ ...v, descripcion: e.target.value }))}
@@ -345,59 +352,51 @@ export default function AlertasPanel({ onClose }) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs text-slate-600">Fecha</label>
+                <label className="text-xs font-medium text-muted">Fecha</label>
                 <input
                   type="date"
                   required
-                  className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                  className="sb-field"
                   value={fmInter.fecha}
                   onChange={(e) => setFmInter((v) => ({ ...v, fecha: e.target.value }))}
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={guardando}
-                className="rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-60"
-              >
+              <Button type="submit" variant="primary" size="sm" disabled={guardando}>
                 {guardando ? 'Guardando…' : 'Guardar intervención'}
-              </button>
+              </Button>
             </form>
           ) : null}
 
           {puedeRegistrar && detalle.estado !== 'cerrada' ? (
             <form
-              className="space-y-3 rounded border border-amber-100 bg-amber-50/40 p-3"
+              className="space-y-3 rounded-lg border border-amber-200 bg-amber-50/50 p-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 void enviarCierre();
               }}
             >
-              <h3 className="text-sm font-semibold text-slate-900">Cerrar alerta</h3>
-              <p className="text-xs text-slate-600">
+              <h3 className="text-sm font-semibold text-[var(--text)]">Cerrar alerta</h3>
+              <p className="text-xs text-muted">
                 Solo se permite si ya existe al menos una intervención. Describe el resultado del cierre.
               </p>
 
               <textarea
                 required
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
                 rows={3}
                 placeholder="Resultado del cierre"
                 value={resultadoCierre}
                 onChange={(e) => setResultadoCierre(e.target.value)}
               />
 
-              <button
-                type="submit"
-                disabled={guardando}
-                className="rounded border border-slate-800 px-3 py-2 text-sm text-slate-900 disabled:opacity-60"
-              >
+              <Button type="submit" variant="outline" size="sm" disabled={guardando}>
                 {guardando ? 'Cerrando…' : 'Cerrar alerta'}
-              </button>
+              </Button>
             </form>
           ) : null}
         </div>
       ) : null}
-    </section>
+    </Card>
   );
 }

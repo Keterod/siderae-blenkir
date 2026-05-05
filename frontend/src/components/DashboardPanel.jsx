@@ -1,30 +1,36 @@
 import { useCallback, useEffect, useState } from 'react';
 import { exportDashboardPdf, getDashboard } from '../lib/api';
+import AlertMessage from './ui/AlertMessage';
+import Badge from './ui/Badge';
+import Button from './ui/Button';
+import Card from './ui/Card';
+import EmptyState from './ui/EmptyState';
+import LoadingState from './ui/LoadingState';
 
-function badgeRiesgoClases(nivel) {
+function riesgoVariant(nivel) {
   if (nivel === 'alto') {
-    return 'bg-red-100 text-red-800 border-red-200';
+    return 'danger';
   }
   if (nivel === 'medio') {
-    return 'bg-amber-100 text-amber-900 border-amber-200';
+    return 'warning';
   }
   if (nivel === 'bajo') {
-    return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    return 'success';
   }
-  return 'bg-slate-100 text-slate-700 border-slate-200';
+  return 'neutral';
 }
 
-function badgeAlertaClases(estadoClave) {
+function alertaVariant(estadoClave) {
   if (estadoClave === 'pendiente') {
-    return 'bg-orange-100 text-orange-900 border-orange-200';
+    return 'warning';
   }
   if (estadoClave === 'en_atencion') {
-    return 'bg-amber-100 text-amber-900 border-amber-200';
+    return 'info';
   }
   if (estadoClave === 'cerrada') {
-    return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    return 'success';
   }
-  return 'bg-slate-100 text-slate-600 border-slate-200';
+  return 'neutral';
 }
 
 function etiquetaAlerta(estadoClave) {
@@ -90,9 +96,7 @@ export default function DashboardPanel() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
-      setExportError(
-        err.payload?.message || err.message || 'No se pudo generar el PDF'
-      );
+      setExportError(err.payload?.message || err.message || 'No se pudo generar el PDF');
     } finally {
       setExportando(false);
     }
@@ -100,26 +104,28 @@ export default function DashboardPanel() {
 
   if (cargando && !datos) {
     return (
-      <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-sm text-slate-600">Cargando dashboard...</p>
-      </section>
+      <Card>
+        <LoadingState label="Cargando dashboard…" />
+      </Card>
     );
   }
 
   if (error) {
     return (
-      <section className="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4 shadow-sm">
-        <h2 className="text-lg font-medium text-red-800">Error</h2>
-        <p className="text-sm text-red-700">{error}</p>
-      </section>
+      <Card className="border-red-200 bg-red-50/40">
+        <h2 className="text-lg font-semibold text-red-950">No se puede mostrar el panel</h2>
+        <AlertMessage variant="error" className="mt-2">
+          {error}
+        </AlertMessage>
+      </Card>
     );
   }
 
   if (!datos) {
     return (
-      <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-sm text-slate-600">Sin datos disponibles.</p>
-      </section>
+      <Card>
+        <EmptyState title="Sin datos disponibles" description="No hubo respuesta del servidor para armar los indicadores." />
+      </Card>
     );
   }
 
@@ -152,40 +158,44 @@ export default function DashboardPanel() {
   const mostrarSeccion = Array.isArray(opc.secciones) && opc.secciones.length > 0;
   const mostrarNivelRiesgo = Array.isArray(opc.niveles_riesgo) && opc.niveles_riesgo.length > 0;
 
+  const inputSelectClass =
+    'mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1.5 text-sm text-[var(--text)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1';
+
   return (
-    <section className="space-y-6 rounded-lg border border-slate-200 bg-[#F2F2F2] p-4 shadow-sm">
+    <section className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[#333333]">Dashboard</h2>
-          <p className="mt-1 text-sm text-[#88726B]">
+          <h2 className="text-xl font-semibold text-[var(--text)]">Dashboard</h2>
+          <p className="mt-1 text-sm text-muted">
             Indicadores filtrables según sede, nivel educativo, grado, sección y nivel de riesgo (último índice por
             estudiante).
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={handleExportarPdf}
             disabled={exportando || cargando}
-            className="rounded border border-[#1E63B5] bg-white px-3 py-1.5 text-sm text-[#1E63B5] disabled:opacity-50"
           >
             {exportando ? 'Exportando PDF…' : 'Exportar PDF'}
-          </button>
+          </Button>
         </div>
       </div>
 
       {exportError ? (
-        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{exportError}</p>
+        <AlertMessage variant="error">{exportError}</AlertMessage>
       ) : null}
 
-      <div className="rounded-lg border border-[#CCCCCC] bg-white p-4 shadow-sm">
-        <h3 className="mb-3 text-sm font-medium text-[#333333]">Filtros</h3>
+      <Card>
+        <h3 className="mb-3 text-sm font-semibold text-[var(--text)]">Filtros</h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {mostrarSede ? (
-            <label className="block text-xs text-[#88726B]">
+            <label className="block text-xs text-muted">
               Sede
               <select
-                className="mt-1 w-full rounded border border-[#CCCCCC] px-2 py-1.5 text-sm text-slate-800"
+                className={inputSelectClass}
                 value={draftFilters.sede ?? ''}
                 onChange={(e) => setDraftFilters((p) => ({ ...p, sede: e.target.value || undefined }))}
               >
@@ -200,10 +210,10 @@ export default function DashboardPanel() {
           ) : null}
 
           {mostrarNivelEdu ? (
-            <label className="block text-xs text-[#88726B]">
+            <label className="block text-xs text-muted">
               Nivel educativo
               <select
-                className="mt-1 w-full rounded border border-[#CCCCCC] px-2 py-1.5 text-sm text-slate-800"
+                className={inputSelectClass}
                 value={draftFilters.nivel ?? ''}
                 onChange={(e) => setDraftFilters((p) => ({ ...p, nivel: e.target.value || undefined }))}
               >
@@ -218,10 +228,10 @@ export default function DashboardPanel() {
           ) : null}
 
           {mostrarGrado ? (
-            <label className="block text-xs text-[#88726B]">
+            <label className="block text-xs text-muted">
               Grado
               <select
-                className="mt-1 w-full rounded border border-[#CCCCCC] px-2 py-1.5 text-sm text-slate-800"
+                className={inputSelectClass}
                 value={draftFilters.grado ?? ''}
                 onChange={(e) => setDraftFilters((p) => ({ ...p, grado: e.target.value || undefined }))}
               >
@@ -236,10 +246,10 @@ export default function DashboardPanel() {
           ) : null}
 
           {mostrarSeccion ? (
-            <label className="block text-xs text-[#88726B]">
+            <label className="block text-xs text-muted">
               Sección
               <select
-                className="mt-1 w-full rounded border border-[#CCCCCC] px-2 py-1.5 text-sm text-slate-800"
+                className={inputSelectClass}
                 value={draftFilters.seccion ?? ''}
                 onChange={(e) => setDraftFilters((p) => ({ ...p, seccion: e.target.value || undefined }))}
               >
@@ -254,10 +264,10 @@ export default function DashboardPanel() {
           ) : null}
 
           {mostrarNivelRiesgo ? (
-            <label className="block text-xs text-[#88726B]">
+            <label className="block text-xs text-muted">
               Nivel de riesgo (último índice)
               <select
-                className="mt-1 w-full rounded border border-[#CCCCCC] px-2 py-1.5 text-sm text-slate-800"
+                className={inputSelectClass}
                 value={draftFilters.nivel_riesgo ?? ''}
                 onChange={(e) =>
                   setDraftFilters((p) => ({ ...p, nivel_riesgo: e.target.value || undefined }))
@@ -275,93 +285,82 @@ export default function DashboardPanel() {
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={handleAplicar}
-            className="rounded bg-[#F05A0E] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#F47C2A]"
-          >
+          <Button type="button" variant="primary" size="sm" onClick={handleAplicar}>
             Aplicar filtros
-          </button>
-          <button
-            type="button"
-            onClick={handleLimpiar}
-            className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700"
-          >
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={handleLimpiar}>
             Limpiar filtros
-          </button>
+          </Button>
         </div>
 
         {Object.keys(filtrosDelBackend || {}).length > 0 ? (
-          <p className="mt-2 text-xs text-[#88726B]">
+          <p className="mt-2 text-xs text-muted">
             Filtros activos en servidor:{' '}
-            <span className="font-mono text-slate-700">{JSON.stringify(filtrosDelBackend)}</span>
+            <span className="font-mono text-[var(--text)]">{JSON.stringify(filtrosDelBackend)}</span>
           </p>
         ) : null}
-      </div>
+      </Card>
 
       {cargando ? (
-        <p className="text-sm text-slate-600">Actualizando datos…</p>
+        <p className="text-sm text-muted">Actualizando datos…</p>
       ) : null}
 
       {sinDatosOperativosGlobales ? (
-        <p className="rounded border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
+        <AlertMessage variant="info">
           Aún no hay datos registrados. Los indicadores aparecerán cuando existan estudiantes e índices procesados.
-        </p>
+        </AlertMessage>
       ) : null}
 
       {sinResultadosFiltros ? (
-        <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+        <AlertMessage variant="warning">
           No hay estudiantes que coincidan con los filtros seleccionados.
-        </p>
+        </AlertMessage>
       ) : null}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <article className="rounded-lg border border-[#CCCCCC] bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#88726B]">Total estudiantes (universo)</p>
-          <p className="mt-1 text-2xl font-semibold text-[#333333]">{total_estudiantes}</p>
-        </article>
-        <article className="rounded-lg border border-[#CCCCCC] bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#88726B]">Riesgo alto</p>
-          <p className="mt-1 text-2xl font-semibold text-[#DC2626]">{riesgos_por_nivel?.alto ?? 0}</p>
-          <p className="mt-1 text-xs text-[#88726B]">{porcentajes_riesgo?.alto ?? 0}% del total con índice</p>
-        </article>
-        <article className="rounded-lg border border-[#CCCCCC] bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#88726B]">Riesgo medio</p>
-          <p className="mt-1 text-2xl font-semibold text-[#F59E0B]">{riesgos_por_nivel?.medio ?? 0}</p>
-          <p className="mt-1 text-xs text-[#88726B]">{porcentajes_riesgo?.medio ?? 0}% del total con índice</p>
-        </article>
-        <article className="rounded-lg border border-[#CCCCCC] bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#88726B]">Riesgo bajo</p>
-          <p className="mt-1 text-2xl font-semibold text-[#2FAF7B]">{riesgos_por_nivel?.bajo ?? 0}</p>
-          <p className="mt-1 text-xs text-[#88726B]">{porcentajes_riesgo?.bajo ?? 0}% del total con índice</p>
-        </article>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Total estudiantes (universo)</p>
+          <p className="mt-1 text-2xl font-semibold text-[var(--text)]">{total_estudiantes}</p>
+        </Card>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo alto</p>
+          <p className="mt-1 text-2xl font-semibold text-[var(--danger)]">{riesgos_por_nivel?.alto ?? 0}</p>
+          <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.alto ?? 0}% del total con índice</p>
+        </Card>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo medio</p>
+          <p className="mt-1 text-2xl font-semibold text-warning">{riesgos_por_nivel?.medio ?? 0}</p>
+          <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.medio ?? 0}% del total con índice</p>
+        </Card>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo bajo</p>
+          <p className="mt-1 text-2xl font-semibold text-[var(--success)]">{riesgos_por_nivel?.bajo ?? 0}</p>
+          <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.bajo ?? 0}% del total con índice</p>
+        </Card>
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-medium text-[#333333]">Alertas por estado</h3>
+        <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">Alertas por estado</h3>
         <div className="flex flex-wrap gap-2">
           {['pendiente', 'en_atencion', 'cerrada'].map((clave) => (
-            <span
-              key={clave}
-              className={`inline-flex items-center rounded-full border px-3 py-1 text-sm ${badgeAlertaClases(clave)}`}
-            >
-              {etiquetaAlerta(clave)}: {alertas_por_estado?.[clave] ?? 0} (
-              {porcentajes_alertas?.[clave] ?? 0}%)
-            </span>
+            <Badge key={clave} variant={alertaVariant(clave)} className="px-3 py-1 normal-case">
+              {`${etiquetaAlerta(clave)}: ${alertas_por_estado?.[clave] ?? 0} (${porcentajes_alertas?.[clave] ?? 0}%)`}
+            </Badge>
           ))}
         </div>
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-medium text-[#333333]">Últimos índices de riesgo registrados</h3>
+        <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">Últimos índices de riesgo registrados</h3>
         {(ultimos_riesgos?.length ?? 0) === 0 ? (
-          <p className="rounded border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
-            No hay registros de riesgo en el universo filtrado.
-          </p>
+          <EmptyState
+            title="Sin registros de riesgo"
+            description="No hay estudiantes con índice en el universo filtrado."
+          />
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-[#CCCCCC] bg-white">
-            <table className="min-w-full text-left text-sm text-slate-800">
-              <thead className="border-b border-[#CCCCCC] bg-slate-50 text-xs uppercase text-[#88726B]">
+          <Card padding={false} className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm text-[var(--text)]">
+              <thead className="border-b border-[var(--border)] bg-[var(--background)] text-xs uppercase text-muted">
                 <tr>
                   <th className="px-3 py-2">Estudiante</th>
                   <th className="px-3 py-2">Código</th>
@@ -373,18 +372,14 @@ export default function DashboardPanel() {
               </thead>
               <tbody>
                 {ultimos_riesgos.map((fila) => (
-                  <tr key={fila.id} className="border-b border-slate-100 last:border-0">
+                  <tr key={fila.id} className="border-b border-[var(--border)]/70 last:border-0">
                     <td className="px-3 py-2">{fila.estudiante || '—'}</td>
                     <td className="px-3 py-2 font-mono text-xs">{fila.codigo || '—'}</td>
                     <td className="px-3 py-2">{fila.indice?.toFixed?.(4) ?? fila.indice}</td>
                     <td className="px-3 py-2">
-                      <span
-                        className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${badgeRiesgoClases(fila.nivel)}`}
-                      >
-                        {fila.nivel}
-                      </span>
+                      <Badge variant={riesgoVariant(fila.nivel)}>{fila.nivel}</Badge>
                     </td>
-                    <td className="px-3 py-2 text-xs text-slate-600">
+                    <td className="px-3 py-2 text-xs text-muted">
                       {fila.fecha ? new Date(fila.fecha).toLocaleString() : '—'}
                     </td>
                     <td className="px-3 py-2 text-xs">
@@ -394,7 +389,7 @@ export default function DashboardPanel() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </Card>
         )}
       </div>
     </section>

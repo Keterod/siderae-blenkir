@@ -8,6 +8,11 @@ import {
 } from '../../lib/api';
 import EstudiantePerfilDatos from './EstudiantePerfilDatos';
 import EstudiantePerfilRiesgo from './EstudiantePerfilRiesgo';
+import AlertMessage from '../ui/AlertMessage';
+import Button from '../ui/Button';
+import Card from '../ui/Card';
+import EmptyState from '../ui/EmptyState';
+import LoadingState from '../ui/LoadingState';
 
 function formularioVacio() {
   return {
@@ -301,88 +306,78 @@ export default function EstudiantesPanel({ onClose }) {
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-        <h2 className="text-xl font-semibold text-slate-900">{tituloActual()}</h2>
+    <Card className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
+        <h2 className="text-xl font-semibold text-[var(--text)]">{tituloActual()}</h2>
 
         <div className="flex flex-wrap gap-2">
           {vista !== 'lista' ? (
-
-            <button
+            <Button
               type="button"
-
-              className="rounded border border-slate-300 px-3 py-2 text-sm text-slate-700"
+              variant="outline"
+              size="sm"
               onClick={() => {
-
                 setCampoErrores({});
-
                 setErrorGeneral(null);
-
                 setVista('lista');
-
               }}
-
             >
               Volver al listado
-            </button>
+            </Button>
           ) : null}
 
           {vista === 'lista' ? (
-
             <>
-              <button type="button" onClick={() => cargarLista()} className="rounded border border-slate-300 px-3 py-2 text-sm text-slate-700">
+              <Button type="button" variant="outline" size="sm" onClick={() => cargarLista()}>
                 Actualizar
-              </button>
-
-              <button type="button" onClick={() => abrirCreacion()} className="rounded bg-slate-900 px-3 py-2 text-sm text-white">
-
+              </Button>
+              <Button type="button" variant="primary" size="sm" onClick={() => abrirCreacion()}>
                 Nuevo
-              </button>
+              </Button>
             </>
-
           ) : null}
 
-          <button type="button" onClick={onClose} className="rounded border border-red-100 px-3 py-2 text-sm text-red-700">
-
+          <Button type="button" variant="danger" size="sm" onClick={onClose}>
             Cerrar módulo
-          </button>
+          </Button>
         </div>
       </div>
 
-      {errorGeneral ? <p className="text-sm text-red-600">{errorGeneral}</p> : null}
+      {errorGeneral ? <AlertMessage>{errorGeneral}</AlertMessage> : null}
 
-      {vista === 'lista' && cargando ? <p className="text-sm text-slate-500">Cargando listado...</p> : null}
+      {vista === 'lista' && cargando ? <LoadingState label="Cargando listado…" /> : null}
 
       {vista === 'lista' && !cargando ? (
-
-        <ul className="divide-y divide-slate-100">
-          {lista.length === 0 ? (
-
-            <li className="py-3 text-sm text-slate-500">No hay estudiantes registrados.</li>
-
-          ) : (
-            lista.map((item) => (
+        lista.length === 0 ? (
+          <EmptyState title="Sin estudiantes registrados" description="Puedes registrar el primero con el botón Nuevo." />
+        ) : (
+          <ul className="divide-y divide-[var(--border)]">
+            {lista.map((item) => (
               <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                 <button
                   type="button"
-                  className="text-left font-medium text-slate-900 hover:underline"
+                  className="text-left font-medium text-[var(--text)] hover:text-[var(--primary-dark)] hover:underline"
                   onClick={() => abrirDetalle(item.id)}
                 >
                   {item.apellidos}, {item.nombres} ({item.codigo})
                 </button>
 
-                <button type="button" className="text-sm text-blue-700" onClick={() => abrirEdicion(item.id)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-[var(--secondary)]"
+                  onClick={() => abrirEdicion(item.id)}
+                >
                   Editar
-                </button>
+                </Button>
               </li>
-            ))
-
-          )}
-        </ul>
-
+            ))}
+          </ul>
+        )
       ) : null}
 
-      {(vista === 'crear' || vista === 'editar') && cargando ? <p className="text-sm text-slate-500">Cargando formulario...</p> : null}
+      {(vista === 'crear' || vista === 'editar') && cargando ? <LoadingState label="Cargando formulario…" /> : null}
 
       {(vista === 'crear' || vista === 'editar') && !cargando ? (
 
@@ -400,11 +395,11 @@ export default function EstudiantesPanel({ onClose }) {
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Código</label>
+              <label className="text-sm font-medium text-[var(--text)]">Código</label>
 
               <input
                 required
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
                 value={formulario.codigo}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, codigo: event.target.value }))}
               />
@@ -413,12 +408,12 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Año escolar</label>
+              <label className="text-sm font-medium text-[var(--text)]">Año escolar</label>
 
               <input
                 required
 
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
                 value={formulario.anio_escolar}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, anio_escolar: event.target.value }))}
               />
@@ -429,11 +424,11 @@ export default function EstudiantesPanel({ onClose }) {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Nombres</label>
+              <label className="text-sm font-medium text-[var(--text)]">Nombres</label>
 
               <input
                 required
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
                 value={formulario.nombres}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, nombres: event.target.value }))}
               />
@@ -442,11 +437,11 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Apellidos</label>
+              <label className="text-sm font-medium text-[var(--text)]">Apellidos</label>
 
               <input
                 required
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
                 value={formulario.apellidos}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, apellidos: event.target.value }))}
               />
@@ -457,12 +452,12 @@ export default function EstudiantesPanel({ onClose }) {
 
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Grado</label>
+              <label className="text-sm font-medium text-[var(--text)]">Grado</label>
 
               <input
                 required
 
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
 
                 value={formulario.grado}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, grado: event.target.value }))}
@@ -472,12 +467,12 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Sección</label>
+              <label className="text-sm font-medium text-[var(--text)]">Sección</label>
 
               <input
                 required
 
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
 
                 value={formulario.seccion}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, seccion: event.target.value }))}
@@ -487,11 +482,11 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Fecha nac.</label>
+              <label className="text-sm font-medium text-[var(--text)]">Fecha nac.</label>
 
               <input
                 type="date"
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
                 value={formulario.fecha_nacimiento}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, fecha_nacimiento: event.target.value }))}
               />
@@ -502,10 +497,10 @@ export default function EstudiantesPanel({ onClose }) {
 
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Sexo</label>
+              <label className="text-sm font-medium text-[var(--text)]">Sexo</label>
 
               <select
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
 
                 value={formulario.sexo}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, sexo: event.target.value }))}
@@ -521,11 +516,11 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Nivel</label>
+              <label className="text-sm font-medium text-[var(--text)]">Nivel</label>
 
               <select
                 required
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
 
                 value={formulario.nivel}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, nivel: event.target.value }))}
@@ -540,11 +535,11 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm text-slate-700">Sede</label>
+              <label className="text-sm font-medium text-[var(--text)]">Sede</label>
 
               <select
                 required
-                className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                className="sb-field"
 
                 value={formulario.sede}
                 onChange={(event) => setFormulario((valor) => ({ ...valor, sede: event.target.value }))}
@@ -560,7 +555,7 @@ export default function EstudiantesPanel({ onClose }) {
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm font-medium text-[var(--text)]">
 
             <input
               type="checkbox"
@@ -572,30 +567,24 @@ export default function EstudiantesPanel({ onClose }) {
             Activo
           </label>
 
-          <button
-            disabled={guardando}
-
-            type="submit"
-            className="rounded bg-slate-900 px-4 py-2 text-sm text-white disabled:opacity-70"
-
-          >
+          <Button disabled={guardando} type="submit" variant="primary">
             {guardando ? 'Guardando...' : 'Guardar'}
-          </button>
+          </Button>
         </form>
 
       ) : null}
 
-      {vista === 'perfil' && cargando ? <p className="text-sm text-slate-500">Cargando perfil...</p> : null}
+      {vista === 'perfil' && cargando ? <LoadingState label="Cargando perfil…" /> : null}
 
       {vista === 'perfil' && !cargando && detalle ? (
 
-        <div className="space-y-4 text-sm text-slate-800">
+        <div className="space-y-4 text-sm text-[var(--text)]">
 
           <dl className="grid gap-3 sm:grid-cols-2">
 
             <div>
 
-              <dt className="text-slate-500">Código</dt>
+              <dt className="text-muted">Código</dt>
 
               <dd className="font-medium">{detalle.codigo}</dd>
 
@@ -603,7 +592,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Año escolar</dt>
+              <dt className="text-muted">Año escolar</dt>
 
               <dd className="font-medium">{detalle.anio_escolar}</dd>
 
@@ -611,7 +600,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Nombres</dt>
+              <dt className="text-muted">Nombres</dt>
 
               <dd>{detalle.nombres}</dd>
 
@@ -619,7 +608,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Apellidos</dt>
+              <dt className="text-muted">Apellidos</dt>
 
               <dd>{detalle.apellidos}</dd>
 
@@ -627,7 +616,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Grado</dt>
+              <dt className="text-muted">Grado</dt>
 
               <dd>{detalle.grado}</dd>
 
@@ -635,7 +624,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Sección</dt>
+              <dt className="text-muted">Sección</dt>
 
               <dd>{detalle.seccion}</dd>
 
@@ -643,7 +632,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Nivel</dt>
+              <dt className="text-muted">Nivel</dt>
 
               <dd>{detalle.nivel}</dd>
 
@@ -651,7 +640,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Sede</dt>
+              <dt className="text-muted">Sede</dt>
 
               <dd>{detalle.sede}</dd>
 
@@ -659,7 +648,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Activo</dt>
+              <dt className="text-muted">Activo</dt>
 
               <dd>{detalle.activo ? 'Sí' : 'No'}</dd>
 
@@ -667,7 +656,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Fecha de nacimiento</dt>
+              <dt className="text-muted">Fecha de nacimiento</dt>
 
               <dd>{detalle.fecha_nacimiento ?? '—'}</dd>
 
@@ -675,7 +664,7 @@ export default function EstudiantesPanel({ onClose }) {
 
             <div>
 
-              <dt className="text-slate-500">Sexo</dt>
+              <dt className="text-muted">Sexo</dt>
 
               <dd>{detalle.sexo ?? '—'}</dd>
 
@@ -697,24 +686,22 @@ export default function EstudiantesPanel({ onClose }) {
             />
           ) : null}
 
-          <button
+          <Button
             type="button"
-            className="rounded border border-slate-300 px-3 py-2 text-sm text-slate-800"
+            variant="outline"
+            size="sm"
             onClick={() => {
-
               void abrirEdicion(detalle.id);
-
             }}
-
           >
             Editar
-          </button>
+          </Button>
 
         </div>
 
       ) : null}
 
-    </section>
+    </Card>
 
   );
 
