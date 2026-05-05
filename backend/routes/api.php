@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AlertaCierreController;
 use App\Http\Controllers\Api\AlertaController;
 use App\Http\Controllers\Api\AsistenciaController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EstudianteController;
 use App\Http\Controllers\Api\IntervencionController;
 use App\Http\Controllers\Api\NotaController;
@@ -32,12 +33,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])->get('/dashboard', function () {
-    return response()->json([
-        'status' => 'ok',
-        'message' => 'Acceso autorizado a dashboard',
-    ]);
-});
+Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])->get('/dashboard', [DashboardController::class, 'index']);
 
 Route::middleware(['auth:sanctum', 'permission:gestionar_estudiantes'])
     ->apiResource('estudiantes', EstudianteController::class)

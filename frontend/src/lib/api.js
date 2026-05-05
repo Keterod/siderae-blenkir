@@ -74,6 +74,10 @@ export async function getMe() {
   });
 }
 
+export function getDashboard() {
+  return request('/api/dashboard');
+}
+
 export function getEstudiantes() {
   return request('/api/estudiantes');
 }

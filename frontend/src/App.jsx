@@ -1,5 +1,6 @@
 import LoginForm from './components/LoginForm';
 import AlertasPanel from './components/alertas/AlertasPanel';
+import DashboardPanel from './components/DashboardPanel';
 import EstudiantesPanel from './components/estudiantes/EstudiantesPanel';
 import { useAuth } from './context/AuthContext';
 import { useState } from 'react';
@@ -8,6 +9,7 @@ function App() {
   const { authUser, roles, permissions, logout, isLoading, error } = useAuth();
   const [mostrarEstudiantes, setMostrarEstudiantes] = useState(false);
   const [mostrarAlertas, setMostrarAlertas] = useState(false);
+  const [mostrarDashboard, setMostrarDashboard] = useState(false);
 
 
   if (isLoading && !authUser) {
@@ -51,7 +53,15 @@ function App() {
       <section className="space-y-2">
         <h2 className="text-lg font-medium text-slate-900">Menú por permisos</h2>
         <div className="flex flex-wrap gap-2">
-          {permissions.includes('ver_dashboard') ? <span className="rounded bg-slate-100 px-2 py-1 text-sm">Dashboard</span> : null}
+          {permissions.includes('ver_dashboard') ? (
+            <button
+              type="button"
+              onClick={() => setMostrarDashboard((valor) => !valor)}
+              className={`rounded px-2 py-1 text-sm ${mostrarDashboard ? 'bg-[#C94A0C] text-white' : 'bg-slate-100 text-slate-800'}`}
+            >
+              Dashboard
+            </button>
+          ) : null}
           {permissions.includes('gestionar_estudiantes') ? (
             <button
               type="button"
@@ -75,6 +85,8 @@ function App() {
           {permissions.includes('registrar_intervencion') ? <span className="rounded bg-slate-100 px-2 py-1 text-sm">Intervenciones</span> : null}
         </div>
       </section>
+
+      {permissions.includes('ver_dashboard') && mostrarDashboard ? <DashboardPanel /> : null}
 
       {permissions.includes('gestionar_estudiantes') && mostrarEstudiantes ? (
         <EstudiantesPanel onClose={() => setMostrarEstudiantes(false)} />
