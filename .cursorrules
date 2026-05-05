@@ -1,41 +1,117 @@
-# SIDERAE-Blenkir - Project Rules & Standards
+# SIDERAE-Blenkir - Reglas operativas de desarrollo (V1)
 
-## 1. Contexto del Proyecto
-- **Nombre:** SIDERAE-Blenkir (Sistema Inteligente de Detección Temprana de Riesgo Académico).
-- **Cliente:** Colegio Blenkir (Sedes Chilca y Auquimarca, Huancayo).
-- **Objetivo:** Automatizar la identificación de riesgo académico mediante Machine Learning y asegurar la trazabilidad ISO 9001.
+## 1) Contexto y objetivo
+- **Proyecto:** SIDERAE-Blenkir (Sistema Inteligente de Detección Temprana de Riesgo Académico y Deserción Estudiantil).
+- **Cliente:** Colegio Blenkir (Chilca y Auquimarca, Huancayo).
+- **Objetivo técnico:** construir y mantener una plataforma desacoplada para gestión académica, riesgo, alertas e intervenciones con trazabilidad.
 
-## 2. Stack Tecnológico Obligatorio
-- **Backend:** Laravel 11 (PHP 8.3) - API REST.
-- **Frontend:** React 18 (Vite) + Tailwind CSS.
-- **IA/ML Service:** Python 3.11 + Flask.
-- **Base de Datos:** MySQL 8.x.
-- **Infraestructura:** Docker & Docker Compose.
+## 2) Stack objetivo (arquitectura base)
+- **Frontend:** React + Vite + Tailwind.
+- **Backend:** Laravel API REST.
+- **Base de datos:** MySQL.
+- **ML Service:** Python Flask.
+- **Infraestructura:** Docker + Docker Compose.
 
-## 3. Reglas de Comportamiento (Anti-Alucinación)
-- **Fuente de Verdad:** Antes de sugerir cualquier código, consulta el archivo `DRS_SIDERAE_Blenkir_v1.pdf`. Prioriza los Requerimientos Funcionales (RF) y Reglas de Negocio (RN) allí descritos.
-- **Prohibido Inventar:** No generes módulos, campos de base de datos o funcionalidades que no existan en el DRS (ej. no pasarelas de pago, no redes sociales).
-- **Realismo Técnico:** No asumas que el usuario tiene servidores externos; todo debe configurarse para funcionar en los contenedores Docker definidos.
-- **Enfoque de Ingeniería:** Eres un Senior Tech Lead. Tu código debe ser modular, limpio y seguir principios SOLID.
+## 3) Jerarquía de fuentes (obligatoria)
+1. **DRS_SIDERAE_Blenkir_v1.pdf** = alcance formal (RF, RN, RNF).
+2. **Código del repositorio** = estado real implementado.
+3. **Docs de contexto V1**:
+   - `docs/arquitectura/resumen-arquitectura.md`
+   - `docs/arquitectura/contexto-backend-laravel.md`
+   - `docs/arquitectura/contexto-frontend-react.md`
+   - `docs/arquitectura/contexto-ml-service-flask.md`
+   - `docs/arquitectura/contexto-docker-infraestructura.md`
+4. `sprints/` = planificación operativa por etapas.
+5. `docs/ui/mockups/guia-ui-siderae.md` = referencia visual (no fuente de datos reales).
 
-## 4. Estándares de Codificación
-- **Backend (Laravel):**
-  - Seguir el patrón de diseño sugerido en el DRS.
-  - Usar FormRequests para validaciones.
-  - Respuestas siempre en formato JSON coherente.
-- **Frontend (React):**
-  - Componentes funcionales con Hooks.
-  - Uso de Tailwind CSS para el diseño UI.
-  - Separar lógica de negocio (hooks personalizados) de la vista.
-- **IA (Flask):**
-  - Endpoints específicos para predicción (Random Forest, SVM, XGBoost).
-  - Manejo estricto de tipos de datos para evitar errores de matriz en scikit-learn.
+## 4) Regla crítica: DRS != implementación actual
+Nunca confundir requerimiento definido con funcionalidad ya implementada.
 
-## 5. Reglas de Negocio Críticas (Prioridad Alta)
-- **RN-01 (Umbral de Riesgo):** El sistema debe marcar riesgo si el promedio de notas es < 11 o el índice de riesgo ML es > 0.7.
-- **RN-05 (Privacidad):** Acceso restringido estrictamente por roles (Administrador, Docente, Coordinador, Psicólogo, Directivo).
-- **RF-19 (Semáforo):** Implementar visualmente el estado de completitud de datos (Rojo/Amarillo/Verde).
+Cada funcionalidad relevante debe etiquetarse como:
+- **Definido en DRS**
+- **Confirmado en código**
+- **Implementado parcialmente**
+- **Pendiente de desarrollo**
+- **Pendiente de verificar**
+- **No confirmado en el estado actual** (si documentación lo afirma sin evidencia en código)
 
-## 6. Instrucciones de Salida
-- Siempre que generes un cambio en el código, verifica si afecta a la integración entre servicios (Laravel-Flask-React).
-- Si una instrucción contradice el DRS, detente y pide aclaración.
+Si no hay evidencia suficiente en archivos reales: marcar **Pendiente de verificar**.
+
+## 5) Anti-alucinación (obligatorio)
+- No inventar módulos, endpoints, modelos, campos, permisos, tablas ni servicios.
+- No asumir que algo existe por aparecer en README, ARCHITECTURE o conversaciones previas.
+- No afirmar implementación de RF solo porque está en DRS.
+- Si una afirmación documental contradice el código, priorizar código y reportar diferencia.
+
+## 6) Restricciones arquitectónicas no negociables
+- React **no** accede directamente a MySQL.
+- React **no** consume directamente Flask para riesgo.
+- Flask **no** accede directamente a MySQL salvo definición explícita en proyecto.
+- La lógica principal de negocio debe mantenerse en Laravel.
+- Backend debe gestionar autenticación, autorización y control de permisos.
+- No romper comunicación esperada:
+  - Usuario -> Frontend
+  - Frontend -> Laravel
+  - Laravel -> MySQL
+  - Laravel -> Flask
+  - Laravel -> alertas/intervenciones
+
+## 7) Reglas backend (Laravel)
+- Mantener autenticación con Sanctum.
+- Mantener autorización por roles/permisos (Spatie) y middleware backend.
+- No cambiar endpoints existentes sin necesidad y sin revisar impacto.
+- No modificar migraciones sin autorización explícita.
+- No inventar permisos o roles fuera de lo definido en seeders/código.
+- Mantener respuestas JSON consistentes.
+
+## 8) Reglas frontend (React)
+- Respetar `docs/ui/mockups/guia-ui-siderae.md` como guía visual.
+- No dejar botones muertos: cada control debe ejecutar acción real, estar oculto por permisos, estar deshabilitado con mensaje, o quedar explícitamente pendiente.
+- Mantener estados de carga, error y vacío.
+- No mostrar como implementado lo que solo está definido en DRS.
+- No usar datos de ejemplo de mockups como datos reales.
+
+## 9) Reglas ML Service (Flask)
+- No afirmar modelos entrenados (Random Forest/SVM/XGBoost) si no hay evidencia en código real.
+- No inventar endpoints de entrenamiento/reentrenamiento si no existen.
+- No presentar RF-18 como implementado si no está confirmado.
+- Mantener integración ML a través de Laravel (no acceso directo desde frontend).
+
+## 10) Reglas Docker e infraestructura
+- No cambiar puertos sin autorización.
+- No cambiar nombres de servicios de Docker sin revisar dependencias.
+- No exponer secretos ni valores reales de `.env`.
+- Usar `.env.example` como referencia documental.
+- Mantener consistencia de conectividad entre servicios.
+
+## 11) Alineación por sprints (referencia operativa)
+- **Sprint 6A:** dashboard funcional mínimo.
+- **Sprint 6B:** filtros, reportes/exportación básica y visibilidad según rol.
+- **Sprint 7A:** rediseño UI/UX global.
+- **Sprint 7B:** pantallas completas y navegación sin controles muertos.
+- **Sprint 8:** seguridad, roles/permisos, auditoría.
+- **Sprint 9:** pruebas integrales, regresión, PHPUnit/Feature Tests y Cypress.
+- **Sprint 10:** documentación final y cierre de calidad.
+
+No anticipar como “completado” un sprint sin evidencia en código/documentos reales.
+
+## 12) Verificación mínima antes de implementar
+Antes de proponer o escribir cambios:
+1. Revisar archivos reales relacionados al módulo.
+2. Revisar DRS para alcance formal del RF.
+3. Revisar `docs/arquitectura/*.md` para estado técnico actual.
+4. Revisar sprint vigente aplicable.
+5. Si falta evidencia, declarar **Pendiente de verificar**.
+
+## 13) Calidad y pruebas sugeridas
+- Para backend: mantener/regresar sobre Laravel Feature Tests / PHPUnit.
+- Para frontend: preparar/actualizar pruebas E2E con Cypress cuando la UI esté estable según sprint.
+- No romper pruebas existentes sin justificación explícita.
+
+## 14) Formato de salida al finalizar cambios
+Siempre reportar:
+- Archivos modificados.
+- Qué se confirmó en código.
+- Qué quedó pendiente de verificar.
+- Riesgos o impactos potenciales.
+- Pruebas recomendadas (backend/frontend) para validar el cambio.
