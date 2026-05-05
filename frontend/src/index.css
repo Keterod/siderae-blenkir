@@ -62,7 +62,11 @@
   }
 
   .sb-field:focus-visible {
-    @apply ring-2 ring-offset-2 ring-[var(--primary)];
+    @apply ring-2 ring-[var(--primary)] ring-offset-2;
+  }
+
+  .sb-field {
+    min-height: 2.625rem;
   }
 
   .sb-field:disabled {

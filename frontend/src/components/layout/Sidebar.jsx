@@ -1,6 +1,8 @@
 import Button from '../ui/Button';
 
 export default function Sidebar({ navItems, mobileOpen, onCloseMobile }) {
+  const visible = navItems.filter((item) => item.visible);
+
   return (
     <>
       <button
@@ -29,29 +31,56 @@ export default function Sidebar({ navItems, mobileOpen, onCloseMobile }) {
           </Button>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 p-3" role="navigation">
-          {navItems
-            .filter((item) => item.visible)
-            .map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  item.onSelect();
-                  onCloseMobile();
-                }}
-                className={`rounded-md px-3 py-2.5 text-left text-sm font-medium transition ${
-                  item.active
-                    ? 'border-l-4 border-[var(--primary)] bg-orange-50/80 text-[var(--primary-dark)]'
-                    : 'border-l-4 border-transparent text-foreground hover:bg-background'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+        <nav className="flex flex-1 flex-col gap-1 p-3 pb-6" role="navigation">
+          <p className="px-3 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
+            Menú principal
+          </p>
+          {visible.map((item) => (
+            <span key={item.key} className="contents">
+              {item.dividerBefore ? (
+                <div className="my-2 border-t border-[var(--border)] pt-1" role="separator" aria-hidden />
+              ) : null}
+              <SidebarNavButton item={item} onCloseMobile={onCloseMobile} />
+            </span>
+          ))}
         </nav>
       </aside>
     </>
+  );
+}
+
+function SidebarNavButton({ item, onCloseMobile }) {
+  const disabled = Boolean(item.disabled);
+  const base =
+    'w-full rounded-md px-3 py-2.5 text-left text-sm font-medium transition border-l-4 ';
+  let visual = '';
+  if (disabled) {
+    visual = 'cursor-not-allowed border-transparent opacity-55 text-muted';
+  } else if (item.active) {
+    visual = 'border-[var(--primary)] bg-orange-50/90 text-[var(--primary-dark)] shadow-sm';
+  } else {
+    visual = 'border-transparent text-foreground hover:bg-background';
+  }
+
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      data-testid={item.testId ?? `nav-${item.key}`}
+      disabled={disabled}
+      aria-current={item.active ? 'page' : undefined}
+      aria-disabled={disabled}
+      title={disabled ? item.disabledReason || 'No disponible' : undefined}
+      onClick={() => {
+        if (disabled) {
+          return;
+        }
+        item.onSelect();
+        onCloseMobile();
+      }}
+      className={`${base} ${visual}`}
+    >
+      {item.label}
+    </button>
   );
 }

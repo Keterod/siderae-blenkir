@@ -46,6 +46,21 @@ function etiquetaAlerta(estadoClave) {
   return estadoClave;
 }
 
+function BarraPct({ etiqueta, porcentaje, colorClass }) {
+  const pct = Math.min(100, Math.max(0, Number(porcentaje) || 0));
+  return (
+    <div>
+      <div className="mb-1 flex justify-between text-xs font-medium text-[var(--text)]">
+        <span className="text-muted">{etiqueta}</span>
+        <span>{pct}%</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full border border-[var(--border)] bg-[var(--background)]">
+        <div className={`h-full rounded-full ${colorClass}`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPanel() {
   const [appliedFilters, setAppliedFilters] = useState({});
   const [draftFilters, setDraftFilters] = useState({});
@@ -162,7 +177,7 @@ export default function DashboardPanel() {
     'mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1.5 text-sm text-[var(--text)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1';
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6" data-testid="dashboard-panel">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold text-[var(--text)]">Dashboard</h2>
@@ -176,6 +191,7 @@ export default function DashboardPanel() {
             type="button"
             variant="secondary"
             size="sm"
+            data-testid="dashboard-export-pdf"
             onClick={handleExportarPdf}
             disabled={exportando || cargando}
           >
@@ -188,9 +204,12 @@ export default function DashboardPanel() {
         <AlertMessage variant="error">{exportError}</AlertMessage>
       ) : null}
 
-      <Card>
-        <h3 className="mb-3 text-sm font-semibold text-[var(--text)]">Filtros</h3>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <Card className="!p-5 sm:!p-6">
+        <div className="mb-4 border-b border-[var(--border)] pb-3">
+          <h3 className="text-sm font-semibold text-[var(--text)]">Filtros del dashboard</h3>
+          <p className="mt-1 text-xs text-muted">Define el universo de datos antes de exportar PDF o revisar KPI.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {mostrarSede ? (
             <label className="block text-xs text-muted">
               Sede
@@ -285,10 +304,10 @@ export default function DashboardPanel() {
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button type="button" variant="primary" size="sm" onClick={handleAplicar}>
+          <Button type="button" variant="primary" size="sm" data-testid="dashboard-aplicar-filtros" onClick={handleAplicar}>
             Aplicar filtros
           </Button>
-          <Button type="button" variant="outline" size="sm" onClick={handleLimpiar}>
+          <Button type="button" variant="outline" size="sm" data-testid="dashboard-limpiar-filtros" onClick={handleLimpiar}>
             Limpiar filtros
           </Button>
         </div>
@@ -317,41 +336,79 @@ export default function DashboardPanel() {
         </AlertMessage>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Total estudiantes (universo)</p>
-          <p className="mt-1 text-2xl font-semibold text-[var(--text)]">{total_estudiantes}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo alto</p>
-          <p className="mt-1 text-2xl font-semibold text-[var(--danger)]">{riesgos_por_nivel?.alto ?? 0}</p>
-          <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.alto ?? 0}% del total con índice</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo medio</p>
-          <p className="mt-1 text-2xl font-semibold text-warning">{riesgos_por_nivel?.medio ?? 0}</p>
-          <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.medio ?? 0}% del total con índice</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo bajo</p>
-          <p className="mt-1 text-2xl font-semibold text-[var(--success)]">{riesgos_por_nivel?.bajo ?? 0}</p>
-          <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.bajo ?? 0}% del total con índice</p>
-        </Card>
-      </div>
+      <Card className="overflow-hidden !p-0">
+        <div className="border-b border-[var(--border)] bg-[var(--background)]/70 px-4 py-3 sm:px-5">
+          <h3 className="text-sm font-semibold text-[var(--text)]">Indicadores clave</h3>
+          <p className="mt-0.5 text-xs text-muted">Cantidades sobre el filtro aplicado actualmente.</p>
+        </div>
+        <div className="grid grid-cols-1 divide-y divide-[var(--border)] sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
+          <div className="p-4 sm:p-5 lg:border-r-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Total estudiantes (universo)</p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-[var(--text)]">{total_estudiantes}</p>
+          </div>
+          <div className="p-4 sm:p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo alto</p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-[var(--danger)]">{riesgos_por_nivel?.alto ?? 0}</p>
+            <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.alto ?? 0}% del total con índice</p>
+          </div>
+          <div className="p-4 sm:p-5 lg:border-l lg:border-[var(--border)]">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo medio</p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-warning">{riesgos_por_nivel?.medio ?? 0}</p>
+            <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.medio ?? 0}% del total con índice</p>
+          </div>
+          <div className="p-4 sm:p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Riesgo bajo</p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-[var(--success)]">{riesgos_por_nivel?.bajo ?? 0}</p>
+            <p className="mt-1 text-xs text-muted">{porcentajes_riesgo?.bajo ?? 0}% del total con índice</p>
+          </div>
+        </div>
+      </Card>
 
-      <div>
-        <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">Alertas por estado</h3>
+      <Card className="space-y-4">
+        <h3 className="text-sm font-semibold text-[var(--text)]">Distribución por nivel de riesgo (del total con índice)</h3>
+        <p className="text-xs text-muted">
+          Vista resumida a partir de los mismos datos numéricos mostrados en las tarjetas anteriores; no reemplaza a un motor de gráficos del DRS.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-3" data-testid="dashboard-distribucion-barras">
+          <BarraPct
+            etiqueta="Alto"
+            porcentaje={porcentajes_riesgo?.alto}
+            colorClass="bg-[var(--danger)]"
+          />
+          <BarraPct
+            etiqueta="Medio"
+            porcentaje={porcentajes_riesgo?.medio}
+            colorClass="bg-warning"
+          />
+          <BarraPct
+            etiqueta="Bajo"
+            porcentaje={porcentajes_riesgo?.bajo}
+            colorClass="bg-[var(--success)]"
+          />
+        </div>
+      </Card>
+
+      <Card className="space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-[var(--text)]">Alertas por estado</h3>
+          <p className="mt-0.5 text-xs text-muted">
+            Totales relativos según registros disponibles tras los filtros actuales.
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
           {['pendiente', 'en_atencion', 'cerrada'].map((clave) => (
-            <Badge key={clave} variant={alertaVariant(clave)} className="px-3 py-1 normal-case">
+            <Badge key={clave} variant={alertaVariant(clave)} className="px-3 py-2 normal-case">
               {`${etiquetaAlerta(clave)}: ${alertas_por_estado?.[clave] ?? 0} (${porcentajes_alertas?.[clave] ?? 0}%)`}
             </Badge>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <div>
-        <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">Últimos índices de riesgo registrados</h3>
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold text-[var(--text)]">Últimos índices de riesgo registrados</h3>
+          <p className="mt-0.5 text-xs text-muted">Misma fuente que la tabla del PDF exportado cuando aplica.</p>
+        </div>
         {(ultimos_riesgos?.length ?? 0) === 0 ? (
           <EmptyState
             title="Sin registros de riesgo"
