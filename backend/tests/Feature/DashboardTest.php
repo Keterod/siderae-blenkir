@@ -41,6 +41,7 @@ class DashboardTest extends TestCase
     public function test_visitante_sin_autenticacion_recibe_401(): void
     {
         $this->getJson('/api/dashboard')->assertUnauthorized();
+        $this->getJson('/api/dashboard/export')->assertUnauthorized();
     }
 
     public function test_usuario_autenticado_sin_permiso_recibe_403(): void
@@ -49,6 +50,10 @@ class DashboardTest extends TestCase
             ->getJson('/api/dashboard');
 
         $response->assertForbidden();
+
+        $this->actingAs($this->usuarioSinPermisoDashboard())
+            ->getJson('/api/dashboard/export')
+            ->assertForbidden();
     }
 
     public function test_usuario_con_permiso_recibe_200_y_estructura_json(): void
@@ -64,12 +69,30 @@ class DashboardTest extends TestCase
                     'medio',
                     'bajo',
                 ],
+                'porcentajes_riesgo' => [
+                    'alto',
+                    'medio',
+                    'bajo',
+                ],
                 'alertas_por_estado' => [
                     'pendiente',
                     'en_atencion',
                     'cerrada',
                 ],
+                'porcentajes_alertas' => [
+                    'pendiente',
+                    'en_atencion',
+                    'cerrada',
+                ],
                 'ultimos_riesgos',
+                'filtros_aplicados',
+                'opciones_filtros' => [
+                    'sedes',
+                    'niveles',
+                    'grados',
+                    'secciones',
+                    'niveles_riesgo',
+                ],
             ]);
     }
 
@@ -83,9 +106,9 @@ class DashboardTest extends TestCase
             ->assertJsonPath('riesgos_por_nivel.alto', 0)
             ->assertJsonPath('riesgos_por_nivel.medio', 0)
             ->assertJsonPath('riesgos_por_nivel.bajo', 0)
+            ->assertJsonPath('porcentajes_riesgo.alto', 0)
+            ->assertJsonPath('porcentajes_alertas.pendiente', 0)
             ->assertJsonPath('alertas_por_estado.pendiente', 0)
-            ->assertJsonPath('alertas_por_estado.en_atencion', 0)
-            ->assertJsonPath('alertas_por_estado.cerrada', 0)
             ->assertJsonPath('ultimos_riesgos', []);
     }
 
@@ -128,6 +151,43 @@ class DashboardTest extends TestCase
             ->assertJsonPath('riesgos_por_nivel.alto', 1)
             ->assertJsonPath('riesgos_por_nivel.medio', 1)
             ->assertJsonPath('riesgos_por_nivel.bajo', 0);
+    }
+
+    public function test_porcentajes_riesgo_distribuyen_sobre_estudiantes_con_ultimo_indice(): void
+    {
+        $this->permisoDashboard();
+
+        $e1 = Estudiante::factory()->create();
+        IndiceRiesgo::query()->create([
+            'estudiante_id' => $e1->id,
+            'indice' => 0.5000,
+            'nivel' => 'Medio',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+        ]);
+
+        $e2 = Estudiante::factory()->create();
+        IndiceRiesgo::query()->create([
+            'estudiante_id' => $e2->id,
+            'indice' => 0.8000,
+            'nivel' => 'Alto',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+        ]);
+
+        Estudiante::factory()->create();
+
+        $response = $this->actingAs($this->usuarioConPermisoDashboard())
+            ->getJson('/api/dashboard');
+
+        $response->assertOk()
+            ->assertJsonPath('riesgos_por_nivel.alto', 1)
+            ->assertJsonPath('riesgos_por_nivel.medio', 1);
+
+        $p = $response->json('porcentajes_riesgo');
+        $this->assertEqualsWithDelta(50.0, (float) $p['alto'], 0.01);
+        $this->assertEqualsWithDelta(50.0, (float) $p['medio'], 0.01);
+        $this->assertEqualsWithDelta(0.0, (float) $p['bajo'], 0.01);
     }
 
     public function test_conteos_de_alertas_por_estado(): void
@@ -190,5 +250,93 @@ class DashboardTest extends TestCase
             ->assertJsonPath('alertas_por_estado.pendiente', 1)
             ->assertJsonPath('alertas_por_estado.en_atencion', 1)
             ->assertJsonPath('alertas_por_estado.cerrada', 1);
+
+        $pa = $response->json('porcentajes_alertas');
+        foreach (['pendiente', 'en_atencion', 'cerrada'] as $clave) {
+            $this->assertEqualsWithDelta(100 / 3, (float) $pa[$clave], 0.02);
+        }
+    }
+
+    public function test_filtro_sede_reduce_universo(): void
+    {
+        $this->permisoDashboard();
+
+        $a = Estudiante::factory()->create([
+            'sede' => 'chilca',
+            'grado' => '1°',
+            'seccion' => 'A',
+        ]);
+        $b = Estudiante::factory()->create([
+            'sede' => 'auquimarca',
+            'grado' => '2°',
+            'seccion' => 'B',
+            'codigo' => 'EST999',
+        ]);
+
+        IndiceRiesgo::query()->create([
+            'estudiante_id' => $a->id,
+            'indice' => 0.8000,
+            'nivel' => 'Alto',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+        ]);
+        IndiceRiesgo::query()->create([
+            'estudiante_id' => $b->id,
+            'indice' => 0.7500,
+            'nivel' => 'Alto',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+        ]);
+
+        $response = $this->actingAs($this->usuarioConPermisoDashboard())
+            ->getJson('/api/dashboard?sede=chilca');
+
+        $response->assertOk()
+            ->assertJsonPath('total_estudiantes', 1)
+            ->assertJsonPath('riesgos_por_nivel.alto', 1);
+    }
+
+    public function test_filtro_nivel_riesgo_excluye_estudiante_sin_indices(): void
+    {
+        $this->permisoDashboard();
+
+        Estudiante::factory()->create();
+        $e = Estudiante::factory()->create();
+        IndiceRiesgo::query()->create([
+            'estudiante_id' => $e->id,
+            'indice' => 0.5000,
+            'nivel' => 'Medio',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+        ]);
+
+        $this->actingAs($this->usuarioConPermisoDashboard())
+            ->getJson('/api/dashboard?nivel_riesgo=medio')
+            ->assertOk()
+            ->assertJsonPath('total_estudiantes', 1)
+            ->assertJsonPath('riesgos_por_nivel.medio', 1);
+    }
+
+    public function test_query_param_invalido_sede_recibe_422(): void
+    {
+        $this->actingAs($this->usuarioConPermisoDashboard())
+            ->getJson('/api/dashboard?sede=no_existe')
+            ->assertStatus(422);
+    }
+
+    public function test_export_dashboard_pdf_con_permiso_devuelve_pdf(): void
+    {
+        $this->permisoDashboard();
+
+        Estudiante::factory()->create();
+
+        $response = $this->actingAs($this->usuarioConPermisoDashboard())
+            ->get('/api/dashboard/export');
+
+        $response->assertOk();
+        $contentType = (string) $response->headers->get('Content-Type');
+        $this->assertStringContainsString('application/pdf', $contentType);
+        $this->assertNotEmpty($response->getContent());
+        $this->assertStringStartsWith('%PDF', $response->getContent());
     }
 }

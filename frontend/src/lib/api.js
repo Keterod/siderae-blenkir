@@ -74,8 +74,59 @@ export async function getMe() {
   });
 }
 
-export function getDashboard() {
-  return request('/api/dashboard');
+function buildQueryString(params) {
+  const q = new URLSearchParams();
+  if (!params || typeof params !== 'object') {
+    return '';
+  }
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') {
+      return;
+    }
+    q.set(key, String(value));
+  });
+  return q.toString();
+}
+
+export function getDashboard(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `/api/dashboard?${qs}` : '/api/dashboard');
+}
+
+/**
+ * Descarga PDF del dashboard con los mismos filtros que GET /api/dashboard (Sprint 6B).
+ * Devuelve Blob; el caller puede revocar URL al terminar.
+ */
+export async function exportDashboardPdf(filters = {}) {
+  const qs = buildQueryString(filters);
+  const path = qs ? `/api/dashboard/export?${qs}` : '/api/dashboard/export';
+
+  const headers = {
+    Accept: 'application/pdf',
+  };
+
+  const xsrfToken = getCookie('XSRF-TOKEN');
+  if (xsrfToken) {
+    headers['X-XSRF-TOKEN'] = xsrfToken;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers,
+  });
+
+  if (!response.ok) {
+    const contentType = response.headers.get('content-type') || '';
+    const error = new Error('Export failed');
+    error.status = response.status;
+    if (contentType.includes('application/json')) {
+      error.payload = await response.json();
+    }
+    throw error;
+  }
+
+  return response.blob();
 }
 
 export function getEstudiantes() {

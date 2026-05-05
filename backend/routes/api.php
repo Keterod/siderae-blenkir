@@ -33,7 +33,11 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])->get('/dashboard', [DashboardController::class, 'index']);
+Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])
+    ->group(function (): void {
+        Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/dashboard/export', [DashboardController::class, 'export']);
+    });
 
 Route::middleware(['auth:sanctum', 'permission:gestionar_estudiantes'])
     ->apiResource('estudiantes', EstudianteController::class)
