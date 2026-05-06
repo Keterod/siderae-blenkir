@@ -6,6 +6,7 @@ import {
   desactivarMateria,
   listarMaterias,
 } from '../../lib/api';
+import { anioEscolarActual, gradoEsValidoParaNivel, gradosPorNivel } from '../../lib/academico';
 import AlertMessage from '../ui/AlertMessage';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -16,14 +17,14 @@ const F_INICIAL = {
   nombre: '',
   nivel: 'primaria',
   grado: '',
-  anio_escolar: '',
+  anio_escolar: anioEscolarActual(),
   sede: 'chilca',
 };
 
 const F_FILTROS = {
   nivel: '',
   grado: '',
-  anio_escolar: '',
+  anio_escolar: anioEscolarActual(),
   sede: '',
   activo: '',
 };
@@ -96,7 +97,15 @@ export default function MateriasPanel() {
 
   function aplicarFiltros(event) {
     event.preventDefault();
-    setAplicados({ ...filtros });
+    const next = { ...filtros };
+    setAplicados(next);
+    setFormulario((prev) => ({
+      ...prev,
+      sede: next.sede || prev.sede,
+      nivel: next.nivel || prev.nivel,
+      grado: next.grado || prev.grado,
+      anio_escolar: next.anio_escolar || prev.anio_escolar,
+    }));
   }
 
   async function crear(event) {
@@ -112,7 +121,13 @@ export default function MateriasPanel() {
         sede: formulario.sede,
         activo: true,
       });
-      setFormulario(F_INICIAL);
+      setFormulario((prev) => ({
+        ...F_INICIAL,
+        sede: aplicados.sede || prev.sede || F_INICIAL.sede,
+        nivel: aplicados.nivel || prev.nivel || F_INICIAL.nivel,
+        grado: aplicados.grado || '',
+        anio_escolar: aplicados.anio_escolar || prev.anio_escolar || F_INICIAL.anio_escolar,
+      }));
       await cargar();
     } catch (error) {
       if (error.status === 422 && error.payload?.errors) {
@@ -189,6 +204,19 @@ export default function MateriasPanel() {
     }
   }
 
+  const gradosFiltro = useMemo(
+    () => (filtros.nivel ? gradosPorNivel(filtros.nivel) : []),
+    [filtros.nivel],
+  );
+  const gradosCrear = useMemo(
+    () => gradosPorNivel(formulario.nivel),
+    [formulario.nivel],
+  );
+  const gradosEditar = useMemo(
+    () => (formEdicion?.nivel ? gradosPorNivel(formEdicion.nivel) : []),
+    [formEdicion?.nivel],
+  );
+
   return (
     <div className="space-y-6" data-testid="panel-materias">
       <Card className="border-[var(--border)] bg-[var(--surface)] shadow-card">
@@ -223,7 +251,13 @@ export default function MateriasPanel() {
             <select
               className="sb-field min-w-0"
               value={filtros.nivel}
-              onChange={(e) => setFiltros((f) => ({ ...f, nivel: e.target.value }))}
+              onChange={(e) =>
+                setFiltros((f) => {
+                  const nivel = e.target.value;
+                  const grado = gradoEsValidoParaNivel(nivel, f.grado) ? f.grado : '';
+                  return { ...f, nivel, grado };
+                })
+              }
             >
               <option value="">Todos</option>
               <option value="primaria">Primaria</option>
@@ -232,12 +266,19 @@ export default function MateriasPanel() {
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-muted">Grado</label>
-            <input
+            <select
               className="sb-field min-w-0"
               value={filtros.grado}
               onChange={(e) => setFiltros((f) => ({ ...f, grado: e.target.value }))}
-              placeholder="p. ej. 1°"
-            />
+              disabled={!filtros.nivel}
+            >
+              <option value="">{filtros.nivel ? 'Todos' : 'Seleccione nivel'}</option>
+              {gradosFiltro.map((grado) => (
+                <option key={grado} value={grado}>
+                  {grado}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-muted">Año escolar</label>
@@ -299,7 +340,13 @@ export default function MateriasPanel() {
               required
               className="sb-field min-w-0"
               value={formulario.nivel}
-              onChange={(e) => setFormulario((v) => ({ ...v, nivel: e.target.value }))}
+              onChange={(e) =>
+                setFormulario((v) => {
+                  const nivel = e.target.value;
+                  const grado = gradoEsValidoParaNivel(nivel, v.grado) ? v.grado : '';
+                  return { ...v, nivel, grado };
+                })
+              }
             >
               <option value="primaria">Primaria</option>
               <option value="secundaria">Secundaria</option>
@@ -307,12 +354,19 @@ export default function MateriasPanel() {
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-muted">Grado</label>
-            <input
+            <select
               required
               className="sb-field min-w-0"
               value={formulario.grado}
               onChange={(e) => setFormulario((v) => ({ ...v, grado: e.target.value }))}
-            />
+            >
+              <option value="">Seleccione…</option>
+              {gradosCrear.map((grado) => (
+                <option key={grado} value={grado}>
+                  {grado}
+                </option>
+              ))}
+            </select>
             {formErr.grado?.[0] ? <p className="text-xs text-red-600">{formErr.grado[0]}</p> : null}
           </div>
           <div className="flex flex-col gap-1">
@@ -425,7 +479,13 @@ export default function MateriasPanel() {
                 required
                 className="sb-field min-w-0"
                 value={formEdicion.nivel}
-                onChange={(e) => setFormEdicion((v) => ({ ...v, nivel: e.target.value }))}
+              onChange={(e) =>
+                setFormEdicion((v) => {
+                  const nivel = e.target.value;
+                  const grado = gradoEsValidoParaNivel(nivel, v.grado) ? v.grado : '';
+                  return { ...v, nivel, grado };
+                })
+              }
               >
                 <option value="primaria">Primaria</option>
                 <option value="secundaria">Secundaria</option>
@@ -433,12 +493,19 @@ export default function MateriasPanel() {
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-muted">Grado</label>
-              <input
+              <select
                 required
                 className="sb-field min-w-0"
                 value={formEdicion.grado}
                 onChange={(e) => setFormEdicion((v) => ({ ...v, grado: e.target.value }))}
-              />
+              >
+                <option value="">Seleccione…</option>
+                {gradosEditar.map((grado) => (
+                  <option key={grado} value={grado}>
+                    {grado}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-muted">Año escolar</label>

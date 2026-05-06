@@ -4,6 +4,7 @@ import {
   listarMaterias,
   postNotasLote,
 } from '../../lib/api';
+import { anioEscolarActual, gradoEsValidoParaNivel, gradosPorNivel } from '../../lib/academico';
 import AlertMessage from '../ui/AlertMessage';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -15,7 +16,7 @@ const F_CTX = {
   nivel: 'primaria',
   grado: '',
   seccion: '',
-  anio_escolar: '',
+  anio_escolar: anioEscolarActual(),
   bimestre: '1',
 };
 
@@ -145,7 +146,7 @@ export default function NotasMasivasPanel() {
 
     setGuardando(true);
     try {
-      await postNotasLote({
+      const resultado = await postNotasLote({
         materia_id: mid,
         anio_escolar: ctx.anio_escolar.trim(),
         bimestre: ctx.bimestre,
@@ -155,7 +156,13 @@ export default function NotasMasivasPanel() {
         seccion: ctx.seccion.trim(),
         filas,
       });
-      setExito(`Se registraron ${filas.length} nota(s) correctamente.`);
+      const riesgo = resultado?.riesgo;
+      const procesados = Number(riesgo?.procesados || 0);
+      const omitidos = Array.isArray(riesgo?.omitidos) ? riesgo.omitidos.length : 0;
+      const fallidos = Array.isArray(riesgo?.fallidos) ? riesgo.fallidos.length : 0;
+      setExito(
+        `Se registraron ${filas.length} nota(s). Riesgo: ${procesados} procesado(s), ${omitidos} omitido(s), ${fallidos} fallido(s).`,
+      );
     } catch (e) {
       setError(mensajeErrorApi(e));
     } finally {
@@ -191,7 +198,13 @@ export default function NotasMasivasPanel() {
             <select
               className="rounded-md border border-[var(--border)] bg-white px-3 py-2 text-[var(--text)]"
               value={ctx.nivel}
-              onChange={(ev) => setCtx((c) => ({ ...c, nivel: ev.target.value }))}
+              onChange={(ev) =>
+                setCtx((c) => {
+                  const nivel = ev.target.value;
+                  const grado = gradoEsValidoParaNivel(nivel, c.grado) ? c.grado : '';
+                  return { ...c, nivel, grado };
+                })
+              }
             >
               <option value="primaria">Primaria</option>
               <option value="secundaria">Secundaria</option>
@@ -199,13 +212,18 @@ export default function NotasMasivasPanel() {
           </label>
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-muted">Grado</span>
-            <input
-              type="text"
+            <select
               className="rounded-md border border-[var(--border)] px-3 py-2 text-[var(--text)]"
-              placeholder="p. ej. 1°"
               value={ctx.grado}
               onChange={(ev) => setCtx((c) => ({ ...c, grado: ev.target.value }))}
-            />
+            >
+              <option value="">Seleccione…</option>
+              {gradosPorNivel(ctx.nivel).map((grado) => (
+                <option key={grado} value={grado}>
+                  {grado}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-muted">Sección</span>
@@ -222,7 +240,6 @@ export default function NotasMasivasPanel() {
             <input
               type="text"
               className="rounded-md border border-[var(--border)] px-3 py-2 text-[var(--text)]"
-              placeholder="p. ej. 2026"
               value={ctx.anio_escolar}
               onChange={(ev) => setCtx((c) => ({ ...c, anio_escolar: ev.target.value }))}
             />

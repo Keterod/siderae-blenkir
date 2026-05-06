@@ -8,6 +8,7 @@ import {
   postNota,
   postVariablesSocio,
 } from '../../lib/api';
+import { anioEscolarActual } from '../../lib/academico';
 import AlertMessage from '../ui/AlertMessage';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -39,7 +40,7 @@ export default function EstudiantePerfilDatos({
   const [variablesSocio, setVariablesSocio] = useState([]);
 
   const [fmNota, setFmNota] = useState({
-    anio_escolar: anioEscolarPorDefecto || '',
+    anio_escolar: anioEscolarPorDefecto || anioEscolarActual(),
     bimestre: '1',
     materia_id: '',
     curso: '',
@@ -52,7 +53,7 @@ export default function EstudiantePerfilDatos({
   const [fmAsis, setFmAsis] = useState({
     semana_inicio: '',
     estado: 'presente',
-    anio_escolar: anioEscolarPorDefecto || '',
+    anio_escolar: anioEscolarPorDefecto || anioEscolarActual(),
     bimestre: '1',
   });
 
@@ -61,7 +62,7 @@ export default function EstudiantePerfilDatos({
     nivel_socioeconomico: 'medio',
     acceso_internet: false,
     distancia_colegio_km: '',
-    anio_escolar: anioEscolarPorDefecto || '',
+    anio_escolar: anioEscolarPorDefecto || anioEscolarActual(),
   });
 
   const [cargando, setCargando] = useState(true);
@@ -92,9 +93,9 @@ export default function EstudiantePerfilDatos({
   }, [estudianteId]);
 
   useEffect(() => {
-    setFmNota((prev) => ({ ...prev, anio_escolar: anioEscolarPorDefecto || prev.anio_escolar }));
-    setFmAsis((prev) => ({ ...prev, anio_escolar: anioEscolarPorDefecto || prev.anio_escolar }));
-    setFmVar((prev) => ({ ...prev, anio_escolar: anioEscolarPorDefecto || prev.anio_escolar }));
+    setFmNota((prev) => ({ ...prev, anio_escolar: anioEscolarPorDefecto || prev.anio_escolar || anioEscolarActual() }));
+    setFmAsis((prev) => ({ ...prev, anio_escolar: anioEscolarPorDefecto || prev.anio_escolar || anioEscolarActual() }));
+    setFmVar((prev) => ({ ...prev, anio_escolar: anioEscolarPorDefecto || prev.anio_escolar || anioEscolarActual() }));
   }, [anioEscolarPorDefecto]);
 
   const cargarCatalogoMaterias = useCallback(async () => {

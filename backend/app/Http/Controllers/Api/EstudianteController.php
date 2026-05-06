@@ -37,6 +37,15 @@ class EstudianteController extends Controller
             $query->where('anio_escolar', $request->query('anio_escolar'));
         }
 
+        $search = trim((string) ($request->query('q') ?? $request->query('search') ?? ''));
+        if ($search !== '') {
+            $query->where(function ($subQuery) use ($search): void {
+                $subQuery->where('codigo', 'like', "%{$search}%")
+                    ->orWhere('nombres', 'like', "%{$search}%")
+                    ->orWhere('apellidos', 'like', "%{$search}%");
+            });
+        }
+
         if (! $request->boolean('incluir_inactivos')) {
             $query->where('activo', true);
         }

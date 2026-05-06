@@ -186,7 +186,9 @@ export default function AlertasPanel({ onClose = null }) {
         <div className="min-w-0">
           <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">{vista === 'lista' ? 'Alertas' : 'Detalle de alerta'}</h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
-            Gestión de alertas generadas por el sistema. Las intervenciones se registran al abrir el detalle del caso.
+            {puedeRegistrar
+              ? 'Gestión de alertas generadas por el sistema. Las intervenciones y el cierre se registran desde el detalle del caso.'
+              : 'Consulta de alertas generadas por el sistema. Abra un caso para ver el detalle y el historial (solo lectura).'}
           </p>
         </div>
 
@@ -247,7 +249,9 @@ export default function AlertasPanel({ onClose = null }) {
               {lista.length === 1
                 ? '1 alerta mostrada.'
                 : `${lista.length} alertas mostradas.`}{' '}
-              Pulse «Ver alerta» para intervenir desde el caso.
+              {puedeRegistrar
+                ? 'Pulse «Ver alerta» para registrar intervenciones o cerrar el caso desde el detalle.'
+                : 'Pulse «Ver alerta» para ver el detalle y el historial.'}
             </p>
             <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-sm" data-testid="alertas-tabla">
               <table className="min-w-full text-left text-sm text-[var(--text)]">
@@ -352,6 +356,13 @@ export default function AlertasPanel({ onClose = null }) {
                 Fecha de cierre: {fechaLegible(detalle.fecha_cierre)} · Por: {detalle.cerrada_por?.email ?? '—'}
               </p>
             </Card>
+          ) : null}
+
+          {!puedeRegistrar && detalle.estado !== 'cerrada' ? (
+            <p className="rounded-md border border-[var(--border)] bg-[var(--background)]/40 px-3 py-2 text-xs text-muted">
+              Su perfil solo permite ver alertas. Para registrar una intervención o cerrar el caso necesita el permiso
+              correspondiente en el sistema.
+            </p>
           ) : null}
 
           <Card className="space-y-4">

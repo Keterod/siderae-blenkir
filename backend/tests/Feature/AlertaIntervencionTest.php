@@ -339,4 +339,118 @@ class AlertaIntervencionTest extends TestCase
     {
         $this->getJson('/api/alertas')->assertUnauthorized();
     }
+
+    /**
+     * @return array{0: Alerta, 1: Estudiante}
+     */
+    private function alertaYEstudiantePendiente(): array
+    {
+        $estudiante = Estudiante::factory()->create();
+        $indice = IndiceRiesgo::query()->create([
+            'estudiante_id' => $estudiante->id,
+            'indice' => 0.75,
+            'nivel' => 'Alto',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+            'variables_utilizadas' => null,
+            'modelos_scores' => null,
+        ]);
+        $alerta = Alerta::query()->create([
+            'estudiante_id' => $estudiante->id,
+            'indice_riesgo_id' => $indice->id,
+            'estado' => 'pendiente',
+            'recomendacion' => 'Seguimiento',
+        ]);
+
+        return [$alerta, $estudiante];
+    }
+
+    public function test_usuario_solo_ver_alertas_recibe_403_al_registrar_intervencion(): void
+    {
+        $user = $this->usuarioVerAlertas();
+        [$alerta] = $this->alertaYEstudiantePendiente();
+
+        $this->actingAs($user)->postJson("/api/alertas/{$alerta->id}/intervenciones", [
+            'tipo' => 'academica',
+            'descripcion' => 'Intento sin permiso.',
+            'fecha' => '2026-04-15',
+        ])->assertForbidden();
+    }
+
+    public function test_visitante_sin_sesion_recibe_no_autorizado_al_registrar_intervencion(): void
+    {
+        [$alerta] = $this->alertaYEstudiantePendiente();
+
+        $this->postJson("/api/alertas/{$alerta->id}/intervenciones", [
+            'tipo' => 'academica',
+            'descripcion' => 'Sin sesión.',
+            'fecha' => '2026-04-15',
+        ])->assertUnauthorized();
+    }
+
+    public function test_usuario_solo_ver_alertas_recibe_403_al_cerrar_alerta(): void
+    {
+        $user = $this->usuarioVerAlertas();
+        $estudiante = Estudiante::factory()->create();
+        $indice = IndiceRiesgo::query()->create([
+            'estudiante_id' => $estudiante->id,
+            'indice' => 0.75,
+            'nivel' => 'Alto',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+            'variables_utilizadas' => null,
+            'modelos_scores' => null,
+        ]);
+        $alerta = Alerta::query()->create([
+            'estudiante_id' => $estudiante->id,
+            'indice_riesgo_id' => $indice->id,
+            'estado' => 'en_atencion',
+            'recomendacion' => 'Seguimiento',
+        ]);
+        Intervencion::query()->create([
+            'alerta_id' => $alerta->id,
+            'estudiante_id' => $estudiante->id,
+            'registrado_por' => $user->id,
+            'tipo' => 'academica',
+            'descripcion' => 'Previa',
+            'fecha' => '2026-04-01',
+        ]);
+
+        $this->actingAs($user)->postJson("/api/alertas/{$alerta->id}/cerrar", [
+            'resultado_cierre' => 'Intento de cierre sin permiso.',
+        ])->assertForbidden();
+    }
+
+    public function test_visitante_sin_sesion_recibe_no_autorizado_al_cerrar_alerta(): void
+    {
+        $user = User::factory()->create();
+        $estudiante = Estudiante::factory()->create();
+        $indice = IndiceRiesgo::query()->create([
+            'estudiante_id' => $estudiante->id,
+            'indice' => 0.75,
+            'nivel' => 'Alto',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+            'variables_utilizadas' => null,
+            'modelos_scores' => null,
+        ]);
+        $alerta = Alerta::query()->create([
+            'estudiante_id' => $estudiante->id,
+            'indice_riesgo_id' => $indice->id,
+            'estado' => 'en_atencion',
+            'recomendacion' => 'Seguimiento',
+        ]);
+        Intervencion::query()->create([
+            'alerta_id' => $alerta->id,
+            'estudiante_id' => $estudiante->id,
+            'registrado_por' => $user->id,
+            'tipo' => 'academica',
+            'descripcion' => 'Previa',
+            'fecha' => '2026-04-01',
+        ]);
+
+        $this->postJson("/api/alertas/{$alerta->id}/cerrar", [
+            'resultado_cierre' => 'Sin sesión.',
+        ])->assertUnauthorized();
+    }
 }

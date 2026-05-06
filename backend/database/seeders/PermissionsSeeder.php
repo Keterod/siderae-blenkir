@@ -47,6 +47,7 @@ class PermissionsSeeder extends Seeder
             'directivo' => [
                 'ver_dashboard',
                 'ver_alertas',
+                'registrar_intervencion',
             ],
         ];
 

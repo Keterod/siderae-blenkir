@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import {
   createEstudiante,
@@ -6,6 +6,7 @@ import {
   getEstudiantes,
   updateEstudiante,
 } from '../../lib/api';
+import { anioEscolarActual, gradoEsValidoParaNivel, gradosPorNivel } from '../../lib/academico';
 import EstudiantePerfilDatos from './EstudiantePerfilDatos';
 import EstudiantePerfilRiesgo from './EstudiantePerfilRiesgo';
 import Badge from '../ui/Badge';
@@ -26,8 +27,19 @@ function formularioVacio() {
     seccion: '',
     nivel: 'primaria',
     sede: 'chilca',
-    anio_escolar: '',
+    anio_escolar: anioEscolarActual(),
     activo: true,
+  };
+}
+
+function filtrosVacios() {
+  return {
+    q: '',
+    sede: '',
+    nivel: '',
+    grado: '',
+    seccion: '',
+    anio_escolar: anioEscolarActual(),
   };
 }
 
@@ -54,6 +66,7 @@ function llenarFormulario(desdeServidor) {
 
 export default function EstudiantesPanel({ onClose = null }) {
   const { permissions } = useAuth();
+  const puedeGestionarEstudiantes = permissions.includes('gestionar_estudiantes');
 
   const [vista, setVista] = useState('lista');
   const [lista, setLista] = useState([]);
@@ -64,12 +77,14 @@ export default function EstudiantesPanel({ onClose = null }) {
   const [guardando, setGuardando] = useState(false);
   const [errorGeneral, setErrorGeneral] = useState(null);
   const [campoErrores, setCampoErrores] = useState({});
+  const [filtros, setFiltros] = useState(filtrosVacios());
+  const [filtrosAplicados, setFiltrosAplicados] = useState(filtrosVacios());
 
-  const cargarLista = useCallback(async () => {
+  const cargarLista = useCallback(async (filtrosConsulta = filtrosAplicados) => {
     setErrorGeneral(null);
     setCampoErrores({});
     try {
-      const resultado = await getEstudiantes();
+      const resultado = await getEstudiantes(filtrosConsulta);
       setLista(Array.isArray(resultado) ? resultado : []);
     } catch (error) {
       if (error.status === 403) {
@@ -79,7 +94,7 @@ export default function EstudiantesPanel({ onClose = null }) {
       }
       setLista([]);
     }
-  }, []);
+  }, [filtrosAplicados]);
 
   useEffect(() => {
     if (vista !== 'lista') {
@@ -125,6 +140,16 @@ export default function EstudiantesPanel({ onClose = null }) {
     setErrorGeneral(null);
     setVista('crear');
   }
+
+  const gradosFormulario = useMemo(
+    () => gradosPorNivel(formulario.nivel),
+    [formulario.nivel],
+  );
+
+  const gradosFiltro = useMemo(
+    () => (filtros.nivel ? gradosPorNivel(filtros.nivel) : []),
+    [filtros.nivel],
+  );
 
   async function abrirEdicion(estudianteId) {
     setCargando(true);
@@ -204,6 +229,9 @@ export default function EstudiantesPanel({ onClose = null }) {
   }
 
   function tituloActual() {
+    if ((vista === 'crear' || vista === 'editar') && !puedeGestionarEstudiantes) {
+      return 'Estudiantes';
+    }
     if (vista === 'crear') {
       return 'Registrar estudiante';
     }
@@ -243,9 +271,11 @@ export default function EstudiantesPanel({ onClose = null }) {
               <Button type="button" variant="outline" size="sm" onClick={() => cargarLista()} data-testid="estudiantes-actualizar">
                 Actualizar
               </Button>
-              <Button type="button" variant="primary" size="sm" onClick={() => abrirCreacion()} data-testid="estudiantes-nuevo">
-                Nuevo estudiante
-              </Button>
+              {puedeGestionarEstudiantes ? (
+                <Button type="button" variant="primary" size="sm" onClick={() => abrirCreacion()} data-testid="estudiantes-nuevo">
+                  Nuevo estudiante
+                </Button>
+              ) : null}
             </>
           ) : null}
 
@@ -262,12 +292,113 @@ export default function EstudiantesPanel({ onClose = null }) {
       {vista === 'lista' && cargando ? <LoadingState label="Cargando listado…" /> : null}
 
       {vista === 'lista' && !cargando ? (
-        lista.length === 0 ? (
-          <EmptyState
-            title="Aún no hay estudiantes"
-            description="Cuando registre el primero aparecerán en esta tabla completa institucional. Use «Nuevo estudiante»."
-          />
-        ) : (
+        <>
+          <Card className="space-y-4 shadow-sm">
+            <h3 className="text-sm font-semibold text-[var(--text)]">Búsqueda y filtros</h3>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <label className="text-xs font-medium text-muted">Buscar (código, nombres o apellidos)</label>
+                <input
+                  className="sb-field min-w-0"
+                  value={filtros.q}
+                  onChange={(event) => setFiltros((prev) => ({ ...prev, q: event.target.value }))}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-muted">Sede</label>
+                <select
+                  className="sb-field min-w-0"
+                  value={filtros.sede}
+                  onChange={(event) => setFiltros((prev) => ({ ...prev, sede: event.target.value }))}
+                >
+                  <option value="">Todas</option>
+                  <option value="chilca">Chilca</option>
+                  <option value="auquimarca">Auquimarca</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-muted">Nivel</label>
+                <select
+                  className="sb-field min-w-0"
+                  value={filtros.nivel}
+                  onChange={(event) =>
+                    setFiltros((prev) => {
+                      const nivel = event.target.value;
+                      const grado = gradoEsValidoParaNivel(nivel, prev.grado) ? prev.grado : '';
+                      return { ...prev, nivel, grado };
+                    })
+                  }
+                >
+                  <option value="">Todos</option>
+                  <option value="primaria">Primaria</option>
+                  <option value="secundaria">Secundaria</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-muted">Grado</label>
+                <select
+                  className="sb-field min-w-0"
+                  value={filtros.grado}
+                  onChange={(event) => setFiltros((prev) => ({ ...prev, grado: event.target.value }))}
+                  disabled={!filtros.nivel}
+                >
+                  <option value="">{filtros.nivel ? 'Todos' : 'Seleccione nivel'}</option>
+                  {gradosFiltro.map((grado) => (
+                    <option key={grado} value={grado}>
+                      {grado}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-muted">Sección</label>
+                <input
+                  className="sb-field min-w-0"
+                  value={filtros.seccion}
+                  onChange={(event) => setFiltros((prev) => ({ ...prev, seccion: event.target.value }))}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-muted">Año escolar</label>
+                <input
+                  className="sb-field min-w-0"
+                  value={filtros.anio_escolar}
+                  onChange={(event) => setFiltros((prev) => ({ ...prev, anio_escolar: event.target.value }))}
+                />
+              </div>
+              <div className="flex items-end gap-2 sm:col-span-2">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    setFiltrosAplicados({ ...filtros });
+                  }}
+                >
+                  Aplicar filtros
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const base = filtrosVacios();
+                    setFiltros(base);
+                    setFiltrosAplicados(base);
+                  }}
+                >
+                  Limpiar filtros
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {lista.length === 0 ? (
+            <EmptyState
+              title="Sin resultados"
+              description="No se encontraron estudiantes con los filtros aplicados. Ajuste criterios o limpie filtros."
+            />
+          ) : (
           <div className="space-y-3">
             <p className="text-sm leading-relaxed text-muted">Listado completo institucional; use «Ver perfil» para datos académicos por alumno.</p>
             <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-sm" data-testid="estudiantes-tabla">
@@ -317,15 +448,17 @@ export default function EstudiantesPanel({ onClose = null }) {
                           >
                             Ver perfil
                           </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="text-[var(--secondary)]"
-                            onClick={() => abrirEdicion(item.id)}
-                          >
-                            Editar
-                          </Button>
+                          {puedeGestionarEstudiantes ? (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="text-[var(--secondary)]"
+                              onClick={() => abrirEdicion(item.id)}
+                            >
+                              Editar
+                            </Button>
+                          ) : null}
                         </div>
                       </td>
                     </tr>
@@ -334,12 +467,19 @@ export default function EstudiantesPanel({ onClose = null }) {
               </table>
             </div>
           </div>
-        )
+          )}
+        </>
       ) : null}
 
-      {(vista === 'crear' || vista === 'editar') && cargando ? <LoadingState label="Cargando formulario…" /> : null}
+      {(vista === 'crear' || vista === 'editar') && puedeGestionarEstudiantes && cargando ? (
+        <LoadingState label="Cargando formulario…" />
+      ) : null}
 
-      {(vista === 'crear' || vista === 'editar') && !cargando ? (
+      {(vista === 'crear' || vista === 'editar') && !puedeGestionarEstudiantes ? (
+        <AlertMessage>Su perfil no incluye permiso para crear o editar estudiantes. Use «Volver al listado».</AlertMessage>
+      ) : null}
+
+      {(vista === 'crear' || vista === 'editar') && puedeGestionarEstudiantes && !cargando ? (
         <form
           className="space-y-4"
           onSubmit={(event) => {
@@ -445,12 +585,19 @@ export default function EstudiantesPanel({ onClose = null }) {
 
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-[var(--text)]">Grado</label>
-                <input
+                <select
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.grado}
                   onChange={(event) => setFormulario((valor) => ({ ...valor, grado: event.target.value }))}
-                />
+                >
+                  <option value="">Seleccione…</option>
+                  {gradosFormulario.map((grado) => (
+                    <option key={grado} value={grado}>
+                      {grado}
+                    </option>
+                  ))}
+                </select>
                 {campoErrores.grado ? <p className="text-xs text-red-600">{campoErrores.grado.join(' ')}</p> : null}
               </div>
 
@@ -471,7 +618,13 @@ export default function EstudiantesPanel({ onClose = null }) {
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.nivel}
-                  onChange={(event) => setFormulario((valor) => ({ ...valor, nivel: event.target.value }))}
+                  onChange={(event) =>
+                    setFormulario((valor) => {
+                      const nivel = event.target.value;
+                      const grado = gradoEsValidoParaNivel(nivel, valor.grado) ? valor.grado : '';
+                      return { ...valor, nivel, grado };
+                    })
+                  }
                 >
                   <option value="primaria">Primaria</option>
                   <option value="secundaria">Secundaria</option>
@@ -583,19 +736,21 @@ export default function EstudiantesPanel({ onClose = null }) {
             />
           ) : null}
 
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                void abrirEdicion(detalle.id);
-              }}
-              data-testid="perfil-editar"
-            >
-              Editar estudiante
-            </Button>
-          </div>
+          {puedeGestionarEstudiantes ? (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  void abrirEdicion(detalle.id);
+                }}
+                data-testid="perfil-editar"
+              >
+                Editar estudiante
+              </Button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </Card>

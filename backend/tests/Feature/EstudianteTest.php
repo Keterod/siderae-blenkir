@@ -68,6 +68,27 @@ class EstudianteTest extends TestCase
         $response->assertOk()->assertJsonCount(1);
     }
 
+    public function test_listado_estudiantes_permite_busqueda_por_texto_q(): void
+    {
+        Estudiante::factory()->create(self::estudiantePayloadValido([
+            'codigo' => 'EST-ABC-001',
+            'nombres' => 'Mariana',
+            'apellidos' => 'Quispe',
+        ]));
+        Estudiante::factory()->create(self::estudiantePayloadValido([
+            'codigo' => 'EST-XYZ-009',
+            'nombres' => 'Carlos',
+            'apellidos' => 'Ramos',
+        ]));
+
+        $response = $this->actingAs($this->usuarioConPermiso())
+            ->getJson('/api/estudiantes?q=quisp');
+
+        $response->assertOk()
+            ->assertJsonCount(1)
+            ->assertJsonPath('0.codigo', 'EST-ABC-001');
+    }
+
     public function test_usuario_sin_permiso_recibe_403_al_listar(): void
     {
         $response = $this->actingAs($this->usuarioSinPermiso())
@@ -174,5 +195,51 @@ class EstudianteTest extends TestCase
         $response = $this->actingAs($user)->getJson('/api/estudiantes');
 
         $response->assertOk()->assertJsonCount(1);
+    }
+
+    public function test_usuario_sin_gestionar_estudiantes_recibe_403_al_crear(): void
+    {
+        Permission::firstOrCreate([
+            'name' => 'registrar_datos_academicos',
+            'guard_name' => 'web',
+        ]);
+        $this->crearPermisoGestionEstudiantes();
+
+        $user = User::factory()->create();
+        $user->givePermissionTo('registrar_datos_academicos');
+
+        $response = $this->actingAs($user)->postJson(
+            '/api/estudiantes',
+            self::estudiantePayloadValido(['codigo' => 'NO-GEST-01'])
+        );
+
+        $response->assertForbidden();
+    }
+
+    public function test_usuario_sin_gestionar_estudiantes_recibe_403_al_editar(): void
+    {
+        Permission::firstOrCreate([
+            'name' => 'registrar_datos_academicos',
+            'guard_name' => 'web',
+        ]);
+        $this->crearPermisoGestionEstudiantes();
+
+        $user = User::factory()->create();
+        $user->givePermissionTo('registrar_datos_academicos');
+
+        $estudiante = Estudiante::factory()->create(self::estudiantePayloadValido([
+            'codigo' => 'EDIT403A',
+        ]));
+
+        $response = $this->actingAs($user)->putJson(
+            "/api/estudiantes/{$estudiante->id}",
+            array_merge(self::estudiantePayloadValido([
+                'codigo' => 'EDIT403A',
+            ]), [
+                'nombres' => 'OtroNombre',
+            ])
+        );
+
+        $response->assertForbidden();
     }
 }

@@ -2,10 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Asistencia;
 use App\Models\Estudiante;
 use App\Models\Materia;
+use App\Models\Nota;
 use App\Models\User;
+use App\Models\VariableSocioeconomica;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -518,5 +522,203 @@ class DatosAcademicosTest extends TestCase
         ]);
 
         $response->assertForbidden();
+    }
+
+    public function test_lote_asistencias_visitante_sin_sesion_recibe_401(): void
+    {
+        $response = $this->postJson('/api/asistencias/lote', [
+            'semana_inicio' => '2026-04-14',
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+            'sede' => 'chilca',
+            'nivel' => 'primaria',
+            'grado' => '1°',
+            'seccion' => 'A',
+            'filas' => [],
+        ]);
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_lote_asistencias_usuario_sin_permiso_recibe_403(): void
+    {
+        $ctx = $this->contextoAcademicoBase();
+
+        $e1 = Estudiante::factory()->create([
+            'codigo' => 'LOTE-A-403',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+
+        $response = $this->actingAs($this->usuarioSinPermiso())->postJson('/api/asistencias/lote', [
+            'semana_inicio' => '2026-04-14',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'bimestre' => '1',
+            'sede' => $ctx['sede'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'filas' => [
+                ['estudiante_id' => $e1->id, 'estado' => 'presente'],
+            ],
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_lote_notas_guarda_y_no_falla_si_ml_falla_en_riesgo_automatico(): void
+    {
+        config(['services.ml.url' => 'http://ml-test.local']);
+        Http::fake(['*' => Http::response('Service Unavailable', 503)]);
+
+        $ctx = $this->contextoAcademicoBase();
+        $actor = $this->usuarioPermitido();
+
+        $e1 = Estudiante::factory()->create([
+            'codigo' => 'AUTO-N-01',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+        $e2 = Estudiante::factory()->create([
+            'codigo' => 'AUTO-N-02',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+
+        foreach ([$e1, $e2] as $estudiante) {
+            Asistencia::query()->create([
+                'estudiante_id' => $estudiante->id,
+                'semana_inicio' => '2026-04-01',
+                'estado' => 'presente',
+                'anio_escolar' => $ctx['anio_escolar'],
+                'bimestre' => '1',
+                'registrado_por' => $actor->id,
+            ]);
+            VariableSocioeconomica::query()->create([
+                'estudiante_id' => $estudiante->id,
+                'composicion_familiar' => 'nuclear',
+                'nivel_socioeconomico' => 'medio',
+                'acceso_internet' => true,
+                'distancia_colegio_km' => 2.4,
+                'anio_escolar' => $ctx['anio_escolar'],
+            ]);
+        }
+
+        $materia = Materia::query()->create([
+            'nombre' => $ctx['nombre'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'anio_escolar' => $ctx['anio_escolar'],
+            'sede' => $ctx['sede'],
+            'activo' => true,
+        ]);
+
+        $response = $this->actingAs($actor)->postJson('/api/notas/lote', [
+            'materia_id' => $materia->id,
+            'anio_escolar' => $ctx['anio_escolar'],
+            'bimestre' => '1',
+            'sede' => $ctx['sede'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'filas' => [
+                ['estudiante_id' => $e1->id, 'nota' => 14],
+                ['estudiante_id' => $e2->id, 'nota' => 15],
+            ],
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('total', 2)
+            ->assertJsonPath('riesgo.procesados', 0)
+            ->assertJsonCount(2, 'riesgo.fallidos');
+
+        $this->assertDatabaseHas('notas', ['estudiante_id' => $e1->id, 'materia_id' => $materia->id]);
+        $this->assertDatabaseHas('notas', ['estudiante_id' => $e2->id, 'materia_id' => $materia->id]);
+    }
+
+    public function test_lote_asistencia_guarda_y_no_falla_si_ml_falla_en_riesgo_automatico(): void
+    {
+        config(['services.ml.url' => 'http://ml-test.local']);
+        Http::fake(['*' => Http::response('Service Unavailable', 503)]);
+
+        $ctx = $this->contextoAcademicoBase();
+        $actor = $this->usuarioPermitido();
+
+        $e1 = Estudiante::factory()->create([
+            'codigo' => 'AUTO-A-01',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+        $e2 = Estudiante::factory()->create([
+            'codigo' => 'AUTO-A-02',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+
+        $materia = Materia::query()->create([
+            'nombre' => $ctx['nombre'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'anio_escolar' => $ctx['anio_escolar'],
+            'sede' => $ctx['sede'],
+            'activo' => true,
+        ]);
+
+        foreach ([$e1, $e2] as $estudiante) {
+            Nota::query()->create([
+                'estudiante_id' => $estudiante->id,
+                'materia_id' => $materia->id,
+                'anio_escolar' => $ctx['anio_escolar'],
+                'bimestre' => '1',
+                'curso' => $ctx['nombre'],
+                'nota' => 12.5,
+                'nota_conducta' => null,
+            ]);
+            VariableSocioeconomica::query()->create([
+                'estudiante_id' => $estudiante->id,
+                'composicion_familiar' => 'nuclear',
+                'nivel_socioeconomico' => 'medio',
+                'acceso_internet' => true,
+                'distancia_colegio_km' => 2.1,
+                'anio_escolar' => $ctx['anio_escolar'],
+            ]);
+        }
+
+        $response = $this->actingAs($actor)->postJson('/api/asistencias/lote', [
+            'semana_inicio' => '2026-04-14',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'bimestre' => '1',
+            'sede' => $ctx['sede'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'filas' => [
+                ['estudiante_id' => $e1->id, 'estado' => 'presente'],
+                ['estudiante_id' => $e2->id, 'estado' => 'falta'],
+            ],
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('total', 2)
+            ->assertJsonPath('riesgo.procesados', 0)
+            ->assertJsonCount(2, 'riesgo.fallidos');
+
+        $this->assertDatabaseHas('asistencias', ['estudiante_id' => $e1->id, 'registrado_por' => $actor->id]);
+        $this->assertDatabaseHas('asistencias', ['estudiante_id' => $e2->id, 'registrado_por' => $actor->id]);
     }
 }
