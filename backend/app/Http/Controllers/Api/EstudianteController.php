@@ -29,6 +29,16 @@ class EstudianteController extends Controller
 
         $estudiante = Estudiante::create($data);
 
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estudiante)
+            ->withProperties([
+                'accion' => 'estudiante.creado',
+                'estudiante_id' => $estudiante->id,
+                'codigo' => $estudiante->codigo,
+            ])
+            ->log('estudiante.creado');
+
         return response()->json($estudiante, 201);
     }
 
@@ -43,6 +53,17 @@ class EstudianteController extends Controller
     public function update(UpdateEstudianteRequest $request, Estudiante $estudiante): JsonResponse
     {
         $estudiante->update($request->validated());
+        $estudiante->refresh();
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estudiante)
+            ->withProperties([
+                'accion' => 'estudiante.actualizado',
+                'estudiante_id' => $estudiante->id,
+                'codigo' => $estudiante->codigo,
+            ])
+            ->log('estudiante.actualizado');
 
         return response()->json($estudiante->fresh());
     }

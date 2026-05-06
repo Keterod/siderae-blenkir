@@ -47,6 +47,7 @@ Campos usados por el servicio:
   - **Pendiente de desarrollo** (no se detectan endpoints ni flujo de reentrenamiento).
 
 ## Limites actuales del modelo
+- Sprint **7.5A** no modifica `ml-service/`; la integracion Laravel → Flask y la auditoria en Laravel son independientes de este microservicio.
 - `main.py` describe el calculo como "prototipo deterministico".
 - No se detecta en `ml-service/` codigo de entrenamiento (`fit`) ni librerias de modelos (`scikit-learn`, `xgboost`) en `requirements.txt`.
 - No se confirma version productiva de modelos entrenados en el estado actual.

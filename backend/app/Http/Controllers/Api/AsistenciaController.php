@@ -26,6 +26,19 @@ class AsistenciaController extends Controller
 
         $asistencia = $estudiante->asistencias()->create($payload);
 
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($asistencia)
+            ->withProperties([
+                'accion' => 'asistencia.registrada',
+                'estudiante_id' => $estudiante->id,
+                'asistencia_id' => $asistencia->id,
+                'anio_escolar' => $asistencia->anio_escolar,
+                'bimestre' => $asistencia->bimestre,
+                'estado' => $asistencia->estado,
+            ])
+            ->log('asistencia.registrada');
+
         return response()->json($asistencia, 201);
     }
 }

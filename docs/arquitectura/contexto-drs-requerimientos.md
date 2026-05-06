@@ -193,6 +193,13 @@ Resumen de la **Sección 10** del DRS (RNF-01 a RNF-10), **sin** desarrollar mar
 
 ---
 
+## Nota operativa repositorio (no altera el DRS formal)
+
+- Tras **Sprint 7.5A**, el backend registra en la tabla `activity_log` (paquete Spatie) varias acciones críticas de la API (estudiantes, datos académicos, riesgo, alertas, intervenciones, cierre, export PDF del dashboard). Detalle en `docs/arquitectura/contexto-backend-laravel.md`.
+- **RF-17** del PDF sigue siendo el requisito formal; la implementación en código es **parcial** (sin UI de auditoría ni cobertura explícita de todos los REQ del PDF).
+
+---
+
 ## Referencias locales
 
 | Documento | Uso |

@@ -38,6 +38,17 @@ class IntervencionController extends Controller
 
         $intervencion->load('registradoPor:id,email');
 
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($intervencion)
+            ->withProperties([
+                'accion' => 'intervencion.registrada',
+                'alerta_id' => $alerta->id,
+                'estudiante_id' => $alerta->estudiante_id,
+                'intervencion_id' => $intervencion->id,
+            ])
+            ->log('intervencion.registrada');
+
         return response()->json($intervencion, 201);
     }
 }

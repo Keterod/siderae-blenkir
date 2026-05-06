@@ -57,8 +57,9 @@ El frontend React es la capa de interfaz del usuario. Consume la API Laravel, mu
 - RF-06/RF-07 riesgo: **Confirmado en codigo**.
 - RF-08 alertas: **Confirmado en codigo**.
 - RF-09 intervencion: **Confirmado en codigo**.
-- RF-14 dashboard: **Implementado parcialmente** (opcion por permiso en menu; pantalla completa no confirmada en `frontend/src` revisado).
-- RF-16 exportacion: **Pendiente de desarrollo** (no se confirma flujo UI de export).
+- RF-14 dashboard: **Implementado parcialmente** (panel con KPIs/filtros y consumo de `GET /api/dashboard`; alcance completo REQ-14.x del DRS **pendiente de verificar**).
+- RF-16 exportacion: **Implementado parcialmente** (export PDF del dashboard desde UI vía `exportDashboardPdf` en `lib/api.js`; otros PDF del DRS **pendiente de desarrollo**).
+- RF-17 auditoria: **Confirmado en codigo** solo en backend (`activity_log`); **sin** pantalla de consulta de logs en el front.
 - RF-19 semaforo: **Pendiente de desarrollo** (no se observa componente semaforo verde/amarillo/rojo).
 - RF-20 historial de riesgo: **Implementado parcialmente** (se muestra ultimo indice; historial visual bimestral no confirmado).
 

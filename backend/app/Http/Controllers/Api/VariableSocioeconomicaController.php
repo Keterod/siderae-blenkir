@@ -38,6 +38,17 @@ class VariableSocioeconomicaController extends Controller
             ]
         )->fresh();
 
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($registro)
+            ->withProperties([
+                'accion' => 'variables_socioeconomicas.guardadas',
+                'estudiante_id' => $estudiante->id,
+                'variable_socioeconomica_id' => $registro->id,
+                'anio_escolar' => $registro->anio_escolar,
+            ])
+            ->log('variables_socioeconomicas.guardadas');
+
         return response()->json($registro);
     }
 }

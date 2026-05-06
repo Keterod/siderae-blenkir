@@ -9,7 +9,7 @@ SIDERAE-Blenkir es un sistema web que permite:
 
 - Gestionar estudiantes
 - Registrar datos académicos (notas, asistencia, variables socioeconómicas)
-- Detectar riesgo académico mediante Machine Learning
+- Detectar riesgo académico mediante un servicio ML (Flask) acoplado a Laravel; el índice actual es de **prototipo** (ver `ml-service/main.py`)
 - Gestionar alertas e intervenciones sobre estudiantes en riesgo
 
 ---
@@ -19,7 +19,7 @@ SIDERAE-Blenkir es un sistema web que permite:
 El sistema está dividido en:
 
 - **Frontend:** React + Vite + Tailwind
-- **Backend:** Laravel 11 (API REST)
+- **Backend:** Laravel 13 (API REST; ver `backend/composer.json`)
 - **Base de datos:** MySQL 8
 - **ML Service:** Python (Flask)
 - **Infraestructura:** Docker + Docker Compose
@@ -175,9 +175,8 @@ Password: password
 
 ✔ Sprint 4
 
-Integración con Machine Learning (Flask)
-Procesamiento de riesgo académico
-Cálculo de índice de riesgo (Alto / Medio / Bajo)
+Integración con servicio Flask (`/predict`): cálculo de índice y nivel (Alto / Medio / Bajo) en prototipo determinístico
+Procesamiento de riesgo vía `POST /api/estudiantes/{id}/procesar-riesgo` (no automático al guardar cada nota)
 Persistencia del riesgo en base de datos
 Visualización en el perfil del estudiante
 Pruebas automatizadas
@@ -198,15 +197,22 @@ Ejecutar:
 docker compose exec app-backend php artisan test
 ```
 
-## 🧠 Estado del proyecto
-✔ Sistema funcional
-✔ Base de datos estructurada
-✔ Sistema inteligente completo funcionando
-✔ Machine Learning integrado
-✔ Alertas e intervenciones operativas
+## 🧠 Estado del proyecto (prototipo académico)
 
-## 🚧 Próximos desarrollos
-- Sprint 6: Dashboard y visualización
+- Sistema **funcional** en flujos principales (login, estudiantes, datos académicos, riesgo, alertas, dashboard y export PDF básicos).
+- Base de datos estructurada con migraciones del repo.
+- **ML:** integración Laravel → Flask **confirmada**; modelo en Flask es **prototipo determinístico**, no equivalente a pipelines RF/SVM/XGBoost del DRS hasta que exista evidencia en código.
+- **Dashboard y export PDF:** **implementados parcialmente** frente al DRS (ver `docs/arquitectura/resumen-arquitectura.md`).
+- **RF-18** (reentrenamiento) y **RF-19** (semáforo de completitud): **pendientes de desarrollo**.
+- **Auditoría:** `spatie/laravel-activitylog` con tabla `activity_log`; desde Sprint **7.5A** se registran acciones críticas en controladores API (crear/editar estudiante, notas, asistencia, variables, riesgo, alerta automática, intervención, cierre, export PDF dashboard). La cobertura frente a todo el RF-17 del DRS sigue siendo **parcial**.
+
+## 🚧 Próximos desarrollos (orientación)
+
+- **Sprint 8:** seguridad, matriz rol–permiso–endpoint, refuerzo de pruebas 401/403.
+- **Sprint 9:** pruebas integrales / regresión (incl. E2E cuando aplique).
+- **Sprint 10:** documentación final y cierre de calidad.
+
+*(Los sprints 6 y 7 del plan operativo ya tienen entregables base en el repositorio; el roadmap completo está en `sprints/`.)*
 ## 👥 Equipo
 - Diego Carhuamaca Vasquez
 - Ernesto Chuchon Sotelo

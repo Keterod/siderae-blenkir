@@ -33,6 +33,14 @@ class DashboardController extends Controller
 
         $generadoAt = now()->timezone(config('app.timezone'))->format('d/m/Y H:i');
 
+        activity()
+            ->causedBy($usuario)
+            ->withProperties([
+                'accion' => 'dashboard.pdf_exportado',
+                'filtros' => $carga['filtros_aplicados'] ?? [],
+            ])
+            ->log('dashboard.pdf_exportado');
+
         return Pdf::loadView('pdf.dashboard', array_merge($carga, [
             'generado_at' => $generadoAt,
             'usuario_email' => $usuario?->email ?? '—',

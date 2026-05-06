@@ -74,6 +74,20 @@ El backend Laravel es la capa central de negocio: autentica usuarios, valida per
 - Registro de intervencion: `IntervencionController`.
 - Cierre de alerta: `AlertaCierreController` (validado por pruebas Feature).
 
+## Auditoria (`activity_log`, Spatie)
+- Dependencia y migraciones de tabla: **confirmadas en codigo**.
+- **Sprint 7.5A:** registro manual con `activity()->causedBy(...)->performedOn(...)->withProperties(...)->log(...)` en:
+  - `EstudianteController` (store, update)
+  - `NotaController::store`
+  - `AsistenciaController::store`
+  - `VariableSocioeconomicaController::store`
+  - `ProcesarRiesgoController::store` (log `riesgo.procesado` y, si aplica, `alerta.generada`)
+  - `IntervencionController::store`
+  - `AlertaCierreController::store`
+  - `DashboardController::export` (`dashboard.pdf_exportado`, sin `subject` morph)
+- **No publicado** en repo: `config/activitylog.php` (se usan valores por defecto del paquete).
+- **Pendiente de desarrollo / Sprint 8+:** pantalla o API de consulta de logs, cobertura total segun RF-17 del DRS, decision de retencion y matriz rol–accion–auditoria.
+
 ## Pruebas Feature detectadas
 - Auth:
   - `AuthenticationTest`, `RegistrationTest`, `PasswordResetTest`, `EmailVerificationTest`
@@ -82,6 +96,8 @@ El backend Laravel es la capa central de negocio: autentica usuarios, valida per
   - `DatosAcademicosTest`
   - `RiesgoTest`
   - `AlertaIntervencionTest`
+  - `DashboardTest`
+  - `ActivityLogTest` (auditoria en acciones criticas)
 
 ## Estado backend frente a RF relevantes
 - RF-01: **Implementado parcialmente** (carga manual de notas confirmada; importacion `.xlsx/.csv` no confirmada por rutas/controladores revisados).
@@ -93,7 +109,7 @@ El backend Laravel es la capa central de negocio: autentica usuarios, valida per
 - RF-09: **Confirmado en codigo**.
 - RF-13: **Confirmado en codigo**.
 - RF-15: **Confirmado en codigo**.
-- RF-17: **Pendiente de verificar** (dependencia y tabla existen, cobertura funcional completa no confirmada).
+- RF-17: **Implementado parcialmente** (registros en acciones criticas API desde Sprint 7.5A; consulta de logs y alcance total REQ-17.x **pendiente de verificar** frente al DRS).
 
 ## Reglas para Cursor (backend)
 - No romper autenticacion ni sesion.
@@ -104,7 +120,7 @@ El backend Laravel es la capa central de negocio: autentica usuarios, valida per
 - Distinguir siempre entre alcance DRS y estado implementado.
 
 ## Pendientes de verificar
-- Implementacion real y funcional de `GET /api/dashboard` en controladores activos.
+- Ampliacion de dashboard/export frente a todos los REQ del DRS (RF-14, RF-16).
 - Endpoints/servicios de importacion Excel/CSV (RF-01 completo).
-- Flujo de exportacion PDF (RF-16) en rutas/controladores actuales.
-- Cobertura completa de `activity_log` segun RF-17.
+- Cobertura completa de auditoria segun RF-17 (UI, politicas, retencion).
+- Matriz rol–permiso–cierre de alerta (p. ej. directivo sin `registrar_intervencion` en seeder actual): decision de negocio para Sprint 8.

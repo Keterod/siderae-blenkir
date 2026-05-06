@@ -72,6 +72,32 @@ class ProcesarRiesgoController extends Controller
 
         $alertaGenerada = Alerta::crearPorRiesgoAltoSiAplica($estudiante, $registro);
 
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($registro)
+            ->withProperties([
+                'accion' => 'riesgo.procesado',
+                'estudiante_id' => $estudiante->id,
+                'indice_riesgo_id' => $registro->id,
+                'nivel' => $nivel,
+                'bimestre' => $bimestre,
+                'anio_escolar' => $anio,
+            ])
+            ->log('riesgo.procesado');
+
+        if ($alertaGenerada !== null) {
+            activity()
+                ->causedBy($request->user())
+                ->performedOn($alertaGenerada)
+                ->withProperties([
+                    'accion' => 'alerta.generada',
+                    'alerta_id' => $alertaGenerada->id,
+                    'estudiante_id' => $estudiante->id,
+                    'indice_riesgo_id' => $registro->id,
+                ])
+                ->log('alerta.generada');
+        }
+
         return response()->json(array_merge(
             $registro->toArray(),
             [

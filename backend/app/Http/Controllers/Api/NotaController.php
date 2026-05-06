@@ -24,6 +24,19 @@ class NotaController extends Controller
     {
         $nota = $estudiante->notas()->create($request->validated());
 
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($nota)
+            ->withProperties([
+                'accion' => 'nota.registrada',
+                'estudiante_id' => $estudiante->id,
+                'nota_id' => $nota->id,
+                'anio_escolar' => $nota->anio_escolar,
+                'bimestre' => $nota->bimestre,
+                'curso' => $nota->curso,
+            ])
+            ->log('nota.registrada');
+
         return response()->json($nota, 201);
     }
 }

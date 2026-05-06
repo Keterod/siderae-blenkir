@@ -33,8 +33,20 @@ class AlertaCierreController extends Controller
             ]);
         });
 
-        $alerta->load(['cerradaPor:id,email', 'intervenciones.registradoPor:id,email']);
+        $alertaCerrada = $alerta->fresh();
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($alertaCerrada)
+            ->withProperties([
+                'accion' => 'alerta.cerrada',
+                'alerta_id' => $alertaCerrada->id,
+                'estudiante_id' => $alertaCerrada->estudiante_id,
+                'estado' => 'cerrada',
+            ])
+            ->log('alerta.cerrada');
 
-        return response()->json($alerta->fresh());
+        $alertaCerrada->load(['cerradaPor:id,email', 'intervenciones.registradoPor:id,email']);
+
+        return response()->json($alertaCerrada->fresh());
     }
 }

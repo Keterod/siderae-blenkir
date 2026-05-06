@@ -1,42 +1,40 @@
 # Arquitectura del Sistema SIDERAE-Blenkir
 
 ## 1. Descripción General
-SIDERAE-Blenkir utiliza una arquitectura de microservicios desacoplados orquestados mediante Docker, diseñada para cumplir con los estándares de mantenibilidad de ISO/IEC 25010.
+SIDERAE-Blenkir utiliza una arquitectura de microservicios desacoplados orquestados mediante Docker, orientada a un **prototipo académico** con alcance formal definido en el DRS. El código real del repositorio puede ir por detrás del alcance DRS en varios RF; priorizar siempre verificación en código.
 
 ## 2. Componentes del Sistema
 
 ### A. Frontend (Client Tier)
-- **Tecnología:** React 18 + Vite.
-- **Puerto Local:** `http://localhost:5173`
-- **Responsabilidad:** Interfaz de usuario para los 5 roles, visualización del semáforo de riesgo (RF-19) y carga de archivos Excel (RF-01).
+- **Tecnología:** React + Vite (ver `frontend/package.json` para versiones).
+- **Puerto local típico:** `http://localhost:5173`
+- **Responsabilidad:** Interfaz para los roles definidos en seeders; consumo de la API Laravel. El **semáforo RF-19** y la **importación masiva Excel/CSV RF-01** **no están confirmados** en el frontend actual: tratarlos como **pendientes de desarrollo** salvo evidencia en código.
 
 ### B. Backend (Application Tier)
-- **Tecnología:** Laravel 11 (PHP 8.3).
-- **Puerto Local:** `http://localhost:8000`
-- **Responsabilidad:** - API REST principal.
-    - Gestión de autenticación y roles (RN-05).
-    - CRUD de estudiantes y notas.
-    - Orquestación: Envía datos a Flask y recibe predicciones de riesgo.
+- **Tecnología:** Laravel (versión según `backend/composer.json`, actualmente ^13) y PHP 8.3.
+- **Puerto local típico:** `http://localhost:8000`
+- **Responsabilidad:** API REST principal, autenticación Sanctum, autorización Spatie (`permission:*` en rutas sensibles), persistencia en MySQL, orquestación del cálculo de riesgo llamando a Flask, alertas e intervenciones. **Auditoría:** registro de acciones críticas con `spatie/laravel-activitylog` en controladores API (Sprint 7.5A).
 
 ### C. ML Service (Intelligence Tier)
-- **Tecnología:** Python 3.11 + Flask.
-- **Puerto Local:** `http://localhost:5000`
-- **Responsabilidad:** - Ejecución de modelos Random Forest, SVM y XGBoost.
-    - Retorno del "Índice de Riesgo" (valor 0 a 1).
+- **Tecnología:** Python + Flask (ver `ml-service/requirements.txt`).
+- **Puerto local típico:** `http://localhost:5000`
+- **Responsabilidad:** Endpoint `POST /predict` que devuelve `indice_riesgo` y `nivel_riesgo`. En el estado actual del código, el cálculo es un **prototipo determinístico** documentado en `ml-service/main.py`. **No confirmado en el estado actual:** entrenamiento ni inferencia con Random Forest, SVM y XGBoost como producto separado (alcance formal DRS / RF-06 avanzado).
 
 ### D. Database (Data Tier)
-- **Tecnología:** MySQL 8.0.
-- **Puerto Local:** `3306`
-- **Nombre BD:** `siderae_db`
+- **Tecnología:** MySQL 8.0 (contenedor `db-mysql`).
+- **Puerto desde el host (Docker Compose del repo):** `3307` → `3306` en el contenedor.
+- **Nombre BD (ejemplo):** `siderae_db`
 
 ## 3. Flujo de Datos Crítico (Detección de Riesgo)
-1. **Frontend:** El docente sube notas (RF-01).
-2. **Backend:** Valida y almacena en MySQL. Automáticamente dispara una solicitud `POST` a `http://ml-engine:5000/predict`.
-3. **ML Service:** Procesa los datos y devuelve el índice de riesgo.
-4. **Backend:** Evalúa **RN-01**. Si el promedio es < 11 o el índice es > 0.7, marca al estudiante en "Riesgo Alto".
-5. **Frontend:** Actualiza el semáforo a Rojo (RF-19).
+1. **Frontend:** El usuario con permiso `procesar_riesgo` dispara el procesamiento (p. ej. acción que llama `POST /api/estudiantes/{id}/procesar-riesgo`).
+2. **Backend:** Valida datos mínimos, construye el payload y llama a Flask (`MlRiskService` → `POST {ML_SERVICE_URL}/predict`).
+3. **ML Service:** Devuelve índice y nivel.
+4. **Backend:** Clasifica/persiste en `indices_riesgo`, puede generar alerta si el nivel es Alto (lógica en `App\Models\Alerta`), y **registra actividad** en `activity_log` para trazabilidad.
+5. **Frontend:** Muestra el último índice en el perfil del estudiante según la API.
+
+**Nota:** No hay en el código revisado un disparo **automático** a Flask inmediatamente después de cada `POST` de nota; el flujo explícito de riesgo es el endpoint de procesamiento.
 
 ## 4. Red de Docker (Network)
 Los servicios se comunican internamente usando los nombres de servicio definidos en el `docker-compose.yml`:
 - El backend se conecta a la DB vía `db-mysql`.
-- El backend se conecta a la IA vía `ml-engine`.
+- El backend se conecta al servicio ML vía el hostname configurado en `ML_SERVICE_URL` (p. ej. `ml-engine` dentro de Compose).
