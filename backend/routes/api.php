@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Api\AlertaCierreController;
 use App\Http\Controllers\Api\AlertaController;
+use App\Http\Controllers\Api\AsistenciaBatchController;
 use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EstudianteController;
 use App\Http\Controllers\Api\MateriaController;
 use App\Http\Controllers\Api\IntervencionController;
+use App\Http\Controllers\Api\NotaBatchController;
 use App\Http\Controllers\Api\NotaController;
 use App\Http\Controllers\Api\ProcesarRiesgoController;
 use App\Http\Controllers\Api\VariableSocioeconomicaController;
@@ -40,23 +42,37 @@ Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])
         Route::get('/dashboard/export', [DashboardController::class, 'export']);
     });
 
-Route::middleware(['auth:sanctum', 'permission:gestionar_materias'])
-    ->prefix('materias')
+Route::middleware(['auth:sanctum', 'permission:gestionar_materias|registrar_datos_academicos'])
     ->group(function (): void {
-        Route::get('/', [MateriaController::class, 'index']);
-        Route::post('/', [MateriaController::class, 'store']);
-        Route::get('/{materia}', [MateriaController::class, 'show']);
-        Route::match(['put', 'patch'], '/{materia}', [MateriaController::class, 'update']);
-        Route::patch('/{materia}/desactivar', [MateriaController::class, 'desactivar']);
-        Route::patch('/{materia}/activar', [MateriaController::class, 'activar']);
+        Route::get('/materias', [MateriaController::class, 'index']);
+        Route::get('/materias/{materia}', [MateriaController::class, 'show']);
+    });
+
+Route::middleware(['auth:sanctum', 'permission:gestionar_materias'])
+    ->group(function (): void {
+        Route::post('/materias', [MateriaController::class, 'store']);
+        Route::match(['put', 'patch'], '/materias/{materia}', [MateriaController::class, 'update']);
+        Route::patch('/materias/{materia}/desactivar', [MateriaController::class, 'desactivar']);
+        Route::patch('/materias/{materia}/activar', [MateriaController::class, 'activar']);
+    });
+
+Route::middleware(['auth:sanctum', 'permission:gestionar_estudiantes|registrar_datos_academicos'])
+    ->group(function (): void {
+        Route::get('/estudiantes', [EstudianteController::class, 'index']);
+        Route::get('/estudiantes/{estudiante}', [EstudianteController::class, 'show']);
     });
 
 Route::middleware(['auth:sanctum', 'permission:gestionar_estudiantes'])
-    ->apiResource('estudiantes', EstudianteController::class)
-    ->only(['index', 'store', 'show', 'update']);
+    ->group(function (): void {
+        Route::post('/estudiantes', [EstudianteController::class, 'store']);
+        Route::match(['put', 'patch'], '/estudiantes/{estudiante}', [EstudianteController::class, 'update']);
+    });
 
 Route::middleware(['auth:sanctum', 'permission:registrar_datos_academicos'])
     ->group(function (): void {
+        Route::post('/notas/lote', [NotaBatchController::class, 'store']);
+        Route::post('/asistencias/lote', [AsistenciaBatchController::class, 'store']);
+
         Route::get('estudiantes/{estudiante}/notas', [NotaController::class, 'index']);
         Route::post('estudiantes/{estudiante}/notas', [NotaController::class, 'store']);
 

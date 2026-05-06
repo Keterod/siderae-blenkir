@@ -7,17 +7,41 @@ use App\Http\Requests\StoreEstudianteRequest;
 use App\Http\Requests\UpdateEstudianteRequest;
 use App\Models\Estudiante;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class EstudianteController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $estudiantes = Estudiante::query()
+        $query = Estudiante::query()
             ->orderBy('apellidos')
-            ->orderBy('nombres')
-            ->get();
+            ->orderBy('nombres');
 
-        return response()->json($estudiantes);
+        if ($request->filled('sede')) {
+            $query->where('sede', $request->query('sede'));
+        }
+
+        if ($request->filled('nivel')) {
+            $query->where('nivel', $request->query('nivel'));
+        }
+
+        if ($request->filled('grado')) {
+            $query->where('grado', $request->query('grado'));
+        }
+
+        if ($request->filled('seccion')) {
+            $query->where('seccion', $request->query('seccion'));
+        }
+
+        if ($request->filled('anio_escolar')) {
+            $query->where('anio_escolar', $request->query('anio_escolar'));
+        }
+
+        if (! $request->boolean('incluir_inactivos')) {
+            $query->where('activo', true);
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(StoreEstudianteRequest $request): JsonResponse

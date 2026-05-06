@@ -273,4 +273,250 @@ class DatosAcademicosTest extends TestCase
 
         $response->assertStatus(422)->assertJsonValidationErrors(['materia_id']);
     }
+
+    /** @return array{nombre: string, nivel: string, grado: string, anio_escolar: string, sede: string, seccion: string} */
+    private function contextoAcademicoBase(): array
+    {
+        return [
+            'anio_escolar' => '2026',
+            'grado' => '1°',
+            'seccion' => 'A',
+            'nivel' => 'primaria',
+            'sede' => 'chilca',
+            'nombre' => 'Comunicación',
+        ];
+    }
+
+    public function test_usuario_con_permiso_registra_notas_en_lote(): void
+    {
+        $ctx = $this->contextoAcademicoBase();
+
+        $e1 = Estudiante::factory()->create([
+            'codigo' => 'LOTE-N-01',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+        $e2 = Estudiante::factory()->create([
+            'codigo' => 'LOTE-N-02',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+
+        $materia = Materia::query()->create([
+            'nombre' => $ctx['nombre'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'anio_escolar' => $ctx['anio_escolar'],
+            'sede' => $ctx['sede'],
+            'activo' => true,
+        ]);
+
+        $actor = $this->usuarioPermitido();
+
+        $response = $this->actingAs($actor)->postJson('/api/notas/lote', [
+            'materia_id' => $materia->id,
+            'anio_escolar' => $ctx['anio_escolar'],
+            'bimestre' => '1',
+            'sede' => $ctx['sede'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'filas' => [
+                ['estudiante_id' => $e1->id, 'nota' => 12],
+                ['estudiante_id' => $e2->id, 'nota' => 15.5],
+            ],
+        ]);
+
+        $response->assertCreated()->assertJsonPath('total', 2);
+
+        $this->assertDatabaseHas('notas', [
+            'estudiante_id' => $e1->id,
+            'materia_id' => $materia->id,
+            'curso' => 'Comunicación',
+        ]);
+
+        $this->assertDatabaseHas('activity_log', [
+            'description' => 'nota.lote_registrado',
+            'causer_id' => $actor->id,
+        ]);
+    }
+
+    public function test_lote_notas_nota_fuera_de_rango_retorna_422(): void
+    {
+        $ctx = $this->contextoAcademicoBase();
+
+        $e1 = Estudiante::factory()->create([
+            'codigo' => 'LOTE-N-R01',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+
+        $materia = Materia::query()->create([
+            'nombre' => $ctx['nombre'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'anio_escolar' => $ctx['anio_escolar'],
+            'sede' => $ctx['sede'],
+            'activo' => true,
+        ]);
+
+        $response = $this->actingAs($this->usuarioPermitido())->postJson('/api/notas/lote', [
+            'materia_id' => $materia->id,
+            'anio_escolar' => $ctx['anio_escolar'],
+            'bimestre' => '2',
+            'sede' => $ctx['sede'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'filas' => [
+                ['estudiante_id' => $e1->id, 'nota' => 22],
+            ],
+        ]);
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['filas.0.nota']);
+    }
+
+    public function test_usuario_con_permiso_registra_asistencias_en_lote(): void
+    {
+        $ctx = $this->contextoAcademicoBase();
+
+        $e1 = Estudiante::factory()->create([
+            'codigo' => 'LOTE-A-01',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+        $e2 = Estudiante::factory()->create([
+            'codigo' => 'LOTE-A-02',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+
+        $actor = $this->usuarioPermitido();
+
+        $response = $this->actingAs($actor)->postJson('/api/asistencias/lote', [
+            'semana_inicio' => '2026-04-14',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'bimestre' => '1',
+            'sede' => $ctx['sede'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'filas' => [
+                ['estudiante_id' => $e1->id, 'estado' => 'presente'],
+                ['estudiante_id' => $e2->id, 'estado' => 'falta'],
+            ],
+        ]);
+
+        $response->assertCreated()->assertJsonPath('total', 2)
+            ->assertJsonPath('creadas.0.estado', 'presente');
+
+        $this->assertDatabaseHas('asistencias', [
+            'estudiante_id' => $e1->id,
+            'estado' => 'presente',
+            'registrado_por' => $actor->id,
+        ]);
+
+        $this->assertDatabaseHas('activity_log', [
+            'description' => 'asistencia.lote_registrado',
+            'causer_id' => $actor->id,
+        ]);
+    }
+
+    public function test_lote_asistencia_estado_invalido_retorna_422(): void
+    {
+        $ctx = $this->contextoAcademicoBase();
+
+        $e1 = Estudiante::factory()->create([
+            'codigo' => 'LOTE-A-BAD',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+
+        $response = $this->actingAs($this->usuarioPermitido())->postJson('/api/asistencias/lote', [
+            'semana_inicio' => '2026-04-21',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'bimestre' => '3',
+            'sede' => $ctx['sede'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'filas' => [
+                ['estudiante_id' => $e1->id, 'estado' => 'ausente'],
+            ],
+        ]);
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['filas.0.estado']);
+    }
+
+    public function test_lote_notas_visitante_sin_sesion_recibe_401(): void
+    {
+        $response = $this->postJson('/api/notas/lote', [
+            'materia_id' => 1,
+            'anio_escolar' => '2026',
+            'bimestre' => '1',
+            'sede' => 'chilca',
+            'nivel' => 'primaria',
+            'grado' => '1°',
+            'seccion' => 'A',
+            'filas' => [],
+        ]);
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_lote_notas_usuario_sin_permiso_recibe_403(): void
+    {
+        $ctx = $this->contextoAcademicoBase();
+
+        $e1 = Estudiante::factory()->create([
+            'codigo' => 'LOTE-403',
+            'anio_escolar' => $ctx['anio_escolar'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'nivel' => $ctx['nivel'],
+            'sede' => $ctx['sede'],
+        ]);
+
+        $materia = Materia::query()->create([
+            'nombre' => $ctx['nombre'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'anio_escolar' => $ctx['anio_escolar'],
+            'sede' => $ctx['sede'],
+            'activo' => true,
+        ]);
+
+        $response = $this->actingAs($this->usuarioSinPermiso())->postJson('/api/notas/lote', [
+            'materia_id' => $materia->id,
+            'anio_escolar' => $ctx['anio_escolar'],
+            'bimestre' => '1',
+            'sede' => $ctx['sede'],
+            'nivel' => $ctx['nivel'],
+            'grado' => $ctx['grado'],
+            'seccion' => $ctx['seccion'],
+            'filas' => [
+                ['estudiante_id' => $e1->id, 'nota' => 10],
+            ],
+        ]);
+
+        $response->assertForbidden();
+    }
 }

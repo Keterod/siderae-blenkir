@@ -160,8 +160,23 @@ export function activarMateria(id) {
   });
 }
 
-export function getEstudiantes() {
-  return request('/api/estudiantes');
+export function getEstudiantes(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `/api/estudiantes?${qs}` : '/api/estudiantes');
+}
+
+export function postNotasLote(datos) {
+  return request('/api/notas/lote', {
+    method: 'POST',
+    body: datos,
+  });
+}
+
+export function postAsistenciasLote(datos) {
+  return request('/api/asistencias/lote', {
+    method: 'POST',
+    body: datos,
+  });
 }
 
 export function getEstudiante(id) {

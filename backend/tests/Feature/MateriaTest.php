@@ -27,14 +27,6 @@ class MateriaTest extends TestCase
         return $user;
     }
 
-    private function usuarioDocenteSinGestion(): User
-    {
-        $user = User::factory()->create();
-        $user->assignRole('docente');
-
-        return $user;
-    }
-
     private function payloadValida(): array
     {
         return [
@@ -150,13 +142,28 @@ class MateriaTest extends TestCase
         ]);
     }
 
-    public function test_usuario_sin_permiso_no_lista(): void
+    public function test_usuario_sin_permiso_lectura_materias_recibe_403(): void
     {
         Materia::query()->create($this->payloadValida());
 
-        $response = $this->actingAs($this->usuarioDocenteSinGestion())->getJson('/api/materias');
+        $directivo = User::factory()->create();
+        $directivo->assignRole('directivo');
+
+        $response = $this->actingAs($directivo)->getJson('/api/materias');
 
         $response->assertForbidden();
+    }
+
+    public function test_docente_puede_listar_materias_en_lectura(): void
+    {
+        Materia::query()->create($this->payloadValida());
+
+        $docente = User::factory()->create();
+        $docente->assignRole('docente');
+
+        $response = $this->actingAs($docente)->getJson('/api/materias');
+
+        $response->assertSuccessful()->assertJsonCount(1);
     }
 
     public function test_visitante_lista_sin_auth(): void

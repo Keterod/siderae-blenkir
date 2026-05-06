@@ -3,6 +3,8 @@ import AppLayout from './components/layout/AppLayout';
 import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
 import DashboardPanel from './components/DashboardPanel';
+import AsistenciaMasivaPanel from './components/academico/AsistenciaMasivaPanel';
+import NotasMasivasPanel from './components/academico/NotasMasivasPanel';
 import MateriasPanel from './components/materias/MateriasPanel';
 import EstudiantesPanel from './components/estudiantes/EstudiantesPanel';
 import LoginForm from './components/LoginForm';
@@ -21,6 +23,10 @@ function moduloPermitido(key, permissions) {
       return permissions.includes('ver_alertas');
     case 'materias':
       return permissions.includes('gestionar_materias');
+    case 'asistencia':
+      return permissions.includes('registrar_datos_academicos');
+    case 'notas':
+      return permissions.includes('registrar_datos_academicos');
     default:
       return false;
   }
@@ -52,6 +58,10 @@ function tituloModulo(key) {
       return 'Alertas';
     case 'materias':
       return 'Materias';
+    case 'asistencia':
+      return 'Asistencia';
+    case 'notas':
+      return 'Notas';
     default:
       return 'SIDERAE-Blenkir';
   }
@@ -106,6 +116,20 @@ function App() {
         visible: moduloPermitido('estudiantes', permissions),
         active: moduloVista === 'estudiantes',
         onSelect: () => setModuloActivo('estudiantes'),
+      },
+      {
+        key: 'asistencia',
+        label: 'Asistencia',
+        visible: moduloPermitido('asistencia', permissions),
+        active: moduloVista === 'asistencia',
+        onSelect: () => setModuloActivo('asistencia'),
+      },
+      {
+        key: 'notas',
+        label: 'Notas',
+        visible: moduloPermitido('notas', permissions),
+        active: moduloVista === 'notas',
+        onSelect: () => setModuloActivo('notas'),
       },
       {
         key: 'materias',
@@ -173,6 +197,12 @@ function App() {
             ) : null}
 
             {moduloVista === 'estudiantes' && moduloPermitido('estudiantes', permissions) ? <EstudiantesPanel /> : null}
+
+            {moduloVista === 'asistencia' && moduloPermitido('asistencia', permissions) ? (
+              <AsistenciaMasivaPanel />
+            ) : null}
+
+            {moduloVista === 'notas' && moduloPermitido('notas', permissions) ? <NotasMasivasPanel /> : null}
 
             {moduloVista === 'materias' && moduloPermitido('materias', permissions) ? <MateriasPanel /> : null}
 

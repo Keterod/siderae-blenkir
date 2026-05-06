@@ -577,7 +577,9 @@ export default function EstudiantesPanel({ onClose = null }) {
                 sede: detalle.sede,
                 anio_escolar: detalle.anio_escolar,
               }}
-              puedeUsarCatalogoMaterias={permissions.includes('gestionar_materias')}
+              puedeUsarCatalogoMaterias={
+                permissions.includes('gestionar_materias') || permissions.includes('registrar_datos_academicos')
+              }
             />
           ) : null}
 

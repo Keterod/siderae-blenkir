@@ -157,4 +157,22 @@ class EstudianteTest extends TestCase
             'nombres' => 'NombreNuevo',
         ]);
     }
+
+    public function test_usuario_solo_registrar_datos_academicos_puede_listar_estudiantes(): void
+    {
+        Permission::firstOrCreate([
+            'name' => 'registrar_datos_academicos',
+            'guard_name' => 'web',
+        ]);
+        $this->crearPermisoGestionEstudiantes();
+
+        $user = User::factory()->create();
+        $user->givePermissionTo('registrar_datos_academicos');
+
+        Estudiante::factory()->create(self::estudiantePayloadValido());
+
+        $response = $this->actingAs($user)->getJson('/api/estudiantes');
+
+        $response->assertOk()->assertJsonCount(1);
+    }
 }
