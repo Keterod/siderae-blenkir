@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'estudiante_id',
+    'materia_id',
     'anio_escolar',
     'bimestre',
     'curso',
@@ -19,6 +20,11 @@ class Nota extends Model
     public function estudiante(): BelongsTo
     {
         return $this->belongsTo(Estudiante::class);
+    }
+
+    public function materia(): BelongsTo
+    {
+        return $this->belongsTo(Materia::class);
     }
 
     protected function casts(): array

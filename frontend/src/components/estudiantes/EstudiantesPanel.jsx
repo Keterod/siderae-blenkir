@@ -568,7 +568,17 @@ export default function EstudiantesPanel({ onClose = null }) {
           />
 
           {permissions.includes('registrar_datos_academicos') ? (
-            <EstudiantePerfilDatos estudianteId={detalle.id} anioEscolarPorDefecto={detalle.anio_escolar} />
+            <EstudiantePerfilDatos
+              estudianteId={detalle.id}
+              anioEscolarPorDefecto={detalle.anio_escolar}
+              ubicacionEstudiante={{
+                nivel: detalle.nivel,
+                grado: detalle.grado,
+                sede: detalle.sede,
+                anio_escolar: detalle.anio_escolar,
+              }}
+              puedeUsarCatalogoMaterias={permissions.includes('gestionar_materias')}
+            />
           ) : null}
 
           <div className="flex flex-wrap gap-2">

@@ -13,6 +13,7 @@ class PermissionsSeeder extends Seeder
         $permissions = [
             'ver_dashboard',
             'gestionar_estudiantes',
+            'gestionar_materias',
             'registrar_datos_academicos',
             'procesar_riesgo',
             'ver_alertas',

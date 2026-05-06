@@ -129,6 +129,37 @@ export async function exportDashboardPdf(filters = {}) {
   return response.blob();
 }
 
+export function listarMaterias(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `/api/materias?${qs}` : '/api/materias');
+}
+
+export function crearMateria(datos) {
+  return request('/api/materias', {
+    method: 'POST',
+    body: datos,
+  });
+}
+
+export function actualizarMateria(id, datos) {
+  return request(`/api/materias/${id}`, {
+    method: 'PATCH',
+    body: datos,
+  });
+}
+
+export function desactivarMateria(id) {
+  return request(`/api/materias/${id}/desactivar`, {
+    method: 'PATCH',
+  });
+}
+
+export function activarMateria(id) {
+  return request(`/api/materias/${id}/activar`, {
+    method: 'PATCH',
+  });
+}
+
 export function getEstudiantes() {
   return request('/api/estudiantes');
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Estudiante;
+use App\Models\Materia;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -70,6 +71,7 @@ class DatosAcademicosTest extends TestCase
             'estudiante_id' => $estudiante->id,
             'bimestre' => '1',
             'curso' => 'Matemática',
+            'materia_id' => null,
         ]);
     }
 
@@ -209,5 +211,66 @@ class DatosAcademicosTest extends TestCase
         );
 
         $response->assertUnauthorized();
+    }
+
+    public function test_nota_con_materia_guarda_curso_deriva_de_nombre_materia(): void
+    {
+        $estudiante = $this->estudianteBase();
+
+        $materia = Materia::query()->create([
+            'nombre' => 'Comunicación',
+            'nivel' => $estudiante->nivel,
+            'grado' => $estudiante->grado,
+            'anio_escolar' => $estudiante->anio_escolar,
+            'sede' => $estudiante->sede,
+            'activo' => true,
+        ]);
+
+        $response = $this->actingAs($this->usuarioPermitido())->postJson(
+            "/api/estudiantes/{$estudiante->id}/notas",
+            [
+                'anio_escolar' => '2026',
+                'bimestre' => '1',
+                'materia_id' => $materia->id,
+                'nota' => 16,
+                'nota_conducta' => null,
+            ]
+        );
+
+        $response->assertCreated()
+            ->assertJsonPath('curso', 'Comunicación')
+            ->assertJsonPath('materia_id', $materia->id);
+
+        $this->assertDatabaseHas('notas', [
+            'estudiante_id' => $estudiante->id,
+            'curso' => 'Comunicación',
+            'materia_id' => $materia->id,
+        ]);
+    }
+
+    public function test_nota_con_materia_fuera_del_contexto_rechazo(): void
+    {
+        $estudiante = $this->estudianteBase();
+
+        $otraGrado = Materia::query()->create([
+            'nombre' => 'Arte',
+            'nivel' => 'primaria',
+            'grado' => '6°',
+            'anio_escolar' => $estudiante->anio_escolar,
+            'sede' => $estudiante->sede,
+            'activo' => true,
+        ]);
+
+        $response = $this->actingAs($this->usuarioPermitido())->postJson(
+            "/api/estudiantes/{$estudiante->id}/notas",
+            [
+                'anio_escolar' => '2026',
+                'bimestre' => '3',
+                'materia_id' => $otraGrado->id,
+                'nota' => 11,
+            ]
+        );
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['materia_id']);
     }
 }

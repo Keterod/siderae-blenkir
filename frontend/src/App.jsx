@@ -3,6 +3,7 @@ import AppLayout from './components/layout/AppLayout';
 import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
 import DashboardPanel from './components/DashboardPanel';
+import MateriasPanel from './components/materias/MateriasPanel';
 import EstudiantesPanel from './components/estudiantes/EstudiantesPanel';
 import LoginForm from './components/LoginForm';
 import Card from './components/ui/Card';
@@ -18,6 +19,8 @@ function moduloPermitido(key, permissions) {
       return permissions.includes('gestionar_estudiantes');
     case 'alertas':
       return permissions.includes('ver_alertas');
+    case 'materias':
+      return permissions.includes('gestionar_materias');
     default:
       return false;
   }
@@ -26,6 +29,9 @@ function moduloPermitido(key, permissions) {
 function moduloPorDefecto(permissions) {
   if (permissions.includes('ver_dashboard')) {
     return 'dashboard';
+  }
+  if (permissions.includes('gestionar_materias')) {
+    return 'materias';
   }
   if (permissions.includes('gestionar_estudiantes')) {
     return 'estudiantes';
@@ -44,6 +50,8 @@ function tituloModulo(key) {
       return 'Estudiantes';
     case 'alertas':
       return 'Alertas';
+    case 'materias':
+      return 'Materias';
     default:
       return 'SIDERAE-Blenkir';
   }
@@ -98,6 +106,13 @@ function App() {
         visible: moduloPermitido('estudiantes', permissions),
         active: moduloVista === 'estudiantes',
         onSelect: () => setModuloActivo('estudiantes'),
+      },
+      {
+        key: 'materias',
+        label: 'Materias',
+        visible: moduloPermitido('materias', permissions),
+        active: moduloVista === 'materias',
+        onSelect: () => setModuloActivo('materias'),
       },
       {
         key: 'alertas',
@@ -158,6 +173,8 @@ function App() {
             ) : null}
 
             {moduloVista === 'estudiantes' && moduloPermitido('estudiantes', permissions) ? <EstudiantesPanel /> : null}
+
+            {moduloVista === 'materias' && moduloPermitido('materias', permissions) ? <MateriasPanel /> : null}
 
             {moduloVista === 'alertas' && moduloPermitido('alertas', permissions) ? <AlertasPanel /> : null}
           </>

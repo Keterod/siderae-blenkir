@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AlertaController;
 use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EstudianteController;
+use App\Http\Controllers\Api\MateriaController;
 use App\Http\Controllers\Api\IntervencionController;
 use App\Http\Controllers\Api\NotaController;
 use App\Http\Controllers\Api\ProcesarRiesgoController;
@@ -37,6 +38,17 @@ Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])
     ->group(function (): void {
         Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::get('/dashboard/export', [DashboardController::class, 'export']);
+    });
+
+Route::middleware(['auth:sanctum', 'permission:gestionar_materias'])
+    ->prefix('materias')
+    ->group(function (): void {
+        Route::get('/', [MateriaController::class, 'index']);
+        Route::post('/', [MateriaController::class, 'store']);
+        Route::get('/{materia}', [MateriaController::class, 'show']);
+        Route::match(['put', 'patch'], '/{materia}', [MateriaController::class, 'update']);
+        Route::patch('/{materia}/desactivar', [MateriaController::class, 'desactivar']);
+        Route::patch('/{materia}/activar', [MateriaController::class, 'activar']);
     });
 
 Route::middleware(['auth:sanctum', 'permission:gestionar_estudiantes'])

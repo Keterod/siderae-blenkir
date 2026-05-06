@@ -3,6 +3,7 @@ import {
   getAsistencias,
   getNotas,
   getVariablesSocio,
+  listarMaterias,
   postAsistencia,
   postNota,
   postVariablesSocio,
@@ -25,7 +26,12 @@ const PESTANAS = [
   { key: 'variables', label: 'Variables socioeconómicas' },
 ];
 
-export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefecto }) {
+export default function EstudiantePerfilDatos({
+  estudianteId,
+  anioEscolarPorDefecto,
+  ubicacionEstudiante = null,
+  puedeUsarCatalogoMaterias = false,
+}) {
   const [pestaña, setPestaña] = useState('notas');
 
   const [notas, setNotas] = useState([]);
@@ -35,10 +41,13 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
   const [fmNota, setFmNota] = useState({
     anio_escolar: anioEscolarPorDefecto || '',
     bimestre: '1',
+    materia_id: '',
     curso: '',
     nota: '',
     nota_conducta: '',
   });
+
+  const [catalogoMaterias, setCatalogoMaterias] = useState([]);
 
   const [fmAsis, setFmAsis] = useState({
     semana_inicio: '',
@@ -88,6 +97,34 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
     setFmVar((prev) => ({ ...prev, anio_escolar: anioEscolarPorDefecto || prev.anio_escolar }));
   }, [anioEscolarPorDefecto]);
 
+  const cargarCatalogoMaterias = useCallback(async () => {
+    if (!puedeUsarCatalogoMaterias || !ubicacionEstudiante?.nivel) {
+      setCatalogoMaterias([]);
+      return;
+    }
+    try {
+      const anio = fmNota.anio_escolar || ubicacionEstudiante.anio_escolar || '';
+      const datos = await listarMaterias({
+        nivel: ubicacionEstudiante.nivel,
+        grado: ubicacionEstudiante.grado,
+        anio_escolar: anio,
+        sede: ubicacionEstudiante.sede,
+        activo: true,
+      });
+      setCatalogoMaterias(Array.isArray(datos) ? datos : []);
+    } catch {
+      setCatalogoMaterias([]);
+    }
+  }, [
+    puedeUsarCatalogoMaterias,
+    ubicacionEstudiante,
+    fmNota.anio_escolar,
+  ]);
+
+  useEffect(() => {
+    void cargarCatalogoMaterias();
+  }, [cargarCatalogoMaterias]);
+
   useEffect(() => {
     void cargarTodo();
   }, [cargarTodo]);
@@ -96,16 +133,23 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
     event.preventDefault();
     setErrNota({});
     try {
-      await postNota(estudianteId, {
+      const usarMateria = Boolean(fmNota.materia_id);
+      const payload = {
         anio_escolar: fmNota.anio_escolar,
         bimestre: fmNota.bimestre,
-        curso: fmNota.curso.trim(),
         nota: parseNumero(fmNota.nota),
         nota_conducta: fmNota.nota_conducta === '' ? null : parseNumero(fmNota.nota_conducta),
-      });
+      };
+      if (usarMateria) {
+        payload.materia_id = Number(fmNota.materia_id);
+      } else {
+        payload.curso = fmNota.curso.trim();
+      }
+      await postNota(estudianteId, payload);
       await cargarTodo();
       setFmNota((valor) => ({
         ...valor,
+        materia_id: '',
         curso: '',
         nota: '',
         nota_conducta: '',
@@ -265,14 +309,52 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
                     </select>
                   </div>
 
+                  {puedeUsarCatalogoMaterias && ubicacionEstudiante ? (
+                    <div className="flex flex-col gap-1 sm:col-span-2">
+                      <label className="text-sm font-medium text-[var(--text)]">Curso desde catálogo (opcional)</label>
+                      <select
+                        className="sb-field min-w-0"
+                        value={fmNota.materia_id}
+                        onChange={(event) =>
+                          setFmNota((valor) => ({
+                            ...valor,
+                            materia_id: event.target.value,
+                            curso: event.target.value ? '' : valor.curso,
+                          }))
+                        }
+                      >
+                        <option value="">Registrar con nombre manual (árbol siguiente)</option>
+                        {catalogoMaterias.map((m) => (
+                          <option key={m.id} value={String(m.id)}>
+                            {m.nombre}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-muted">
+                        Lista filtrada por sede/nivel/grado/año ({fmNota.anio_escolar || ubicacionEstudiante.anio_escolar}).
+                        Si elige materia del catálogo, el servidor completa también el texto de curso.
+                      </p>
+                      {errNota.materia_id?.[0] ? (
+                        <p className="text-xs text-red-600">{errNota.materia_id[0]}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
+
                   <div className="flex flex-col gap-1 sm:col-span-2">
-                    <label className="text-sm font-medium text-[var(--text)]">Nombre del curso o área</label>
+                    <label className="text-sm font-medium text-[var(--text)]">
+                      {fmNota.materia_id ? 'Nombre de curso (rellenado desde catálogo al guardar)' : 'Nombre del curso o área'}
+                    </label>
                     <input
-                      required
+                      required={!fmNota.materia_id}
+                      disabled={Boolean(fmNota.materia_id)}
                       value={fmNota.curso}
-                      className="sb-field min-w-0"
+                      className="sb-field min-w-0 disabled:cursor-not-allowed disabled:opacity-60"
+                      placeholder={fmNota.materia_id ? 'Se usará el nombre institucional al guardar' : ''}
                       onChange={(event) => setFmNota((valor) => ({ ...valor, curso: event.target.value }))}
                     />
+                    {!fmNota.materia_id ? (
+                      errNota.curso?.[0] ? <p className="text-xs text-red-600">{errNota.curso[0]}</p> : null
+                    ) : null}
                   </div>
 
                   <div className="flex flex-col gap-1">
