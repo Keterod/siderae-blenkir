@@ -46,6 +46,29 @@ function etiquetaAlerta(estadoClave) {
   return estadoClave;
 }
 
+function etiquetasFiltrosHumano(filtros) {
+  if (!filtros || typeof filtros !== 'object') {
+    return [];
+  }
+  const partes = [];
+  if (filtros.sede) {
+    partes.push(`sede «${filtros.sede}»`);
+  }
+  if (filtros.nivel) {
+    partes.push(`nivel ${filtros.nivel}`);
+  }
+  if (filtros.grado) {
+    partes.push(`grado «${filtros.grado}»`);
+  }
+  if (filtros.seccion) {
+    partes.push(`sección «${filtros.seccion}»`);
+  }
+  if (filtros.nivel_riesgo) {
+    partes.push(`riesgo último índice: ${filtros.nivel_riesgo}`);
+  }
+  return partes;
+}
+
 function BarraPct({ etiqueta, porcentaje, colorClass }) {
   const pct = Math.min(100, Math.max(0, Number(porcentaje) || 0));
   return (
@@ -180,10 +203,10 @@ export default function DashboardPanel() {
     <section className="space-y-6" data-testid="dashboard-panel">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--text)]">Dashboard</h2>
-          <p className="mt-1 text-sm text-muted">
-            Indicadores filtrables según sede, nivel educativo, grado, sección y nivel de riesgo (último índice por
-            estudiante).
+          <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">Dashboard</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted">
+            Indicadores de riesgo y alertas. Puede acotarlos por sede, nivel, grado, sección y clasificación según el último
+            índice calculado por estudiante.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -204,10 +227,12 @@ export default function DashboardPanel() {
         <AlertMessage variant="error">{exportError}</AlertMessage>
       ) : null}
 
-      <Card className="!p-5 sm:!p-6">
-        <div className="mb-4 border-b border-[var(--border)] pb-3">
-          <h3 className="text-sm font-semibold text-[var(--text)]">Filtros del dashboard</h3>
-          <p className="mt-1 text-xs text-muted">Define el universo de datos antes de exportar PDF o revisar KPI.</p>
+      <Card className="shadow-card !border-[var(--border)] !p-5 sm:!p-6">
+        <div className="mb-5 border-b border-[var(--border)] pb-4">
+          <h3 className="text-base font-semibold text-[var(--text)]">Filtros del dashboard</h3>
+          <p className="mt-1.5 text-sm text-muted">
+            Elija alcance institucional; los filtros vigentes también se aplican cuando exporta PDF.
+          </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {mostrarSede ? (
@@ -312,12 +337,19 @@ export default function DashboardPanel() {
           </Button>
         </div>
 
-        {Object.keys(filtrosDelBackend || {}).length > 0 ? (
-          <p className="mt-2 text-xs text-muted">
-            Filtros activos en servidor:{' '}
-            <span className="font-mono text-[var(--text)]">{JSON.stringify(filtrosDelBackend)}</span>
-          </p>
-        ) : null}
+        {(() => {
+          const fuenteLegible =
+            filtrosDelBackend && Object.keys(filtrosDelBackend).length > 0 ? filtrosDelBackend : appliedFilters;
+          const legibles = etiquetasFiltrosHumano(fuenteLegible);
+          return legibles.length > 0 ? (
+            <p className="mt-3 rounded-md bg-[var(--background)] px-3 py-2 text-sm text-[var(--text)]">
+              <span className="font-medium text-muted">Filtro aplicado: </span>
+              <span>{legibles.join(' · ')}</span>
+            </p>
+          ) : Object.keys(appliedFilters).length === 0 ? (
+            <p className="mt-3 text-sm text-muted">Viendo todas las opciones disponibles según cargue el servidor.</p>
+          ) : null;
+        })()}
       </Card>
 
       {cargando ? (
@@ -336,10 +368,10 @@ export default function DashboardPanel() {
         </AlertMessage>
       ) : null}
 
-      <Card className="overflow-hidden !p-0">
-        <div className="border-b border-[var(--border)] bg-[var(--background)]/70 px-4 py-3 sm:px-5">
-          <h3 className="text-sm font-semibold text-[var(--text)]">Indicadores clave</h3>
-          <p className="mt-0.5 text-xs text-muted">Cantidades sobre el filtro aplicado actualmente.</p>
+      <Card className="overflow-hidden !border-[var(--border)] !p-0 shadow-card">
+        <div className="border-b border-[var(--border)] bg-[var(--background)]/80 px-4 py-4 sm:px-5">
+          <h3 className="text-base font-semibold text-[var(--text)]">Indicadores clave</h3>
+          <p className="mt-1 text-sm text-muted">Cantidades dentro del mismo filtro utilizado más arriba.</p>
         </div>
         <div className="grid grid-cols-1 divide-y divide-[var(--border)] sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
           <div className="p-4 sm:p-5 lg:border-r-0">
@@ -364,10 +396,11 @@ export default function DashboardPanel() {
         </div>
       </Card>
 
-      <Card className="space-y-4">
-        <h3 className="text-sm font-semibold text-[var(--text)]">Distribución por nivel de riesgo (del total con índice)</h3>
-        <p className="text-xs text-muted">
-          Vista resumida a partir de los mismos datos numéricos mostrados en las tarjetas anteriores; no reemplaza a un motor de gráficos del DRS.
+      <Card className="space-y-4 border-[var(--border)] shadow-card">
+        <h3 className="text-base font-semibold text-[var(--text)]">Distribución por nivel de riesgo</h3>
+        <p className="text-sm text-muted">
+          Barras proporcionales a los mismos porcentajes de las tarjetas anteriores (entre estudiantes con índice
+          disponible).
         </p>
         <div className="grid gap-3 sm:grid-cols-3" data-testid="dashboard-distribucion-barras">
           <BarraPct
@@ -388,12 +421,10 @@ export default function DashboardPanel() {
         </div>
       </Card>
 
-      <Card className="space-y-4">
+      <Card className="space-y-4 border-[var(--border)] shadow-card">
         <div>
-          <h3 className="text-sm font-semibold text-[var(--text)]">Alertas por estado</h3>
-          <p className="mt-0.5 text-xs text-muted">
-            Totales relativos según registros disponibles tras los filtros actuales.
-          </p>
+          <h3 className="text-base font-semibold text-[var(--text)]">Alertas por estado</h3>
+          <p className="mt-1 text-sm text-muted">Totales después de aplicar filtros iguales a los indicadores superiores.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {['pendiente', 'en_atencion', 'cerrada'].map((clave) => (
@@ -406,8 +437,8 @@ export default function DashboardPanel() {
 
       <div className="space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-[var(--text)]">Últimos índices de riesgo registrados</h3>
-          <p className="mt-0.5 text-xs text-muted">Misma fuente que la tabla del PDF exportado cuando aplica.</p>
+          <h3 className="text-base font-semibold text-[var(--text)]">Últimos índices de riesgo</h3>
+          <p className="mt-1 text-sm text-muted">Lista acorde al informe cuando exporte PDF desde el botón superior.</p>
         </div>
         {(ultimos_riesgos?.length ?? 0) === 0 ? (
           <EmptyState

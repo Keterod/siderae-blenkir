@@ -167,23 +167,23 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
   }
 
   return (
-    <Card className="space-y-5" data-testid="perfil-datos-academicos">
+    <Card className="space-y-5 border-[var(--border)] shadow-card" data-testid="perfil-datos-academicos">
       <div>
-        <h3 className="text-sm font-semibold text-[var(--text)]">Seguimiento académico y familiar</h3>
-        <p className="mt-1 text-xs text-muted">
-          Registro sobre los mismos contratos ya expuestos por la API; no se muestran indicadores fuera del backend.
+        <h3 className="text-lg font-semibold tracking-tight text-[var(--text)]">Datos académicos y familiares</h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted">
+          Notas y asistencia se registran estudiante por estudiante desde esta sección del perfil. Los valores mostrados
+          provienen del sistema institucional.
         </p>
       </div>
 
-      <Card padding className="space-y-2 bg-[var(--background)]/45">
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">Resumen rápido (solo pantalla)</h4>
-        <p className="text-xs leading-relaxed text-muted">
+      <Card padding className="space-y-2 border-[var(--border)]/90 bg-orange-50/25 ring-1 ring-[var(--primary)]/15">
+        <h4 className="text-[11px] font-semibold uppercase tracking-wide text-muted">Resumen de apoyo</h4>
+        <p className="text-sm leading-relaxed text-muted">
           Promedio de notas: <span className="font-semibold text-[var(--text)]">{resumen.promedioNotas}</span>
           {' · '}
-          Presencia aproximada (sobre semanas cargadas):{' '}
-          <span className="font-semibold text-[var(--text)]">{resumen.porcentajeAsistenciaApprox}</span>.
-          {' '}
-          No sustituye cálculos oficiales ni al motor ML.
+          Asistencia aproximada (semanas ya registradas):{' '}
+          <span className="font-semibold text-[var(--text)]">{resumen.porcentajeAsistenciaApprox}</span>
+          {' · '}orientación rápida, no equivale un reporte oficial.
         </p>
       </Card>
 
@@ -208,8 +208,8 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
       </div>
 
       {pestaña === 'notas' ? (
-        <Card className="space-y-5">
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">Registro de notas</h4>
+        <Card className="space-y-5 border-[var(--border)] shadow-sm">
+          <h4 className="text-base font-semibold text-[var(--text)]">Registro de notas</h4>
           {cargando ? (
             <p className="text-sm text-muted">Cargando…</p>
           ) : (
@@ -237,8 +237,8 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
                 </ul>
               )}
 
-              <div className="border-t border-[var(--border)] pt-4">
-                <p className="mb-3 text-xs font-medium text-muted">Nueva entrada</p>
+              <div className="border-t border-[var(--border)] pt-5">
+                <p className="mb-4 text-sm font-medium text-[var(--text)]">Registrar nota</p>
                 <form onSubmit={(event) => void guardarNota(event)} className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[var(--text)]">Año escolar</label>
@@ -266,7 +266,7 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
                   </div>
 
                   <div className="flex flex-col gap-1 sm:col-span-2">
-                    <label className="text-sm font-medium text-[var(--text)]">Curso</label>
+                    <label className="text-sm font-medium text-[var(--text)]">Nombre del curso o área</label>
                     <input
                       required
                       value={fmNota.curso}
@@ -316,8 +316,8 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
       ) : null}
 
       {pestaña === 'asistencia' ? (
-        <Card className="space-y-5">
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">Registro de asistencia</h4>
+        <Card className="space-y-5 border-[var(--border)] shadow-sm">
+          <h4 className="text-base font-semibold text-[var(--text)]">Registro de asistencia</h4>
 
           {!cargando ? (
             <>
@@ -332,7 +332,7 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
                         i % 2 === 0 ? 'bg-[var(--surface)]' : 'bg-[var(--background)]/30'
                       }`}
                     >
-                      <p className="capitalize font-medium text-[var(--text)]">{row.estado}</p>
+                      <p className="font-medium capitalize text-[var(--text)]">{row.estado}</p>
                       <p className="mt-0.5 text-xs text-muted">
                         Semana desde {String(row.semana_inicio).substring(0, 10)} · Año {row.anio_escolar ?? '—'} · B{row.bimestre}
                       </p>
@@ -341,11 +341,11 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
                 </ul>
               )}
 
-              <div className="border-t border-[var(--border)] pt-4">
-                <p className="mb-3 text-xs font-medium text-muted">Nueva entrada</p>
+              <div className="border-t border-[var(--border)] pt-5">
+                <p className="mb-4 text-sm font-medium text-[var(--text)]">Registrar asistencia</p>
                 <form onSubmit={(event) => void guardarAsistencia(event)} className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[var(--text)]">Semana inicio</label>
+                    <label className="text-sm font-medium text-[var(--text)]">Inicio de semana lectiva</label>
                     <input
                       required
                       type="date"
@@ -363,9 +363,9 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
                       value={fmAsis.estado}
                       onChange={(event) => setFmAsis((valor) => ({ ...valor, estado: event.target.value }))}
                     >
-                      <option value="presente">presente</option>
-                      <option value="tardanza">tardanza</option>
-                      <option value="falta">falta</option>
+                      <option value="presente">Presente</option>
+                      <option value="tardanza">Tardanza</option>
+                      <option value="falta">Falta</option>
                     </select>
                   </div>
 
@@ -408,12 +408,10 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
       ) : null}
 
       {pestaña === 'variables' ? (
-        <Card className="space-y-5">
+        <Card className="space-y-5 border-[var(--border)] shadow-sm">
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">Variables socioeconómicas</h4>
-            <p className="mt-1 text-xs text-muted">
-              Solo los campos soportados por la API vigente.
-            </p>
+            <h4 className="text-base font-semibold text-[var(--text)]">Variables socioeconómicas</h4>
+            <p className="mt-1 text-sm text-muted">Factores ambientales disponibles para el análisis de riesgo.</p>
           </div>
 
           {!cargando ? (
@@ -441,8 +439,8 @@ export default function EstudiantePerfilDatos({ estudianteId, anioEscolarPorDefe
                 </ul>
               )}
 
-              <div className="border-t border-[var(--border)] pt-4">
-                <p className="mb-3 text-xs font-medium text-muted">Actualizar variables</p>
+              <div className="border-t border-[var(--border)] pt-5">
+                <p className="mb-4 text-sm font-medium text-[var(--text)]">Registrar o actualizar</p>
                 <form onSubmit={(event) => void guardarSocioeconomicas(event)} className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1 sm:col-span-2">
                     <label className="text-sm font-medium text-[var(--text)]">Composición familiar</label>

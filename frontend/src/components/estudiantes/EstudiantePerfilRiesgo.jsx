@@ -68,10 +68,9 @@ export default function EstudiantePerfilRiesgo({ estudianteId, ultimoIndice, pue
       data-testid="perfil-riesgo"
     >
       <div className="border-b border-[var(--border)]/80 pb-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Riesgo académico</h3>
-        <p className="mt-1.5 text-xs leading-relaxed text-muted">
-          Último índice devuelto por el backend para este estudiante. No se inventa historial ni desgloses RF-19 mientras la API no
-          los provea.
+        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted">Riesgo académico</h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted">
+          Indicador institucional según el último procesamiento disponible para este estudiante en el servidor.
         </p>
       </div>
 
@@ -114,8 +113,8 @@ export default function EstudiantePerfilRiesgo({ estudianteId, ultimoIndice, pue
           >
             {procesando ? 'Procesando…' : 'Procesar riesgo'}
           </Button>
-          <span className="text-xs text-muted" title="El prototipo mantiene el mismo cuerpo de solicitud hacia backend.">
-            Se envía bimestre <span className="font-mono font-medium">1</span> (contrato preservado).
+          <span className="text-xs leading-snug text-muted">
+            Solicita una nueva corrida usando la configuración ya admitida por el sistema.
           </span>
         </div>
       ) : (

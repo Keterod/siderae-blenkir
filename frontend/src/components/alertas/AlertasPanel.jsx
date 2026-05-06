@@ -181,12 +181,12 @@ export default function AlertasPanel({ onClose = null }) {
   }
 
   return (
-    <Card className="space-y-5" data-testid="alertas-panel">
+    <Card className="space-y-6 border-[var(--border)] shadow-card" data-testid="alertas-panel">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border)] pb-4">
         <div className="min-w-0">
-          <h2 className="text-xl font-semibold text-[var(--text)]">{vista === 'lista' ? 'Alertas' : 'Detalle de alerta'}</h2>
-          <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted">
-            Lista y gestión desde la API existente — sin filtros ni paginación simuladas en pantalla.
+          <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">{vista === 'lista' ? 'Alertas' : 'Detalle de alerta'}</h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
+            Gestión de alertas generadas por el sistema. Las intervenciones se registran al abrir el detalle del caso.
           </p>
         </div>
 
@@ -242,9 +242,14 @@ export default function AlertasPanel({ onClose = null }) {
             description="Las alertas aparecen cuando el backend las genera según reglas de riesgo; no se inventan filas de demostración."
           />
         ) : (
-          <div className="space-y-2">
-            <p className="text-sm text-muted">{lista.length} alerta{lista.length === 1 ? '' : 's'} en el listado.</p>
-            <div className="overflow-x-auto rounded-lg border border-[var(--border)]" data-testid="alertas-tabla">
+          <div className="space-y-3">
+            <p className="text-sm text-muted">
+              {lista.length === 1
+                ? '1 alerta mostrada.'
+                : `${lista.length} alertas mostradas.`}{' '}
+              Pulse «Ver alerta» para intervenir desde el caso.
+            </p>
+            <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-sm" data-testid="alertas-tabla">
               <table className="min-w-full text-left text-sm text-[var(--text)]">
                 <thead className="border-b border-[var(--border)] bg-[var(--background)] text-[11px] font-semibold uppercase tracking-wide text-muted">
                   <tr>
@@ -386,7 +391,7 @@ export default function AlertasPanel({ onClose = null }) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[var(--text)]">Tipo</label>
+                    <label className="text-sm font-medium text-[var(--text)]">Tipo de intervención</label>
                     <select
                       className="sb-field min-w-0"
                       value={fmInter.tipo}
@@ -443,7 +448,7 @@ export default function AlertasPanel({ onClose = null }) {
                 <div className="border-b border-amber-200/80 pb-3">
                   <h3 className="text-sm font-semibold text-[var(--text)]">Cerrar alerta</h3>
                   <p className="mt-1 text-xs text-muted">
-                    Solo se permite si ya existe al menos una intervención registrada en la API.
+                    Requiere al menos una intervención previa sobre esta alerta, según reglas institucionales.
                   </p>
                 </div>
 

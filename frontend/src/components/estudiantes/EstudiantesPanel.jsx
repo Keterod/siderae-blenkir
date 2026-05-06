@@ -217,9 +217,9 @@ export default function EstudiantesPanel({ onClose = null }) {
   }
 
   return (
-    <Card className="space-y-4" data-testid="estudiantes-panel">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
-        <h2 className="text-xl font-semibold text-[var(--text)]">{tituloActual()}</h2>
+    <Card className="space-y-5 border-[var(--border)] shadow-card" data-testid="estudiantes-panel">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border)] pb-4">
+        <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">{tituloActual()}</h2>
 
         <div className="flex flex-wrap gap-2">
           {vista !== 'lista' ? (
@@ -241,7 +241,7 @@ export default function EstudiantesPanel({ onClose = null }) {
           {vista === 'lista' ? (
             <>
               <Button type="button" variant="outline" size="sm" onClick={() => cargarLista()} data-testid="estudiantes-actualizar">
-                Actualizar listado
+                Actualizar
               </Button>
               <Button type="button" variant="primary" size="sm" onClick={() => abrirCreacion()} data-testid="estudiantes-nuevo">
                 Nuevo estudiante
@@ -264,15 +264,13 @@ export default function EstudiantesPanel({ onClose = null }) {
       {vista === 'lista' && !cargando ? (
         lista.length === 0 ? (
           <EmptyState
-            title="Sin estudiantes registrados"
-            description="Aún no hay registros cargados desde la institución. Use el botón “Nuevo estudiante” para dar de alta uno con los mismos datos que exige la API."
+            title="Aún no hay estudiantes"
+            description="Cuando registre el primero aparecerán en esta tabla completa institucional. Use «Nuevo estudiante»."
           />
         ) : (
-          <div className="space-y-2">
-            <p className="text-sm text-muted">
-              Lista completa proporcionada por el backend (sin filtros locales ni paginación simulada).
-            </p>
-            <div className="overflow-x-auto rounded-lg border border-[var(--border)]" data-testid="estudiantes-tabla">
+          <div className="space-y-3">
+            <p className="text-sm leading-relaxed text-muted">Listado completo institucional; use «Ver perfil» para datos académicos por alumno.</p>
+            <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-sm" data-testid="estudiantes-tabla">
               <table className="min-w-full text-left text-sm text-[var(--text)]">
                 <thead className="border-b border-[var(--border)] bg-[var(--background)] text-[11px] font-semibold uppercase tracking-wide text-muted">
                   <tr>
@@ -349,10 +347,10 @@ export default function EstudiantesPanel({ onClose = null }) {
             void enviarFormulario(vista === 'editar');
           }}
         >
-          <Card className="space-y-4">
+          <Card className="space-y-4 shadow-sm">
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Información básica</h3>
-              <p className="mt-1 text-xs text-muted">Datos personales capturados en el mismo formato que espera la API.</p>
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted">Información básica</h3>
+              <p className="mt-1 text-sm text-muted">Datos personales del estudiante.</p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -427,10 +425,10 @@ export default function EstudiantesPanel({ onClose = null }) {
             </div>
           </Card>
 
-          <Card className="space-y-4">
+          <Card className="space-y-4 shadow-sm">
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Información académica</h3>
-              <p className="mt-1 text-xs text-muted">Ubicación y año escolar; mismos valores que ya envía el cliente a la API.</p>
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted">Información académica</h3>
+              <p className="mt-1 text-sm text-muted">Ubicación y año escolar del estudiante.</p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -512,8 +510,8 @@ export default function EstudiantesPanel({ onClose = null }) {
 
       {vista === 'perfil' && !cargando && detalle ? (
         <div className="space-y-6 text-sm text-[var(--text)]">
-          <Card className="border-[var(--border)] bg-[var(--background)]/40">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">Datos generales</h3>
+          <Card className="border-[var(--border)] bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)]/60">
+            <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted">Datos generales</h3>
             <dl className="mt-3 grid gap-x-6 gap-y-4 sm:grid-cols-2">
               <div>
                 <dt className="text-muted">Código</dt>

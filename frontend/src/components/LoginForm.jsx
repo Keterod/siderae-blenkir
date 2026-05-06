@@ -92,7 +92,7 @@ export default function LoginForm() {
             </Button>
 
             <p className="text-center text-xs text-muted">
-              Acceso restringido al personal institucional autorizado (prototipo académico).
+              Solo personal institucional con credenciales asignadas.
             </p>
           </form>
         </Card>
