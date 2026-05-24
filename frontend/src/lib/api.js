@@ -259,3 +259,150 @@ export function postCerrarAlerta(alertaId, datos) {
   });
 }
 
+const CURRICULAR = '/api/curricular';
+
+export function getCatalogoNivelesGrados() {
+  return request(`${CURRICULAR}/catalogo/niveles-grados`);
+}
+
+export function getCurricularAreas(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/areas?${qs}` : `${CURRICULAR}/areas`);
+}
+
+export function getCompetenciasPorArea(areaId) {
+  return request(`${CURRICULAR}/areas/${areaId}/competencias`);
+}
+
+export function getCapacidadesPorCompetencia(competenciaId) {
+  return request(`${CURRICULAR}/competencias/${competenciaId}/capacidades`);
+}
+
+export function getCurricularPeriodos(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/periodos?${qs}` : `${CURRICULAR}/periodos`);
+}
+
+export function getCurricularSemanas(periodoId) {
+  return request(`${CURRICULAR}/periodos/${periodoId}/semanas`);
+}
+
+export function getMallasCurriculares(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/mallas?${qs}` : `${CURRICULAR}/mallas`);
+}
+
+/** Obtiene o prepara automáticamente la malla del año/nivel/grado. */
+export function getMallaCurricularPorGrado(params) {
+  const qs = buildQueryString(params);
+  return request(`${CURRICULAR}/mallas/grado?${qs}`);
+}
+
+export function getMallaCurricular(id) {
+  return request(`${CURRICULAR}/mallas/${id}`);
+}
+
+export function postCargarPlantillaMalla(datos) {
+  return request(`${CURRICULAR}/mallas/cargar-plantilla`, { method: 'POST', body: datos });
+}
+
+export function postMallaCurso(mallaId, datos) {
+  return request(`${CURRICULAR}/mallas/${mallaId}/cursos`, { method: 'POST', body: datos });
+}
+
+export function patchMallaCurso(mallaId, mallaCursoId, datos) {
+  return request(`${CURRICULAR}/mallas/${mallaId}/cursos/${mallaCursoId}`, { method: 'PATCH', body: datos });
+}
+
+export function patchDesactivarMallaCurso(mallaId, mallaCursoId) {
+  return request(`${CURRICULAR}/mallas/${mallaId}/cursos/${mallaCursoId}/desactivar`, { method: 'PATCH' });
+}
+
+export function patchReactivarMallaCurso(mallaId, mallaCursoId) {
+  return request(`${CURRICULAR}/mallas/${mallaId}/cursos/${mallaCursoId}/reactivar`, { method: 'PATCH' });
+}
+
+export function getTemasSemanales(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/temas?${qs}` : `${CURRICULAR}/temas`);
+}
+
+export function postTemaSemanal(datos) {
+  return request(`${CURRICULAR}/temas`, { method: 'POST', body: datos });
+}
+
+export function patchTemaSemanal(temaId, datos) {
+  return request(`${CURRICULAR}/temas/${temaId}`, { method: 'PATCH', body: datos });
+}
+
+export function patchDesactivarTemaSemanal(temaId) {
+  return request(`${CURRICULAR}/temas/${temaId}/desactivar`, { method: 'PATCH' });
+}
+
+export function getConfiguracionPesos(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/pesos?${qs}` : `${CURRICULAR}/pesos`);
+}
+
+export function postConfiguracionPeso(datos) {
+  return request(`${CURRICULAR}/pesos`, { method: 'POST', body: datos });
+}
+
+export function patchDesactivarConfiguracionPeso(id) {
+  return request(`${CURRICULAR}/pesos/${id}/desactivar`, { method: 'PATCH' });
+}
+
+export function getAsignacionesDocente(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/asignaciones-docente?${qs}` : `${CURRICULAR}/asignaciones-docente`);
+}
+
+export function getCurricularDocentes(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/docentes?${qs}` : `${CURRICULAR}/docentes`);
+}
+
+export function getAsignacionesDocentePorDocente(docenteId, params = {}) {
+  const qs = buildQueryString(params);
+  return request(
+    qs
+      ? `${CURRICULAR}/asignaciones-docente/docente/${docenteId}?${qs}`
+      : `${CURRICULAR}/asignaciones-docente/docente/${docenteId}`,
+  );
+}
+
+export function postAsignacionDocente(datos) {
+  return request(`${CURRICULAR}/asignaciones-docente`, { method: 'POST', body: datos });
+}
+
+export function postAsignacionDocenteBulk(datos) {
+  return request(`${CURRICULAR}/asignaciones-docente/bulk`, { method: 'POST', body: datos });
+}
+
+export function patchDesactivarAsignacionDocente(id) {
+  return request(`${CURRICULAR}/asignaciones-docente/${id}/desactivar`, { method: 'PATCH' });
+}
+
+export function getDocenteAulasCursos(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/docente/aulas-cursos?${qs}` : `${CURRICULAR}/docente/aulas-cursos`);
+}
+
+export function getFormularioNotasSemanales(params) {
+  const qs = buildQueryString(params);
+  return request(`${CURRICULAR}/notas-semanales/formulario?${qs}`);
+}
+
+export function postNotasSemanalesBulk(datos) {
+  return request(`${CURRICULAR}/notas-semanales/bulk`, { method: 'POST', body: datos });
+}
+
+export function getResumenAcademico(estudianteId, params = {}) {
+  const qs = buildQueryString(params);
+  return request(
+    qs
+      ? `${CURRICULAR}/estudiantes/${estudianteId}/resumen-academico?${qs}`
+      : `${CURRICULAR}/estudiantes/${estudianteId}/resumen-academico`,
+  );
+}
+

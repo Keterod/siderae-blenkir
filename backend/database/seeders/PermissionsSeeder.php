@@ -10,7 +10,7 @@ class PermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        $permissions = [
+        $legacyPermissions = [
             'ver_dashboard',
             'gestionar_estudiantes',
             'gestionar_materias',
@@ -19,6 +19,18 @@ class PermissionsSeeder extends Seeder
             'ver_alertas',
             'registrar_intervencion',
         ];
+
+        $curricularPermissions = [
+            'ver_malla_curricular',
+            'gestionar_malla_curricular',
+            'gestionar_temas_semanales',
+            'configurar_pesos_evaluacion',
+            'gestionar_asignaciones_docente',
+            'registrar_notas_semanales',
+            'ver_notas_academicas',
+        ];
+
+        $permissions = array_merge($legacyPermissions, $curricularPermissions);
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
@@ -32,6 +44,9 @@ class PermissionsSeeder extends Seeder
                 'registrar_datos_academicos',
                 'ver_alertas',
                 'registrar_intervencion',
+                'ver_malla_curricular',
+                'registrar_notas_semanales',
+                'ver_notas_academicas',
             ],
             'coordinador_academico' => [
                 'ver_dashboard',
@@ -39,15 +54,24 @@ class PermissionsSeeder extends Seeder
                 'registrar_datos_academicos',
                 'procesar_riesgo',
                 'ver_alertas',
+                'ver_malla_curricular',
+                'gestionar_malla_curricular',
+                'gestionar_temas_semanales',
+                'configurar_pesos_evaluacion',
+                'gestionar_asignaciones_docente',
+                'ver_notas_academicas',
             ],
             'psicologo_tutor' => [
                 'ver_alertas',
                 'registrar_intervencion',
+                'ver_notas_academicas',
             ],
             'directivo' => [
                 'ver_dashboard',
                 'ver_alertas',
                 'registrar_intervencion',
+                'ver_malla_curricular',
+                'ver_notas_academicas',
             ],
         ];
 

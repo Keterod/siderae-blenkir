@@ -7,6 +7,7 @@ import {
   updateEstudiante,
 } from '../../lib/api';
 import { anioEscolarActual, gradoEsValidoParaNivel, gradosPorNivel } from '../../lib/academico';
+import ResumenAcademicoEstudiante from '../curricular/ResumenAcademicoEstudiante';
 import EstudiantePerfilDatos from './EstudiantePerfilDatos';
 import EstudiantePerfilRiesgo from './EstudiantePerfilRiesgo';
 import Badge from '../ui/Badge';
@@ -712,6 +713,10 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
             </dl>
           </Card>
+
+          {permissions.includes('ver_notas_academicas') ? (
+            <ResumenAcademicoEstudiante estudianteId={detalle.id} anioEscolar={detalle.anio_escolar} />
+          ) : null}
 
           <EstudiantePerfilRiesgo
             estudianteId={detalle.id}

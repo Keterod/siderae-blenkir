@@ -27,5 +27,17 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            if (! $request->expectsJson()) {
+                return null;
+            }
+
+            if ($e instanceof \App\Exceptions\Curricular\AsignacionDocenteDuplicadaException
+                || $e instanceof \App\Exceptions\Curricular\TemaSemanalDuplicadoException
+                || $e instanceof \App\Exceptions\Curricular\PesosEvaluacionInvalidosException) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
+            return null;
+        });
     })->create();

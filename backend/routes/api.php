@@ -11,6 +11,14 @@ use App\Http\Controllers\Api\IntervencionController;
 use App\Http\Controllers\Api\NotaBatchController;
 use App\Http\Controllers\Api\NotaController;
 use App\Http\Controllers\Api\ProcesarRiesgoController;
+use App\Http\Controllers\Api\Curricular\AsignacionDocenteController;
+use App\Http\Controllers\Api\Curricular\CatalogoCurricularController;
+use App\Http\Controllers\Api\Curricular\ConfiguracionPesoEvaluacionController;
+use App\Http\Controllers\Api\Curricular\DocenteAulaCurricularController;
+use App\Http\Controllers\Api\Curricular\MallaCurricularController;
+use App\Http\Controllers\Api\Curricular\NotaSemanalController;
+use App\Http\Controllers\Api\Curricular\ResumenAcademicoController;
+use App\Http\Controllers\Api\Curricular\TemaSemanalController;
 use App\Http\Controllers\Api\VariableSocioeconomicaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -97,3 +105,66 @@ Route::middleware(['auth:sanctum', 'permission:registrar_intervencion'])
         Route::post('alertas/{alerta}/intervenciones', [IntervencionController::class, 'store']);
         Route::post('alertas/{alerta}/cerrar', [AlertaCierreController::class, 'store']);
     });
+
+Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): void {
+    Route::get('/catalogo/niveles-grados', [CatalogoCurricularController::class, 'nivelesGrados']);
+
+    Route::middleware(['permission:ver_malla_curricular'])->group(function (): void {
+        Route::get('/areas', [CatalogoCurricularController::class, 'areas']);
+        Route::get('/areas/{area}/competencias', [CatalogoCurricularController::class, 'competenciasPorArea']);
+        Route::get('/competencias/{competencia}/capacidades', [CatalogoCurricularController::class, 'capacidadesPorCompetencia']);
+        Route::get('/periodos', [CatalogoCurricularController::class, 'periodos']);
+        Route::get('/periodos/{periodo}/semanas', [CatalogoCurricularController::class, 'semanasPorPeriodo']);
+        Route::get('/mallas/grado', [MallaCurricularController::class, 'grado']);
+        Route::get('/mallas', [MallaCurricularController::class, 'index']);
+        Route::get('/mallas/{malla}', [MallaCurricularController::class, 'show']);
+        Route::get('/temas', [TemaSemanalController::class, 'index']);
+        Route::get('/temas/{temaSemanal}', [TemaSemanalController::class, 'show']);
+    });
+
+    Route::middleware(['permission:gestionar_malla_curricular'])->group(function (): void {
+        Route::post('/mallas/cargar-plantilla', [MallaCurricularController::class, 'cargarPlantilla']);
+        Route::post('/mallas/{malla}/cursos', [MallaCurricularController::class, 'agregarCurso']);
+        Route::patch('/mallas/{malla}/cursos/{mallaCurso}', [MallaCurricularController::class, 'actualizarCurso']);
+        Route::patch('/mallas/{malla}/cursos/{mallaCurso}/desactivar', [MallaCurricularController::class, 'desactivarCurso']);
+        Route::patch('/mallas/{malla}/cursos/{mallaCurso}/reactivar', [MallaCurricularController::class, 'reactivarCurso']);
+    });
+
+    Route::middleware(['permission:gestionar_temas_semanales'])->group(function (): void {
+        Route::post('/temas', [TemaSemanalController::class, 'store']);
+        Route::patch('/temas/{temaSemanal}', [TemaSemanalController::class, 'update']);
+        Route::patch('/temas/{temaSemanal}/desactivar', [TemaSemanalController::class, 'desactivar']);
+    });
+
+    Route::middleware(['permission:configurar_pesos_evaluacion'])->group(function (): void {
+        Route::get('/pesos', [ConfiguracionPesoEvaluacionController::class, 'index']);
+        Route::post('/pesos', [ConfiguracionPesoEvaluacionController::class, 'store']);
+        Route::patch('/pesos/{configuracionPesoEvaluacion}', [ConfiguracionPesoEvaluacionController::class, 'update']);
+        Route::patch('/pesos/{configuracionPesoEvaluacion}/desactivar', [ConfiguracionPesoEvaluacionController::class, 'desactivar']);
+    });
+
+    Route::middleware(['permission:gestionar_asignaciones_docente'])->group(function (): void {
+        Route::get('/docentes', [AsignacionDocenteController::class, 'docentes']);
+        Route::get('/asignaciones-docente', [AsignacionDocenteController::class, 'index']);
+        Route::get('/asignaciones-docente/docente/{docente}', [AsignacionDocenteController::class, 'porDocente']);
+        Route::post('/asignaciones-docente', [AsignacionDocenteController::class, 'store']);
+        Route::post('/asignaciones-docente/bulk', [AsignacionDocenteController::class, 'bulk']);
+        Route::patch('/asignaciones-docente/{docenteCursoAula}/desactivar', [AsignacionDocenteController::class, 'desactivar']);
+    });
+
+    Route::middleware(['permission:registrar_notas_semanales'])->group(function (): void {
+        Route::get('/docente/aulas-cursos', [DocenteAulaCurricularController::class, 'aulasCursos']);
+    });
+
+    Route::middleware(['permission:registrar_notas_semanales|ver_notas_academicas'])->group(function (): void {
+        Route::get('/notas-semanales/formulario', [NotaSemanalController::class, 'formulario']);
+    });
+
+    Route::middleware(['permission:registrar_notas_semanales'])->group(function (): void {
+        Route::post('/notas-semanales/bulk', [NotaSemanalController::class, 'bulk']);
+    });
+
+    Route::middleware(['permission:ver_notas_academicas'])->group(function (): void {
+        Route::get('/estudiantes/{estudiante}/resumen-academico', [ResumenAcademicoController::class, 'show']);
+    });
+});

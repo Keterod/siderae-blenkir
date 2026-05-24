@@ -7,13 +7,34 @@ import AsistenciaMasivaPanel from './components/academico/AsistenciaMasivaPanel'
 import NotasMasivasPanel from './components/academico/NotasMasivasPanel';
 import MateriasPanel from './components/materias/MateriasPanel';
 import EstudiantesPanel from './components/estudiantes/EstudiantesPanel';
+import MallaCurricularPanel from './components/curricular/MallaCurricularPanel';
+import TemasSemanalesPanel from './components/curricular/TemasSemanalesPanel';
+import PesosEvaluacionPanel from './components/curricular/PesosEvaluacionPanel';
+import AsignacionDocentePanel from './components/curricular/AsignacionDocentePanel';
+import RegistroNotasSemanalesPanel from './components/curricular/RegistroNotasSemanalesPanel';
 import LoginForm from './components/LoginForm';
 import Card from './components/ui/Card';
 import LoadingState from './components/ui/LoadingState';
 import { useAuth } from './context/AuthContext';
 import { useEffect, useMemo, useState } from 'react';
 
-function moduloPermitido(key, permissions) {
+const SIDEBAR_COLLAPSED_KEY = 'siderae-sidebar-collapsed';
+
+function leerSidebarColapsada() {
+  try {
+    return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function esAdministrador(roles) {
+  return (roles ?? []).includes('administrador');
+}
+
+function moduloPermitido(key, permissions, roles) {
+  const admin = esAdministrador(roles);
+
   switch (key) {
     case 'dashboard':
       return permissions.includes('ver_dashboard');
@@ -22,21 +43,41 @@ function moduloPermitido(key, permissions) {
     case 'alertas':
       return permissions.includes('ver_alertas');
     case 'materias':
-      return permissions.includes('gestionar_materias');
+      return permissions.includes('gestionar_materias') && (admin || !permissions.includes('gestionar_malla_curricular'));
     case 'asistencia':
-      return permissions.includes('registrar_datos_academicos');
+      return permissions.includes('registrar_datos_academicos') && (admin || !permissions.includes('gestionar_malla_curricular'));
     case 'notas':
-      return permissions.includes('registrar_datos_academicos');
+      return (
+        permissions.includes('registrar_datos_academicos')
+        && !permissions.includes('registrar_notas_semanales')
+        && (admin || !permissions.includes('gestionar_malla_curricular'))
+      );
+    case 'curricular_malla':
+      return permissions.includes('ver_malla_curricular') || permissions.includes('gestionar_malla_curricular');
+    case 'curricular_temas':
+      return permissions.includes('gestionar_temas_semanales');
+    case 'curricular_pesos':
+      return permissions.includes('configurar_pesos_evaluacion');
+    case 'curricular_asignacion':
+      return permissions.includes('gestionar_asignaciones_docente');
+    case 'curricular_notas':
+      return permissions.includes('registrar_notas_semanales');
     default:
       return false;
   }
 }
 
-function moduloPorDefecto(permissions) {
+function moduloPorDefecto(permissions, roles) {
+  if (permissions.includes('registrar_notas_semanales') && !permissions.includes('ver_dashboard')) {
+    return 'curricular_notas';
+  }
   if (permissions.includes('ver_dashboard')) {
     return 'dashboard';
   }
-  if (permissions.includes('gestionar_materias')) {
+  if (permissions.includes('gestionar_malla_curricular') || permissions.includes('ver_malla_curricular')) {
+    return 'curricular_malla';
+  }
+  if (permissions.includes('gestionar_materias') && moduloPermitido('materias', permissions, roles)) {
     return 'materias';
   }
   if (permissions.includes('gestionar_estudiantes')) {
@@ -49,22 +90,20 @@ function moduloPorDefecto(permissions) {
 }
 
 function tituloModulo(key) {
-  switch (key) {
-    case 'dashboard':
-      return 'Dashboard';
-    case 'estudiantes':
-      return 'Estudiantes';
-    case 'alertas':
-      return 'Alertas';
-    case 'materias':
-      return 'Materias';
-    case 'asistencia':
-      return 'Asistencia';
-    case 'notas':
-      return 'Notas';
-    default:
-      return 'SIDERAE-Blenkir';
-  }
+  const titulos = {
+    dashboard: 'Dashboard',
+    estudiantes: 'Estudiantes',
+    alertas: 'Alertas',
+    materias: 'Materias (legacy)',
+    asistencia: 'Asistencia masiva',
+    notas: 'Notas masivas',
+    curricular_malla: 'Malla curricular',
+    curricular_temas: 'Criterios de evaluación',
+    curricular_pesos: 'Pesos C/L/T',
+    curricular_asignacion: 'Asignación docente',
+    curricular_notas: 'Notas semanales',
+  };
+  return titulos[key] ?? 'SIDERAE-Blenkir';
 }
 
 function etiquetaSesionAmigable(roles) {
@@ -85,69 +124,131 @@ function etiquetaSesionAmigable(roles) {
 function App() {
   const { authUser, roles, permissions, logout, isLoading, error } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(leerSidebarColapsada);
   const [moduloActivo, setModuloActivo] = useState('dashboard');
 
   const moduloVista =
-    moduloActivo != null && moduloPermitido(moduloActivo, permissions) ? moduloActivo : moduloPorDefecto(permissions);
+    moduloActivo != null && moduloPermitido(moduloActivo, permissions, roles)
+      ? moduloActivo
+      : moduloPorDefecto(permissions, roles);
 
   const etiquetaSesion = etiquetaSesionAmigable(roles ?? []);
+  const admin = esAdministrador(roles);
+  const muestraLegacy = admin && permissions.some((p) => ['gestionar_materias', 'registrar_datos_academicos'].includes(p));
 
   useEffect(() => {
     if (!authUser) {
       return;
     }
     setModuloActivo((prev) =>
-      moduloPermitido(prev, permissions) ? prev : (moduloPorDefecto(permissions) ?? prev),
+      moduloPermitido(prev, permissions, roles) ? prev : (moduloPorDefecto(permissions, roles) ?? prev),
     );
-  }, [authUser, permissions]);
+  }, [authUser, permissions, roles]);
 
-  const navItems = useMemo(
-    () => [
+  useEffect(() => {
+    try {
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(sidebarCollapsed));
+    } catch {
+      /* almacenamiento no disponible */
+    }
+  }, [sidebarCollapsed]);
+
+  const navItems = useMemo(() => {
+    const items = [
       {
         key: 'dashboard',
         label: 'Dashboard',
-        visible: moduloPermitido('dashboard', permissions),
+        visible: moduloPermitido('dashboard', permissions, roles),
         active: moduloVista === 'dashboard',
         onSelect: () => setModuloActivo('dashboard'),
       },
       {
         key: 'estudiantes',
         label: 'Estudiantes',
-        visible: moduloPermitido('estudiantes', permissions),
+        visible: moduloPermitido('estudiantes', permissions, roles),
         active: moduloVista === 'estudiantes',
         onSelect: () => setModuloActivo('estudiantes'),
       },
       {
-        key: 'asistencia',
-        label: 'Asistencia',
-        visible: moduloPermitido('asistencia', permissions),
-        active: moduloVista === 'asistencia',
-        onSelect: () => setModuloActivo('asistencia'),
+        key: 'curricular_malla',
+        label: 'Malla curricular',
+        visible: moduloPermitido('curricular_malla', permissions, roles),
+        active: moduloVista === 'curricular_malla',
+        onSelect: () => setModuloActivo('curricular_malla'),
       },
       {
-        key: 'notas',
-        label: 'Notas',
-        visible: moduloPermitido('notas', permissions),
-        active: moduloVista === 'notas',
-        onSelect: () => setModuloActivo('notas'),
+        key: 'curricular_temas',
+        label: 'Criterios de evaluación',
+        visible: moduloPermitido('curricular_temas', permissions, roles),
+        active: moduloVista === 'curricular_temas',
+        onSelect: () => setModuloActivo('curricular_temas'),
       },
       {
-        key: 'materias',
-        label: 'Materias',
-        visible: moduloPermitido('materias', permissions),
-        active: moduloVista === 'materias',
-        onSelect: () => setModuloActivo('materias'),
+        key: 'curricular_pesos',
+        label: 'Pesos evaluación',
+        visible: moduloPermitido('curricular_pesos', permissions, roles),
+        active: moduloVista === 'curricular_pesos',
+        onSelect: () => setModuloActivo('curricular_pesos'),
+      },
+      {
+        key: 'curricular_asignacion',
+        label: 'Asignación docente',
+        visible: moduloPermitido('curricular_asignacion', permissions, roles),
+        active: moduloVista === 'curricular_asignacion',
+        onSelect: () => setModuloActivo('curricular_asignacion'),
+      },
+      {
+        key: 'curricular_notas',
+        label: 'Notas semanales',
+        visible: moduloPermitido('curricular_notas', permissions, roles),
+        active: moduloVista === 'curricular_notas',
+        onSelect: () => setModuloActivo('curricular_notas'),
       },
       {
         key: 'alertas',
         label: 'Alertas',
-        visible: moduloPermitido('alertas', permissions),
+        visible: moduloPermitido('alertas', permissions, roles),
         active: moduloVista === 'alertas',
         onSelect: () => setModuloActivo('alertas'),
       },
-    ],
-    [permissions, moduloVista],
-  );
+    ];
+
+    if (muestraLegacy) {
+      items.push(
+        {
+          key: 'legacy_divider',
+          label: 'Datos académicos (legacy)',
+          visible: true,
+          disabled: true,
+          dividerBefore: true,
+          onSelect: () => {},
+        },
+        {
+          key: 'asistencia',
+          label: 'Asistencia',
+          visible: moduloPermitido('asistencia', permissions, roles),
+          active: moduloVista === 'asistencia',
+          onSelect: () => setModuloActivo('asistencia'),
+        },
+        {
+          key: 'notas',
+          label: 'Notas masivas',
+          visible: moduloPermitido('notas', permissions, roles),
+          active: moduloVista === 'notas',
+          onSelect: () => setModuloActivo('notas'),
+        },
+        {
+          key: 'materias',
+          label: 'Materias',
+          visible: moduloPermitido('materias', permissions, roles),
+          active: moduloVista === 'materias',
+          onSelect: () => setModuloActivo('materias'),
+        },
+      );
+    }
+
+    return items;
+  }, [permissions, roles, moduloVista, muestraLegacy]);
 
   if (isLoading && !authUser) {
     return (
@@ -163,10 +264,17 @@ function App() {
 
   return (
     <AppLayout
+      mainClassName={
+        moduloVista === 'curricular_notas'
+          ? 'min-h-0 flex-1 overflow-y-auto bg-[var(--surface)] px-4 pb-4 pt-0 sm:px-6 lg:px-10 lg:pb-6 lg:pt-0'
+          : undefined
+      }
       sidebar={
         <Sidebar
           mobileOpen={sidebarOpen}
           onCloseMobile={() => setSidebarOpen(false)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
           navItems={navItems}
         />
       }
@@ -179,34 +287,34 @@ function App() {
         />
       }
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8" data-testid="workspace-main">
+      <div
+        className={`mx-auto flex w-full flex-col ${
+          moduloVista === 'curricular_notas' ? 'w-full max-w-none gap-0' : 'max-w-6xl gap-8'
+        }`}
+        data-testid="workspace-main"
+      >
         {moduloVista === null ? (
           <Card className="border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-card">
             <h1 className="text-lg font-semibold text-[var(--text)]">Sin módulos asignados</h1>
             <p className="mt-2 text-sm text-muted">
-              Esta cuenta no tiene permisos para Dashboard, estudiantes o alertas. Solicite la asignación de rol al
-              administrador del sistema.
+              Esta cuenta no tiene permisos asignados. Solicite la asignación de rol al administrador del sistema.
             </p>
           </Card>
         ) : (
           <>
             <h1 className="sr-only">{tituloModulo(moduloVista)}</h1>
 
-            {moduloVista === 'dashboard' && moduloPermitido('dashboard', permissions) ? (
-              <DashboardPanel />
-            ) : null}
-
-            {moduloVista === 'estudiantes' && moduloPermitido('estudiantes', permissions) ? <EstudiantesPanel /> : null}
-
-            {moduloVista === 'asistencia' && moduloPermitido('asistencia', permissions) ? (
-              <AsistenciaMasivaPanel />
-            ) : null}
-
-            {moduloVista === 'notas' && moduloPermitido('notas', permissions) ? <NotasMasivasPanel /> : null}
-
-            {moduloVista === 'materias' && moduloPermitido('materias', permissions) ? <MateriasPanel /> : null}
-
-            {moduloVista === 'alertas' && moduloPermitido('alertas', permissions) ? <AlertasPanel /> : null}
+            {moduloVista === 'dashboard' ? <DashboardPanel /> : null}
+            {moduloVista === 'estudiantes' ? <EstudiantesPanel /> : null}
+            {moduloVista === 'curricular_malla' ? <MallaCurricularPanel /> : null}
+            {moduloVista === 'curricular_temas' ? <TemasSemanalesPanel /> : null}
+            {moduloVista === 'curricular_pesos' ? <PesosEvaluacionPanel /> : null}
+            {moduloVista === 'curricular_asignacion' ? <AsignacionDocentePanel /> : null}
+            {moduloVista === 'curricular_notas' ? <RegistroNotasSemanalesPanel /> : null}
+            {moduloVista === 'asistencia' ? <AsistenciaMasivaPanel /> : null}
+            {moduloVista === 'notas' ? <NotasMasivasPanel /> : null}
+            {moduloVista === 'materias' ? <MateriasPanel /> : null}
+            {moduloVista === 'alertas' ? <AlertasPanel /> : null}
           </>
         )}
 
