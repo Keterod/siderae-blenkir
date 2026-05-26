@@ -2,7 +2,15 @@ import RegistroNotasAlumnoRow from './RegistroNotasAlumnoRow';
 
 const CRITERIO_GROUP_W = 'w-[8.5rem] max-w-[8.5rem]';
 
-export default function RegistroNotasCapacidadTable({ capacidad, criterios, estudiantes, matriz, pesos, onChangeNota }) {
+export default function RegistroNotasCapacidadTable({
+  capacidad,
+  criterios,
+  estudiantes,
+  matriz,
+  pesos,
+  onChangeNota,
+  soloLectura = false,
+}) {
   const criteriosActivos = criterios.filter((c) => c.activo !== false);
   if (criteriosActivos.length === 0) return null;
 
@@ -49,6 +57,7 @@ export default function RegistroNotasCapacidadTable({ capacidad, criterios, estu
                 criterios={criteriosActivos}
                 filas={matriz[estudiante.id] ?? {}}
                 pesos={pesos}
+                soloLectura={soloLectura}
                 onChangeNota={onChangeNota}
               />
             ))}

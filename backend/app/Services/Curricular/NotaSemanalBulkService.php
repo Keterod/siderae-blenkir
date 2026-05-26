@@ -2,6 +2,7 @@
 
 namespace App\Services\Curricular;
 
+use App\DTO\Curricular\AulaEvaluacionContext;
 use App\Exceptions\Curricular\NotaCurricularFueraDeRangoException;
 use App\Exceptions\Curricular\NotasCurricularesVaciasException;
 use App\Models\Curricular\DocenteCursoAula;
@@ -10,17 +11,25 @@ use App\Models\Curricular\NotaSemanal;
 use App\Models\Curricular\TemaSemanal;
 use App\Models\Estudiante;
 use App\Models\User;
+use App\Services\Curricular\EvaluacionBimestral\EvalBimResultadoPersistService;
+use App\Services\Curricular\EvaluacionBimestral\EvaluacionComponentesResolver;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class NotaSemanalBulkService
 {
     public const ADVERTENCIA_ELIMINAR_NOTA = 'Para eliminar una nota registrada se requiere una acción específica.';
 
+    public const ADVERTENCIA_EVAL_BIM_NO_ACTUALIZADA = 'No se pudo actualizar la evaluación bimestral tras guardar las notas.';
+
     public function __construct(
         private readonly CeCalculatorService $ceCalculator = new CeCalculatorService,
         private readonly PesoEvaluacionResolver $pesoResolver = new PesoEvaluacionResolver,
         private readonly EstudianteAsignacionDocenteValidator $estudianteValidator = new EstudianteAsignacionDocenteValidator,
+        private readonly EvalBimResultadoPersistService $resultadoPersistService = new EvalBimResultadoPersistService,
+        private readonly EvaluacionComponentesResolver $componentesResolver = new EvaluacionComponentesResolver,
     ) {}
 
     /**
@@ -53,7 +62,7 @@ class NotaSemanalBulkService
             }
         });
 
-        return ['notas' => $resultado, 'advertencias' => []];
+        return $this->finalizarConRecalculoEvalBimestral($asignacion, $resultado, []);
     }
 
     /**
@@ -158,10 +167,7 @@ class NotaSemanalBulkService
             }
         });
 
-        return [
-            'notas' => $resultado,
-            'advertencias' => array_values(array_unique($advertencias)),
-        ];
+        return $this->finalizarConRecalculoEvalBimestral($asignacion, $resultado, $advertencias);
     }
 
     /**
@@ -298,10 +304,114 @@ class NotaSemanalBulkService
             }
         });
 
+        return $this->finalizarConRecalculoEvalBimestral($asignacion, $resultado, $advertencias);
+    }
+
+    /**
+     * @param  list<NotaSemanal>  $notas
+     * @param  list<string>  $advertencias
+     * @return array{notas: list<NotaSemanal>, advertencias: list<string>}
+     */
+    private function finalizarConRecalculoEvalBimestral(
+        DocenteCursoAula $asignacion,
+        array $notas,
+        array $advertencias,
+    ): array {
+        $advertenciasEval = $this->recalcularEvaluacionBimestralTrasNotasSemanales($asignacion, $notas);
+
         return [
-            'notas' => $resultado,
-            'advertencias' => array_values(array_unique($advertencias)),
+            'notas' => $notas,
+            'advertencias' => array_values(array_unique(array_merge($advertencias, $advertenciasEval))),
         ];
+    }
+
+    /**
+     * @param  list<NotaSemanal>  $notasGuardadas
+     * @return list<string>
+     */
+    private function recalcularEvaluacionBimestralTrasNotasSemanales(
+        DocenteCursoAula $asignacion,
+        array $notasGuardadas,
+    ): array {
+        if ($notasGuardadas === []) {
+            return [];
+        }
+
+        $notasConCe = array_values(array_filter(
+            $notasGuardadas,
+            fn (NotaSemanal $nota) => $nota->ce_calculado !== null,
+        ));
+
+        if ($notasConCe === []) {
+            return [];
+        }
+
+        $temaIds = array_values(array_unique(array_map(
+            fn (NotaSemanal $nota) => (int) $nota->tema_semanal_id,
+            $notasConCe,
+        )));
+
+        $periodoIds = TemaSemanal::query()
+            ->whereIn('id', $temaIds)
+            ->pluck('periodo_academico_id')
+            ->unique()
+            ->filter();
+
+        if ($periodoIds->isEmpty()) {
+            return [self::ADVERTENCIA_EVAL_BIM_NO_ACTUALIZADA];
+        }
+
+        $advertencias = [];
+
+        foreach ($periodoIds as $periodoAcademicoId) {
+            try {
+                $aula = $this->construirContextoAulaEvaluacion($asignacion, (int) $periodoAcademicoId);
+                if ($aula === null) {
+                    $advertencias[] = self::ADVERTENCIA_EVAL_BIM_NO_ACTUALIZADA;
+
+                    continue;
+                }
+
+                $this->componentesResolver->resolver($aula->mallaCursoId, $aula->periodoAcademicoId);
+                $this->resultadoPersistService->recalcularAula($aula);
+            } catch (Throwable $exception) {
+                Log::warning('No se pudo recalcular evaluación bimestral tras notas semanales.', [
+                    'asignacion_docente_id' => $asignacion->id,
+                    'periodo_academico_id' => $periodoAcademicoId,
+                    'mensaje' => $exception->getMessage(),
+                ]);
+                $advertencias[] = self::ADVERTENCIA_EVAL_BIM_NO_ACTUALIZADA;
+            }
+        }
+
+        return array_values(array_unique($advertencias));
+    }
+
+    private function construirContextoAulaEvaluacion(
+        DocenteCursoAula $asignacion,
+        int $periodoAcademicoId,
+    ): ?AulaEvaluacionContext {
+        $estudiantes = Estudiante::query()
+            ->where('anio_escolar', $asignacion->anio_escolar)
+            ->where('nivel', $asignacion->nivel)
+            ->where('sede', $asignacion->sede)
+            ->where('activo', true)
+            ->get()
+            ->filter(fn (Estudiante $estudiante) => $this->estudianteValidator->perteneceAAsignacion($estudiante, $asignacion))
+            ->values();
+
+        if ($estudiantes->isEmpty()) {
+            return null;
+        }
+
+        return new AulaEvaluacionContext(
+            mallaCursoId: $asignacion->malla_curso_id,
+            periodoAcademicoId: $periodoAcademicoId,
+            sede: $asignacion->sede,
+            grado: $asignacion->grado,
+            seccion: $asignacion->seccion,
+            estudianteIds: $estudiantes->pluck('id')->all(),
+        );
     }
 
     /**

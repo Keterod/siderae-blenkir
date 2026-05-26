@@ -7,10 +7,13 @@ use App\Http\Requests\Curricular\BulkNotasSemanalesRequest;
 use App\Models\Curricular\DocenteCursoAula;
 use App\Models\Curricular\TemaSemanal;
 use App\Models\Estudiante;
+use App\Models\User;
+use App\Services\Curricular\CatalogoNivelGrado;
 use App\Services\Curricular\NotaSemanalBulkService;
 use App\Services\Curricular\NotaSemanalFormularioService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class NotaSemanalController extends Controller
 {
@@ -19,13 +22,56 @@ class NotaSemanalController extends Controller
         private readonly NotaSemanalFormularioService $formularioService = new NotaSemanalFormularioService,
     ) {}
 
+    public static function usuarioPuedeConsultaGlobalNotas(User $user): bool
+    {
+        return $user->can('gestionar_asignaciones_docente')
+            || $user->hasRole('directivo');
+    }
+
     public function formulario(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $consultaGlobal = $request->boolean('consulta_global');
+
+        if ($consultaGlobal) {
+            $data = Validator::make($request->query(), [
+                'anio_escolar' => ['required', 'string'],
+                'nivel' => ['required', 'string', 'in:' . implode(',', CatalogoNivelGrado::nivelesCurriculares())],
+                'sede' => ['required', 'string'],
+                'grado' => ['required', 'string'],
+                'seccion' => ['required', 'string'],
+                'malla_curso_id' => ['required', 'integer', 'exists:malla_cursos,id'],
+                'periodo_academico_id' => ['required', 'integer', 'exists:periodos_academicos,id'],
+                'area_id' => ['nullable'],
+                'estudiante_id' => ['nullable', 'integer', 'exists:estudiantes,id'],
+            ], [], [
+                'anio_escolar' => 'año escolar',
+                'malla_curso_id' => 'curso',
+                'periodo_academico_id' => 'bimestre',
+            ])->validate();
+
+            if (! static::usuarioPuedeConsultaGlobalNotas($request->user())) {
+                return response()->json([
+                    'message' => 'No autorizado para la consulta global de notas curriculares.',
+                ], 403);
+            }
+
+            if (! $request->user()->can('ver_notas_academicas')) {
+                return response()->json(['message' => 'Permiso denegado.'], 403);
+            }
+
+            $resultado = $this->formularioService->construirConsultaGlobal($data);
+
+            return response()->json($this->serializarRespuestaFormulario($resultado, consultaGlobal: true));
+        }
+
+        $data = Validator::make($request->query(), [
             'asignacion_docente_id' => ['required', 'integer', 'exists:docente_curso_aulas,id'],
             'periodo_academico_id' => ['required', 'integer', 'exists:periodos_academicos,id'],
             'estudiante_id' => ['nullable', 'integer', 'exists:estudiantes,id'],
-        ]);
+        ], [], [
+            'asignacion_docente_id' => 'asignación docente',
+            'periodo_academico_id' => 'bimestre',
+        ])->validate();
 
         $asignacion = DocenteCursoAula::query()
             ->with(['mallaCurso.area', 'mallaCurso.cursoCatalogo', 'mallaCurso.mallaCurricular'])
@@ -41,8 +87,24 @@ class NotaSemanalController extends Controller
             isset($data['estudiante_id']) ? (int) $data['estudiante_id'] : null,
         );
 
-        return response()->json([
-            'asignacion' => $resultado['asignacion'],
+        $puedeRegistrarPropioCurso = $request->user()->can('registrar_notas_semanales')
+            && (int) $asignacion->user_id === (int) $request->user()->id;
+
+        $resultado['readonly'] = ! $puedeRegistrarPropioCurso;
+
+        return response()->json($this->serializarRespuestaFormulario($resultado, consultaGlobal: false));
+    }
+
+    /**
+     * @param  array<string, mixed>  $resultado
+     * @return array<string, mixed>
+     */
+    private function serializarRespuestaFormulario(array $resultado, bool $consultaGlobal): array
+    {
+        return [
+            'asignacion' => $resultado['asignacion'] ?? null,
+            'consulta_global' => $consultaGlobal,
+            'readonly' => (bool) ($resultado['readonly'] ?? false),
             'curso' => $resultado['curso'],
             'periodo' => $resultado['periodo'],
             'estudiantes' => $resultado['estudiantes'],
@@ -50,11 +112,15 @@ class NotaSemanalController extends Controller
             'criterios' => $resultado['criterios'],
             'notas_por_criterio' => $resultado['notas_por_criterio'],
             'notas_por_estudiante_criterio' => $resultado['notas_por_estudiante_criterio'],
-        ]);
+        ];
     }
 
     public function bulk(BulkNotasSemanalesRequest $request): JsonResponse
     {
+        if (! $request->user()->can('registrar_notas_semanales')) {
+            return response()->json(['message' => 'No tiene permiso para registrar notas semanales.'], 403);
+        }
+
         $data = $request->validated();
         $asignacion = DocenteCursoAula::query()->findOrFail($data['asignacion_docente_id']);
 

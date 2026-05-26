@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Curricular\AsignacionDocenteController;
 use App\Http\Controllers\Api\Curricular\CatalogoCurricularController;
 use App\Http\Controllers\Api\Curricular\ConfiguracionPesoEvaluacionController;
 use App\Http\Controllers\Api\Curricular\DocenteAulaCurricularController;
+use App\Http\Controllers\Api\Curricular\EvaluacionBimestralController;
 use App\Http\Controllers\Api\Curricular\MallaCurricularController;
 use App\Http\Controllers\Api\Curricular\NotaSemanalController;
 use App\Http\Controllers\Api\Curricular\ResumenAcademicoController;
@@ -158,6 +159,7 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
 
     Route::middleware(['permission:registrar_notas_semanales|ver_notas_academicas'])->group(function (): void {
         Route::get('/notas-semanales/formulario', [NotaSemanalController::class, 'formulario']);
+        Route::get('/notas-semanales/contextos-aula', [DocenteAulaCurricularController::class, 'contextosAulaConsulta']);
     });
 
     Route::middleware(['permission:registrar_notas_semanales'])->group(function (): void {
@@ -166,5 +168,25 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
 
     Route::middleware(['permission:ver_notas_academicas'])->group(function (): void {
         Route::get('/estudiantes/{estudiante}/resumen-academico', [ResumenAcademicoController::class, 'show']);
+    });
+
+    Route::middleware(['permission:ver_notas_academicas|configurar_evaluacion_bimestral'])->group(function (): void {
+        Route::get('/evaluacion-bimestral/config', [EvaluacionBimestralController::class, 'config']);
+        Route::get('/evaluacion-bimestral/resultados', [EvaluacionBimestralController::class, 'resultados']);
+    });
+
+    Route::middleware(['permission:configurar_evaluacion_bimestral'])->group(function (): void {
+        Route::post('/evaluacion-bimestral/componentes', [EvaluacionBimestralController::class, 'storeComponente']);
+        Route::patch('/evaluacion-bimestral/componentes/{componente}', [EvaluacionBimestralController::class, 'updateComponente']);
+        Route::post('/evaluacion-bimestral/etas', [EvaluacionBimestralController::class, 'storeEta']);
+        Route::patch('/evaluacion-bimestral/etas/{eta}', [EvaluacionBimestralController::class, 'updateEta']);
+    });
+
+    Route::middleware(['permission:registrar_notas_semanales|ver_notas_academicas'])->group(function (): void {
+        Route::get('/evaluacion-bimestral/formulario', [EvaluacionBimestralController::class, 'formulario']);
+    });
+
+    Route::middleware(['permission:registrar_notas_semanales'])->group(function (): void {
+        Route::post('/evaluacion-bimestral/bulk', [EvaluacionBimestralController::class, 'bulk']);
     });
 });

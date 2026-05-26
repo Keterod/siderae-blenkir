@@ -388,6 +388,12 @@ export function getDocenteAulasCursos(params = {}) {
   return request(qs ? `${CURRICULAR}/docente/aulas-cursos?${qs}` : `${CURRICULAR}/docente/aulas-cursos`);
 }
 
+/** Contextos únicos (aula + curso) para filtros del modo consulta global (admin/coordinación/directivo). */
+export function getContextosConsultaGlobales(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/notas-semanales/contextos-aula?${qs}` : `${CURRICULAR}/notas-semanales/contextos-aula`);
+}
+
 export function getFormularioNotasSemanales(params) {
   const qs = buildQueryString(params);
   return request(`${CURRICULAR}/notas-semanales/formulario?${qs}`);

@@ -28,6 +28,7 @@ class PermissionsSeeder extends Seeder
             'gestionar_asignaciones_docente',
             'registrar_notas_semanales',
             'ver_notas_academicas',
+            'configurar_evaluacion_bimestral',
         ];
 
         $permissions = array_merge($legacyPermissions, $curricularPermissions);
@@ -60,6 +61,7 @@ class PermissionsSeeder extends Seeder
                 'configurar_pesos_evaluacion',
                 'gestionar_asignaciones_docente',
                 'ver_notas_academicas',
+                'configurar_evaluacion_bimestral',
             ],
             'psicologo_tutor' => [
                 'ver_alertas',

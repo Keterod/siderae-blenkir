@@ -12,6 +12,7 @@ import TemasSemanalesPanel from './components/curricular/TemasSemanalesPanel';
 import PesosEvaluacionPanel from './components/curricular/PesosEvaluacionPanel';
 import AsignacionDocentePanel from './components/curricular/AsignacionDocentePanel';
 import RegistroNotasSemanalesPanel from './components/curricular/RegistroNotasSemanalesPanel';
+import ConfiguracionBimestralPanel from './components/curricular/configuracion-bimestral/ConfiguracionBimestralPanel';
 import LoginForm from './components/LoginForm';
 import Card from './components/ui/Card';
 import LoadingState from './components/ui/LoadingState';
@@ -58,10 +59,16 @@ function moduloPermitido(key, permissions, roles) {
       return permissions.includes('gestionar_temas_semanales');
     case 'curricular_pesos':
       return permissions.includes('configurar_pesos_evaluacion');
+    case 'curricular_eval_bim':
+      return permissions.includes('configurar_evaluacion_bimestral');
     case 'curricular_asignacion':
       return permissions.includes('gestionar_asignaciones_docente');
     case 'curricular_notas':
-      return permissions.includes('registrar_notas_semanales');
+      return (
+        permissions.includes('registrar_notas_semanales')
+        || permissions.includes('gestionar_asignaciones_docente')
+        || roles.includes('directivo')
+      );
     default:
       return false;
   }
@@ -100,6 +107,7 @@ function tituloModulo(key) {
     curricular_malla: 'Malla curricular',
     curricular_temas: 'Criterios de evaluación',
     curricular_pesos: 'Pesos C/L/T',
+    curricular_eval_bim: 'Configuración bimestral',
     curricular_asignacion: 'Asignación docente',
     curricular_notas: 'Notas semanales',
   };
@@ -189,6 +197,13 @@ function App() {
         visible: moduloPermitido('curricular_pesos', permissions, roles),
         active: moduloVista === 'curricular_pesos',
         onSelect: () => setModuloActivo('curricular_pesos'),
+      },
+      {
+        key: 'curricular_eval_bim',
+        label: 'Configuración bimestral',
+        visible: moduloPermitido('curricular_eval_bim', permissions, roles),
+        active: moduloVista === 'curricular_eval_bim',
+        onSelect: () => setModuloActivo('curricular_eval_bim'),
       },
       {
         key: 'curricular_asignacion',
@@ -309,6 +324,7 @@ function App() {
             {moduloVista === 'curricular_malla' ? <MallaCurricularPanel /> : null}
             {moduloVista === 'curricular_temas' ? <TemasSemanalesPanel /> : null}
             {moduloVista === 'curricular_pesos' ? <PesosEvaluacionPanel /> : null}
+            {moduloVista === 'curricular_eval_bim' ? <ConfiguracionBimestralPanel /> : null}
             {moduloVista === 'curricular_asignacion' ? <AsignacionDocentePanel /> : null}
             {moduloVista === 'curricular_notas' ? <RegistroNotasSemanalesPanel /> : null}
             {moduloVista === 'asistencia' ? <AsistenciaMasivaPanel /> : null}

@@ -18,6 +18,7 @@ function FiltroSelect({ label, children }) {
 }
 
 export default function RegistroNotasFiltros({
+  modoConsultaGlobal = false,
   filtros,
   opciones,
   aulas,
@@ -27,8 +28,13 @@ export default function RegistroNotasFiltros({
   vista,
   onCambiarFiltro,
   onCambiarVista,
+  onCambiarContextoConsulta,
   nombreCursoAsignacion,
 }) {
+  const anosDisponibles = modoConsultaGlobal
+    ? (opciones.anios ?? []).filter(Boolean)
+    : [...new Set(aulas.map((a) => a.anio_escolar))];
+
   return (
     <div className="space-y-1.5">
       <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-5">
@@ -36,9 +42,13 @@ export default function RegistroNotasFiltros({
           <select
             className={FIELD_COMPACT}
             value={filtros.anio_escolar}
-            onChange={(e) => onCambiarFiltro({ anio_escolar: e.target.value, periodo_academico_id: '' })}
+            onChange={(e) => onCambiarFiltro({
+              anio_escolar: e.target.value,
+              periodo_academico_id: '',
+              ...(modoConsultaGlobal ? { consulta_contexto_clave: '' } : { asignacion_id: '' }),
+            })}
           >
-            {[...new Set(aulas.map((a) => a.anio_escolar))].map((anio) => (
+            {anosDisponibles.map((anio) => (
               <option key={anio} value={anio}>{anio}</option>
             ))}
           </select>
@@ -47,7 +57,11 @@ export default function RegistroNotasFiltros({
           <select
             className={FIELD_COMPACT}
             value={filtros.nivel}
-            onChange={(e) => onCambiarFiltro({ nivel: e.target.value, asignacion_id: '', area_id: '' })}
+            onChange={(e) => onCambiarFiltro(
+              modoConsultaGlobal
+                ? { nivel: e.target.value, consulta_contexto_clave: '' }
+                : { nivel: e.target.value, asignacion_id: '', area_id: '' },
+            )}
           >
             <option value="">Todos</option>
             {opciones.niveles.map((n) => (
@@ -58,7 +72,15 @@ export default function RegistroNotasFiltros({
           </select>
         </FiltroSelect>
         <FiltroSelect label="Sede">
-          <select className={FIELD_COMPACT} value={filtros.sede} onChange={(e) => onCambiarFiltro({ sede: e.target.value, asignacion_id: '' })}>
+          <select
+            className={FIELD_COMPACT}
+            value={filtros.sede}
+            onChange={(e) => onCambiarFiltro(
+              modoConsultaGlobal
+                ? { sede: e.target.value, consulta_contexto_clave: '' }
+                : { sede: e.target.value, asignacion_id: '' },
+            )}
+          >
             <option value="">Todas</option>
             {opciones.sedes.map((s) => (
               <option key={s} value={s}>{SEDES.find((x) => x.value === s)?.label ?? s}</option>
@@ -66,13 +88,29 @@ export default function RegistroNotasFiltros({
           </select>
         </FiltroSelect>
         <FiltroSelect label="Grado">
-          <select className={FIELD_COMPACT} value={filtros.grado} onChange={(e) => onCambiarFiltro({ grado: e.target.value, asignacion_id: '' })}>
+          <select
+            className={FIELD_COMPACT}
+            value={filtros.grado}
+            onChange={(e) => onCambiarFiltro(
+              modoConsultaGlobal
+                ? { grado: e.target.value, consulta_contexto_clave: '' }
+                : { grado: e.target.value, asignacion_id: '' },
+            )}
+          >
             <option value="">Todos</option>
             {opciones.grados.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
         </FiltroSelect>
         <FiltroSelect label="Sección">
-          <select className={FIELD_COMPACT} value={filtros.seccion} onChange={(e) => onCambiarFiltro({ seccion: e.target.value, asignacion_id: '' })}>
+          <select
+            className={FIELD_COMPACT}
+            value={filtros.seccion}
+            onChange={(e) => onCambiarFiltro(
+              modoConsultaGlobal
+                ? { seccion: e.target.value, consulta_contexto_clave: '' }
+                : { seccion: e.target.value, asignacion_id: '' },
+            )}
+          >
             <option value="">Todas</option>
             {opciones.secciones.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
@@ -84,7 +122,11 @@ export default function RegistroNotasFiltros({
           <select
             className={FIELD_COMPACT}
             value={filtros.area_id}
-            onChange={(e) => onCambiarFiltro({ area_id: e.target.value, asignacion_id: '' })}
+            onChange={(e) => onCambiarFiltro(
+              modoConsultaGlobal
+                ? { area_id: e.target.value, consulta_contexto_clave: '' }
+                : { area_id: e.target.value, asignacion_id: '' },
+            )}
           >
             <option value="">Todas</option>
             {opciones.areas.map(([id, nombre]) => (
@@ -93,16 +135,30 @@ export default function RegistroNotasFiltros({
           </select>
         </FiltroSelect>
         <FiltroSelect label="Curso">
-          <select
-            className={FIELD_COMPACT}
-            value={filtros.asignacion_id}
-            onChange={(e) => onCambiarFiltro({ asignacion_id: e.target.value })}
-          >
-            <option value="">Seleccione</option>
-            {aulasFiltradas.map((a) => (
-              <option key={a.id} value={a.id}>{nombreCursoAsignacion(a)}</option>
-            ))}
-          </select>
+          {modoConsultaGlobal ? (
+            <select
+              className={FIELD_COMPACT}
+              value={filtros.consulta_contexto_clave}
+              disabled={!(opciones.cursosOpciones?.length)}
+              onChange={(e) => onCambiarContextoConsulta?.(e.target.value)}
+            >
+              <option value="">Seleccione aula / curso</option>
+              {(opciones.cursosOpciones ?? []).map((o) => (
+                <option key={o.clave} value={o.clave}>{o.etiqueta}</option>
+              ))}
+            </select>
+          ) : (
+            <select
+              className={FIELD_COMPACT}
+              value={filtros.asignacion_id}
+              onChange={(e) => onCambiarFiltro({ asignacion_id: e.target.value })}
+            >
+              <option value="">Seleccione</option>
+              {aulasFiltradas.map((a) => (
+                <option key={a.id} value={a.id}>{nombreCursoAsignacion(a)}</option>
+              ))}
+            </select>
+          )}
         </FiltroSelect>
         <FiltroSelect label="Bimestre">
           <select

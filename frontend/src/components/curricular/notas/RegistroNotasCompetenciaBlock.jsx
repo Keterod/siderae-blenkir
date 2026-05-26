@@ -6,6 +6,7 @@ export default function RegistroNotasCompetenciaBlock({
   matriz,
   pesos,
   onChangeNota,
+  soloLectura = false,
 }) {
   return (
     <section className="space-y-1.5">
@@ -22,6 +23,7 @@ export default function RegistroNotasCompetenciaBlock({
           matriz={matriz}
           pesos={pesos}
           onChangeNota={onChangeNota}
+          soloLectura={soloLectura}
         />
       ))}
     </section>

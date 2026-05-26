@@ -1,6 +1,13 @@
 import RegistroNotasCompetenciaBlock from './RegistroNotasCompetenciaBlock';
 
-export default function RegistroNotasAulaTable({ estructura, estudiantes, matriz, pesos, onChangeNota }) {
+export default function RegistroNotasAulaTable({
+  soloLectura = false,
+  estructura,
+  estudiantes,
+  matriz,
+  pesos,
+  onChangeNota,
+}) {
   if (!estudiantes.length) {
     return (
       <p className="text-xs text-muted">No hay estudiantes activos en esta sección.</p>
@@ -16,6 +23,7 @@ export default function RegistroNotasAulaTable({ estructura, estudiantes, matriz
           estudiantes={estudiantes}
           matriz={matriz}
           pesos={pesos}
+          soloLectura={soloLectura}
           onChangeNota={onChangeNota}
         />
       ))}

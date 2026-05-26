@@ -30,13 +30,14 @@ abstract class CurricularApiTestCase extends TestCase
             'gestionar_asignaciones_docente',
             'registrar_notas_semanales',
             'ver_notas_academicas',
+            'configurar_evaluacion_bimestral',
         ];
 
         foreach ($names as $name) {
             Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
         }
 
-        foreach (['docente', 'coordinador_academico', 'administrador'] as $roleName) {
+        foreach (['docente', 'coordinador_academico', 'administrador', 'directivo'] as $roleName) {
             Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
         }
     }
@@ -57,8 +58,9 @@ abstract class CurricularApiTestCase extends TestCase
             'gestionar_temas_semanales',
             'configurar_pesos_evaluacion',
             'gestionar_asignaciones_docente',
-            'ver_notas_academicas',
-        ]);
+                'ver_notas_academicas',
+                'configurar_evaluacion_bimestral',
+            ]);
     }
 
     protected function docente(): User
@@ -69,6 +71,33 @@ abstract class CurricularApiTestCase extends TestCase
             'ver_notas_academicas',
         ]);
         $user->assignRole('docente');
+
+        return $user;
+    }
+
+    protected function administrador(): User
+    {
+        $user = $this->userWithPermissions([
+            'ver_malla_curricular',
+            'gestionar_malla_curricular',
+            'gestionar_temas_semanales',
+            'configurar_pesos_evaluacion',
+            'gestionar_asignaciones_docente',
+            'registrar_notas_semanales',
+            'ver_notas_academicas',
+        ]);
+        $user->assignRole('administrador');
+
+        return $user;
+    }
+
+    protected function directivo(): User
+    {
+        $user = $this->userWithPermissions([
+            'ver_malla_curricular',
+            'ver_notas_academicas',
+        ]);
+        $user->assignRole('directivo');
 
         return $user;
     }

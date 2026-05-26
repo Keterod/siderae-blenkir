@@ -6,7 +6,9 @@ use App\Models\Curricular\Area;
 use App\Models\Curricular\Capacidad;
 use App\Models\Curricular\Competencia;
 use App\Models\Curricular\CursoCatalogo;
+use App\Enums\Curricular\EvalBimEstadoCalculo;
 use App\Models\Curricular\DocenteCursoAula;
+use App\Models\Curricular\EvalBimResultado;
 use App\Models\Curricular\MallaCurricular;
 use App\Models\Curricular\MallaCurso;
 use App\Models\Curricular\PeriodoAcademico;
@@ -675,6 +677,130 @@ class CurricularApiTest extends CurricularApiTestCase
     }
 
     #[Test]
+    public function administrador_no_puede_bulk_en_asignacion_de_otro_docente(): void
+    {
+        [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotas();
+
+        $this->actingAs($this->administrador())
+            ->postJson('/api/curricular/notas-semanales/bulk', [
+                'asignacion_docente_id' => $asignacion->id,
+                'tema_semanal_id' => $tema->id,
+                'notas' => [
+                    ['estudiante_id' => $estudiante->id, 'nota_cuaderno' => 14],
+                ],
+            ])
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function consulta_global_coordinador_ve_notas_readonly(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+        $qs = $this->queryStringConsultaGlobal($asignacion, $periodoId);
+
+        $this->actingAs($this->coordinador())
+            ->getJson("/api/curricular/notas-semanales/formulario?{$qs}")
+            ->assertOk()
+            ->assertJsonPath('consulta_global', true)
+            ->assertJsonPath('readonly', true)
+            ->assertJsonPath('asignacion', null);
+    }
+
+    #[Test]
+    public function consulta_global_directivo_ok(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+        $qs = $this->queryStringConsultaGlobal($asignacion, $periodoId);
+
+        $this->actingAs($this->directivo())
+            ->getJson("/api/curricular/notas-semanales/formulario?{$qs}")
+            ->assertOk()
+            ->assertJsonPath('consulta_global', true)
+            ->assertJsonPath('readonly', true);
+    }
+
+    #[Test]
+    public function consulta_global_docente_recibe_403(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+        $qs = $this->queryStringConsultaGlobal($asignacion, $periodoId);
+
+        $this->actingAs($asignacion->user)
+            ->getJson("/api/curricular/notas-semanales/formulario?{$qs}")
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function consulta_global_sin_ver_notas_academicas_recibe_403(): void
+    {
+        $u = $this->userWithPermissions([
+            'ver_malla_curricular',
+            'gestionar_malla_curricular',
+            'gestionar_temas_semanales',
+            'configurar_pesos_evaluacion',
+            'gestionar_asignaciones_docente',
+        ]);
+
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+        $qs = $this->queryStringConsultaGlobal($asignacion, $periodoId);
+
+        $this->actingAs($u)
+            ->getJson("/api/curricular/notas-semanales/formulario?{$qs}")
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function usuario_solo_ver_notas_sin_gestionar_no_lista_contextos_consulta(): void
+    {
+        $u = $this->userWithPermissions(['ver_notas_academicas']);
+
+        $this->actingAs($u)
+            ->getJson('/api/curricular/notas-semanales/contextos-aula')
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function administrador_lista_contextos_consulta(): void
+    {
+        $this->prepararFlujoNotas();
+
+        $this->actingAs($this->administrador())
+            ->getJson('/api/curricular/notas-semanales/contextos-aula')
+            ->assertOk()
+            ->assertJsonCount(1);
+    }
+
+    #[Test]
+    public function formulario_visita_terceros_readonly_cuando_coord(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $this->actingAs($this->coordinador())
+            ->getJson("/api/curricular/notas-semanales/formulario?asignacion_docente_id={$asignacion->id}&periodo_academico_id={$periodoId}")
+            ->assertOk()
+            ->assertJsonPath('consulta_global', false)
+            ->assertJsonPath('readonly', true);
+    }
+
+    #[Test]
+    public function formulario_propia_asignacion_readonly_false_para_docente(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $this->actingAs($asignacion->user)
+            ->getJson("/api/curricular/notas-semanales/formulario?asignacion_docente_id={$asignacion->id}&periodo_academico_id={$periodoId}")
+            ->assertOk()
+            ->assertJsonPath('readonly', false)
+            ->assertJsonPath('consulta_global', false);
+    }
+
+    #[Test]
     public function formulario_devuelve_todos_los_criterios_activos_sin_notas(): void
     {
         [$asignacion, $tema, $estudiante, $tema2] = $this->prepararFlujoNotasConDosCriterios();
@@ -712,6 +838,92 @@ class CurricularApiTest extends CurricularApiTestCase
             ->assertOk()
             ->assertJsonPath("notas_por_criterio.{$tema->id}.nota_cuaderno", '15.00')
             ->assertJsonPath("notas_por_criterio.{$tema->id}.ce_calculado", '15.50');
+    }
+
+    #[Test]
+    public function guardar_notas_semanales_recalcula_promedio_criterios_eval_bim(): void
+    {
+        [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $this->actingAs($asignacion->user)
+            ->postJson('/api/curricular/notas-semanales/bulk', [
+                'asignacion_docente_id' => $asignacion->id,
+                'estudiante_id' => $estudiante->id,
+                'registros' => [
+                    [
+                        'tema_semanal_id' => $tema->id,
+                        'nota_cuaderno' => 14,
+                        'nota_libro' => 16,
+                        'nota_tarea' => 18,
+                    ],
+                ],
+            ])
+            ->assertCreated();
+
+        $this->assertDatabaseHas('eval_bim_resultados', [
+            'estudiante_id' => $estudiante->id,
+            'malla_curso_id' => $asignacion->malla_curso_id,
+            'periodo_academico_id' => $periodoId,
+            'sede' => $asignacion->sede,
+            'grado' => $asignacion->grado,
+            'seccion' => $asignacion->seccion,
+            'promedio_criterios' => 16.0,
+        ]);
+
+        $this->actingAs($asignacion->user)
+            ->getJson('/api/curricular/evaluacion-bimestral/formulario?'.http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+            ]))
+            ->assertOk()
+            ->assertJsonPath("resultados_por_estudiante.{$estudiante->id}.promedio_criterios", 16);
+    }
+
+    #[Test]
+    public function guardar_notas_solo_un_criterio_con_ce_promedia_solo_criterios_con_ce(): void
+    {
+        [$asignacion, $tema, $estudiante, $tema2] = $this->prepararFlujoNotasConDosCriterios();
+        $periodoId = $tema->periodo_academico_id;
+
+        $this->actingAs($asignacion->user)
+            ->postJson('/api/curricular/notas-semanales/bulk', [
+                'asignacion_docente_id' => $asignacion->id,
+                'estudiante_id' => $estudiante->id,
+                'registros' => [
+                    [
+                        'tema_semanal_id' => $tema->id,
+                        'nota_cuaderno' => 12,
+                        'nota_libro' => 14,
+                    ],
+                ],
+            ])
+            ->assertCreated();
+
+        $resultado = EvalBimResultado::query()
+            ->where('estudiante_id', $estudiante->id)
+            ->where('malla_curso_id', $asignacion->malla_curso_id)
+            ->where('periodo_academico_id', $periodoId)
+            ->first();
+
+        $this->assertNotNull($resultado);
+        $this->assertEqualsWithDelta(13.0, (float) $resultado->promedio_criterios, 0.01);
+        $this->assertSame(EvalBimEstadoCalculo::Pendiente, $resultado->estado_calculo);
+    }
+
+    #[Test]
+    public function sin_ce_guardado_formulario_eval_bim_promedio_criterios_null(): void
+    {
+        [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $this->actingAs($asignacion->user)
+            ->getJson('/api/curricular/evaluacion-bimestral/formulario?'.http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+            ]))
+            ->assertOk()
+            ->assertJsonPath("resultados_por_estudiante.{$estudiante->id}", null);
     }
 
     #[Test]
@@ -1498,6 +1710,20 @@ class CurricularApiTest extends CurricularApiTestCase
                 'capacidad_ids' => [$capacidadOtra->id],
             ])
             ->assertStatus(422);
+    }
+
+    private function queryStringConsultaGlobal(DocenteCursoAula $asignacion, int $periodoAcademicoId): string
+    {
+        return http_build_query([
+            'consulta_global' => '1',
+            'anio_escolar' => $asignacion->anio_escolar,
+            'nivel' => $asignacion->nivel,
+            'sede' => $asignacion->sede,
+            'grado' => $asignacion->grado,
+            'seccion' => $asignacion->seccion,
+            'malla_curso_id' => $asignacion->malla_curso_id,
+            'periodo_academico_id' => $periodoAcademicoId,
+        ]);
     }
 
     /**

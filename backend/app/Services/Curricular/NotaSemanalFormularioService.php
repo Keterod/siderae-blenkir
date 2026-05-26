@@ -20,18 +20,21 @@ class NotaSemanalFormularioService
 
     /**
      * @return array{
-     *     asignacion: DocenteCursoAula,
-     *     curso: array{id: int, nombre: string, area: string|null},
+     *     asignacion: DocenteCursoAula|null,
+     *     curso: array{id: int, nombre: string, area: string|null, area_id: int|null},
      *     periodo: PeriodoAcademico,
      *     estudiantes: Collection<int, Estudiante>,
      *     pesos: array{cuaderno: float, libro: float, tarea: float},
      *     criterios: Collection<int, TemaSemanal>,
      *     notas_por_criterio: array<int, array<string, mixed>>,
-     *     notas_por_estudiante_criterio: array<int, array<int, array<string, mixed>>>
+     *     notas_por_estudiante_criterio: array<int, array<int, array<string, mixed>>>,
+     *     readonly: bool
      * }
      */
-    public function construir(DocenteCursoAula $asignacion, int $periodoAcademicoId, ?int $estudianteId = null): array
+    public function construir(DocenteCursoAula $asignacion, int $periodoAcademicoId, ?int $estudianteId = null, bool $readonlyForzado = false): array
     {
+        $ctxKey = $asignacion->exists ? 'asignacion_docente_id' : 'malla_curso_id';
+
         $periodo = PeriodoAcademico::query()->findOrFail($periodoAcademicoId);
 
         if ($periodo->anio_escolar !== $asignacion->anio_escolar) {
@@ -46,13 +49,13 @@ class NotaSemanalFormularioService
 
         if (! $mallaCurso->activo) {
             throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['El curso de malla está inactivo.'],
+                $ctxKey => ['El curso de malla está inactivo.'],
             ]);
         }
 
         if ($asignacion->nivel === CatalogoNivelGrado::NIVEL_INICIAL) {
             throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['No se registran notas semanales para nivel Inicial.'],
+                $ctxKey => ['No se registran notas semanales para nivel Inicial.'],
             ]);
         }
 
@@ -125,7 +128,7 @@ class NotaSemanalFormularioService
         $pesos = $this->pesoResolver->resolverParaCurso($mallaCurso, $mallaCurso->mallaCurricular);
 
         return [
-            'asignacion' => $asignacion,
+            'asignacion' => $asignacion->exists ? $asignacion : null,
             'curso' => [
                 'id' => $mallaCurso->id,
                 'nombre' => $mallaCurso->cursoCatalogo?->nombre ?? '',
@@ -138,7 +141,90 @@ class NotaSemanalFormularioService
             'criterios' => $criterios,
             'notas_por_criterio' => $notasPorCriterio,
             'notas_por_estudiante_criterio' => $notasPorEstudianteCriterio,
+            'readonly' => $readonlyForzado,
         ];
+    }
+
+    /**
+     * @param  array{
+     *     anio_escolar: string,
+     *     nivel: string,
+     *     sede: string,
+     *     grado: string,
+     *     seccion: string,
+     *     malla_curso_id: int,
+     *     periodo_academico_id: int,
+     *     area_id?: string|int|null,
+     *     estudiante_id?: int|null
+     * } $filtros
+     * @return array<string, mixed>
+     */
+    public function construirConsultaGlobal(array $filtros): array
+    {
+        $periodo = PeriodoAcademico::query()->findOrFail($filtros['periodo_academico_id']);
+
+        if ($periodo->anio_escolar !== $filtros['anio_escolar']) {
+            throw ValidationException::withMessages([
+                'periodo_academico_id' => ['El bimestre no corresponde al año escolar indicado.'],
+            ]);
+        }
+
+        $mallaCurso = MallaCurso::query()
+            ->with(['area', 'cursoCatalogo', 'mallaCurricular'])
+            ->findOrFail($filtros['malla_curso_id']);
+
+        if (! $mallaCurso->activo) {
+            throw ValidationException::withMessages([
+                'malla_curso_id' => ['El curso de malla está inactivo.'],
+            ]);
+        }
+
+        $areaIdFiltrado = $filtros['area_id'] ?? null;
+        if ($areaIdFiltrado !== null && $areaIdFiltrado !== '') {
+            if ((int) $mallaCurso->area_id !== (int) $areaIdFiltrado) {
+                throw ValidationException::withMessages([
+                    'area_id' => ['El área no corresponde al curso seleccionado.'],
+                ]);
+            }
+        }
+
+        $existeAulaActiva = DocenteCursoAula::query()
+            ->where('activo', true)
+            ->where('malla_curso_id', $mallaCurso->id)
+            ->where('anio_escolar', $filtros['anio_escolar'])
+            ->where('nivel', $filtros['nivel'])
+            ->where('grado', $filtros['grado'])
+            ->where('seccion', $filtros['seccion'])
+            ->where('sede', $filtros['sede'])
+            ->exists();
+
+        if (! $existeAulaActiva) {
+            throw ValidationException::withMessages([
+                'malla_curso_id' => ['No hay una asignación docente activa para este curso y aula.'],
+            ]);
+        }
+
+        $virtual = new DocenteCursoAula([
+            'user_id' => 0,
+            'malla_curso_id' => $mallaCurso->id,
+            'anio_escolar' => $filtros['anio_escolar'],
+            'nivel' => $filtros['nivel'],
+            'grado' => $filtros['grado'],
+            'seccion' => $filtros['seccion'],
+            'sede' => $filtros['sede'],
+            'activo' => true,
+        ]);
+
+        $virtual->exists = false;
+        $virtual->id = null;
+        $virtual->setRelation('mallaCurso', $mallaCurso);
+
+        return $this->construir(
+            $virtual,
+            (int) $filtros['periodo_academico_id'],
+            isset($filtros['estudiante_id']) ? (int) $filtros['estudiante_id'] : null,
+            true,
+        );
     }
 
     /**

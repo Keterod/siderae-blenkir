@@ -4,6 +4,7 @@ import NotaInputCell from './NotaInputCell';
 import { notaFueraDeRango } from './notasUtils';
 
 export default function RegistroNotasEstudianteView({
+  soloLectura = false,
   estructura,
   formulario,
   filas,
@@ -69,7 +70,7 @@ export default function RegistroNotasEstudianteView({
                                   value={fila[campo]}
                                   invalid={notaFueraDeRango(fila[campo])}
                                   onChange={(valor) => onCambiarNota(criterio.id, campo, valor)}
-                                  disabled={!filtros.estudiante_id}
+                                  disabled={soloLectura || !filtros.estudiante_id}
                                 />
                               </td>
                             ))}
@@ -93,15 +94,17 @@ export default function RegistroNotasEstudianteView({
           </section>
         ))}
 
-        <Button
-          type="submit"
-          variant="primary"
-          size="sm"
-          className="px-3 py-1 text-xs"
-          disabled={guardando || !filtros.estudiante_id || cargandoFormulario}
-        >
-          {guardando ? 'Guardando…' : 'Guardar notas'}
-        </Button>
+        {!soloLectura ? (
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            className="px-3 py-1 text-xs"
+            disabled={guardando || !filtros.estudiante_id || cargandoFormulario}
+          >
+            {guardando ? 'Guardando…' : 'Guardar notas'}
+          </Button>
+        ) : null}
       </div>
     </div>
   );
