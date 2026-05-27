@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import {
+  descargarPlantillaRegistroAuxiliarExcel,
   getContextosConsultaGlobales,
   getCurricularPeriodos,
   getDocenteAulasCursos,
@@ -108,6 +109,8 @@ export default function RegistroNotasSemanalesPanel() {
   const [evalBimMatriz, setEvalBimMatriz] = useState({});
   const [cargandoEvalBim, setCargandoEvalBim] = useState(false);
   const [guardandoEvalBim, setGuardandoEvalBim] = useState(false);
+  const [descargandoPlantilla, setDescargandoPlantilla] = useState(false);
+  const [modoPlantilla, setModoPlantilla] = useState('vacia');
   const [modalConclusion, setModalConclusion] = useState({
     abierto: false,
     estudiante: null,
@@ -516,6 +519,74 @@ export default function RegistroNotasSemanalesPanel() {
           && filtros.periodo_academico_id && filtros.estudiante_id,
     ));
 
+  const puedeDescargarPlantilla = Boolean(
+    (modoConsultaGlobal ? filtros.consulta_contexto_clave : filtros.asignacion_id)
+      && filtros.periodo_academico_id,
+  );
+
+  const descargarPlantillaExcel = useCallback(async () => {
+    if (!puedeDescargarPlantilla) {
+      setError('Seleccione curso y bimestre antes de descargar la plantilla.');
+      return;
+    }
+
+    let query;
+    if (modoConsultaGlobal) {
+      const cx = contextosConsulta.find((c) => c.clave === filtros.consulta_contexto_clave);
+      if (!cx?.malla_curso_id) {
+        setError('Seleccione curso y bimestre antes de descargar la plantilla.');
+        return;
+      }
+      query = {
+        consulta_global: '1',
+        anio_escolar: cx.anio_escolar,
+        nivel: cx.nivel,
+        sede: cx.sede,
+        grado: cx.grado,
+        seccion: cx.seccion,
+        malla_curso_id: cx.malla_curso_id,
+        periodo_academico_id: filtros.periodo_academico_id,
+        incluir_notas: modoPlantilla === 'con_notas' ? '1' : '0',
+      };
+      if (cx.area_id != null && cx.area_id !== '') {
+        query.area_id = cx.area_id;
+      }
+    } else {
+      query = {
+        asignacion_docente_id: filtros.asignacion_id,
+        periodo_academico_id: filtros.periodo_academico_id,
+        incluir_notas: modoPlantilla === 'con_notas' ? '1' : '0',
+      };
+    }
+
+    setDescargandoPlantilla(true);
+    setError(null);
+    try {
+      const { blob, filename } = await descargarPlantillaRegistroAuxiliarExcel(query);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setExito('Plantilla Excel descargada.');
+    } catch (err) {
+      setError(obtenerMensajeErrorNotas(err, 'No se pudo generar la plantilla Excel.'));
+    } finally {
+      setDescargandoPlantilla(false);
+    }
+  }, [
+    puedeDescargarPlantilla,
+    modoConsultaGlobal,
+    contextosConsulta,
+    filtros.consulta_contexto_clave,
+    filtros.asignacion_id,
+    filtros.periodo_academico_id,
+    modoPlantilla,
+  ]);
+
   function cambiarFiltro(partial) {
     setExito(null);
     setAdvertencia(null);
@@ -856,6 +927,11 @@ export default function RegistroNotasSemanalesPanel() {
                 cargandoFormulario={cargandoFormulario}
                 puedeGuardar={puedeGuardar}
                 ocultarGuardar={soloLectura}
+                descargandoPlantilla={descargandoPlantilla}
+                puedeDescargarPlantilla={puedeDescargarPlantilla}
+                modoPlantilla={modoPlantilla}
+                onCambiarModoPlantilla={setModoPlantilla}
+                onDescargarPlantilla={descargarPlantillaExcel}
               />
             ) : null}
           </div>

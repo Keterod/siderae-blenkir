@@ -1853,4 +1853,210 @@ class CurricularApiTest extends CurricularApiTestCase
 
         return [$asignacion, $tema, $estudiante, $tema2];
     }
+
+    #[Test]
+    public function docente_puede_descargar_plantilla_excel_de_curso_asignado(): void
+    {
+        [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $response = $this->actingAs($asignacion->user)
+            ->get('/api/curricular/notas-semanales/plantilla-excel?'.http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+            ]));
+
+        $response->assertOk();
+        $this->assertStringContainsString(
+            'spreadsheetml.sheet',
+            (string) $response->headers->get('content-type'),
+        );
+
+        $sheet = $this->leerHojaPlantillaExcel($response);
+        $this->assertStringContainsString(
+            trim("{$estudiante->apellidos} {$estudiante->nombres}"),
+            (string) $sheet->getCell('B10')->getValue(),
+        );
+        $this->assertStringContainsString('REGISTRO AUXILIAR', (string) $sheet->getCell('A1')->getValue());
+    }
+
+    #[Test]
+    public function docente_no_puede_descargar_plantilla_de_curso_no_asignado(): void
+    {
+        [$asignacion] = $this->prepararFlujoNotas();
+        $otroDocente = $this->docente();
+        $periodoId = TemaSemanal::query()->where('malla_curso_id', $asignacion->malla_curso_id)->value('periodo_academico_id');
+
+        $this->actingAs($otroDocente)
+            ->get("/api/curricular/notas-semanales/plantilla-excel?".http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+            ]))
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function coordinador_puede_descargar_plantilla_excel(): void
+    {
+        [$asignacion] = $this->prepararFlujoNotas();
+        $periodoId = TemaSemanal::query()->where('malla_curso_id', $asignacion->malla_curso_id)->value('periodo_academico_id');
+
+        $response = $this->actingAs($this->coordinador())
+            ->get('/api/curricular/notas-semanales/plantilla-excel?'.http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+            ]));
+
+        $response->assertOk();
+        $this->assertStringContainsString(
+            'spreadsheetml.sheet',
+            (string) $response->headers->get('content-type'),
+        );
+    }
+
+    #[Test]
+    public function plantilla_excel_incluye_criterios(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $response = $this->actingAs($asignacion->user)
+            ->get("/api/curricular/notas-semanales/plantilla-excel?".http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+            ]));
+
+        $sheet = $this->leerHojaPlantillaExcel($response);
+        $this->assertSame('Tema notas', (string) $sheet->getCell('C8')->getValue());
+    }
+
+    #[Test]
+    public function plantilla_vacia_no_incluye_notas_pero_si_formula_ce(): void
+    {
+        [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $this->actingAs($asignacion->user)
+            ->postJson('/api/curricular/notas-semanales/bulk', [
+                'asignacion_docente_id' => $asignacion->id,
+                'tema_semanal_id' => $tema->id,
+                'notas' => [
+                    [
+                        'estudiante_id' => $estudiante->id,
+                        'nota_cuaderno' => 14,
+                        'nota_libro' => 15,
+                        'nota_tarea' => 16,
+                    ],
+                ],
+            ])
+            ->assertCreated();
+
+        $response = $this->actingAs($asignacion->user)
+            ->get("/api/curricular/notas-semanales/plantilla-excel?".http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+                'incluir_notas' => '0',
+            ]));
+
+        $sheet = $this->leerHojaPlantillaExcel($response);
+        $this->assertNull($sheet->getCell('C10')->getValue());
+        $ceValue = $sheet->getCell('F10')->getValue();
+        $this->assertIsString($ceValue);
+        $this->assertStringStartsWith('=IFERROR', $ceValue);
+
+        $this->assertFormulaBimestral($sheet->getCell('G10')->getValue(), 'Promedio de criterio');
+        $this->assertFormulaBimestral($sheet->getCell('L10')->getValue(), 'Promedio ETA');
+        $this->assertFormulaBimestral($sheet->getCell('N10')->getValue(), 'Nivel numérico');
+        $literalValue = $sheet->getCell('O10')->getValue();
+        $this->assertIsString($literalValue);
+        $this->assertStringStartsWith('=IF(', $literalValue);
+
+        $this->assertPlantillaSinErrorDiv0($sheet);
+    }
+
+    #[Test]
+    public function plantilla_vacia_formulas_bimestrales_usan_pesos_configurados(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $response = $this->actingAs($asignacion->user)
+            ->get("/api/curricular/notas-semanales/plantilla-excel?".http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+                'incluir_notas' => '0',
+            ]));
+
+        $sheet = $this->leerHojaPlantillaExcel($response);
+        $nivelFormula = (string) $sheet->getCell('N10')->getValue();
+        $this->assertStringContainsString('*0.25', $nivelFormula);
+        $this->assertStringContainsString('G10', $nivelFormula);
+        $this->assertStringContainsString('H10', $nivelFormula);
+        $this->assertStringContainsString('L10', $nivelFormula);
+        $this->assertStringContainsString('M10', $nivelFormula);
+    }
+
+    #[Test]
+    public function plantilla_con_notas_incluye_valores_registrados(): void
+    {
+        [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+
+        $this->actingAs($asignacion->user)
+            ->postJson('/api/curricular/notas-semanales/bulk', [
+                'asignacion_docente_id' => $asignacion->id,
+                'tema_semanal_id' => $tema->id,
+                'notas' => [
+                    [
+                        'estudiante_id' => $estudiante->id,
+                        'nota_cuaderno' => 14,
+                        'nota_libro' => 15,
+                        'nota_tarea' => 16,
+                    ],
+                ],
+            ])
+            ->assertCreated();
+
+        $response = $this->actingAs($asignacion->user)
+            ->get("/api/curricular/notas-semanales/plantilla-excel?".http_build_query([
+                'asignacion_docente_id' => $asignacion->id,
+                'periodo_academico_id' => $periodoId,
+                'incluir_notas' => '1',
+            ]));
+
+        $sheet = $this->leerHojaPlantillaExcel($response);
+        $this->assertEquals(14, $sheet->getCell('C10')->getValue());
+        $this->assertEquals(15, $sheet->getCell('D10')->getValue());
+        $this->assertEquals(16, $sheet->getCell('E10')->getValue());
+        $this->assertEquals(15, $sheet->getCell('F10')->getValue());
+    }
+
+    private function leerHojaPlantillaExcel(\Illuminate\Testing\TestResponse $response): \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet
+    {
+        $response->assertOk();
+        $tmp = tempnam(sys_get_temp_dir(), 'plantilla_xlsx_');
+        file_put_contents($tmp, $response->streamedContent());
+        $sheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($tmp)->getActiveSheet();
+        @unlink($tmp);
+
+        return $sheet;
+    }
+
+    private function assertFormulaBimestral(mixed $value, string $contexto): void
+    {
+        $this->assertIsString($value, "Se esperaba fórmula en {$contexto}");
+        $this->assertStringStartsWith('=IFERROR', $value, "Fórmula inválida en {$contexto}");
+    }
+
+    private function assertPlantillaSinErrorDiv0(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): void
+    {
+        foreach ($sheet->getRowIterator(10, 10) as $row) {
+            foreach ($row->getCellIterator() as $cell) {
+                $valor = $cell->getValue();
+                if (is_string($valor)) {
+                    $this->assertStringNotContainsString('#DIV/0!', $valor);
+                }
+            }
+        }
+    }
 }

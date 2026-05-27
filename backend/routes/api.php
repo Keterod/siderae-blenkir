@@ -159,6 +159,7 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
 
     Route::middleware(['permission:registrar_notas_semanales|ver_notas_academicas'])->group(function (): void {
         Route::get('/notas-semanales/formulario', [NotaSemanalController::class, 'formulario']);
+        Route::get('/notas-semanales/plantilla-excel', [NotaSemanalController::class, 'plantillaExcel']);
         Route::get('/notas-semanales/contextos-aula', [DocenteAulaCurricularController::class, 'contextosAulaConsulta']);
     });
 

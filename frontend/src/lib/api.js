@@ -399,6 +399,44 @@ export function getFormularioNotasSemanales(params) {
   return request(`${CURRICULAR}/notas-semanales/formulario?${qs}`);
 }
 
+/** Descarga plantilla Excel del registro auxiliar (.xlsx). Devuelve { blob, filename }. */
+export async function descargarPlantillaRegistroAuxiliarExcel(params = {}) {
+  const qs = buildQueryString(params);
+  const path = `${CURRICULAR}/notas-semanales/plantilla-excel?${qs}`;
+
+  const headers = {
+    Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  };
+
+  const xsrfToken = getCookie('XSRF-TOKEN');
+  if (xsrfToken) {
+    headers['X-XSRF-TOKEN'] = xsrfToken;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers,
+  });
+
+  if (!response.ok) {
+    const contentType = response.headers.get('content-type') || '';
+    const error = new Error('Export failed');
+    error.status = response.status;
+    if (contentType.includes('application/json')) {
+      error.payload = await response.json();
+    }
+    throw error;
+  }
+
+  const blob = await response.blob();
+  const disposition = response.headers.get('content-disposition') ?? '';
+  const match = disposition.match(/filename="?([^";\n]+)"?/i);
+  const filename = match?.[1] ?? 'plantilla_registro_auxiliar.xlsx';
+
+  return { blob, filename };
+}
+
 export function postNotasSemanalesBulk(datos) {
   return request(`${CURRICULAR}/notas-semanales/bulk`, { method: 'POST', body: datos });
 }

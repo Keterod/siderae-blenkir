@@ -11,15 +11,20 @@ use App\Models\User;
 use App\Services\Curricular\CatalogoNivelGrado;
 use App\Services\Curricular\NotaSemanalBulkService;
 use App\Services\Curricular\NotaSemanalFormularioService;
+use App\Services\Curricular\PlantillaRegistroAuxiliarExcelService;
+use App\Services\Curricular\PlantillaRegistroAuxiliarService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class NotaSemanalController extends Controller
 {
     public function __construct(
         private readonly NotaSemanalBulkService $bulkService = new NotaSemanalBulkService,
         private readonly NotaSemanalFormularioService $formularioService = new NotaSemanalFormularioService,
+        private readonly PlantillaRegistroAuxiliarService $plantillaService = new PlantillaRegistroAuxiliarService,
+        private readonly PlantillaRegistroAuxiliarExcelService $plantillaExcelService = new PlantillaRegistroAuxiliarExcelService,
     ) {}
 
     public static function usuarioPuedeConsultaGlobalNotas(User $user): bool
@@ -165,5 +170,83 @@ class NotaSemanalController extends Controller
             'notas' => $resultado['notas'],
             'advertencias' => $resultado['advertencias'],
         ], 201);
+    }
+
+    public function plantillaExcel(Request $request): StreamedResponse|JsonResponse
+    {
+        $consultaGlobal = $request->boolean('consulta_global');
+        $incluirNotas = $request->boolean('incluir_notas');
+
+        if ($consultaGlobal) {
+            if (! static::usuarioPuedeConsultaGlobalNotas($request->user())) {
+                return response()->json([
+                    'message' => 'No autorizado para la consulta global de notas curriculares.',
+                ], 403);
+            }
+
+            if (! $request->user()->can('ver_notas_academicas')) {
+                return response()->json(['message' => 'Permiso denegado.'], 403);
+            }
+
+            $data = Validator::make($request->query(), [
+                'anio_escolar' => ['required', 'string'],
+                'nivel' => ['required', 'string', 'in:'.implode(',', CatalogoNivelGrado::nivelesCurriculares())],
+                'sede' => ['required', 'string'],
+                'grado' => ['required', 'string'],
+                'seccion' => ['required', 'string'],
+                'malla_curso_id' => ['required', 'integer', 'exists:malla_cursos,id'],
+                'periodo_academico_id' => ['required', 'integer', 'exists:periodos_academicos,id'],
+                'area_id' => ['nullable'],
+                'incluir_notas' => ['nullable', 'boolean'],
+            ])->validate();
+
+            $payload = $this->plantillaService->construirConsultaGlobal($data, $incluirNotas);
+        } else {
+            $puedeDocente = $request->user()->can('registrar_notas_semanales');
+            $puedeConsulta = $request->user()->can('ver_notas_academicas');
+
+            if (! $puedeDocente && ! $puedeConsulta) {
+                return response()->json(['message' => 'Permiso denegado.'], 403);
+            }
+
+            $data = Validator::make($request->query(), [
+                'asignacion_docente_id' => ['required', 'integer', 'exists:docente_curso_aulas,id'],
+                'periodo_academico_id' => ['required', 'integer', 'exists:periodos_academicos,id'],
+                'incluir_notas' => ['nullable', 'boolean'],
+            ])->validate();
+
+            $asignacion = DocenteCursoAula::query()
+                ->with(['user', 'mallaCurso.area', 'mallaCurso.cursoCatalogo'])
+                ->findOrFail($data['asignacion_docente_id']);
+
+            $esPropia = (int) $asignacion->user_id === (int) $request->user()->id;
+
+            if (! $esPropia) {
+                if (! $puedeConsulta || ! static::usuarioPuedeConsultaGlobalNotas($request->user())) {
+                    return response()->json(['message' => 'No autorizado para esta asignación.'], 403);
+                }
+            } elseif (! $puedeDocente) {
+                return response()->json(['message' => 'Permiso denegado.'], 403);
+            }
+
+            $payload = $this->plantillaService->construirDesdeAsignacion(
+                $asignacion,
+                (int) $data['periodo_academico_id'],
+                $incluirNotas,
+            );
+        }
+
+        $binary = $this->plantillaExcelService->generar($payload);
+        $filename = $payload['nombre_archivo'] ?? 'plantilla_registro_auxiliar.xlsx';
+
+        return response()->streamDownload(
+            static function () use ($binary): void {
+                echo $binary;
+            },
+            $filename,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ],
+        );
     }
 }
