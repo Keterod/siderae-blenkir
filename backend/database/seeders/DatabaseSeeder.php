@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\PermissionRegistrar;
 
 class DatabaseSeeder extends Seeder
@@ -23,13 +24,24 @@ class DatabaseSeeder extends Seeder
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        // User::factory(10)->create();
-
-        $adminUser = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            DemoUsersSeeder::class,
+            CurricularModuleSeeder::class,
+            DemoEstudiantesCurricularesSeeder::class,
         ]);
 
-        $adminUser->assignRole('administrador');
+        $adminUser = User::updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        if ($adminUser->email_verified_at === null) {
+            $adminUser->forceFill(['email_verified_at' => now()])->save();
+        }
+
+        $adminUser->syncRoles(['administrador']);
     }
 }
