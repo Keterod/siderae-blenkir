@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Curricular\ComponentesCalificacionNivelSeeder;
 use Database\Seeders\Curricular\ConfiguracionPesosGlobalSeeder;
 use Database\Seeders\Curricular\EvalBimEscalaLogroSeeder;
 use Database\Seeders\Curricular\CurriculoNacionalBaseSeeder;
@@ -20,6 +21,7 @@ class CurricularModuleSeeder extends Seeder
             PlantillasInstitucionalesSeeder::class,
             PeriodosSemanasDemoSeeder::class,
             ConfiguracionPesosGlobalSeeder::class,
+            ComponentesCalificacionNivelSeeder::class,
             EvalBimEscalaLogroSeeder::class,
         ]);
     }

@@ -14,6 +14,7 @@ const MallaCurricularPanel = lazy(() => import('./components/curricular/MallaCur
 const TemasSemanalesPanel = lazy(() => import('./components/curricular/TemasSemanalesPanel'));
 const CompetenciasCapacidadesPanel = lazy(() => import('./components/curricular/CompetenciasCapacidadesPanel'));
 const PesosEvaluacionPanel = lazy(() => import('./components/curricular/PesosEvaluacionPanel'));
+const ComponentesCalificacionNivelPanel = lazy(() => import('./components/curricular/ComponentesCalificacionNivelPanel'));
 const AsignacionDocentePanel = lazy(() => import('./components/curricular/AsignacionDocentePanel'));
 const RegistroNotasSemanalesPanel = lazy(() => import('./components/curricular/RegistroNotasSemanalesPanel'));
 const ConfiguracionBimestralPanel = lazy(() => import('./components/curricular/configuracion-bimestral/ConfiguracionBimestralPanel'));
@@ -55,6 +56,8 @@ function moduloPermitido(key, permissions, roles) {
       return permissions.includes('gestionar_competencias_capacidades');
     case 'curricular_pesos':
       return permissions.includes('configurar_pesos_evaluacion');
+    case 'curricular_componentes_calificacion':
+      return permissions.includes('gestionar_componentes_calificacion');
     case 'curricular_eval_bim':
       return permissions.includes('configurar_evaluacion_bimestral');
     case 'curricular_asignacion':
@@ -101,6 +104,7 @@ function tituloModulo(key) {
     curricular_temas: 'Criterios de evaluación',
     curricular_competencias: 'Competencias y capacidades',
     curricular_pesos: 'Pesos C/L/T',
+    curricular_componentes_calificacion: 'Componentes de calificación',
     curricular_eval_bim: 'Configuración bimestral',
     curricular_asignacion: 'Asignación docente',
     curricular_calendario: 'Periodos académicos',
@@ -141,6 +145,8 @@ function PanelModulo({ modulo }) {
       return <CompetenciasCapacidadesPanel />;
     case 'curricular_pesos':
       return <PesosEvaluacionPanel />;
+    case 'curricular_componentes_calificacion':
+      return <ComponentesCalificacionNivelPanel />;
     case 'curricular_eval_bim':
       return <ConfiguracionBimestralPanel />;
     case 'curricular_asignacion':
@@ -240,6 +246,13 @@ function App() {
       visible: moduloPermitido('curricular_competencias', permissions, roles),
       active: moduloVista === 'curricular_competencias',
       onSelect: () => setModuloActivo('curricular_competencias'),
+    },
+    {
+      key: 'curricular_componentes_calificacion',
+      label: 'Componentes de calificación',
+      visible: moduloPermitido('curricular_componentes_calificacion', permissions, roles),
+      active: moduloVista === 'curricular_componentes_calificacion',
+      onSelect: () => setModuloActivo('curricular_componentes_calificacion'),
     },
     {
       key: 'curricular_pesos',

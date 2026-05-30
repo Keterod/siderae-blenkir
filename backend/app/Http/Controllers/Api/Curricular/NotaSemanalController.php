@@ -10,6 +10,7 @@ use App\Models\Estudiante;
 use App\Models\User;
 use App\Services\Curricular\CatalogoNivelGrado;
 use App\Services\Curricular\NotaSemanalBulkService;
+use App\Services\Curricular\NotaSemanalCalificacionAdapter;
 use App\Services\Curricular\NotaSemanalFormularioService;
 use App\Services\Curricular\PlantillaRegistroAuxiliarExcelService;
 use App\Services\Curricular\PlantillaRegistroAuxiliarService;
@@ -23,6 +24,7 @@ class NotaSemanalController extends Controller
     public function __construct(
         private readonly NotaSemanalBulkService $bulkService = new NotaSemanalBulkService,
         private readonly NotaSemanalFormularioService $formularioService = new NotaSemanalFormularioService,
+        private readonly NotaSemanalCalificacionAdapter $calificacionAdapter = new NotaSemanalCalificacionAdapter,
         private readonly PlantillaRegistroAuxiliarService $plantillaService = new PlantillaRegistroAuxiliarService,
         private readonly PlantillaRegistroAuxiliarExcelService $plantillaExcelService = new PlantillaRegistroAuxiliarExcelService,
     ) {}
@@ -114,6 +116,10 @@ class NotaSemanalController extends Controller
             'periodo' => $resultado['periodo'],
             'estudiantes' => $resultado['estudiantes'],
             'pesos' => $resultado['pesos'],
+            'componentes_calificacion' => $resultado['componentes_calificacion'] ?? [],
+            'calificacion_dinamica_disponible' => (bool) ($resultado['calificacion_dinamica_disponible'] ?? false),
+            'nivel' => $resultado['nivel'] ?? null,
+            'anio_escolar' => $resultado['anio_escolar'] ?? null,
             'criterios' => $resultado['criterios'],
             'notas_por_criterio' => $resultado['notas_por_criterio'],
             'notas_por_estudiante_criterio' => $resultado['notas_por_estudiante_criterio'],
@@ -167,7 +173,10 @@ class NotaSemanalController extends Controller
             ->log('Registro masivo de notas semanales');
 
         return response()->json([
-            'notas' => $resultado['notas'],
+            'notas' => array_map(
+                fn ($nota) => $this->calificacionAdapter->serializarNota($nota),
+                $resultado['notas'],
+            ),
             'advertencias' => $resultado['advertencias'],
         ], 201);
     }

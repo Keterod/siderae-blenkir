@@ -26,11 +26,17 @@ class BulkNotasSemanalesRequest extends FormRequest
             'notas.*.nota_cuaderno' => ['nullable', 'numeric'],
             'notas.*.nota_libro' => ['nullable', 'numeric'],
             'notas.*.nota_tarea' => ['nullable', 'numeric'],
+            'notas.*.notas_componentes' => ['nullable', 'array'],
+            'notas.*.notas_componentes.*.componente_id' => ['required_with:notas.*.notas_componentes', 'integer', 'exists:componentes_calificacion_nivel,id'],
+            'notas.*.notas_componentes.*.nota' => ['nullable', 'numeric'],
             'registros' => ['nullable', 'array'],
             'registros.*.tema_semanal_id' => ['required', 'integer', 'exists:temas_semanales,id'],
             'registros.*.nota_cuaderno' => ['nullable', 'numeric'],
             'registros.*.nota_libro' => ['nullable', 'numeric'],
             'registros.*.nota_tarea' => ['nullable', 'numeric'],
+            'registros.*.notas_componentes' => ['nullable', 'array'],
+            'registros.*.notas_componentes.*.componente_id' => ['required_with:registros.*.notas_componentes', 'integer', 'exists:componentes_calificacion_nivel,id'],
+            'registros.*.notas_componentes.*.nota' => ['nullable', 'numeric'],
             'registros_por_estudiante' => ['nullable', 'array', 'min:1'],
             'registros_por_estudiante.*.estudiante_id' => ['required', 'integer', 'exists:estudiantes,id'],
             'registros_por_estudiante.*.registros' => ['required', 'array'],
@@ -38,6 +44,9 @@ class BulkNotasSemanalesRequest extends FormRequest
             'registros_por_estudiante.*.registros.*.nota_cuaderno' => ['nullable', 'numeric'],
             'registros_por_estudiante.*.registros.*.nota_libro' => ['nullable', 'numeric'],
             'registros_por_estudiante.*.registros.*.nota_tarea' => ['nullable', 'numeric'],
+            'registros_por_estudiante.*.registros.*.notas_componentes' => ['nullable', 'array'],
+            'registros_por_estudiante.*.registros.*.notas_componentes.*.componente_id' => ['required_with:registros_por_estudiante.*.registros.*.notas_componentes', 'integer', 'exists:componentes_calificacion_nivel,id'],
+            'registros_por_estudiante.*.registros.*.notas_componentes.*.nota' => ['nullable', 'numeric'],
         ];
     }
 

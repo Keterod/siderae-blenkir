@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Curricular\AnioEscolarController;
 use App\Http\Controllers\Api\Curricular\AsistenciaDiariaController;
 use App\Http\Controllers\Api\Curricular\CatalogoCurricularController;
 use App\Http\Controllers\Api\Curricular\CompetenciaCapacidadController;
+use App\Http\Controllers\Api\Curricular\ComponenteCalificacionController;
 use App\Http\Controllers\Api\Curricular\ConfiguracionPesoEvaluacionController;
 use App\Http\Controllers\Api\Curricular\DocenteAulaCurricularController;
 use App\Http\Controllers\Api\Curricular\EvaluacionBimestralController;
@@ -189,6 +190,18 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
         Route::post('/pesos', [ConfiguracionPesoEvaluacionController::class, 'store']);
         Route::patch('/pesos/{configuracionPesoEvaluacion}', [ConfiguracionPesoEvaluacionController::class, 'update']);
         Route::patch('/pesos/{configuracionPesoEvaluacion}/desactivar', [ConfiguracionPesoEvaluacionController::class, 'desactivar']);
+    });
+
+    Route::middleware(['permission:gestionar_componentes_calificacion'])->group(function (): void {
+        Route::get('/componentes-calificacion/validar-suma', [ComponenteCalificacionController::class, 'validarSuma']);
+        Route::get('/componentes-calificacion/por-nivel/{nivel}', [ComponenteCalificacionController::class, 'porNivel']);
+        Route::post('/componentes-calificacion/asegurar-defaults', [ComponenteCalificacionController::class, 'asegurarDefaults']);
+        Route::post('/componentes-calificacion/reordenar', [ComponenteCalificacionController::class, 'reordenar']);
+        Route::get('/componentes-calificacion', [ComponenteCalificacionController::class, 'index']);
+        Route::post('/componentes-calificacion', [ComponenteCalificacionController::class, 'store']);
+        Route::patch('/componentes-calificacion/{componenteCalificacionNivel}', [ComponenteCalificacionController::class, 'update']);
+        Route::patch('/componentes-calificacion/{componenteCalificacionNivel}/desactivar', [ComponenteCalificacionController::class, 'desactivar']);
+        Route::patch('/componentes-calificacion/{componenteCalificacionNivel}/reactivar', [ComponenteCalificacionController::class, 'reactivar']);
     });
 
     Route::middleware(['permission:gestionar_asignaciones_docente'])->group(function (): void {

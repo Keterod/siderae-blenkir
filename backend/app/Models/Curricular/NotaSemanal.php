@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'estudiante_id',
@@ -17,10 +18,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'nota_tarea',
     'ce_calculado',
     'pesos_usados_json',
+    'modelo_calificacion',
     'fecha_registro',
 ])]
 class NotaSemanal extends Model
 {
+    public const MODELO_LEGACY = 'legacy';
+
+    public const MODELO_DINAMICO = 'dinamico';
+
     protected $table = 'notas_semanales';
 
     public function estudiante(): BelongsTo
@@ -36,6 +42,11 @@ class NotaSemanal extends Model
     public function docente(): BelongsTo
     {
         return $this->belongsTo(User::class, 'docente_id');
+    }
+
+    public function notasComponentes(): HasMany
+    {
+        return $this->hasMany(NotaSemanalComponente::class, 'nota_semanal_id');
     }
 
     protected function casts(): array

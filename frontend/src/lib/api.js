@@ -535,6 +535,45 @@ export function patchDesactivarConfiguracionPeso(id) {
   return request(`${CURRICULAR}/pesos/${id}/desactivar`, { method: 'PATCH' });
 }
 
+export function getComponentesCalificacion(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/componentes-calificacion?${qs}` : `${CURRICULAR}/componentes-calificacion`);
+}
+
+export function getComponentesCalificacionPorNivel(nivel, params = {}) {
+  const qs = buildQueryString(params);
+  return request(`${CURRICULAR}/componentes-calificacion/por-nivel/${encodeURIComponent(nivel)}?${qs}`);
+}
+
+export function getValidacionSumaComponentesCalificacion(params = {}) {
+  const qs = buildQueryString(params);
+  return request(`${CURRICULAR}/componentes-calificacion/validar-suma?${qs}`);
+}
+
+export function postComponenteCalificacion(datos) {
+  return request(`${CURRICULAR}/componentes-calificacion`, { method: 'POST', body: datos });
+}
+
+export function patchComponenteCalificacion(id, datos) {
+  return request(`${CURRICULAR}/componentes-calificacion/${id}`, { method: 'PATCH', body: datos });
+}
+
+export function patchDesactivarComponenteCalificacion(id) {
+  return request(`${CURRICULAR}/componentes-calificacion/${id}/desactivar`, { method: 'PATCH' });
+}
+
+export function patchReactivarComponenteCalificacion(id, datos) {
+  return request(`${CURRICULAR}/componentes-calificacion/${id}/reactivar`, { method: 'PATCH', body: datos });
+}
+
+export function postReordenarComponentesCalificacion(datos) {
+  return request(`${CURRICULAR}/componentes-calificacion/reordenar`, { method: 'POST', body: datos });
+}
+
+export function postAsegurarDefaultsComponentesCalificacion(datos) {
+  return request(`${CURRICULAR}/componentes-calificacion/asegurar-defaults`, { method: 'POST', body: datos });
+}
+
 export function getAsignacionesDocente(params = {}) {
   const qs = buildQueryString(params);
   return request(qs ? `${CURRICULAR}/asignaciones-docente?${qs}` : `${CURRICULAR}/asignaciones-docente`);

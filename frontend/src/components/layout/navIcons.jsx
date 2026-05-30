@@ -53,6 +53,13 @@ export function NavIcon({ name, className = iconClass }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18M7 8l5-5 5 5M7 16l5 5 5-5" />
         </svg>
       );
+    case 'curricular_componentes_calificacion':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <path strokeLinecap="round" d="M8 9h8M8 12h8M8 15h5" />
+        </svg>
+      );
     case 'curricular_asignacion':
       return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>

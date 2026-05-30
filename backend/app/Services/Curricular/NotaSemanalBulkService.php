@@ -3,8 +3,6 @@
 namespace App\Services\Curricular;
 
 use App\DTO\Curricular\AulaEvaluacionContext;
-use App\Exceptions\Curricular\NotaCurricularFueraDeRangoException;
-use App\Exceptions\Curricular\NotasCurricularesVaciasException;
 use App\Models\Curricular\DocenteCursoAula;
 use App\Models\Curricular\MallaCurso;
 use App\Models\Curricular\NotaSemanal;
@@ -25,7 +23,7 @@ class NotaSemanalBulkService
     public const ADVERTENCIA_EVAL_BIM_NO_ACTUALIZADA = 'No se pudo actualizar la evaluación bimestral tras guardar las notas.';
 
     public function __construct(
-        private readonly CeCalculatorService $ceCalculator = new CeCalculatorService,
+        private readonly NotaSemanalCalificacionAdapter $calificacionAdapter = new NotaSemanalCalificacionAdapter,
         private readonly PesoEvaluacionResolver $pesoResolver = new PesoEvaluacionResolver,
         private readonly EstudianteAsignacionDocenteValidator $estudianteValidator = new EstudianteAsignacionDocenteValidator,
         private readonly EvalBimResultadoPersistService $resultadoPersistService = new EvalBimResultadoPersistService,
@@ -43,20 +41,19 @@ class NotaSemanalBulkService
 
         if ($filasConNota === []) {
             throw ValidationException::withMessages([
-                'notas' => ['Debe registrar al menos una nota (cuaderno, libro o tarea).'],
+                'notas' => ['Debe registrar al menos una nota (cuaderno, libro, tarea o componentes de calificación).'],
             ]);
         }
 
         $resultado = [];
 
-        DB::transaction(function () use ($filasConNota, $asignacion, $tema, $docente, $contexto, &$resultado): void {
+        DB::transaction(function () use ($filasConNota, $asignacion, $tema, $docente, &$resultado): void {
             foreach ($filasConNota as $indice => $fila) {
                 $resultado[] = $this->persistirFila(
                     $docente,
                     $asignacion,
                     $tema,
                     $fila,
-                    $contexto['pesos'],
                     "notas.{$indice}",
                 );
             }
@@ -93,16 +90,13 @@ class NotaSemanalBulkService
             ]);
         }
 
-        $pesos = $this->pesoResolver->resolverParaCurso($mallaCurso, $mallaCurso->mallaCurricular);
-        $this->pesoResolver->validarSuma100($pesos);
-
         $registrosConNota = $this->filtrarFilasConAlMenosUnaNota($registros);
         $advertencias = [];
         $resultado = [];
 
         if ($registrosConNota === [] && $registros !== []) {
             throw ValidationException::withMessages([
-                'registros' => ['Debe registrar al menos una nota (cuaderno, libro o tarea) en algún criterio.'],
+                'registros' => ['Debe registrar al menos una nota (cuaderno, libro, tarea o componentes de calificación) en algún criterio.'],
             ]);
         }
 
@@ -128,7 +122,7 @@ class NotaSemanalBulkService
             }
         }
 
-        DB::transaction(function () use ($registrosConNota, $asignacion, $estudiante, $docente, $pesos, $temas, &$resultado): void {
+        DB::transaction(function () use ($registrosConNota, $asignacion, $estudiante, $docente, $temas, &$resultado): void {
             foreach ($registrosConNota as $indice => $registro) {
                 $tema = $temas->get($registro['tema_semanal_id']);
                 if ($tema === null) {
@@ -155,7 +149,6 @@ class NotaSemanalBulkService
                     $asignacion,
                     $tema,
                     $fila,
-                    $pesos,
                     "registros.{$indice}",
                 );
             }
@@ -186,9 +179,6 @@ class NotaSemanalBulkService
             ]);
         }
 
-        $pesos = $this->pesoResolver->resolverParaCurso($mallaCurso, $mallaCurso->mallaCurricular);
-        $this->pesoResolver->validarSuma100($pesos);
-
         $filasParaPersistir = [];
         $advertencias = [];
         $temaIds = [];
@@ -215,20 +205,23 @@ class NotaSemanalBulkService
                     continue;
                 }
 
-                $filasParaPersistir[] = [
-                    'estudiante_id' => $estudiante->id,
-                    'tema_semanal_id' => $registro['tema_semanal_id'],
-                    'nota_cuaderno' => $registro['nota_cuaderno'] ?? null,
-                    'nota_libro' => $registro['nota_libro'] ?? null,
-                    'nota_tarea' => $registro['nota_tarea'] ?? null,
-                    'error_key' => "registros_por_estudiante.{$indiceBloque}.registros.{$indiceRegistro}",
-                ];
+                $filasParaPersistir[] = array_merge(
+                    [
+                        'estudiante_id' => $estudiante->id,
+                        'tema_semanal_id' => $registro['tema_semanal_id'],
+                        'nota_cuaderno' => $registro['nota_cuaderno'] ?? null,
+                        'nota_libro' => $registro['nota_libro'] ?? null,
+                        'nota_tarea' => $registro['nota_tarea'] ?? null,
+                        'error_key' => "registros_por_estudiante.{$indiceBloque}.registros.{$indiceRegistro}",
+                    ],
+                    isset($registro['notas_componentes']) ? ['notas_componentes' => $registro['notas_componentes']] : [],
+                );
             }
         }
 
         if ($filasParaPersistir === []) {
             throw ValidationException::withMessages([
-                'registros_por_estudiante' => ['Debe registrar al menos una nota (cuaderno, libro o tarea) en algún criterio.'],
+                'registros_por_estudiante' => ['Debe registrar al menos una nota (cuaderno, libro, tarea o componentes de calificación) en algún criterio.'],
             ]);
         }
 
@@ -260,7 +253,7 @@ class NotaSemanalBulkService
 
         $resultado = [];
 
-        DB::transaction(function () use ($filasParaPersistir, $asignacion, $docente, $pesos, $temas, &$resultado): void {
+        DB::transaction(function () use ($filasParaPersistir, $asignacion, $docente, $temas, &$resultado): void {
             foreach ($filasParaPersistir as $indice => $fila) {
                 $tema = $temas->get($fila['tema_semanal_id']);
                 if ($tema === null) {
@@ -286,7 +279,6 @@ class NotaSemanalBulkService
                     $asignacion,
                     $tema,
                     $fila,
-                    $pesos,
                     "{$fila['error_key']}.{$indice}",
                 );
             }
@@ -442,14 +434,13 @@ class NotaSemanalBulkService
     }
 
     /**
-     * @param  array{estudiante_id: int, nota_cuaderno?: mixed, nota_libro?: mixed, nota_tarea?: mixed}  $fila
+     * @param  array{estudiante_id: int, nota_cuaderno?: mixed, nota_libro?: mixed, nota_tarea?: mixed, notas_componentes?: list<array<string, mixed>>}  $fila
      */
     private function persistirFila(
         User $docente,
         DocenteCursoAula $asignacion,
         TemaSemanal $tema,
         array $fila,
-        array $pesos,
         string $errorKey,
     ): NotaSemanal {
         $estudiante = Estudiante::query()->findOrFail($fila['estudiante_id']);
@@ -460,36 +451,12 @@ class NotaSemanalBulkService
             ]);
         }
 
-        $cuaderno = array_key_exists('nota_cuaderno', $fila) ? $this->nullableFloat($fila['nota_cuaderno']) : null;
-        $libro = array_key_exists('nota_libro', $fila) ? $this->nullableFloat($fila['nota_libro']) : null;
-        $tarea = array_key_exists('nota_tarea', $fila) ? $this->nullableFloat($fila['nota_tarea']) : null;
-
-        try {
-            $ce = $this->ceCalculator->calcular($cuaderno, $libro, $tarea, $pesos);
-        } catch (NotasCurricularesVaciasException) {
-            throw ValidationException::withMessages([
-                $errorKey => ['Debe registrar al menos una nota (cuaderno, libro o tarea).'],
-            ]);
-        } catch (NotaCurricularFueraDeRangoException) {
-            throw ValidationException::withMessages([
-                $errorKey => ['Las notas deben estar entre 0 y 20.'],
-            ]);
-        }
-
-        return NotaSemanal::query()->updateOrCreate(
-            [
-                'estudiante_id' => $estudiante->id,
-                'tema_semanal_id' => $tema->id,
-            ],
-            [
-                'docente_id' => $docente->id,
-                'nota_cuaderno' => $cuaderno,
-                'nota_libro' => $libro,
-                'nota_tarea' => $tarea,
-                'ce_calculado' => $ce,
-                'pesos_usados_json' => $pesos,
-                'fecha_registro' => now()->toDateString(),
-            ]
+        return $this->calificacionAdapter->persistirFila(
+            $docente,
+            $asignacion,
+            $tema,
+            $fila,
+            $errorKey,
         );
     }
 
@@ -502,24 +469,8 @@ class NotaSemanalBulkService
         return array_values(array_filter($filas, fn (array $fila): bool => ! $this->filaSinNotas($fila)));
     }
 
-  /**
-     * @param  array<string, mixed>  $fila
-     */
     private function filaSinNotas(array $fila): bool
     {
-        $cuaderno = array_key_exists('nota_cuaderno', $fila) ? $this->nullableFloat($fila['nota_cuaderno']) : null;
-        $libro = array_key_exists('nota_libro', $fila) ? $this->nullableFloat($fila['nota_libro']) : null;
-        $tarea = array_key_exists('nota_tarea', $fila) ? $this->nullableFloat($fila['nota_tarea']) : null;
-
-        return $cuaderno === null && $libro === null && $tarea === null;
-    }
-
-    private function nullableFloat(mixed $valor): ?float
-    {
-        if ($valor === null || $valor === '') {
-            return null;
-        }
-
-        return (float) $valor;
+        return $this->calificacionAdapter->filaSinNotas($fila);
     }
 }

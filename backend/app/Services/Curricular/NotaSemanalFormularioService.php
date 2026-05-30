@@ -15,7 +15,7 @@ class NotaSemanalFormularioService
 {
     public function __construct(
         private readonly EstudianteAsignacionDocenteValidator $estudianteValidator = new EstudianteAsignacionDocenteValidator,
-        private readonly PesoEvaluacionResolver $pesoResolver = new PesoEvaluacionResolver,
+        private readonly NotaSemanalCalificacionAdapter $calificacionAdapter = new NotaSemanalCalificacionAdapter,
     ) {}
 
     /**
@@ -96,6 +96,7 @@ class NotaSemanalFormularioService
         if ($criterios->isNotEmpty()) {
             if ($estudianteId !== null) {
                 $notas = NotaSemanal::query()
+                    ->with('notasComponentes')
                     ->where('estudiante_id', $estudianteId)
                     ->whereIn('tema_semanal_id', $criterios->pluck('id'))
                     ->get()
@@ -109,6 +110,7 @@ class NotaSemanalFormularioService
                 }
             } elseif ($estudiantes->isNotEmpty()) {
                 $notas = NotaSemanal::query()
+                    ->with('notasComponentes')
                     ->whereIn('estudiante_id', $estudiantes->pluck('id'))
                     ->whereIn('tema_semanal_id', $criterios->pluck('id'))
                     ->get();
@@ -119,7 +121,7 @@ class NotaSemanalFormularioService
             }
         }
 
-        $pesos = $this->pesoResolver->resolverParaCurso($mallaCurso, $mallaCurso->mallaCurricular);
+        $contextoCalificacion = $this->calificacionAdapter->contextoFormulario($mallaCurso, $asignacion);
 
         return [
             'asignacion' => $asignacion->exists ? $asignacion : null,
@@ -131,7 +133,11 @@ class NotaSemanalFormularioService
             ],
             'periodo' => $periodo,
             'estudiantes' => $estudiantes,
-            'pesos' => $pesos,
+            'pesos' => $contextoCalificacion['pesos'],
+            'componentes_calificacion' => $contextoCalificacion['componentes_calificacion'],
+            'calificacion_dinamica_disponible' => $contextoCalificacion['calificacion_dinamica_disponible'],
+            'nivel' => $contextoCalificacion['nivel'],
+            'anio_escolar' => $contextoCalificacion['anio_escolar'],
             'criterios' => $criterios,
             'notas_por_criterio' => $notasPorCriterio,
             'notas_por_estudiante_criterio' => $notasPorEstudianteCriterio,
@@ -222,16 +228,10 @@ class NotaSemanalFormularioService
     }
 
     /**
-     * @return array{id: int, nota_cuaderno: mixed, nota_libro: mixed, nota_tarea: mixed, ce_calculado: mixed}
+     * @return array<string, mixed>
      */
     private function serializarNota(NotaSemanal $nota): array
     {
-        return [
-            'id' => $nota->id,
-            'nota_cuaderno' => $nota->nota_cuaderno,
-            'nota_libro' => $nota->nota_libro,
-            'nota_tarea' => $nota->nota_tarea,
-            'ce_calculado' => $nota->ce_calculado,
-        ];
+        return $this->calificacionAdapter->serializarNota($nota);
     }
 }
