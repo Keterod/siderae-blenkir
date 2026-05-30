@@ -1,4 +1,5 @@
 ﻿import { memo } from 'react';
+import Badge from '../../ui/Badge';
 import Card from '../../ui/Card';
 import CapacidadCriteriosBlock from './CapacidadCriteriosBlock';
 import { getCompetenciaTone } from './utils';
@@ -28,6 +29,11 @@ function CompetenciaCriteriosCard({
             <h4 className="mt-1 text-sm font-bold leading-snug text-[var(--text)] sm:text-base">
               {competencia.nombre}
             </h4>
+            {competencia.activo === false ? (
+              <Badge variant="neutral" className="mt-1.5">
+                Histórica / inactiva
+              </Badge>
+            ) : null}
           </div>
           <span
             className={`inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${tone.badge}`}

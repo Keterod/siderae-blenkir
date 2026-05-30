@@ -6,11 +6,13 @@ import LoginForm from './components/LoginForm';
 import Card from './components/ui/Card';
 import LoadingState from './components/ui/LoadingState';
 import { useAuth } from './context/AuthContext';
+import { EVENTO_ABRIR_COMPETENCIAS } from './lib/api';
 
 const DashboardPanel = lazy(() => import('./components/DashboardPanel'));
 const EstudiantesPanel = lazy(() => import('./components/estudiantes/EstudiantesPanel'));
 const MallaCurricularPanel = lazy(() => import('./components/curricular/MallaCurricularPanel'));
 const TemasSemanalesPanel = lazy(() => import('./components/curricular/TemasSemanalesPanel'));
+const CompetenciasCapacidadesPanel = lazy(() => import('./components/curricular/CompetenciasCapacidadesPanel'));
 const PesosEvaluacionPanel = lazy(() => import('./components/curricular/PesosEvaluacionPanel'));
 const AsignacionDocentePanel = lazy(() => import('./components/curricular/AsignacionDocentePanel'));
 const RegistroNotasSemanalesPanel = lazy(() => import('./components/curricular/RegistroNotasSemanalesPanel'));
@@ -49,6 +51,8 @@ function moduloPermitido(key, permissions, roles) {
       return permissions.includes('ver_malla_curricular') || permissions.includes('gestionar_malla_curricular');
     case 'curricular_temas':
       return permissions.includes('gestionar_temas_semanales');
+    case 'curricular_competencias':
+      return permissions.includes('gestionar_competencias_capacidades');
     case 'curricular_pesos':
       return permissions.includes('configurar_pesos_evaluacion');
     case 'curricular_eval_bim':
@@ -95,6 +99,7 @@ function tituloModulo(key) {
     alertas: 'Alertas',
     curricular_malla: 'Malla curricular',
     curricular_temas: 'Criterios de evaluación',
+    curricular_competencias: 'Competencias y capacidades',
     curricular_pesos: 'Pesos C/L/T',
     curricular_eval_bim: 'Configuración bimestral',
     curricular_asignacion: 'Asignación docente',
@@ -132,6 +137,8 @@ function PanelModulo({ modulo }) {
       return <MallaCurricularPanel />;
     case 'curricular_temas':
       return <TemasSemanalesPanel />;
+    case 'curricular_competencias':
+      return <CompetenciasCapacidadesPanel />;
     case 'curricular_pesos':
       return <PesosEvaluacionPanel />;
     case 'curricular_eval_bim':
@@ -181,6 +188,16 @@ function App() {
     }
   }, [sidebarCollapsed]);
 
+  useEffect(() => {
+    const abrirCompetencias = () => {
+      if (moduloPermitido('curricular_competencias', permissions, roles)) {
+        setModuloActivo('curricular_competencias');
+      }
+    };
+    window.addEventListener(EVENTO_ABRIR_COMPETENCIAS, abrirCompetencias);
+    return () => window.removeEventListener(EVENTO_ABRIR_COMPETENCIAS, abrirCompetencias);
+  }, [permissions, roles]);
+
   const navItems = useMemo(() => [
     {
       key: 'dashboard',
@@ -216,6 +233,13 @@ function App() {
       visible: moduloPermitido('curricular_temas', permissions, roles),
       active: moduloVista === 'curricular_temas',
       onSelect: () => setModuloActivo('curricular_temas'),
+    },
+    {
+      key: 'curricular_competencias',
+      label: 'Competencias y capacidades',
+      visible: moduloPermitido('curricular_competencias', permissions, roles),
+      active: moduloVista === 'curricular_competencias',
+      onSelect: () => setModuloActivo('curricular_competencias'),
     },
     {
       key: 'curricular_pesos',

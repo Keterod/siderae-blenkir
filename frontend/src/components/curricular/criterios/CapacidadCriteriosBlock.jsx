@@ -1,4 +1,5 @@
 ﻿import { memo } from 'react';
+import Badge from '../../ui/Badge';
 import CriterioItem from './CriterioItem';
 
 function CapacidadCriteriosBlock({ capacidad, criterios, tone, onGuardar, onDesactivar }) {
@@ -11,6 +12,11 @@ function CapacidadCriteriosBlock({ capacidad, criterios, tone, onGuardar, onDesa
         <p className="mt-0.5 text-sm font-medium leading-snug text-[var(--text)]">
           {capacidad.nombre}
         </p>
+        {capacidad.activo === false ? (
+          <Badge variant="neutral" className="mt-1.5">
+            Histórica / inactiva
+          </Badge>
+        ) : null}
       </div>
       <ul className="space-y-2 p-3 sm:p-4">
         {criterios.map((criterio) => (

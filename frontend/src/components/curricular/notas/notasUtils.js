@@ -1,8 +1,57 @@
+import { etiquetaNivelCurricular } from '../../../lib/academicoCurricular';
 import {
   ADVERTENCIA_ELIMINAR_NOTA,
   filaTieneAlMenosUnaNota,
   valorNotaParaInput,
 } from '../../../lib/notasCurricular';
+
+/**
+ * Opciones del filtro Área en Notas semanales.
+ * Con nivel seleccionado: solo áreas de ese nivel.
+ * Con nivel "Todos": etiqueta diferenciada si el nombre se repite entre niveles.
+ *
+ * @param {Array<{ nivel?: string, area_id?: number|string|null, area_nombre?: string }>} registros
+ * @param {string} filtrosNivel
+ * @returns {Array<[string, string]>}
+ */
+export function construirOpcionesAreasFiltro(registros, filtrosNivel = '') {
+  const candidatos = filtrosNivel
+    ? registros.filter((r) => r.nivel === filtrosNivel)
+    : registros;
+
+  const porId = new Map();
+  for (const r of candidatos) {
+    if (r.area_id == null || r.area_id === '') continue;
+    porId.set(String(r.area_id), {
+      nombre: r.area_nombre ?? '',
+      nivel: r.nivel ?? '',
+    });
+  }
+
+  const entries = [...porId.entries()];
+  if (entries.length === 0) return [];
+
+  if (filtrosNivel) {
+    return entries
+      .map(([id, { nombre }]) => [id, nombre])
+      .sort((a, b) => a[1].localeCompare(b[1], 'es'));
+  }
+
+  const conteoNombre = new Map();
+  for (const [, { nombre }] of entries) {
+    conteoNombre.set(nombre, (conteoNombre.get(nombre) ?? 0) + 1);
+  }
+
+  return entries
+    .map(([id, { nombre, nivel }]) => {
+      const duplicadoNombre = (conteoNombre.get(nombre) ?? 0) > 1;
+      const label = duplicadoNombre && nivel
+        ? `${nombre} — ${etiquetaNivelCurricular(nivel)}`
+        : nombre;
+      return [id, label];
+    })
+    .sort((a, b) => a[1].localeCompare(b[1], 'es'));
+}
 
 export { ADVERTENCIA_ELIMINAR_NOTA };
 

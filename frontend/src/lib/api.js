@@ -330,12 +330,78 @@ export function getCurricularAreas(params = {}) {
   return request(qs ? `${CURRICULAR}/areas?${qs}` : `${CURRICULAR}/areas`);
 }
 
-export function getCompetenciasPorArea(areaId) {
-  return request(`${CURRICULAR}/areas/${areaId}/competencias`);
+export function getCompetenciasPorArea(areaId, params = {}) {
+  const qs = buildQueryString(params);
+  const base = `${CURRICULAR}/areas/${areaId}/competencias`;
+  return request(qs ? `${base}?${qs}` : base);
 }
 
-export function getCapacidadesPorCompetencia(competenciaId) {
-  return request(`${CURRICULAR}/competencias/${competenciaId}/capacidades`);
+export function getCapacidadesPorCompetencia(competenciaId, params = {}) {
+  const qs = buildQueryString(params);
+  const base = `${CURRICULAR}/competencias/${competenciaId}/capacidades`;
+  return request(qs ? `${base}?${qs}` : base);
+}
+
+export function postCompetencia(areaId, datos) {
+  return request(`${CURRICULAR}/areas/${areaId}/competencias`, { method: 'POST', body: datos });
+}
+
+export function patchCompetencia(competenciaId, datos) {
+  return request(`${CURRICULAR}/competencias/${competenciaId}`, { method: 'PATCH', body: datos });
+}
+
+export function patchDesactivarCompetencia(competenciaId) {
+  return request(`${CURRICULAR}/competencias/${competenciaId}/desactivar`, { method: 'PATCH' });
+}
+
+export function patchReactivarCompetencia(competenciaId) {
+  return request(`${CURRICULAR}/competencias/${competenciaId}/reactivar`, { method: 'PATCH' });
+}
+
+export function postCapacidad(competenciaId, datos) {
+  return request(`${CURRICULAR}/competencias/${competenciaId}/capacidades`, { method: 'POST', body: datos });
+}
+
+export function patchCapacidad(capacidadId, datos) {
+  return request(`${CURRICULAR}/capacidades/${capacidadId}`, { method: 'PATCH', body: datos });
+}
+
+export function patchDesactivarCapacidad(capacidadId) {
+  return request(`${CURRICULAR}/capacidades/${capacidadId}/desactivar`, { method: 'PATCH' });
+}
+
+export function patchReactivarCapacidad(capacidadId) {
+  return request(`${CURRICULAR}/capacidades/${capacidadId}/reactivar`, { method: 'PATCH' });
+}
+
+export const COMPETENCIAS_PREFILL_KEY = 'siderae-competencias-prefill';
+
+export function guardarPrefillCompetenciasCapacidades(datos) {
+  try {
+    sessionStorage.setItem(COMPETENCIAS_PREFILL_KEY, JSON.stringify(datos));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function leerPrefillCompetenciasCapacidades() {
+  try {
+    const raw = sessionStorage.getItem(COMPETENCIAS_PREFILL_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(COMPETENCIAS_PREFILL_KEY);
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export const EVENTO_ABRIR_COMPETENCIAS = 'siderae-open-competencias';
+
+export function solicitarModuloCompetenciasCapacidades(prefill = null) {
+  if (prefill) {
+    guardarPrefillCompetenciasCapacidades(prefill);
+  }
+  window.dispatchEvent(new Event(EVENTO_ABRIR_COMPETENCIAS));
 }
 
 export function getCurricularPeriodos(params = {}) {

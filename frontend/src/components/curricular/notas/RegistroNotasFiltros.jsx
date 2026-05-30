@@ -59,7 +59,7 @@ export default function RegistroNotasFiltros({
             value={filtros.nivel}
             onChange={(e) => onCambiarFiltro(
               modoConsultaGlobal
-                ? { nivel: e.target.value, consulta_contexto_clave: '' }
+                ? { nivel: e.target.value, area_id: '', consulta_contexto_clave: '' }
                 : { nivel: e.target.value, asignacion_id: '', area_id: '' },
             )}
           >

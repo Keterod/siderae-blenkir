@@ -33,6 +33,7 @@ class PermissionsSeeder extends Seeder
             'registrar_asistencia_curricular',
             'ver_asistencia_curricular',
             'gestionar_calendario_academico',
+            'gestionar_competencias_capacidades',
         ];
 
         $permissions = array_merge($legacyPermissions, $curricularPermissions);
@@ -71,6 +72,7 @@ class PermissionsSeeder extends Seeder
                 'registrar_asistencia_curricular',
                 'ver_asistencia_curricular',
                 'gestionar_calendario_academico',
+                'gestionar_competencias_capacidades',
             ],
             'psicologo_tutor' => [
                 'ver_alertas',

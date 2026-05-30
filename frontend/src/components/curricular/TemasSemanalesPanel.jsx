@@ -10,7 +10,10 @@ import {
   patchDesactivarTemaSemanal,
   patchTemaSemanal,
   postTemaSemanal,
+  solicitarModuloCompetenciasCapacidades,
 } from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
+import Button from '../ui/Button';
 import { anioEscolarActual } from '../../lib/academico';
 import { resolverCalendarioActivoParaFiltros } from '../../lib/calendarioAcademico';
 import { etiquetaNivelCurricular } from '../../lib/academicoCurricular';
@@ -30,6 +33,9 @@ import {
 } from './criterios/utils';
 
 export default function TemasSemanalesPanel() {
+  const { permissions } = useAuth();
+  const puedeGestionarCompetencias = permissions.includes('gestionar_competencias_capacidades');
+
   const [criterios, setCriterios] = useState([]);
   const [areas, setAreas] = useState([]);
   const [mallaCursos, setMallaCursos] = useState([]);
@@ -285,6 +291,23 @@ export default function TemasSemanalesPanel() {
           Registre los criterios por curso, competencia y capacidad. Puede evaluar solo algunos;
           la semana es referencial y opcional.
         </p>
+        {puedeGestionarCompetencias ? (
+          <div className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                solicitarModuloCompetenciasCapacidades({
+                  nivel: filtros.nivel,
+                  area_id: filtros.area_id || undefined,
+                })
+              }
+            >
+              Gestionar competencias y capacidades
+            </Button>
+          </div>
+        ) : null}
       </header>
 
       {error ? <AlertMessage variant="error">{error}</AlertMessage> : null}

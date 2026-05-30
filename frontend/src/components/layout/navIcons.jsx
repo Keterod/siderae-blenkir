@@ -39,6 +39,14 @@ export function NavIcon({ name, className = iconClass }) {
           <path strokeLinecap="round" d="M9 12h6M9 16h6" />
         </svg>
       );
+    case 'curricular_competencias':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M4 18h6" />
+          <circle cx="18" cy="12" r="2" />
+          <circle cx="18" cy="18" r="2" />
+        </svg>
+      );
     case 'curricular_pesos':
       return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>

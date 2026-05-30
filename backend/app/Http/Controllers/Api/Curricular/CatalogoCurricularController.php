@@ -8,12 +8,16 @@ use App\Models\Curricular\Capacidad;
 use App\Models\Curricular\Competencia;
 use App\Models\Curricular\PeriodoAcademico;
 use App\Models\Curricular\SemanaAcademica;
+use App\Services\Curricular\CatalogoCompetenciaCapacidadQuery;
 use App\Services\Curricular\CatalogoNivelGrado;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CatalogoCurricularController extends Controller
 {
+    public function __construct(
+        private readonly CatalogoCompetenciaCapacidadQuery $catalogoCompetenciaQuery = new CatalogoCompetenciaCapacidadQuery,
+    ) {}
     public function nivelesGrados(): JsonResponse
     {
         $niveles = [];
@@ -45,24 +49,32 @@ class CatalogoCurricularController extends Controller
         return response()->json($query->get());
     }
 
-    public function competenciasPorArea(Area $area): JsonResponse
+    public function competenciasPorArea(Request $request, Area $area): JsonResponse
     {
-        $items = Competencia::query()
-            ->where('area_id', $area->id)
-            ->where('activo', true)
-            ->orderBy('nombre')
+        $items = $this->catalogoCompetenciaQuery
+            ->queryCompetenciasPorArea($request, $area)
             ->get();
+
+        if ($request->boolean('conteo_uso') || $request->boolean('incluir_capacidades')) {
+            return response()->json(
+                $this->catalogoCompetenciaQuery->serializarCompetencias($request, $items),
+            );
+        }
 
         return response()->json($items);
     }
 
-    public function capacidadesPorCompetencia(Competencia $competencia): JsonResponse
+    public function capacidadesPorCompetencia(Request $request, Competencia $competencia): JsonResponse
     {
-        $items = Capacidad::query()
-            ->where('competencia_id', $competencia->id)
-            ->where('activo', true)
-            ->orderBy('nombre')
+        $items = $this->catalogoCompetenciaQuery
+            ->queryCapacidadesPorCompetencia($request, $competencia)
             ->get();
+
+        if ($request->boolean('conteo_uso')) {
+            return response()->json(
+                $this->catalogoCompetenciaQuery->serializarCapacidades($request, $items),
+            );
+        }
 
         return response()->json($items);
     }

@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Curricular\AsignacionDocenteController;
 use App\Http\Controllers\Api\Curricular\AnioEscolarController;
 use App\Http\Controllers\Api\Curricular\AsistenciaDiariaController;
 use App\Http\Controllers\Api\Curricular\CatalogoCurricularController;
+use App\Http\Controllers\Api\Curricular\CompetenciaCapacidadController;
 use App\Http\Controllers\Api\Curricular\ConfiguracionPesoEvaluacionController;
 use App\Http\Controllers\Api\Curricular\DocenteAulaCurricularController;
 use App\Http\Controllers\Api\Curricular\EvaluacionBimestralController;
@@ -169,6 +170,17 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
         Route::post('/temas', [TemaSemanalController::class, 'store']);
         Route::patch('/temas/{temaSemanal}', [TemaSemanalController::class, 'update']);
         Route::patch('/temas/{temaSemanal}/desactivar', [TemaSemanalController::class, 'desactivar']);
+    });
+
+    Route::middleware(['permission:gestionar_competencias_capacidades'])->group(function (): void {
+        Route::post('/areas/{area}/competencias', [CompetenciaCapacidadController::class, 'storeCompetencia']);
+        Route::patch('/competencias/{competencia}', [CompetenciaCapacidadController::class, 'updateCompetencia']);
+        Route::patch('/competencias/{competencia}/desactivar', [CompetenciaCapacidadController::class, 'desactivarCompetencia']);
+        Route::patch('/competencias/{competencia}/reactivar', [CompetenciaCapacidadController::class, 'reactivarCompetencia']);
+        Route::post('/competencias/{competencia}/capacidades', [CompetenciaCapacidadController::class, 'storeCapacidad']);
+        Route::patch('/capacidades/{capacidad}', [CompetenciaCapacidadController::class, 'updateCapacidad']);
+        Route::patch('/capacidades/{capacidad}/desactivar', [CompetenciaCapacidadController::class, 'desactivarCapacidad']);
+        Route::patch('/capacidades/{capacidad}/reactivar', [CompetenciaCapacidadController::class, 'reactivarCapacidad']);
     });
 
     Route::middleware(['permission:configurar_pesos_evaluacion'])->group(function (): void {

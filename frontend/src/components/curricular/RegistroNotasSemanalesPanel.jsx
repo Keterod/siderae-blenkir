@@ -39,6 +39,7 @@ import {
 } from './notas/bimestral/evaluacionBimestralUtils';
 import {
   ADVERTENCIA_ELIMINAR_NOTA,
+  construirOpcionesAreasFiltro,
   construirPayloadAula,
   construirPayloadEstudiante,
   initFilasEstudiante,
@@ -256,17 +257,23 @@ export default function RegistroNotasSemanalesPanel() {
         (c) => c.seccion,
       );
 
-      const areasMap = new Map();
-      for (const c of base) {
-        if (c.area_id != null) {
-          areasMap.set(String(c.area_id), c.area_nombre ?? '');
-        }
-      }
+      const areas = construirOpcionesAreasFiltro(
+        base.map((c) => ({
+          nivel: c.nivel,
+          area_id: c.area_id,
+          area_nombre: c.area_nombre ?? '',
+        })),
+        filtros.nivel,
+      );
 
       const cursosOpciones = contextosFiltrados.map((c) => ({
         clave: c.clave,
         etiqueta: c.titulo_opcion ?? `${c.curso_nombre}`,
       }));
+
+      // #region agent log
+      fetch('http://127.0.0.1:7660/ingest/a9ef591e-793a-4161-a2b6-989131aaf28a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'cfccdc'},body:JSON.stringify({sessionId:'cfccdc',runId:'post-fix',hypothesisId:'A',location:'RegistroNotasSemanalesPanel.jsx:opciones-consulta',message:'area filter options built',data:{filtrosNivel:filtros.nivel,modo:'consulta',rawCount:base.length,areas,duplicateLabels:areas.map(([,l])=>l).filter((l,i,a)=>a.indexOf(l)!==i)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
 
       return {
         modo: 'consulta',
@@ -275,7 +282,7 @@ export default function RegistroNotasSemanalesPanel() {
         sedes,
         grados,
         secciones,
-        areas: [...areasMap.entries()],
+        areas,
         cursosOpciones,
       };
     }
@@ -295,13 +302,18 @@ export default function RegistroNotasSemanalesPanel() {
       (a) => a.seccion,
     );
 
-    const areasMap = new Map();
-    for (const a of base) {
-      const id = areaIdAsignacion(a);
-      if (id) {
-        areasMap.set(String(id), a.mallaCurso?.area?.nombre ?? a.malla_curso?.area?.nombre ?? '');
-      }
-    }
+    const areas = construirOpcionesAreasFiltro(
+      base.map((a) => ({
+        nivel: a.nivel,
+        area_id: areaIdAsignacion(a),
+        area_nombre: a.mallaCurso?.area?.nombre ?? a.malla_curso?.area?.nombre ?? '',
+      })),
+      filtros.nivel,
+    );
+
+    // #region agent log
+    fetch('http://127.0.0.1:7660/ingest/a9ef591e-793a-4161-a2b6-989131aaf28a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'cfccdc'},body:JSON.stringify({sessionId:'cfccdc',runId:'post-fix',hypothesisId:'A',location:'RegistroNotasSemanalesPanel.jsx:opciones-docente',message:'area filter options built',data:{filtrosNivel:filtros.nivel,modo:'docente',rawCount:base.length,areas,duplicateLabels:areas.map(([,l])=>l).filter((l,i,a)=>a.indexOf(l)!==i)},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     return {
       modo: 'docente',
@@ -310,7 +322,7 @@ export default function RegistroNotasSemanalesPanel() {
       sedes,
       grados,
       secciones,
-      areas: [...areasMap.entries()],
+      areas,
       cursosOpciones: [],
     };
   }, [modoConsultaGlobal, contextosConsulta, contextosFiltrados, aulas, filtros.anio_escolar, filtros.nivel, filtros.grado]);

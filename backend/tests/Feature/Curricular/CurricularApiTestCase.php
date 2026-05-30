@@ -34,6 +34,7 @@ abstract class CurricularApiTestCase extends TestCase
             'registrar_asistencia_curricular',
             'ver_asistencia_curricular',
             'gestionar_calendario_academico',
+            'gestionar_competencias_capacidades',
         ];
 
         foreach ($names as $name) {
@@ -59,9 +60,10 @@ abstract class CurricularApiTestCase extends TestCase
             'ver_malla_curricular',
             'gestionar_malla_curricular',
             'gestionar_temas_semanales',
+            'gestionar_competencias_capacidades',
             'configurar_pesos_evaluacion',
             'gestionar_asignaciones_docente',
-                'ver_notas_academicas',
+            'ver_notas_academicas',
             'configurar_evaluacion_bimestral',
         ]);
     }
@@ -84,6 +86,7 @@ abstract class CurricularApiTestCase extends TestCase
             'ver_malla_curricular',
             'gestionar_malla_curricular',
             'gestionar_temas_semanales',
+            'gestionar_competencias_capacidades',
             'configurar_pesos_evaluacion',
             'gestionar_asignaciones_docente',
             'registrar_notas_semanales',
