@@ -7,6 +7,7 @@ use App\Http\Requests\DashboardQueryRequest;
 use App\Models\Alerta;
 use App\Models\Estudiante;
 use App\Models\IndiceRiesgo;
+use App\Services\Curricular\DashboardCurricularIndicadoresService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly DashboardCurricularIndicadoresService $indicadoresCurriculares,
+    ) {}
     /**
      * Resumen JSON del dashboard con filtros reales y porcentajes (Sprint 6B).
      */
@@ -86,7 +90,10 @@ class DashboardController extends Controller
         $idsTodos = $qLoc->pluck('id');
 
         if ($idsTodos->isEmpty()) {
-            return $this->cargaVacia($filtrosAplicados, $opcionesFiltros);
+            return array_merge(
+                $this->cargaVacia($filtrosAplicados, $opcionesFiltros),
+                ['indicadores_curriculares' => $this->indicadoresCurriculares->calcular($f)],
+            );
         }
 
         $ultimoIds = DB::table('indices_riesgo')
@@ -184,6 +191,7 @@ class DashboardController extends Controller
             'ultimos_riesgos' => $ultimosRiesgos,
             'filtros_aplicados' => $filtrosAplicados,
             'opciones_filtros' => $opcionesFiltros,
+            'indicadores_curriculares' => $this->indicadoresCurriculares->calcular($f),
         ];
     }
 
@@ -224,6 +232,13 @@ class DashboardController extends Controller
             'ultimos_riesgos' => [],
             'filtros_aplicados' => $filtrosAplicados,
             'opciones_filtros' => $opcionesFiltros,
+            'indicadores_curriculares' => [
+                'total_estudiantes_activos' => 0,
+                'registros_asistencia_diaria' => 0,
+                'resultados_bimestrales' => 0,
+                'cursos_malla_activos' => 0,
+                'asignaciones_docente_activas' => 0,
+            ],
         ];
     }
 

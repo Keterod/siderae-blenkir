@@ -10,6 +10,13 @@ class EquivalenciasGradoSeeder extends Seeder
 {
     public function run(): void
     {
+        foreach (CatalogoNivelGrado::GRADOS_INICIAL as $grado) {
+            EquivalenciaGrado::query()->updateOrCreate(
+                ['nivel' => CatalogoNivelGrado::NIVEL_INICIAL, 'grado_curricular' => $grado],
+                ['grado_estudiante_legacy' => $grado]
+            );
+        }
+
         $mapaLegacy = ['1ro' => '1°', '2do' => '2°', '3ro' => '3°', '4to' => '4°', '5to' => '5°', '6to' => '6°'];
 
         foreach (CatalogoNivelGrado::GRADOS_PRIMARIA as $grado) {

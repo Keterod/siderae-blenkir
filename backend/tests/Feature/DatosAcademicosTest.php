@@ -639,7 +639,7 @@ class DatosAcademicosTest extends TestCase
         $response->assertCreated()
             ->assertJsonPath('total', 2)
             ->assertJsonPath('riesgo.procesados', 0)
-            ->assertJsonCount(2, 'riesgo.fallidos');
+            ->assertJsonCount(2, 'riesgo.omitidos');
 
         $this->assertDatabaseHas('notas', ['estudiante_id' => $e1->id, 'materia_id' => $materia->id]);
         $this->assertDatabaseHas('notas', ['estudiante_id' => $e2->id, 'materia_id' => $materia->id]);
@@ -716,7 +716,7 @@ class DatosAcademicosTest extends TestCase
         $response->assertCreated()
             ->assertJsonPath('total', 2)
             ->assertJsonPath('riesgo.procesados', 0)
-            ->assertJsonCount(2, 'riesgo.fallidos');
+            ->assertJsonCount(2, 'riesgo.omitidos');
 
         $this->assertDatabaseHas('asistencias', ['estudiante_id' => $e1->id, 'registrado_por' => $actor->id]);
         $this->assertDatabaseHas('asistencias', ['estudiante_id' => $e2->id, 'registrado_por' => $actor->id]);

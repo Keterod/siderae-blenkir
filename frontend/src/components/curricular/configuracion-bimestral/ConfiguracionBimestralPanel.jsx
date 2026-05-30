@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { anioEscolarActual } from '../../../lib/academico';
+import { resolverCalendarioActivoParaFiltros } from '../../../lib/calendarioAcademico';
 import {
   getCurricularAreas,
   getCurricularPeriodos,
@@ -39,6 +40,17 @@ export default function ConfiguracionBimestralPanel() {
     malla_curso_id: '',
     periodo_academico_id: '',
   });
+
+  useEffect(() => {
+    void resolverCalendarioActivoParaFiltros().then((cal) => {
+      if (!cal?.anio) return;
+      setFiltros((prev) => ({
+        ...prev,
+        anio_escolar: cal.anio,
+        periodo_academico_id: cal.periodoVigenteId || prev.periodo_academico_id,
+      }));
+    });
+  }, []);
 
   const puedeCargar = Boolean(filtros.malla_curso_id && filtros.periodo_academico_id);
 
@@ -94,7 +106,15 @@ export default function ConfiguracionBimestralPanel() {
   }, [filtros.anio_escolar, filtros.nivel, filtros.grado]);
 
   useEffect(() => {
-    void getCurricularPeriodos({ anio_escolar: filtros.anio_escolar }).then(setPeriodos);
+    void getCurricularPeriodos({ anio_escolar: filtros.anio_escolar }).then((data) => {
+      const lista = Array.isArray(data) ? data : [];
+      setPeriodos(lista);
+      setFiltros((prev) => ({
+        ...prev,
+        periodo_academico_id: prev.periodo_academico_id
+          || String(lista.find((p) => p.es_vigente)?.id ?? lista[0]?.id ?? ''),
+      }));
+    });
   }, [filtros.anio_escolar]);
 
   useEffect(() => {
@@ -205,14 +225,23 @@ export default function ConfiguracionBimestralPanel() {
       <Card className="p-6">
         <h2 className="text-lg font-semibold text-[var(--text)]">Configuración bimestral</h2>
         <p className="mt-1 text-sm text-muted">
-          Configure componentes y ETAs de evaluación bimestral por curso y bimestre.
+          Configure la fórmula final del bimestre (promedio de criterios, oral, promedio ETA, examen
+          bimestral y personalizados) y las ETAs por curso y bimestre.
         </p>
       </Card>
 
       <Card className="border-[var(--border)] bg-[var(--surface-muted)]/30 p-4 text-sm text-muted">
         <ul className="list-inside list-disc space-y-1">
           <li>Esta configuración aplica al curso y bimestre seleccionados para todas las sedes.</li>
-          <li>Los cambios de pesos afectan el cálculo del nivel de logro.</li>
+          <li>
+            Los componentes bimestrales definen cómo se compone la nota final del bimestre a partir del
+            promedio de criterios, oral, ETAs y examen.
+          </li>
+          <li>
+            Cuaderno, Libro y Tarea (C/L/T) no se configuran aquí: pertenecen al módulo futuro
+            «Componentes para criterios por nivel/grado», que alimenta la nota de cada criterio.
+          </li>
+          <li>Los cambios de pesos afectan el cálculo del nivel de logro bimestral.</li>
           <li>Al activar/desactivar componentes o ETAs, los pesos se redistribuyen automáticamente.</li>
           <li>El 0 explícito en ETA cuenta como nota cargada al registrar evaluación por aula.</li>
         </ul>

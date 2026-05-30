@@ -76,6 +76,7 @@ export default function AsistenciaMasivaPanel() {
         grado: ctx.grado.trim(),
         seccion: ctx.seccion.trim(),
         anio_escolar: ctx.anio_escolar.trim(),
+        all: 1,
       };
       const alumnos = await getEstudiantes(params);
       setEstudiantes(Array.isArray(alumnos) ? alumnos : []);

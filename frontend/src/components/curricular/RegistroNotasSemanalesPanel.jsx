@@ -14,6 +14,7 @@ import {
   postEvaluacionBimestralBulk,
 } from '../../lib/evaluacionBimestral';
 import { anioEscolarActual } from '../../lib/academico';
+import { resolverCalendarioActivoParaFiltros } from '../../lib/calendarioAcademico';
 import {
   nombreEstudiante,
   obtenerMensajeErrorNotas,
@@ -116,6 +117,22 @@ export default function RegistroNotasSemanalesPanel() {
     estudiante: null,
     valorInicial: '',
   });
+  const [sinCalendarioActivo, setSinCalendarioActivo] = useState(false);
+
+  useEffect(() => {
+    void resolverCalendarioActivoParaFiltros().then((cal) => {
+      if (!cal?.anio) {
+        setSinCalendarioActivo(true);
+        return;
+      }
+      setSinCalendarioActivo(false);
+      setFiltros((prev) => ({
+        ...prev,
+        anio_escolar: cal.anio,
+        periodo_academico_id: cal.periodoVigenteId || prev.periodo_academico_id,
+      }));
+    });
+  }, []);
 
   const aulas = modoConsultaGlobal ? [] : aulasDocente;
 
@@ -189,7 +206,8 @@ export default function RegistroNotasSemanalesPanel() {
       setPeriodos(lista);
       setFiltros((prev) => ({
         ...prev,
-        periodo_academico_id: prev.periodo_academico_id || String(lista[0]?.id ?? ''),
+        periodo_academico_id: prev.periodo_academico_id
+          || String(lista.find((p) => p.es_vigente)?.id ?? lista[0]?.id ?? ''),
       }));
     });
   }, [filtros.anio_escolar]);
@@ -886,6 +904,11 @@ export default function RegistroNotasSemanalesPanel() {
       {tieneAlertas ? (
         <div className="mb-1 flex flex-col gap-1">
           {error ? <AlertMessage variant="error">{error}</AlertMessage> : null}
+          {sinCalendarioActivo ? (
+            <AlertMessage variant="info">
+              No hay año escolar activo configurado. Seleccione manualmente año y bimestre o configure el calendario académico.
+            </AlertMessage>
+          ) : null}
           {exito ? <AlertMessage variant="success">{exito}</AlertMessage> : null}
           {advertencia ? <AlertMessage variant="warning">{advertencia}</AlertMessage> : null}
         </div>

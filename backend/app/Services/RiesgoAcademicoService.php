@@ -2,28 +2,48 @@
 
 namespace App\Services;
 
+use App\Enums\Curricular\EvalBimEstadoCalculo;
+use App\Models\Curricular\AsistenciaDiaria;
+use App\Models\Curricular\EvalBimResultado;
+use App\Models\Curricular\NotaSemanal;
 use App\Models\Alerta;
-use App\Models\Asistencia;
 use App\Models\Estudiante;
 use App\Models\IndiceRiesgo;
-use App\Models\Nota;
 use App\Models\ReporteConductual;
 use App\Models\VariableSocioeconomica;
+use App\Services\Curricular\AsistenciaDiariaResumenService;
+use App\Services\Curricular\CatalogoNivelGrado;
+use App\Services\Curricular\EquivalenciaGradoService;
 use Illuminate\Support\Facades\Log;
 
 class RiesgoAcademicoService
 {
+    public const MENSAJE_INICIAL_NO_DISPONIBLE = 'Riesgo académico no disponible para Inicial en esta versión.';
+
+    public function __construct(
+        private readonly AsistenciaDiariaResumenService $asistenciaDiariaResumenService = new AsistenciaDiariaResumenService,
+        private readonly EquivalenciaGradoService $equivalenciaGradoService = new EquivalenciaGradoService,
+    ) {}
+
     /**
-     * @return array{ok: bool, errors?: array<string, array<int, string>>}
+     * @return array{ok: bool, errors?: array<string, array<int, string>>, status?: string, message?: string}
      */
     public function validarDatosMinimos(Estudiante $estudiante, string $anio): array
     {
-        $tieneNotas = Nota::query()
-            ->where('estudiante_id', $estudiante->id)
-            ->where('anio_escolar', $anio)
-            ->exists();
+        if ($estudiante->nivel === CatalogoNivelGrado::NIVEL_INICIAL) {
+            return [
+                'ok' => false,
+                'status' => 'no_disponible',
+                'message' => self::MENSAJE_INICIAL_NO_DISPONIBLE,
+                'errors' => [
+                    'nivel' => [self::MENSAJE_INICIAL_NO_DISPONIBLE],
+                ],
+            ];
+        }
 
-        $tieneAsistencias = Asistencia::query()
+        $tieneAcademicos = $this->tieneDatosAcademicosCurriculares($estudiante, $anio);
+
+        $tieneAsistencias = AsistenciaDiaria::query()
             ->where('estudiante_id', $estudiante->id)
             ->where('anio_escolar', $anio)
             ->exists();
@@ -33,22 +53,28 @@ class RiesgoAcademicoService
             ->where('anio_escolar', $anio)
             ->exists();
 
-        if ($tieneNotas && $tieneAsistencias && $tieneVariables) {
+        if ($tieneAcademicos && $tieneAsistencias && $tieneVariables) {
             return ['ok' => true];
         }
 
         $mensajes = [];
 
-        if (! $tieneNotas) {
-            $mensajes['notas'] = ['Se requiere al menos una nota para el año escolar del estudiante.'];
+        if (! $tieneAcademicos) {
+            $mensajes['datos_academicos_curriculares'] = [
+                'Se requiere evaluación bimestral o notas semanales curriculares para el año escolar del estudiante.',
+            ];
         }
 
         if (! $tieneAsistencias) {
-            $mensajes['asistencias'] = ['Se requiere al menos un registro de asistencia para el año escolar del estudiante.'];
+            $mensajes['asistencias_curriculares'] = [
+                'Se requiere al menos un registro de asistencia curricular diaria para el año escolar del estudiante.',
+            ];
         }
 
         if (! $tieneVariables) {
-            $mensajes['variables_socioeconomicas'] = ['Se requieren variables socioeconómicas para el año escolar del estudiante.'];
+            $mensajes['variables_socioeconomicas'] = [
+                'Se requieren variables socioeconómicas para el año escolar del estudiante.',
+            ];
         }
 
         return [
@@ -65,8 +91,9 @@ class RiesgoAcademicoService
         $validacion = $this->validarDatosMinimos($estudiante, $anio);
         if (! $validacion['ok']) {
             return [
-                'status' => 'omitido',
-                'errors' => $validacion['errors'],
+                'status' => $validacion['status'] ?? 'omitido',
+                'errors' => $validacion['errors'] ?? [],
+                'message' => $validacion['message'] ?? null,
             ];
         }
 
@@ -135,23 +162,17 @@ class RiesgoAcademicoService
      */
     private function construirPayload(Estudiante $estudiante, string $anio): array
     {
-        $notas = Nota::query()
-            ->where('estudiante_id', $estudiante->id)
-            ->where('anio_escolar', $anio)
-            ->get();
+        $promedioNotas = $this->resolverPromedioNotas($estudiante, $anio);
+        if ($promedioNotas === null) {
+            throw new \RuntimeException('No hay datos académicos curriculares para construir el payload de riesgo.');
+        }
 
-        $promedioNotas = (float) $notas->avg('nota');
+        $resumenAsistencia = $this->asistenciaDiariaResumenService->construirPorEstudiante([
+            'estudiante_id' => $estudiante->id,
+            'anio_escolar' => $anio,
+        ]);
 
-        $asistencias = Asistencia::query()
-            ->where('estudiante_id', $estudiante->id)
-            ->where('anio_escolar', $anio)
-            ->get();
-
-        $totalAsis = $asistencias->count();
-        $faltas = $asistencias->where('estado', 'falta')->count();
-        $porcentajeAsistencia = $totalAsis > 0
-            ? (($totalAsis - $faltas) / $totalAsis) * 100.0
-            : 0.0;
+        $porcentajeAsistencia = (float) ($resumenAsistencia['totales']['porcentaje_asistencia_efectiva'] ?? 0.0);
 
         $reportesCount = ReporteConductual::query()
             ->where('estudiante_id', $estudiante->id)
@@ -161,7 +182,7 @@ class RiesgoAcademicoService
         $vars = VariableSocioeconomica::query()
             ->where('estudiante_id', $estudiante->id)
             ->where('anio_escolar', $anio)
-            ->first();
+            ->firstOrFail();
 
         $distancia = $vars->distancia_colegio_km !== null
             ? (float) $vars->distancia_colegio_km
@@ -176,5 +197,82 @@ class RiesgoAcademicoService
             'acceso_internet' => (bool) $vars->acceso_internet,
             'distancia_colegio' => $distancia,
         ];
+    }
+
+    private function tieneDatosAcademicosCurriculares(Estudiante $estudiante, string $anio): bool
+    {
+        if ($this->resolverPromedioNotas($estudiante, $anio) !== null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function resolverPromedioNotas(Estudiante $estudiante, string $anio): ?float
+    {
+        $promedioBimestral = $this->promedioDesdeEvaluacionBimestral($estudiante, $anio);
+        if ($promedioBimestral !== null) {
+            return $promedioBimestral;
+        }
+
+        return $this->promedioDesdeNotasSemanales($estudiante, $anio);
+    }
+
+    private function promedioDesdeEvaluacionBimestral(Estudiante $estudiante, string $anio): ?float
+    {
+        $valores = $this->queryResultadosBimestralesCompletos($estudiante, $anio)
+            ->pluck('nivel_logro_numerico')
+            ->map(fn ($valor) => $valor !== null ? (float) $valor : null)
+            ->filter(fn (?float $valor) => $valor !== null);
+
+        if ($valores->isEmpty()) {
+            return null;
+        }
+
+        return round($valores->avg(), 4);
+    }
+
+    private function promedioDesdeNotasSemanales(Estudiante $estudiante, string $anio): ?float
+    {
+        $valores = NotaSemanal::query()
+            ->where('estudiante_id', $estudiante->id)
+            ->whereNotNull('ce_calculado')
+            ->whereHas('temaSemanal.periodoAcademico', fn ($q) => $q->where('anio_escolar', $anio))
+            ->pluck('ce_calculado')
+            ->map(fn ($valor) => (float) $valor);
+
+        if ($valores->isEmpty()) {
+            return null;
+        }
+
+        return round($valores->avg(), 4);
+    }
+
+  /**
+     * @return \Illuminate\Database\Eloquent\Builder<EvalBimResultado>
+     */
+    private function queryResultadosBimestralesCompletos(Estudiante $estudiante, string $anio)
+    {
+        $gradoCurricular = $this->equivalenciaGradoService->aCurricular(
+            (string) $estudiante->nivel,
+            (string) $estudiante->grado,
+        );
+
+        $query = EvalBimResultado::query()
+            ->where('estudiante_id', $estudiante->id)
+            ->where('estado_calculo', EvalBimEstadoCalculo::Completo)
+            ->whereNotNull('nivel_logro_numerico')
+            ->whereHas('periodoAcademico', fn ($q) => $q->where('anio_escolar', $anio))
+            ->where('sede', $estudiante->sede)
+            ->where('grado', $estudiante->grado)
+            ->where('seccion', $estudiante->seccion);
+
+        if ($gradoCurricular !== null && in_array($estudiante->nivel, [CatalogoNivelGrado::NIVEL_PRIMARIA, CatalogoNivelGrado::NIVEL_SECUNDARIA], true)) {
+            $query->whereHas('mallaCurso.mallaCurricular', fn ($q) => $q
+                ->where('nivel', $estudiante->nivel)
+                ->where('grado', $gradoCurricular));
+        }
+
+        return $query;
     }
 }

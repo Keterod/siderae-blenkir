@@ -12,6 +12,7 @@ class PermissionsSeeder extends Seeder
     {
         $legacyPermissions = [
             'ver_dashboard',
+            'gestionar_usuarios',
             'gestionar_estudiantes',
             'gestionar_materias',
             'registrar_datos_academicos',
@@ -29,6 +30,9 @@ class PermissionsSeeder extends Seeder
             'registrar_notas_semanales',
             'ver_notas_academicas',
             'configurar_evaluacion_bimestral',
+            'registrar_asistencia_curricular',
+            'ver_asistencia_curricular',
+            'gestionar_calendario_academico',
         ];
 
         $permissions = array_merge($legacyPermissions, $curricularPermissions);
@@ -48,6 +52,8 @@ class PermissionsSeeder extends Seeder
                 'ver_malla_curricular',
                 'registrar_notas_semanales',
                 'ver_notas_academicas',
+                'registrar_asistencia_curricular',
+                'ver_asistencia_curricular',
             ],
             'coordinador_academico' => [
                 'ver_dashboard',
@@ -62,11 +68,15 @@ class PermissionsSeeder extends Seeder
                 'gestionar_asignaciones_docente',
                 'ver_notas_academicas',
                 'configurar_evaluacion_bimestral',
+                'registrar_asistencia_curricular',
+                'ver_asistencia_curricular',
+                'gestionar_calendario_academico',
             ],
             'psicologo_tutor' => [
                 'ver_alertas',
                 'registrar_intervencion',
                 'ver_notas_academicas',
+                'ver_asistencia_curricular',
             ],
             'directivo' => [
                 'ver_dashboard',
@@ -74,6 +84,7 @@ class PermissionsSeeder extends Seeder
                 'registrar_intervencion',
                 'ver_malla_curricular',
                 'ver_notas_academicas',
+                'ver_asistencia_curricular',
             ],
         ];
 

@@ -93,12 +93,6 @@ class NotaSemanalBulkService
             ]);
         }
 
-        if ($asignacion->nivel === CatalogoNivelGrado::NIVEL_INICIAL) {
-            throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['No se registran notas semanales para nivel Inicial.'],
-            ]);
-        }
-
         $pesos = $this->pesoResolver->resolverParaCurso($mallaCurso, $mallaCurso->mallaCurricular);
         $this->pesoResolver->validarSuma100($pesos);
 
@@ -189,12 +183,6 @@ class NotaSemanalBulkService
         if (! $mallaCurso->activo) {
             throw ValidationException::withMessages([
                 'asignacion_docente_id' => ['El curso de malla está inactivo.'],
-            ]);
-        }
-
-        if ($asignacion->nivel === CatalogoNivelGrado::NIVEL_INICIAL) {
-            throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['No se registran notas semanales para nivel Inicial.'],
             ]);
         }
 
@@ -444,12 +432,6 @@ class NotaSemanalBulkService
         if (! $mallaCurso->activo) {
             throw ValidationException::withMessages([
                 'asignacion_docente_id' => ['El curso de malla está inactivo.'],
-            ]);
-        }
-
-        if ($asignacion->nivel === CatalogoNivelGrado::NIVEL_INICIAL) {
-            throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['No se registran notas semanales para nivel Inicial.'],
             ]);
         }
 

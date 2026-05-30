@@ -165,6 +165,17 @@ export function getEstudiantes(params = {}) {
   return request(qs ? `/api/estudiantes?${qs}` : '/api/estudiantes');
 }
 
+/** Normaliza respuesta paginada o array legacy de GET /api/estudiantes. */
+export function estudiantesDesdeRespuesta(respuesta) {
+  if (Array.isArray(respuesta)) {
+    return respuesta;
+  }
+  if (respuesta && Array.isArray(respuesta.data)) {
+    return respuesta.data;
+  }
+  return [];
+}
+
 export function postNotasLote(datos) {
   return request('/api/notas/lote', {
     method: 'POST',
@@ -193,6 +204,55 @@ export function createEstudiante(datos) {
 export function updateEstudiante(id, datos) {
   return request(`/api/estudiantes/${id}`, {
     method: 'PUT',
+    body: datos,
+  });
+}
+
+export function getUsuarios(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `/api/usuarios?${qs}` : '/api/usuarios');
+}
+
+export function usuariosDesdeRespuesta(respuesta) {
+  if (respuesta && Array.isArray(respuesta.data)) {
+    return respuesta.data;
+  }
+  return [];
+}
+
+export function getUsuario(id) {
+  return request(`/api/usuarios/${id}`);
+}
+
+export function createUsuario(datos) {
+  return request('/api/usuarios', {
+    method: 'POST',
+    body: datos,
+  });
+}
+
+export function updateUsuario(id, datos) {
+  return request(`/api/usuarios/${id}`, {
+    method: 'PATCH',
+    body: datos,
+  });
+}
+
+export function patchActivarUsuario(id) {
+  return request(`/api/usuarios/${id}/activar`, {
+    method: 'PATCH',
+  });
+}
+
+export function patchDesactivarUsuario(id) {
+  return request(`/api/usuarios/${id}/desactivar`, {
+    method: 'PATCH',
+  });
+}
+
+export function postRestablecerContrasenaUsuario(id, datos) {
+  return request(`/api/usuarios/${id}/restablecer-contrasena`, {
+    method: 'POST',
     body: datos,
   });
 }
@@ -283,6 +343,54 @@ export function getCurricularPeriodos(params = {}) {
   return request(qs ? `${CURRICULAR}/periodos?${qs}` : `${CURRICULAR}/periodos`);
 }
 
+export function getAniosEscolares() {
+  return request(`${CURRICULAR}/anios-escolares`);
+}
+
+export function getAnioEscolarActivo() {
+  return request(`${CURRICULAR}/anios-escolares/activo`);
+}
+
+export function getAnioEscolar(id) {
+  return request(`${CURRICULAR}/anios-escolares/${id}`);
+}
+
+export function postAnioEscolar(datos) {
+  return request(`${CURRICULAR}/anios-escolares`, { method: 'POST', body: datos });
+}
+
+export function patchAnioEscolar(id, datos) {
+  return request(`${CURRICULAR}/anios-escolares/${id}`, { method: 'PATCH', body: datos });
+}
+
+export function postActivarAnioEscolar(id) {
+  return request(`${CURRICULAR}/anios-escolares/${id}/activar`, { method: 'POST' });
+}
+
+export function postCerrarAnioEscolar(id) {
+  return request(`${CURRICULAR}/anios-escolares/${id}/cerrar`, { method: 'POST' });
+}
+
+export function postGenerarBimestresAnioEscolar(id, datos = {}) {
+  return request(`${CURRICULAR}/anios-escolares/${id}/generar-bimestres`, { method: 'POST', body: datos });
+}
+
+export function patchPeriodoAcademico(id, datos) {
+  return request(`${CURRICULAR}/periodos-academicos/${id}`, { method: 'PATCH', body: datos });
+}
+
+export function postMarcarPeriodoVigente(id) {
+  return request(`${CURRICULAR}/periodos-academicos/${id}/marcar-vigente`, { method: 'POST' });
+}
+
+export function postCerrarPeriodoAcademico(id) {
+  return request(`${CURRICULAR}/periodos-academicos/${id}/cerrar`, { method: 'POST' });
+}
+
+export function postGenerarSemanasPeriodo(id) {
+  return request(`${CURRICULAR}/periodos-academicos/${id}/generar-semanas`, { method: 'POST' });
+}
+
 export function getCurricularSemanas(periodoId) {
   return request(`${CURRICULAR}/periodos/${periodoId}/semanas`);
 }
@@ -344,8 +452,17 @@ export function getConfiguracionPesos(params = {}) {
   return request(qs ? `${CURRICULAR}/pesos?${qs}` : `${CURRICULAR}/pesos`);
 }
 
+export function getPesosEvaluacionResolver(params = {}) {
+  const qs = buildQueryString(params);
+  return request(`${CURRICULAR}/pesos/resolver?${qs}`);
+}
+
 export function postConfiguracionPeso(datos) {
   return request(`${CURRICULAR}/pesos`, { method: 'POST', body: datos });
+}
+
+export function patchConfiguracionPeso(id, datos) {
+  return request(`${CURRICULAR}/pesos/${id}`, { method: 'PATCH', body: datos });
 }
 
 export function patchDesactivarConfiguracionPeso(id) {
@@ -448,5 +565,26 @@ export function getResumenAcademico(estudianteId, params = {}) {
       ? `${CURRICULAR}/estudiantes/${estudianteId}/resumen-academico?${qs}`
       : `${CURRICULAR}/estudiantes/${estudianteId}/resumen-academico`,
   );
+}
+
+export function getAsistenciaDiariaFormulario(params = {}) {
+  const qs = buildQueryString(params);
+  return request(
+    qs ? `${CURRICULAR}/asistencias-diarias/formulario?${qs}` : `${CURRICULAR}/asistencias-diarias/formulario`,
+  );
+}
+
+export function postAsistenciaDiariaBulk(payload) {
+  return request(`${CURRICULAR}/asistencias-diarias/bulk`, { method: 'POST', body: payload });
+}
+
+export function getAsistenciaDiariaResumen(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/asistencias-diarias/resumen?${qs}` : `${CURRICULAR}/asistencias-diarias/resumen`);
+}
+
+/** Alias legible para consumo en perfil de estudiante. */
+export function getResumenAsistenciaDiaria(params = {}) {
+  return getAsistenciaDiariaResumen(params);
 }
 

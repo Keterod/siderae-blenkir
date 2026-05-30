@@ -36,6 +36,11 @@ class Estudiante extends Model
         return $this->hasMany(Asistencia::class);
     }
 
+    public function asistenciasDiarias(): HasMany
+    {
+        return $this->hasMany(\App\Models\Curricular\AsistenciaDiaria::class);
+    }
+
     public function variablesSocioeconomicas(): HasMany
     {
         return $this->hasMany(VariableSocioeconomica::class);

@@ -53,12 +53,6 @@ class NotaSemanalFormularioService
             ]);
         }
 
-        if ($asignacion->nivel === CatalogoNivelGrado::NIVEL_INICIAL) {
-            throw ValidationException::withMessages([
-                $ctxKey => ['No se registran notas semanales para nivel Inicial.'],
-            ]);
-        }
-
         $criterios = TemaSemanal::query()
             ->where('malla_curso_id', $asignacion->malla_curso_id)
             ->where('periodo_academico_id', $periodoAcademicoId)

@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             DemoUsersSeeder::class,
             CurricularModuleSeeder::class,
             DemoEstudiantesCurricularesSeeder::class,
+            DemoCurricularOperativoSeeder::class,
         ]);
 
         $adminUser = User::updateOrCreate(
@@ -35,6 +36,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Test User',
                 'password' => Hash::make('password'),
+                'activo' => true,
             ]
         );
 

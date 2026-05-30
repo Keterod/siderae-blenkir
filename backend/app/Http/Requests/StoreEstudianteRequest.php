@@ -2,11 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidatesEstudianteNivelGrado;
+use App\Services\Curricular\CatalogoNivelGrado;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreEstudianteRequest extends FormRequest
 {
+    use ValidatesEstudianteNivelGrado;
+
     public function authorize(): bool
     {
         return true;
@@ -22,7 +26,7 @@ class StoreEstudianteRequest extends FormRequest
             'sexo' => ['nullable', Rule::in(['M', 'F'])],
             'grado' => ['required', 'string', 'max:255'],
             'seccion' => ['required', 'string', 'max:255'],
-            'nivel' => ['required', Rule::in(['primaria', 'secundaria'])],
+            'nivel' => ['required', Rule::in(CatalogoNivelGrado::nivelesCurriculares())],
             'sede' => ['required', Rule::in(['chilca', 'auquimarca'])],
             'anio_escolar' => ['required', 'string', 'max:255'],
             'activo' => ['sometimes', 'boolean'],

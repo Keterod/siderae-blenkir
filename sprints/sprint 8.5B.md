@@ -91,7 +91,7 @@ Validaciones: ≥1 competencia, ≥1 capacidad; competencia ∈ área del curso;
 
 - **Docente:** solo `POST notas-semanales/bulk` en asignaciones propias; estudiantes filtrados por `seccion` asignada; grado traducido vía `equivalencias_grado`.
 - **Coordinador:** CRUD malla, temas, pesos, asignaciones; **GET** notas/resumen; **no POST** bulk notas.
-- **Inicial:** APIs de malla/temas permitidas; **rechazar** registro de notas si `nivel=inicial` o estudiante no mapeable.
+- **Inicial:** mismo flujo curricular que Primaria/Secundaria (malla, temas, notas C/L/T/CE, eval bim, Excel). Riesgo académico excluido en fase posterior.
 - **Temas:** 2do A y 2do B comparten el mismo tema; cada docente registra notas solo de su sección.
 - **Secundaria:** no ofrecer “cargar plantilla” con cursos inventados; solo malla manual a partir de CN o plantilla vacía.
 
@@ -137,7 +137,7 @@ Archivo auxiliar: `frontend/src/lib/academicoCurricular.js`.
 | T9 | Estudiante grado `2°` + malla `2do` + equivalencia → registro OK |
 | T10 | `procesar-riesgo` con CE → payload `promedio_notas` desde agregador |
 | T11 | `procesar-riesgo` sin CE → fallback legacy |
-| T12 | Registro notas nivel Inicial (si API expuesta) → 422 |
+| T12 | Registro notas nivel Inicial: formulario 200, bulk CE, eval bim y plantilla Excel (`NotasSemanalesInicialTest`) |
 
 ### Activity log
 
@@ -163,7 +163,7 @@ Registrar en acciones críticas: cargar plantilla, crear tema, asignar docente, 
 7. Docente no crea cursos, temas, competencias ni capacidades.
 8. Menú coordinador sin mezcla visual con legacy.
 9. Secundaria: CN consultable; sin cursos internos seed inventados.
-10. Inicial: malla configurable; sin registro de notas de estudiantes.
+10. Inicial: malla configurable y registro de notas semanales con el mismo flujo que Primaria/Secundaria (sin riesgo académico).
 11. Semanas demo 4/bimestre listables; estructura permite cambiar cantidad después.
 12. Riesgo operativo con CE o fallback legacy.
 13. Suite Feature T1–T12 en verde (o excepción documentada).

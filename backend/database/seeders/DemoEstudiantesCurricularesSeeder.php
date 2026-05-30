@@ -3,11 +3,17 @@
 namespace Database\Seeders;
 
 use App\Models\Estudiante;
+use App\Services\Curricular\CatalogoNivelGrado;
 use Illuminate\Database\Seeder;
 
 /**
  * Estudiantes demo para módulo curricular (sin notas, asistencias ni VSE).
- * Idempotente vía updateOrCreate por codigo (rango 80xxxxxx, distinto de DemoAcademicDataSeeder).
+ * Idempotente vía updateOrCreate por codigo.
+ *
+ * Rangos de código:
+ * - Inicial: 82000001–82000084 (84)
+ * - Primaria/Secundaria: 80000001–80308308 (308)
+ * - Total: 392
  */
 class DemoEstudiantesCurricularesSeeder extends Seeder
 {
@@ -15,9 +21,17 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
 
     public const ESTUDIANTES_POR_AULA = 7;
 
-    public const TOTAL_ESPERADO = 308;
+    public const TOTAL_INICIAL = 84;
 
-    private const CODIGO_INICIO = 80_000_001;
+    public const TOTAL_PRIMARIA_SECUNDARIA = 308;
+
+    public const TOTAL_ESPERADO = 392;
+
+    /** Códigos demo Inicial (3 grados × 2 sedes × 2 secciones × 7). */
+    private const CODIGO_INICIO_INICIAL = 82_000_001;
+
+    /** Códigos demo Primaria/Secundaria. */
+    private const CODIGO_INICIO_PRIMARIA_SECUNDARIA = 80_000_001;
 
     /** @var list<string> */
     private const SEDES = ['chilca', 'auquimarca'];
@@ -26,7 +40,7 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
     private const SECCIONES = ['A', 'B'];
 
     /** @var array<string, int> */
-    private const GRADOS_POR_NIVEL = [
+    private const GRADOS_NUMERICOS_POR_NIVEL = [
         'primaria' => 6,
         'secundaria' => 5,
     ];
@@ -47,10 +61,53 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
 
     public function run(): void
     {
-        $codigoNum = self::CODIGO_INICIO;
         $slotIndex = 0;
 
-        foreach (self::GRADOS_POR_NIVEL as $nivel => $maxGrado) {
+        $slotIndex = $this->sembrarInicial($slotIndex);
+        $this->sembrarPrimariaSecundaria($slotIndex);
+    }
+
+    private function sembrarInicial(int $slotIndex): int
+    {
+        $codigoNum = self::CODIGO_INICIO_INICIAL;
+
+        foreach (CatalogoNivelGrado::GRADOS_INICIAL as $indiceGrado => $grado) {
+            foreach (self::SEDES as $sede) {
+                foreach (self::SECCIONES as $seccion) {
+                    for ($i = 0; $i < self::ESTUDIANTES_POR_AULA; $i++) {
+                        $codigo = str_pad((string) $codigoNum, 8, '0', STR_PAD_LEFT);
+                        $codigoNum++;
+
+                        Estudiante::query()->updateOrCreate(
+                            ['codigo' => $codigo],
+                            [
+                                'nombres' => $this->nombresDemo($slotIndex),
+                                'apellidos' => $this->apellidosDemo($slotIndex),
+                                'fecha_nacimiento' => $this->fechaNacimientoInicial($indiceGrado, $slotIndex),
+                                'sexo' => $slotIndex % 2 === 0 ? 'F' : 'M',
+                                'grado' => $grado,
+                                'seccion' => $seccion,
+                                'nivel' => CatalogoNivelGrado::NIVEL_INICIAL,
+                                'sede' => $sede,
+                                'anio_escolar' => self::ANIO_ESCOLAR,
+                                'activo' => true,
+                            ]
+                        );
+
+                        $slotIndex++;
+                    }
+                }
+            }
+        }
+
+        return $slotIndex;
+    }
+
+    private function sembrarPrimariaSecundaria(int $slotIndex): void
+    {
+        $codigoNum = self::CODIGO_INICIO_PRIMARIA_SECUNDARIA;
+
+        foreach (self::GRADOS_NUMERICOS_POR_NIVEL as $nivel => $maxGrado) {
             for ($g = 1; $g <= $maxGrado; $g++) {
                 $grado = $g.'°';
 
@@ -102,6 +159,16 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
         $m = self::APELLIDOS[($slotIndex + 3) % count(self::APELLIDOS)];
 
         return $p.' '.$m;
+    }
+
+    private function fechaNacimientoInicial(int $indiceGrado, int $slotIndex): string
+    {
+        $aniosNacimiento = [2023, 2022, 2021];
+        $year = $aniosNacimiento[$indiceGrado] ?? 2022;
+        $month = 1 + ($slotIndex % 12);
+        $day = 1 + ($slotIndex % 28);
+
+        return sprintf('%04d-%02d-%02d', $year, $month, $day);
     }
 
     private function fechaNacimientoDemo(string $nivel, int $grado, int $slotIndex): string

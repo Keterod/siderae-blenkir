@@ -26,6 +26,16 @@ class DemoUsersSeeder extends Seeder
                 'role' => 'docente',
             ],
             [
+                'email' => 'docente2@siderae.test',
+                'name' => 'Docente Demo 2',
+                'role' => 'docente',
+            ],
+            [
+                'email' => 'docente3@siderae.test',
+                'name' => 'Docente Demo 3',
+                'role' => 'docente',
+            ],
+            [
                 'email' => 'coordinador@siderae.test',
                 'name' => 'Coordinador Académico Demo',
                 'role' => 'coordinador_academico',
@@ -48,6 +58,7 @@ class DemoUsersSeeder extends Seeder
                 [
                     'name' => $row['name'],
                     'password' => Hash::make('password'),
+                    'activo' => true,
                 ]
             );
 

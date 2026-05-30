@@ -3,21 +3,20 @@
 namespace Tests\Feature;
 
 use App\Models\Alerta;
-use App\Models\Asistencia;
 use App\Models\Estudiante;
 use App\Models\IndiceRiesgo;
 use App\Models\Intervencion;
-use App\Models\Nota;
 use App\Models\User;
-use App\Models\VariableSocioeconomica;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\RiesgoCurricularFixtures;
 use Tests\TestCase;
 
 class AlertaIntervencionTest extends TestCase
 {
     use RefreshDatabase;
+    use RiesgoCurricularFixtures;
 
     private function crearPermisosAlertas(): void
     {
@@ -60,36 +59,11 @@ class AlertaIntervencionTest extends TestCase
     {
         $user = $this->usuarioProcesarRiesgo();
 
-        $estudiante = Estudiante::factory()->create(['anio_escolar' => '2026']);
-
-        Nota::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'anio_escolar' => '2026',
-            'bimestre' => '1',
-            'curso' => 'Matemática',
-            'nota' => 10,
-            'nota_conducta' => null,
-        ]);
-
-        Asistencia::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'semana_inicio' => '2026-04-01',
-            'estado' => 'presente',
-            'anio_escolar' => '2026',
-            'bimestre' => '1',
-            'registrado_por' => $user->id,
-        ]);
-
-        VariableSocioeconomica::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'composicion_familiar' => 'nuclear',
-            'nivel_socioeconomico' => 'bajo',
-            'acceso_internet' => false,
-            'distancia_colegio_km' => 3,
-            'anio_escolar' => '2026',
-        ]);
-
-        return [$estudiante, $user];
+        return $this->estudianteCurricularConDatosMinimos(
+            ['anio_escolar' => '2026'],
+            10.0,
+            $user,
+        );
     }
 
     public function test_genera_alerta_automatica_al_procesar_riesgo_alto(): void

@@ -12,14 +12,18 @@ use App\Http\Controllers\Api\NotaBatchController;
 use App\Http\Controllers\Api\NotaController;
 use App\Http\Controllers\Api\ProcesarRiesgoController;
 use App\Http\Controllers\Api\Curricular\AsignacionDocenteController;
+use App\Http\Controllers\Api\Curricular\AnioEscolarController;
+use App\Http\Controllers\Api\Curricular\AsistenciaDiariaController;
 use App\Http\Controllers\Api\Curricular\CatalogoCurricularController;
 use App\Http\Controllers\Api\Curricular\ConfiguracionPesoEvaluacionController;
 use App\Http\Controllers\Api\Curricular\DocenteAulaCurricularController;
 use App\Http\Controllers\Api\Curricular\EvaluacionBimestralController;
 use App\Http\Controllers\Api\Curricular\MallaCurricularController;
 use App\Http\Controllers\Api\Curricular\NotaSemanalController;
+use App\Http\Controllers\Api\Curricular\PeriodoAcademicoAdminController;
 use App\Http\Controllers\Api\Curricular\ResumenAcademicoController;
 use App\Http\Controllers\Api\Curricular\TemaSemanalController;
+use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\VariableSocioeconomicaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +48,17 @@ Route::middleware(['auth:sanctum'])->get('/me', function (Request $request) {
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::middleware(['auth:sanctum', 'permission:gestionar_usuarios'])
+    ->group(function (): void {
+        Route::get('/usuarios', [UsuarioController::class, 'index']);
+        Route::get('/usuarios/{user}', [UsuarioController::class, 'show']);
+        Route::post('/usuarios', [UsuarioController::class, 'store']);
+        Route::patch('/usuarios/{user}', [UsuarioController::class, 'update']);
+        Route::patch('/usuarios/{user}/activar', [UsuarioController::class, 'activar']);
+        Route::patch('/usuarios/{user}/desactivar', [UsuarioController::class, 'desactivar']);
+        Route::post('/usuarios/{user}/restablecer-contrasena', [UsuarioController::class, 'restablecerContrasena']);
+    });
 
 Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])
     ->group(function (): void {
@@ -110,6 +125,25 @@ Route::middleware(['auth:sanctum', 'permission:registrar_intervencion'])
 Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): void {
     Route::get('/catalogo/niveles-grados', [CatalogoCurricularController::class, 'nivelesGrados']);
 
+    Route::middleware(['permission:ver_malla_curricular|registrar_notas_semanales|ver_notas_academicas|registrar_asistencia_curricular|ver_asistencia_curricular|gestionar_calendario_academico'])->group(function (): void {
+        Route::get('/anios-escolares/activo', [AnioEscolarController::class, 'activo']);
+    });
+
+    Route::middleware(['permission:gestionar_calendario_academico'])->group(function (): void {
+        Route::get('/anios-escolares', [AnioEscolarController::class, 'index']);
+        Route::post('/anios-escolares', [AnioEscolarController::class, 'store']);
+        Route::get('/anios-escolares/{anioEscolar}', [AnioEscolarController::class, 'show']);
+        Route::patch('/anios-escolares/{anioEscolar}', [AnioEscolarController::class, 'update']);
+        Route::post('/anios-escolares/{anioEscolar}/activar', [AnioEscolarController::class, 'activar']);
+        Route::post('/anios-escolares/{anioEscolar}/cerrar', [AnioEscolarController::class, 'cerrar']);
+        Route::post('/anios-escolares/{anioEscolar}/generar-bimestres', [AnioEscolarController::class, 'generarBimestres']);
+
+        Route::patch('/periodos-academicos/{periodoAcademico}', [PeriodoAcademicoAdminController::class, 'update']);
+        Route::post('/periodos-academicos/{periodoAcademico}/marcar-vigente', [PeriodoAcademicoAdminController::class, 'marcarVigente']);
+        Route::post('/periodos-academicos/{periodoAcademico}/cerrar', [PeriodoAcademicoAdminController::class, 'cerrar']);
+        Route::post('/periodos-academicos/{periodoAcademico}/generar-semanas', [PeriodoAcademicoAdminController::class, 'generarSemanas']);
+    });
+
     Route::middleware(['permission:ver_malla_curricular'])->group(function (): void {
         Route::get('/areas', [CatalogoCurricularController::class, 'areas']);
         Route::get('/areas/{area}/competencias', [CatalogoCurricularController::class, 'competenciasPorArea']);
@@ -138,6 +172,7 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
     });
 
     Route::middleware(['permission:configurar_pesos_evaluacion'])->group(function (): void {
+        Route::get('/pesos/resolver', [ConfiguracionPesoEvaluacionController::class, 'resolver']);
         Route::get('/pesos', [ConfiguracionPesoEvaluacionController::class, 'index']);
         Route::post('/pesos', [ConfiguracionPesoEvaluacionController::class, 'store']);
         Route::patch('/pesos/{configuracionPesoEvaluacion}', [ConfiguracionPesoEvaluacionController::class, 'update']);
@@ -189,5 +224,14 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
 
     Route::middleware(['permission:registrar_notas_semanales'])->group(function (): void {
         Route::post('/evaluacion-bimestral/bulk', [EvaluacionBimestralController::class, 'bulk']);
+    });
+
+    Route::middleware(['permission:registrar_asistencia_curricular|ver_asistencia_curricular'])->group(function (): void {
+        Route::get('/asistencias-diarias/formulario', [AsistenciaDiariaController::class, 'formulario']);
+        Route::get('/asistencias-diarias/resumen', [AsistenciaDiariaController::class, 'resumen']);
+    });
+
+    Route::middleware(['permission:registrar_asistencia_curricular'])->group(function (): void {
+        Route::post('/asistencias-diarias/bulk', [AsistenciaDiariaController::class, 'bulk']);
     });
 });

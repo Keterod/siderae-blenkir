@@ -106,6 +106,7 @@ class AsignacionDocenteController extends Controller
 
         $docente = User::query()->findOrFail($data['user_id']);
         $this->validator->validarUsuarioDocente($docente);
+        $this->validator->validarAnioEscolarActivo($data['anio_escolar']);
         $this->validator->validarMallaCursosEnMallaGrado(
             [$data['malla_curso_id']],
             $data['anio_escolar'],

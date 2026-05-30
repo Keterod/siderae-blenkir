@@ -65,7 +65,10 @@ class EstudianteTest extends TestCase
         $response = $this->actingAs($this->usuarioConPermiso())
             ->getJson('/api/estudiantes');
 
-        $response->assertOk()->assertJsonCount(1);
+        $response->assertOk()
+            ->assertJsonPath('total', 1)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.codigo', 'EST001');
     }
 
     public function test_listado_estudiantes_permite_busqueda_por_texto_q(): void
@@ -85,8 +88,42 @@ class EstudianteTest extends TestCase
             ->getJson('/api/estudiantes?q=quisp');
 
         $response->assertOk()
-            ->assertJsonCount(1)
-            ->assertJsonPath('0.codigo', 'EST-ABC-001');
+            ->assertJsonPath('total', 1)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.codigo', 'EST-ABC-001');
+    }
+
+    public function test_listado_estudiantes_soporta_paginacion(): void
+    {
+        for ($i = 1; $i <= 30; $i++) {
+            Estudiante::factory()->create(self::estudiantePayloadValido([
+                'codigo' => sprintf('PAG%03d', $i),
+            ]));
+        }
+
+        $response = $this->actingAs($this->usuarioConPermiso())
+            ->getJson('/api/estudiantes?page=2&per_page=10');
+
+        $response->assertOk()
+            ->assertJsonPath('current_page', 2)
+            ->assertJsonPath('per_page', 10)
+            ->assertJsonPath('total', 30)
+            ->assertJsonPath('last_page', 3)
+            ->assertJsonCount(10, 'data');
+    }
+
+    public function test_listado_estudiantes_all_devuelve_array_plano(): void
+    {
+        for ($i = 1; $i <= 3; $i++) {
+            Estudiante::factory()->create(self::estudiantePayloadValido([
+                'codigo' => sprintf('ALL%03d', $i),
+            ]));
+        }
+
+        $response = $this->actingAs($this->usuarioConPermiso())
+            ->getJson('/api/estudiantes?all=1');
+
+        $response->assertOk()->assertJsonCount(3);
     }
 
     public function test_usuario_sin_permiso_recibe_403_al_listar(): void
@@ -194,7 +231,9 @@ class EstudianteTest extends TestCase
 
         $response = $this->actingAs($user)->getJson('/api/estudiantes');
 
-        $response->assertOk()->assertJsonCount(1);
+        $response->assertOk()
+            ->assertJsonPath('total', 1)
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_usuario_sin_gestionar_estudiantes_recibe_403_al_crear(): void

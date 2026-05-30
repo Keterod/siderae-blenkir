@@ -8,6 +8,7 @@ import {
 } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { anioEscolarActual } from '../../lib/academico';
+import { resolverCalendarioActivoParaFiltros } from '../../lib/calendarioAcademico';
 import { etiquetaNivelCurricular } from '../../lib/academicoCurricular';
 import AlertMessage from '../ui/AlertMessage';
 import Card from '../ui/Card';
@@ -40,6 +41,18 @@ export default function MallaCurricularPanel() {
   const [editandoCursoId, setEditandoCursoId] = useState(null);
   const [editCursoCatalogoId, setEditCursoCatalogoId] = useState('');
   const [agregandoEnAreaId, setAgregandoEnAreaId] = useState(null);
+  const [sinAnioActivo, setSinAnioActivo] = useState(false);
+
+  useEffect(() => {
+    void resolverCalendarioActivoParaFiltros().then((cal) => {
+      if (cal?.anio) {
+        setFiltros((prev) => ({ ...prev, anio_escolar: cal.anio }));
+        setSinAnioActivo(false);
+      } else {
+        setSinAnioActivo(true);
+      }
+    });
+  }, []);
 
   const cambiarFiltros = useCallback((partial) => {
     setFiltros((prev) => ({ ...prev, ...partial }));
@@ -241,6 +254,11 @@ export default function MallaCurricularPanel() {
 
       {error ? <AlertMessage variant="error">{error}</AlertMessage> : null}
       {exito ? <AlertMessage variant="success">{exito}</AlertMessage> : null}
+      {sinAnioActivo ? (
+        <AlertMessage variant="info">
+          No hay año escolar activo configurado. Se usa el año calendario actual; configure el calendario académico si corresponde.
+        </AlertMessage>
+      ) : null}
 
       <MallaFiltros
         filtros={filtros}

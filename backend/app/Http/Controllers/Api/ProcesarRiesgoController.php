@@ -27,9 +27,16 @@ class ProcesarRiesgoController extends Controller
         $anio = $estudiante->anio_escolar;
 
         $resultado = $riesgoAcademicoService->procesarEstudiante($estudiante, $anio, $bimestre, $mlRiskService);
+        if (($resultado['status'] ?? '') === 'no_disponible') {
+            return response()->json([
+                'message' => $resultado['message'] ?? RiesgoAcademicoService::MENSAJE_INICIAL_NO_DISPONIBLE,
+                'errors' => $resultado['errors'] ?? [],
+            ], 422);
+        }
+
         if ($resultado['status'] === 'omitido') {
             return response()->json([
-                'message' => 'Faltan datos mínimos para calcular el riesgo.',
+                'message' => $resultado['message'] ?? 'Faltan datos mínimos para calcular el riesgo.',
                 'errors' => $resultado['errors'],
             ], 422);
         }

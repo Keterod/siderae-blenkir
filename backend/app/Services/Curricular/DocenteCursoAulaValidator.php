@@ -3,6 +3,7 @@
 namespace App\Services\Curricular;
 
 use App\Exceptions\Curricular\AsignacionDocenteDuplicadaException;
+use App\Models\Curricular\AnioEscolar;
 use App\Models\Curricular\DocenteCursoAula;
 use App\Models\Curricular\MallaCurricular;
 use App\Models\Curricular\MallaCurso;
@@ -39,6 +40,31 @@ class DocenteCursoAulaValidator
         if (! $usuario->hasRole('docente')) {
             throw ValidationException::withMessages([
                 'docente_id' => ['El usuario indicado no tiene rol docente.'],
+            ]);
+        }
+
+        if (! $usuario->activo) {
+            throw ValidationException::withMessages([
+                'docente_id' => ['El docente indicado no está activo.'],
+            ]);
+        }
+    }
+
+    public function validarAnioEscolarActivo(string $anioEscolar): void
+    {
+        $anioActivo = AnioEscolar::query()->where('es_activo', true)->first();
+
+        if ($anioActivo === null) {
+            throw ValidationException::withMessages([
+                'anio_escolar' => ['No hay año escolar activo configurado. Active un año en Periodos académicos.'],
+            ]);
+        }
+
+        if ($anioActivo->anio !== $anioEscolar) {
+            throw ValidationException::withMessages([
+                'anio_escolar' => [
+                    "La asignación solo puede realizarse en el año escolar activo ({$anioActivo->anio}).",
+                ],
             ]);
         }
     }

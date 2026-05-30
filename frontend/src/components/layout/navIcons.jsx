@@ -16,6 +16,14 @@ export function NavIcon({ name, className = iconClass }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
       );
+    case 'usuarios':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+          <circle cx="12" cy="8" r="4" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" />
+          <path strokeLinecap="round" d="M19 8v3M20.5 9.5H17.5" />
+        </svg>
+      );
     case 'curricular_malla':
       return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
@@ -45,11 +53,26 @@ export function NavIcon({ name, className = iconClass }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 8v6M22 11h-6" />
         </svg>
       );
+    case 'curricular_calendario':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <path strokeLinecap="round" d="M16 2v4M8 2v4M3 10h18" />
+          <path strokeLinecap="round" d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+        </svg>
+      );
     case 'curricular_notas':
       return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+        </svg>
+      );
+    case 'curricular_asistencia':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <path strokeLinecap="round" d="M16 2v4M8 2v4M3 10h18" />
         </svg>
       );
     case 'alertas':

@@ -8,6 +8,7 @@ import {
 } from '../../lib/api';
 import { anioEscolarActual } from '../../lib/academico';
 import { gradosCurricularesPorNivel, NIVELES_CURRICULARES } from '../../lib/academicoCurricular';
+import { resolverCalendarioActivoParaFiltros } from '../../lib/calendarioAcademico';
 import AlertMessage from '../ui/AlertMessage';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -16,6 +17,13 @@ import LoadingState from '../ui/LoadingState';
 import { FIELD } from './malla/utils';
 
 const SECCIONES = ['A', 'B', 'C'];
+const DEMO_ASIGNACION = {
+  nivel: 'primaria',
+  sede: 'chilca',
+  grado: '2do',
+  seccion: 'A',
+  docenteEmail: 'docente@siderae.test',
+};
 const SEDES = [
   { value: 'chilca', label: 'Chilca' },
   { value: 'auquimarca', label: 'Auquimarca' },
@@ -48,12 +56,15 @@ export default function AsignacionDocentePanel() {
     nivel: 'primaria',
     sede: 'chilca',
   });
+  const [cargandoAnioActivo, setCargandoAnioActivo] = useState(true);
+  const [sinAnioActivo, setSinAnioActivo] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const [docentes, setDocentes] = useState([]);
   const [docenteSeleccionado, setDocenteSeleccionado] = useState(null);
   const [grado, setGrado] = useState('2do');
   const [seccion, setSeccion] = useState('A');
   const [mallaCursos, setMallaCursos] = useState([]);
+  const [mallaProvisionada, setMallaProvisionada] = useState(true);
   const [asignacionesContexto, setAsignacionesContexto] = useState([]);
   const [resumenDocente, setResumenDocente] = useState([]);
   const [resumenGeneral, setResumenGeneral] = useState([]);
@@ -64,7 +75,49 @@ export default function AsignacionDocentePanel() {
   const [error, setError] = useState(null);
   const [exito, setExito] = useState(null);
 
+  const puedeOperar = !sinAnioActivo && !cargandoAnioActivo;
+
+  useEffect(() => {
+    let cancelado = false;
+
+    async function cargarAnioActivo() {
+      setCargandoAnioActivo(true);
+      try {
+        const calendario = await resolverCalendarioActivoParaFiltros();
+        if (cancelado) {
+          return;
+        }
+        if (calendario?.anio) {
+          setFiltros((prev) => ({ ...prev, anio_escolar: calendario.anio }));
+          setSinAnioActivo(false);
+        } else {
+          setSinAnioActivo(true);
+        }
+      } catch {
+        if (!cancelado) {
+          setSinAnioActivo(true);
+        }
+      } finally {
+        if (!cancelado) {
+          setCargandoAnioActivo(false);
+        }
+      }
+    }
+
+    void cargarAnioActivo();
+
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
   const cargarDocentes = useCallback(async () => {
+    if (!puedeOperar) {
+      setDocentes([]);
+      setCargandoDocentes(false);
+      return;
+    }
+
     setCargandoDocentes(true);
     setError(null);
     try {
@@ -76,15 +129,15 @@ export default function AsignacionDocentePanel() {
       });
       setDocentes(Array.isArray(data) ? data : []);
     } catch {
-      setError('No se pudieron cargar los docentes.');
+      setError('No se pudieron cargar los docentes activos.');
       setDocentes([]);
     } finally {
       setCargandoDocentes(false);
     }
-  }, [busqueda, filtros.anio_escolar, filtros.nivel, filtros.sede]);
+  }, [busqueda, filtros.anio_escolar, filtros.nivel, filtros.sede, puedeOperar]);
 
   const cargarResumenDocente = useCallback(async (docenteId) => {
-    if (!docenteId) {
+    if (!docenteId || !puedeOperar) {
       setResumenDocente([]);
       return;
     }
@@ -98,11 +151,12 @@ export default function AsignacionDocentePanel() {
     } catch {
       setResumenDocente([]);
     }
-  }, [filtros.anio_escolar, filtros.nivel, filtros.sede]);
+  }, [filtros.anio_escolar, filtros.nivel, filtros.sede, puedeOperar]);
 
   const cargarPanelDocente = useCallback(async () => {
-    if (!docenteSeleccionado || !grado) {
+    if (!docenteSeleccionado || !grado || !puedeOperar) {
       setMallaCursos([]);
+      setMallaProvisionada(true);
       setAsignacionesContexto([]);
       setMarcados(new Set());
       return;
@@ -128,6 +182,7 @@ export default function AsignacionDocentePanel() {
       ]);
 
       const activos = (malla?.malla_cursos ?? []).filter((c) => c.activo);
+      setMallaProvisionada(Boolean(malla?.id));
       setMallaCursos(activos);
       setAsignacionesContexto(Array.isArray(asignaciones) ? asignaciones : []);
 
@@ -140,17 +195,18 @@ export default function AsignacionDocentePanel() {
       }
       setMarcados(iniciales);
     } catch {
-      setError('No se pudo cargar la malla o las asignaciones del grado.');
+      setError('No se pudo cargar la malla curricular o las asignaciones del grado.');
+      setMallaProvisionada(false);
       setMallaCursos([]);
       setAsignacionesContexto([]);
       setMarcados(new Set());
     } finally {
       setCargandoPanel(false);
     }
-  }, [docenteSeleccionado, filtros.anio_escolar, filtros.nivel, filtros.sede, grado, seccion]);
+  }, [docenteSeleccionado, filtros.anio_escolar, filtros.nivel, filtros.sede, grado, seccion, puedeOperar]);
 
   const cargarResumenGeneral = useCallback(async () => {
-    if (!grado || !seccion) {
+    if (!grado || !seccion || !puedeOperar) {
       setResumenGeneral([]);
       return;
     }
@@ -167,14 +223,17 @@ export default function AsignacionDocentePanel() {
     } catch {
       setResumenGeneral([]);
     }
-  }, [filtros.anio_escolar, filtros.nivel, filtros.sede, grado, seccion]);
+  }, [filtros.anio_escolar, filtros.nivel, filtros.sede, grado, seccion, puedeOperar]);
 
   useEffect(() => {
+    if (cargandoAnioActivo) {
+      return;
+    }
     const timer = setTimeout(() => {
       void cargarDocentes();
     }, busqueda.trim() ? 300 : 0);
     return () => clearTimeout(timer);
-  }, [cargarDocentes, busqueda]);
+  }, [cargarDocentes, busqueda, cargandoAnioActivo]);
 
   useEffect(() => {
     void cargarPanelDocente();
@@ -195,6 +254,16 @@ export default function AsignacionDocentePanel() {
     return mapa;
   }, [asignacionesContexto]);
 
+  const cursosSeleccionables = useMemo(() => {
+    return mallaCursos.filter((curso) => {
+      const asignacion = asignacionPorCurso.get(curso.id);
+      return !asignacion || asignacion.user_id === docenteSeleccionado?.id;
+    });
+  }, [mallaCursos, asignacionPorCurso, docenteSeleccionado?.id]);
+
+  const totalSeleccionados = marcados.size;
+  const totalSeleccionables = cursosSeleccionables.length;
+
   function toggleCurso(cursoId) {
     const asignacion = asignacionPorCurso.get(cursoId);
     if (asignacion && asignacion.user_id !== docenteSeleccionado?.id) {
@@ -208,8 +277,15 @@ export default function AsignacionDocentePanel() {
     });
   }
 
-  async function guardar() {
-    if (!docenteSeleccionado) return;
+  function marcarTodos() {
+    setMarcados(new Set(cursosSeleccionables.map((c) => c.id)));
+  }
+
+  function desmarcarTodos() {
+    setMarcados(new Set());
+  }
+
+  async function ejecutarGuardado() {
     setGuardando(true);
     setError(null);
     setExito(null);
@@ -223,12 +299,51 @@ export default function AsignacionDocentePanel() {
         sede: filtros.sede,
         malla_curso_ids: [...marcados],
       });
-      setExito('Asignaciones guardadas correctamente.');
-      await Promise.all([cargarPanelDocente(), cargarResumenDocente(docenteSeleccionado.id), cargarResumenGeneral(), cargarDocentes()]);
+      setExito('Asignaciones guardadas correctamente para el año escolar activo.');
+      await Promise.all([
+        cargarPanelDocente(),
+        cargarResumenDocente(docenteSeleccionado.id),
+        cargarResumenGeneral(),
+        cargarDocentes(),
+      ]);
     } catch (err) {
       setError(obtenerMensajeError(err));
     } finally {
       setGuardando(false);
+    }
+  }
+
+  async function guardar() {
+    if (!docenteSeleccionado || !puedeOperar) {
+      return;
+    }
+
+    if (marcados.size === 0) {
+      const confirmar = window.confirm(
+        'Esto desactivará las asignaciones activas de este docente en esta aula. ¿Continuar?',
+      );
+      if (!confirmar) {
+        return;
+      }
+    }
+
+    await ejecutarGuardado();
+  }
+
+  function aplicarDemoAsignaciones() {
+    if (!puedeOperar) {
+      return;
+    }
+    setFiltros((prev) => ({
+      ...prev,
+      nivel: DEMO_ASIGNACION.nivel,
+      sede: DEMO_ASIGNACION.sede,
+    }));
+    setGrado(DEMO_ASIGNACION.grado);
+    setSeccion(DEMO_ASIGNACION.seccion);
+    const docenteDemo = docentes.find((d) => d.email === DEMO_ASIGNACION.docenteEmail);
+    if (docenteDemo) {
+      setDocenteSeleccionado(docenteDemo);
     }
   }
 
@@ -237,26 +352,32 @@ export default function AsignacionDocentePanel() {
       <Card className="p-6">
         <h2 className="text-lg font-semibold">Asignación docente</h2>
         <p className="mt-1 text-sm text-muted">
-          Seleccione un docente y marque los cursos que dictará por grado y sección. Un curso activo solo puede tener un docente por sección.
+          Asigne cursos de la malla curricular por grado y sección. Usa el año escolar activo; no aplica bimestre ni materias legacy.
         </p>
       </Card>
+
+      {sinAnioActivo && !cargandoAnioActivo ? (
+        <AlertMessage variant="warning">
+          No hay año escolar activo configurado. Active un año en Periodos académicos antes de asignar docentes.
+        </AlertMessage>
+      ) : null}
 
       <Card className="p-5 sm:p-6">
         <h3 className="text-sm font-semibold text-[var(--text)]">Filtros generales</h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <label className="block text-sm font-medium text-[var(--text)]">
-            Año escolar
-            <input
-              className={FIELD}
-              value={filtros.anio_escolar}
-              onChange={(e) => setFiltros((prev) => ({ ...prev, anio_escolar: e.target.value }))}
-            />
-          </label>
+          <div className="block text-sm font-medium text-[var(--text)]">
+            <span>Año escolar activo</span>
+            <p className={`${FIELD} mt-1 flex items-center bg-[var(--surface-muted)] text-[var(--text)]`}>
+              {cargandoAnioActivo ? 'Cargando…' : (filtros.anio_escolar || '—')}
+            </p>
+            <p className="mt-1 text-xs text-muted">Definido en Periodos académicos (año con estado activo).</p>
+          </div>
           <label className="block text-sm font-medium text-[var(--text)]">
             Nivel
             <select
               className={FIELD}
               value={filtros.nivel}
+              disabled={!puedeOperar}
               onChange={(e) => {
                 const nivel = e.target.value;
                 const grados = gradosCurricularesPorNivel(nivel);
@@ -274,6 +395,7 @@ export default function AsignacionDocentePanel() {
             <select
               className={FIELD}
               value={filtros.sede}
+              disabled={!puedeOperar}
               onChange={(e) => setFiltros((prev) => ({ ...prev, sede: e.target.value }))}
             >
               {SEDES.map((s) => (
@@ -282,6 +404,16 @@ export default function AsignacionDocentePanel() {
             </select>
           </label>
         </div>
+        {puedeOperar ? (
+          <div className="mt-4">
+            <Button type="button" variant="outline" size="sm" onClick={aplicarDemoAsignaciones}>
+              Ver asignaciones demo
+            </Button>
+            <p className="mt-2 text-xs text-muted">
+              Preset: {filtros.anio_escolar} · Primaria {DEMO_ASIGNACION.grado} {DEMO_ASIGNACION.seccion} · Chilca
+            </p>
+          </div>
+        ) : null}
       </Card>
 
       {error ? <AlertMessage variant="error">{error}</AlertMessage> : null}
@@ -289,17 +421,21 @@ export default function AsignacionDocentePanel() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(280px,360px)_1fr]">
         <Card className="flex flex-col p-5 sm:p-6">
-          <h3 className="text-sm font-semibold text-[var(--text)]">Docentes</h3>
+          <h3 className="text-sm font-semibold text-[var(--text)]">Docentes activos</h3>
           <input
             className={`${FIELD} mt-3`}
             placeholder="Buscar docente por nombre o correo"
             value={busqueda}
+            disabled={!puedeOperar}
             onChange={(e) => setBusqueda(e.target.value)}
           />
           <div className="mt-4 flex-1 overflow-y-auto">
             {cargandoDocentes ? <LoadingState /> : null}
-            {!cargandoDocentes && docentes.length === 0 ? (
-              <EmptyState title="Sin docentes" description="No hay usuarios con rol docente para los filtros actuales." />
+            {!cargandoDocentes && puedeOperar && docentes.length === 0 ? (
+              <EmptyState
+                title="Sin docentes activos"
+                description="No hay usuarios con rol docente y cuenta activa para los filtros actuales. Revise el módulo Usuarios."
+              />
             ) : null}
             <ul className="space-y-2">
               {docentes.map((docente) => {
@@ -308,6 +444,7 @@ export default function AsignacionDocentePanel() {
                   <li key={docente.id}>
                     <button
                       type="button"
+                      disabled={!puedeOperar}
                       onClick={() => setDocenteSeleccionado(docente)}
                       className={`w-full rounded-lg border px-3 py-3 text-left transition ${
                         seleccionado
@@ -333,7 +470,7 @@ export default function AsignacionDocentePanel() {
             <Card className="p-6">
               <EmptyState
                 title="Seleccione un docente"
-                description="Elija un docente de la lista para asignar cursos por grado y sección."
+                description="Elija un docente activo de la lista para asignar cursos por grado y sección."
               />
             </Card>
           ) : (
@@ -347,7 +484,12 @@ export default function AsignacionDocentePanel() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <label className="block text-sm font-medium text-[var(--text)]">
                   Grado
-                  <select className={FIELD} value={grado} onChange={(e) => setGrado(e.target.value)}>
+                  <select
+                    className={FIELD}
+                    value={grado}
+                    disabled={!puedeOperar}
+                    onChange={(e) => setGrado(e.target.value)}
+                  >
                     {gradosCurricularesPorNivel(filtros.nivel).map((g) => (
                       <option key={g} value={g}>{g}</option>
                     ))}
@@ -355,7 +497,12 @@ export default function AsignacionDocentePanel() {
                 </label>
                 <label className="block text-sm font-medium text-[var(--text)]">
                   Sección
-                  <select className={FIELD} value={seccion} onChange={(e) => setSeccion(e.target.value)}>
+                  <select
+                    className={FIELD}
+                    value={seccion}
+                    disabled={!puedeOperar}
+                    onChange={(e) => setSeccion(e.target.value)}
+                  >
                     {SECCIONES.map((s) => (
                       <option key={s} value={s}>{s}</option>
                     ))}
@@ -365,12 +512,48 @@ export default function AsignacionDocentePanel() {
 
               {cargandoPanel ? <LoadingState className="mt-6" /> : null}
 
-              {!cargandoPanel && cursosPorArea.length === 0 ? (
-                <EmptyState className="mt-6" title="Sin cursos activos" description="No hay cursos activos en la malla para este grado." />
+              {!cargandoPanel && !mallaProvisionada ? (
+                <AlertMessage variant="warning" className="mt-6">
+                  No hay malla curricular para {filtros.nivel} {grado} en el año {filtros.anio_escolar}.
+                  Configure la malla curricular antes de asignar docentes.
+                </AlertMessage>
+              ) : null}
+
+              {!cargandoPanel && mallaProvisionada && cursosPorArea.length === 0 ? (
+                <EmptyState
+                  className="mt-6"
+                  title="Sin cursos activos en la malla"
+                  description="La malla existe pero no tiene cursos activos para este grado. Active cursos en Malla curricular."
+                />
               ) : null}
 
               {!cargandoPanel && cursosPorArea.length > 0 ? (
                 <div className="mt-6 space-y-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm text-muted">
+                      {totalSeleccionados} de {totalSeleccionables} curso(s) seleccionado(s)
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!puedeOperar || totalSeleccionables === 0}
+                        onClick={marcarTodos}
+                      >
+                        Marcar todos
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!puedeOperar || totalSeleccionados === 0}
+                        onClick={desmarcarTodos}
+                      >
+                        Desmarcar todos
+                      </Button>
+                    </div>
+                  </div>
                   {cursosPorArea.map(([areaNombre, cursos]) => (
                     <section key={areaNombre}>
                       <h4 className="text-sm font-semibold text-[var(--text)]">{areaNombre}</h4>
@@ -388,14 +571,14 @@ export default function AsignacionDocentePanel() {
                                 <input
                                   type="checkbox"
                                   checked={marcado}
-                                  disabled={Boolean(otroDocente)}
+                                  disabled={Boolean(otroDocente) || !puedeOperar}
                                   onChange={() => toggleCurso(curso.id)}
                                 />
                                 <span>{nombreCurso}</span>
                               </label>
                               {otroDocente ? (
-                                <span className="text-xs text-muted sm:pl-6">
-                                  Asignado a: {asignacion.user?.name ?? 'otro docente'}
+                                <span className="text-xs text-amber-700 dark:text-amber-300 sm:pl-6">
+                                  Bloqueado: asignado a {asignacion.user?.name ?? 'otro docente'}
                                 </span>
                               ) : null}
                             </li>
@@ -408,7 +591,12 @@ export default function AsignacionDocentePanel() {
               ) : null}
 
               <div className="mt-6">
-                <Button type="button" variant="primary" disabled={guardando || cargandoPanel} onClick={() => void guardar()}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={guardando || cargandoPanel || !puedeOperar}
+                  onClick={() => void guardar()}
+                >
                   {guardando ? 'Guardando…' : 'Guardar asignación'}
                 </Button>
               </div>
@@ -419,15 +607,25 @@ export default function AsignacionDocentePanel() {
             <Card className="p-5 sm:p-6">
               <h3 className="text-sm font-semibold text-[var(--text)]">Asignaciones actuales — {docenteSeleccionado.name}</h3>
               {resumenDocente.length === 0 ? (
-                <p className="mt-3 text-sm text-muted">Este docente no tiene cursos asignados en el contexto seleccionado.</p>
+                <p className="mt-3 text-sm text-muted">
+                  Este docente no tiene cursos asignados en el año {filtros.anio_escolar} para la sede y nivel seleccionados.
+                </p>
               ) : (
                 <ul className="mt-3 space-y-4">
                   {resumenDocente.map((grupo) => (
-                    <li key={`${grupo.grado}-${grupo.seccion}`}>
-                      <p className="font-medium text-[var(--text)]">{grupo.grado} {grupo.seccion}</p>
-                      <ul className="mt-1 list-disc pl-5 text-sm text-muted">
+                    <li key={`${grupo.grado}-${grupo.seccion}`} className="rounded-lg border border-[var(--border)]/70 px-4 py-3">
+                      <p className="font-medium text-[var(--text)]">
+                        {grupo.grado} {grupo.seccion}
+                        <span className="ml-2 text-xs font-normal text-muted">
+                          · {(grupo.cursos ?? []).length} curso(s)
+                        </span>
+                      </p>
+                      <ul className="mt-2 space-y-1 text-sm text-muted">
                         {(grupo.cursos ?? []).map((c) => (
-                          <li key={c.malla_curso_id}>{c.area} / {c.curso}</li>
+                          <li key={c.malla_curso_id}>
+                            <span className="text-[var(--text)]">{c.curso}</span>
+                            <span className="text-muted"> — {c.area}</span>
+                          </li>
                         ))}
                       </ul>
                     </li>
@@ -445,10 +643,10 @@ export default function AsignacionDocentePanel() {
               ) : (
                 <ul className="mt-3 space-y-2 text-sm">
                   {resumenGeneral.map((a) => (
-                    <li key={a.id} className="text-muted">
-                      {a.malla_curso?.area?.nombre} / {a.malla_curso?.curso_catalogo?.nombre}
-                      {' — '}
-                      <span className="text-[var(--text)]">{a.user?.name}</span>
+                    <li key={a.id} className="rounded-md border border-[var(--border)]/60 px-3 py-2">
+                      <span className="font-medium text-[var(--text)]">{a.malla_curso?.curso_catalogo?.nombre ?? 'Curso'}</span>
+                      <span className="text-muted"> · {a.malla_curso?.area?.nombre ?? 'Sin área'}</span>
+                      <span className="block text-xs text-muted mt-0.5">Docente: {a.user?.name ?? '—'}</span>
                     </li>
                   ))}
                 </ul>

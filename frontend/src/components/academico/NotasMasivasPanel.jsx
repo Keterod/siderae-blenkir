@@ -76,6 +76,7 @@ export default function NotasMasivasPanel() {
         grado: ctx.grado.trim(),
         seccion: ctx.seccion.trim(),
         anio_escolar: ctx.anio_escolar.trim(),
+        all: 1,
       };
       const [alumnos, mats] = await Promise.all([
         getEstudiantes(params),

@@ -13,11 +13,13 @@ use App\Models\VariableSocioeconomica;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\RiesgoCurricularFixtures;
 use Tests\TestCase;
 
 class ActivityLogTest extends TestCase
 {
     use RefreshDatabase;
+    use RiesgoCurricularFixtures;
 
     private function seedPermissions(array $names): void
     {
@@ -172,30 +174,9 @@ class ActivityLogTest extends TestCase
         $user = $this->userWith(['procesar_riesgo']);
         $estudiante = Estudiante::factory()->create(['anio_escolar' => '2026']);
 
-        Nota::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'anio_escolar' => '2026',
-            'bimestre' => '1',
-            'curso' => 'Matemática',
-            'nota' => 12,
-            'nota_conducta' => null,
-        ]);
-        Asistencia::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'semana_inicio' => '2026-04-01',
-            'estado' => 'presente',
-            'anio_escolar' => '2026',
-            'bimestre' => '1',
-            'registrado_por' => $user->id,
-        ]);
-        VariableSocioeconomica::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'composicion_familiar' => 'nuclear',
-            'nivel_socioeconomico' => 'medio',
-            'acceso_internet' => true,
-            'distancia_colegio_km' => 2,
-            'anio_escolar' => '2026',
-        ]);
+        $this->crearEvalBimResultadoRiesgo($estudiante, 12.0);
+        $this->crearAsistenciasDiariasRiesgo($estudiante, $user);
+        $this->crearVariableSocioeconomicaRiesgo($estudiante);
 
         config(['services.ml.url' => 'http://ml-test.local']);
         Http::fake(fn () => Http::response(['indice_riesgo' => 0.5], 200));
@@ -221,29 +202,12 @@ class ActivityLogTest extends TestCase
         $user = $this->userWith(['procesar_riesgo']);
         $estudiante = Estudiante::factory()->create(['anio_escolar' => '2026']);
 
-        Nota::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'anio_escolar' => '2026',
-            'bimestre' => '1',
-            'curso' => 'Matemática',
-            'nota' => 8,
-            'nota_conducta' => null,
-        ]);
-        Asistencia::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'semana_inicio' => '2026-04-01',
-            'estado' => 'falta',
-            'anio_escolar' => '2026',
-            'bimestre' => '1',
-            'registrado_por' => $user->id,
-        ]);
-        VariableSocioeconomica::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'composicion_familiar' => 'nuclear',
+        $this->crearEvalBimResultadoRiesgo($estudiante, 8.0);
+        $this->crearAsistenciasDiariasRiesgo($estudiante, $user);
+        $this->crearVariableSocioeconomicaRiesgo($estudiante, [
             'nivel_socioeconomico' => 'bajo',
             'acceso_internet' => false,
             'distancia_colegio_km' => 5,
-            'anio_escolar' => '2026',
         ]);
 
         config(['services.ml.url' => 'http://ml-test.local']);

@@ -96,7 +96,7 @@ Los **cursos** dentro de un área son decisión del colegio, no del CN. Ejemplos
 
 **Secundaria:** cursos institucionales según boleta Blenkir (§3.3). Seeders materializan la plantilla por grado; **no** agregar cursos fuera de esa lista.
 
-**Inicial:** cursos institucionales según boleta Blenkir (§3.3). Malla configurable; **sin** registro de notas/riesgo de estudiantes Inicial en esta fase (legacy no soporta `nivel=inicial`).
+**Inicial:** cursos institucionales según boleta Blenkir (§3.3). Malla configurable y registro de notas semanales (C/L/T/CE, eval bim, Excel) con `estudiantes.nivel=inicial`. Riesgo académico excluido hasta actualizar ML.
 
 ---
 
@@ -106,7 +106,7 @@ Los **cursos** dentro de un área son decisión del colegio, no del CN. Ejemplos
 
 | Nivel | Grados (catálogo curricular) | En Sprint 8.5 |
 |-------|------------------------------|---------------|
-| `inicial` | `3 años`, `4 años`, `5 años` | Solo **configuración** curricular (malla, CN, temas). **Sin** registro de notas de estudiantes. |
+| `inicial` | `3 años`, `4 años`, `5 años` | Mismo flujo curricular que P/S (malla, CN, temas, notas, eval bim). **Sin** riesgo académico hasta fase ML. |
 | `primaria` | `1ro` … `6to` | Malla, temas, notas semanales (con estudiantes legacy). |
 | `secundaria` | `1ro` … `5to` | Malla y CN; notas si hay estudiantes legacy secundaria. |
 
@@ -116,7 +116,7 @@ Los **cursos** dentro de un área son decisión del colegio, no del CN. Ejemplos
 
 **Decisión cerrada:** en Sprint 8.5 **no** se migra ese enum. El valor `inicial` existe **solo** en tablas curriculares nuevas.
 
-**Consecuencia:** no registrar notas semanales de alumnos Inicial hasta que el módulo de estudiantes soporte `nivel = inicial` (backlog explícito).
+**Estado (Fase 3):** con `estudiantes.nivel=inicial` y equivalencias de grado, el registro de notas semanales usa el mismo flujo que Primaria/Secundaria.
 
 ### 4.3 Tabla obligatoria `equivalencias_grado`
 
@@ -166,7 +166,7 @@ API `GET /api/curricular/mallas/grado` materializa la malla del año escolar sin
 
 ---
 
-## 7. Nivel Inicial — diseño curricular completo; flujo operativo pendiente
+## 7. Nivel Inicial — flujo curricular operativo (notas); riesgo pendiente
 
 **Sí existe en el diseño curricular** (tablas nuevas):
 
@@ -176,11 +176,11 @@ API `GET /api/curricular/mallas/grado` materializa la malla del año escolar sin
 
 **No forzar en esta fase:**
 
-- Registro de notas para estudiantes de Inicial.
-- Procesamiento de riesgo para Inicial.
+- ~~Registro de notas para estudiantes de Inicial.~~ **Implementado** (notas semanales + eval bim + Excel).
+- Procesamiento de riesgo para Inicial (pendiente ML / Fase 5).
 - Modificación de `estudiantes.nivel` (legacy sigue `primaria|secundaria` únicamente).
 
-Inicial queda **preparado a nivel curricular**; el flujo operativo completo estudiantes/notas/riesgo para Inicial queda en **backlog** hasta extender el módulo de estudiantes.
+Inicial opera el flujo curricular completo (estudiantes, notas, eval bim, Excel). La exclusión de **riesgo académico** permanece hasta actualizar el modelo ML.
 
 ---
 
@@ -478,7 +478,7 @@ Coherencia con `docs/ui/mockups/guia-ui-siderae.md`. Sin botones muertos.
 - No migrar enum `estudiantes`/`materias` en 8.5.  
 - No estándares/desempeños CN en seed.  
 - No cursos Secundaria inventados.  
-- No notas Inicial.  
+- Notas Inicial: mismo flujo que P/S (sin riesgo académico).  
 - No coordinador registrando notas semanales.  
 
 ---
@@ -492,7 +492,7 @@ Coherencia con `docs/ui/mockups/guia-ui-siderae.md`. Sin botones muertos.
 
 ### 8.5B — Feature (T1–T12)
 
-Ver tabla en `sprint 8.5B.md` (403, plantilla 2do, unicidad tema, docente sin asignación, CE, coordinador sin POST notas, riesgo CE/legacy, Inicial 422).
+Ver tabla en `sprint 8.5B.md` (403, plantilla 2do, unicidad tema, docente sin asignación, CE, coordinador sin POST notas, riesgo CE/legacy, Inicial notas en `NotasSemanalesInicialTest`).
 
 ### Sprint 9
 
@@ -505,7 +505,7 @@ Regresión integral + smoke curricular en Cypress si aplica.
 1. Al elegir año + nivel + grado, la malla predeterminada se obtiene o prepara automáticamente (§6) con cursos institucionales DOCX, sin temas.  
 2. Primaria, Inicial y Secundaria: plantilla por grado con catálogo institucional (§3.2–3.3).  
 3. Secundaria: solo cursos de boleta institucional; no inventar adicionales.  
-4. Inicial: configuración sin registro de notas de estudiantes.  
+4. Inicial: configuración y registro de notas de estudiantes (sin riesgo académico).  
 5. `equivalencias_grado` poblada y usada en registro docente.  
 6. Tema único por curso + bimestre + semana; 2do A/B comparten tema.  
 7. Docente solo registra en asignaciones y su sección.  

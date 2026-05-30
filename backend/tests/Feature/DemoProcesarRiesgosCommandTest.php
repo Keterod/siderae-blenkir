@@ -2,19 +2,18 @@
 
 namespace Tests\Feature;
 
-use App\Models\Asistencia;
 use App\Models\Estudiante;
 use App\Models\IndiceRiesgo;
-use App\Models\Nota;
 use App\Models\User;
-use App\Models\VariableSocioeconomica;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\RiesgoCurricularFixtures;
 use Tests\TestCase;
 
 class DemoProcesarRiesgosCommandTest extends TestCase
 {
     use RefreshDatabase;
+    use RiesgoCurricularFixtures;
 
     /**
      * @return array{0: Estudiante, 1: User}
@@ -33,33 +32,9 @@ class DemoProcesarRiesgosCommandTest extends TestCase
             'activo' => true,
         ], $override));
 
-        Nota::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'anio_escolar' => $estudiante->anio_escolar,
-            'bimestre' => '1',
-            'curso' => 'Matemática',
-            'nota' => 12.5,
-            'nota_conducta' => null,
-            'materia_id' => null,
-        ]);
-
-        Asistencia::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'semana_inicio' => '2026-04-01',
-            'estado' => 'presente',
-            'anio_escolar' => $estudiante->anio_escolar,
-            'bimestre' => '1',
-            'registrado_por' => $user->id,
-        ]);
-
-        VariableSocioeconomica::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'composicion_familiar' => 'nuclear',
-            'nivel_socioeconomico' => 'medio',
-            'acceso_internet' => true,
-            'distancia_colegio_km' => 2.5,
-            'anio_escolar' => $estudiante->anio_escolar,
-        ]);
+        $this->crearEvalBimResultadoRiesgo($estudiante, 12.5);
+        $this->crearAsistenciasDiariasRiesgo($estudiante, $user);
+        $this->crearVariableSocioeconomicaRiesgo($estudiante);
 
         return [$estudiante, $user];
     }

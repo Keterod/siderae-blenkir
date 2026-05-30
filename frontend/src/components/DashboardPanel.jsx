@@ -176,7 +176,12 @@ export default function DashboardPanel() {
     ultimos_riesgos,
     filtros_aplicados: filtrosDelBackend,
     opciones_filtros: opciones,
+    indicadores_curriculares: indicadoresCurriculares,
   } = datos;
+
+  const riesgoSinDatos =
+    (ultimos_riesgos?.length ?? 0) === 0
+    && (riesgos_por_nivel?.alto ?? 0) + (riesgos_por_nivel?.medio ?? 0) + (riesgos_por_nivel?.bajo ?? 0) === 0;
 
   const sinResultadosFiltros =
     total_estudiantes === 0 &&
@@ -205,7 +210,8 @@ export default function DashboardPanel() {
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">Dashboard</h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted">
-            Indicadores de riesgo y alertas. Puede acotarlos por sede, nivel, grado, sección y clasificación según el último
+            Indicadores históricos de riesgo y alertas (el cálculo de riesgo está pendiente de actualización al flujo
+            curricular). Puede acotarlos por sede, nivel, grado, sección y clasificación según el último
             índice calculado por estudiante.
           </p>
         </div>
@@ -361,6 +367,35 @@ export default function DashboardPanel() {
           Aún no hay datos registrados. Los indicadores aparecerán cuando existan estudiantes e índices procesados.
         </AlertMessage>
       ) : null}
+
+      {riesgoSinDatos ? (
+        <AlertMessage variant="info">
+          Riesgo académico pendiente de actualización.
+        </AlertMessage>
+      ) : null}
+
+      <Card className="overflow-hidden !border-[var(--border)] !p-0 shadow-card">
+        <div className="border-b border-[var(--border)] bg-[var(--background)]/80 px-4 py-4 sm:px-5">
+          <h3 className="text-base font-semibold text-[var(--text)]">Indicadores curriculares</h3>
+          <p className="mt-1 text-sm text-muted">
+            Conteos operativos del módulo curricular (asistencia, evaluación, malla y asignaciones).
+          </p>
+        </div>
+        <div className="grid grid-cols-1 divide-y divide-[var(--border)] sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-5 lg:divide-x">
+          {[
+            { label: 'Estudiantes activos', valor: indicadoresCurriculares?.total_estudiantes_activos ?? 0 },
+            { label: 'Registros asistencia diaria', valor: indicadoresCurriculares?.registros_asistencia_diaria ?? 0 },
+            { label: 'Resultados bimestrales', valor: indicadoresCurriculares?.resultados_bimestrales ?? 0 },
+            { label: 'Cursos malla activos', valor: indicadoresCurriculares?.cursos_malla_activos ?? 0 },
+            { label: 'Asignaciones docente', valor: indicadoresCurriculares?.asignaciones_docente_activas ?? 0 },
+          ].map(({ label, valor }) => (
+            <div key={label} className="p-4 sm:p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted">{label}</p>
+              <p className="mt-2 text-2xl font-semibold tabular-nums text-[var(--text)]">{valor}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       {sinResultadosFiltros ? (
         <AlertMessage variant="warning">

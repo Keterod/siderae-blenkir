@@ -8,15 +8,18 @@ use App\Models\IndiceRiesgo;
 use App\Models\Nota;
 use App\Models\User;
 use App\Models\VariableSocioeconomica;
+use App\Services\RiesgoAcademicoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\RiesgoCurricularFixtures;
 use Tests\TestCase;
 
 class RiesgoTest extends TestCase
 {
     use RefreshDatabase;
+    use RiesgoCurricularFixtures;
 
     private function permisoProcesarRiesgo(): void
     {
@@ -48,38 +51,8 @@ class RiesgoTest extends TestCase
     private function estudianteConDatosMinimos(): array
     {
         $user = $this->usuarioConPermiso();
-        $estudiante = Estudiante::factory()->create([
-            'anio_escolar' => '2026',
-        ]);
 
-        Nota::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'anio_escolar' => '2026',
-            'bimestre' => '1',
-            'curso' => 'Matemática',
-            'nota' => 12.5,
-            'nota_conducta' => null,
-        ]);
-
-        Asistencia::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'semana_inicio' => '2026-04-01',
-            'estado' => 'presente',
-            'anio_escolar' => '2026',
-            'bimestre' => '1',
-            'registrado_por' => $user->id,
-        ]);
-
-        VariableSocioeconomica::query()->create([
-            'estudiante_id' => $estudiante->id,
-            'composicion_familiar' => 'nuclear',
-            'nivel_socioeconomico' => 'medio',
-            'acceso_internet' => true,
-            'distancia_colegio_km' => 2.5,
-            'anio_escolar' => '2026',
-        ]);
-
-        return [$estudiante, $user];
+        return $this->estudianteCurricularConDatosMinimos([], 12.5, $user);
     }
 
     public function test_usuario_con_permiso_procesa_riesgo_correctamente(): void
@@ -143,9 +116,128 @@ class RiesgoTest extends TestCase
         );
 
         $response->assertStatus(422)
-            ->assertJsonFragment(['message' => 'Faltan datos mínimos para calcular el riesgo.']);
+            ->assertJsonFragment(['message' => 'Faltan datos mínimos para calcular el riesgo.'])
+            ->assertJsonStructure(['errors' => [
+                'datos_academicos_curriculares',
+                'asistencias_curriculares',
+                'variables_socioeconomicas',
+            ]]);
 
         Http::assertNothingSent();
+    }
+
+    public function test_procesa_riesgo_con_eval_bim_resultados_y_asistencias_diarias(): void
+    {
+        config(['services.ml.url' => 'http://ml-test.local']);
+
+        [$estudiante, $user] = $this->estudianteConDatosMinimos();
+
+        Http::fake(fn () => Http::response(['indice_riesgo' => 0.45], 200));
+
+        $this->actingAs($user)->postJson("/api/estudiantes/{$estudiante->id}/procesar-riesgo")
+            ->assertCreated();
+
+        Http::assertSent(function ($request) {
+            $body = $request->data();
+
+            return isset($body['promedio_notas'], $body['porcentaje_asistencia'])
+                && (float) $body['promedio_notas'] > 0
+                && (float) $body['porcentaje_asistencia'] > 0;
+        });
+    }
+
+    public function test_procesa_riesgo_con_notas_semanales_como_fallback(): void
+    {
+        config(['services.ml.url' => 'http://ml-test.local']);
+
+        $user = $this->usuarioConPermiso();
+        $estudiante = Estudiante::factory()->create([
+            'anio_escolar' => '2026',
+            'nivel' => 'primaria',
+            'grado' => '1°',
+            'seccion' => 'A',
+            'sede' => 'chilca',
+        ]);
+
+        $this->crearNotaSemanalCeRiesgo($estudiante, $user, 16.0);
+        $this->crearAsistenciasDiariasRiesgo($estudiante, $user);
+        $this->crearVariableSocioeconomicaRiesgo($estudiante);
+
+        Http::fake(fn () => Http::response(['indice_riesgo' => 0.4], 200));
+
+        $this->actingAs($user)->postJson("/api/estudiantes/{$estudiante->id}/procesar-riesgo")
+            ->assertCreated();
+
+        Http::assertSent(fn ($request) => (float) $request->data()['promedio_notas'] === 16.0);
+    }
+
+    public function test_falla_si_no_hay_asistencias_diarias(): void
+    {
+        $user = $this->usuarioConPermiso();
+        $estudiante = Estudiante::factory()->create(['anio_escolar' => '2026', 'nivel' => 'primaria']);
+
+        $this->crearEvalBimResultadoRiesgo($estudiante);
+        $this->crearVariableSocioeconomicaRiesgo($estudiante);
+
+        Http::fake();
+
+        $this->actingAs($user)->postJson("/api/estudiantes/{$estudiante->id}/procesar-riesgo")
+            ->assertStatus(422)
+            ->assertJsonStructure(['errors' => ['asistencias_curriculares']]);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_falla_si_no_hay_variables_socioeconomicas(): void
+    {
+        $user = $this->usuarioConPermiso();
+        $estudiante = Estudiante::factory()->create(['anio_escolar' => '2026', 'nivel' => 'primaria']);
+
+        $this->crearEvalBimResultadoRiesgo($estudiante);
+        $this->crearAsistenciasDiariasRiesgo($estudiante, $user);
+
+        Http::fake();
+
+        $this->actingAs($user)->postJson("/api/estudiantes/{$estudiante->id}/procesar-riesgo")
+            ->assertStatus(422)
+            ->assertJsonStructure(['errors' => ['variables_socioeconomicas']]);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_inicial_devuelve_mensaje_controlado(): void
+    {
+        $user = $this->usuarioConPermiso();
+        $estudiante = Estudiante::factory()->create([
+            'anio_escolar' => '2026',
+            'nivel' => 'inicial',
+            'grado' => '3 años',
+        ]);
+
+        Http::fake();
+
+        $this->actingAs($user)->postJson("/api/estudiantes/{$estudiante->id}/procesar-riesgo")
+            ->assertStatus(422)
+            ->assertJsonFragment([
+                'message' => RiesgoAcademicoService::MENSAJE_INICIAL_NO_DISPONIBLE,
+            ]);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_no_requiere_nota_ni_asistencia_legacy(): void
+    {
+        config(['services.ml.url' => 'http://ml-test.local']);
+
+        [$estudiante, $user] = $this->estudianteConDatosMinimos();
+
+        $this->assertSame(0, Nota::query()->where('estudiante_id', $estudiante->id)->count());
+        $this->assertSame(0, Asistencia::query()->where('estudiante_id', $estudiante->id)->count());
+
+        Http::fake(fn () => Http::response(['indice_riesgo' => 0.5], 200));
+
+        $this->actingAs($user)->postJson("/api/estudiantes/{$estudiante->id}/procesar-riesgo")
+            ->assertCreated();
     }
 
     public function test_guarda_indice_de_riesgo_en_base_de_datos(): void

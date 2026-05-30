@@ -12,6 +12,7 @@ import {
   postTemaSemanal,
 } from '../../lib/api';
 import { anioEscolarActual } from '../../lib/academico';
+import { resolverCalendarioActivoParaFiltros } from '../../lib/calendarioAcademico';
 import { etiquetaNivelCurricular } from '../../lib/academicoCurricular';
 import AlertMessage from '../ui/AlertMessage';
 import Card from '../ui/Card';
@@ -51,6 +52,17 @@ export default function TemasSemanalesPanel() {
   });
 
   const [form, setForm] = useState({ ...FORM_CRITERIO_INICIAL });
+
+  useEffect(() => {
+    void resolverCalendarioActivoParaFiltros().then((cal) => {
+      if (!cal?.anio) return;
+      setFiltros((prev) => ({
+        ...prev,
+        anio_escolar: cal.anio,
+        periodo_academico_id: cal.periodoVigenteId || prev.periodo_academico_id,
+      }));
+    });
+  }, []);
 
   const cargarCriterios = useCallback(async () => {
     if (!filtros.malla_curso_id) {
@@ -98,7 +110,15 @@ export default function TemasSemanalesPanel() {
   }, [filtros.anio_escolar, filtros.nivel, filtros.grado]);
 
   useEffect(() => {
-    void getCurricularPeriodos({ anio_escolar: filtros.anio_escolar }).then(setPeriodos);
+    void getCurricularPeriodos({ anio_escolar: filtros.anio_escolar }).then((data) => {
+      const lista = Array.isArray(data) ? data : [];
+      setPeriodos(lista);
+      setFiltros((prev) => ({
+        ...prev,
+        periodo_academico_id: prev.periodo_academico_id
+          || String(lista.find((p) => p.es_vigente)?.id ?? lista[0]?.id ?? ''),
+      }));
+    });
   }, [filtros.anio_escolar]);
 
   useEffect(() => {

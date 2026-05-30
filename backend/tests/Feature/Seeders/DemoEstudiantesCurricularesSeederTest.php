@@ -79,15 +79,29 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
     }
 
     #[Test]
-    public function no_se_crean_estudiantes_con_nivel_inicial(): void
+    public function existen_84_estudiantes_inicial(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
-        $this->assertSame(0, Estudiante::query()->where('nivel', 'inicial')->count());
+        $this->assertSame(
+            DemoEstudiantesCurricularesSeeder::TOTAL_INICIAL,
+            Estudiante::query()->where('nivel', 'inicial')->count()
+        );
     }
 
     #[Test]
-    public function total_esperado_de_estudiantes_es_308(): void
+    public function existen_estudiantes_inicial_3_anos_a_chilca_2026(): void
+    {
+        $this->seed(DemoEstudiantesCurricularesSeeder::class);
+
+        $this->assertSame(
+            DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
+            $this->contarAula('inicial', '3 años', 'A', 'chilca')
+        );
+    }
+
+    #[Test]
+    public function total_esperado_de_estudiantes_es_392(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
@@ -107,13 +121,13 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
     }
 
     #[Test]
-    public function niveles_solo_primaria_y_secundaria(): void
+    public function niveles_incluyen_inicial_primaria_y_secundaria(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
         $niveles = Estudiante::query()->distinct()->pluck('nivel')->sort()->values()->all();
 
-        $this->assertSame(['primaria', 'secundaria'], $niveles);
+        $this->assertSame(['inicial', 'primaria', 'secundaria'], $niveles);
     }
 
     private function assertEstudiantesDemoSembrados(): void
@@ -122,6 +136,10 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
             $this->contarAula('primaria', '2°', 'A', 'chilca')
+        );
+        $this->assertSame(
+            DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
+            $this->contarAula('inicial', '3 años', 'A', 'chilca')
         );
     }
 

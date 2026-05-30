@@ -6,8 +6,13 @@ import {
   getEstudiantes,
   updateEstudiante,
 } from '../../lib/api';
-import { anioEscolarActual, gradoEsValidoParaNivel, gradosPorNivel } from '../../lib/academico';
-import ResumenAcademicoEstudiante from '../curricular/ResumenAcademicoEstudiante';
+import {
+  anioEscolarActual,
+  etiquetaNivelEstudiante,
+  gradoEsValidoParaNivel,
+  gradosPorNivel,
+  NIVELES_ESTUDIANTE,
+} from '../../lib/academico';
 import EstudiantePerfilDatos from './EstudiantePerfilDatos';
 import EstudiantePerfilRiesgo from './EstudiantePerfilRiesgo';
 import Badge from '../ui/Badge';
@@ -80,13 +85,40 @@ export default function EstudiantesPanel({ onClose = null }) {
   const [campoErrores, setCampoErrores] = useState({});
   const [filtros, setFiltros] = useState(filtrosVacios());
   const [filtrosAplicados, setFiltrosAplicados] = useState(filtrosVacios());
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+  const [paginacion, setPaginacion] = useState({
+    total: 0,
+    lastPage: 1,
+    currentPage: 1,
+  });
 
-  const cargarLista = useCallback(async (filtrosConsulta = filtrosAplicados) => {
+  const cargarLista = useCallback(async (opts = {}) => {
+    const filtrosConsulta = opts.filtros ?? filtrosAplicados;
+    const pageConsulta = opts.page ?? page;
+    const perPageConsulta = opts.perPage ?? perPage;
+
     setErrorGeneral(null);
     setCampoErrores({});
     try {
-      const resultado = await getEstudiantes(filtrosConsulta);
-      setLista(Array.isArray(resultado) ? resultado : []);
+      const resultado = await getEstudiantes({
+        ...filtrosConsulta,
+        page: pageConsulta,
+        per_page: perPageConsulta,
+      });
+      const filas = Array.isArray(resultado?.data) ? resultado.data : [];
+      setLista(filas);
+      setPaginacion({
+        total: resultado?.total ?? filas.length,
+        lastPage: resultado?.last_page ?? 1,
+        currentPage: resultado?.current_page ?? pageConsulta,
+      });
+      if (opts.syncPage !== false) {
+        setPage(resultado?.current_page ?? pageConsulta);
+      }
+      if (opts.syncPerPage !== false && resultado?.per_page) {
+        setPerPage(resultado.per_page);
+      }
     } catch (error) {
       if (error.status === 403) {
         setErrorGeneral('Sin permiso para gestionar estudiantes.');
@@ -94,8 +126,9 @@ export default function EstudiantesPanel({ onClose = null }) {
         setErrorGeneral('No se pudo cargar el listado de estudiantes.');
       }
       setLista([]);
+      setPaginacion({ total: 0, lastPage: 1, currentPage: 1 });
     }
-  }, [filtrosAplicados]);
+  }, [filtrosAplicados, page, perPage]);
 
   useEffect(() => {
     if (vista !== 'lista') {
@@ -115,7 +148,7 @@ export default function EstudiantesPanel({ onClose = null }) {
     return () => {
       omitir = true;
     };
-  }, [vista, cargarLista]);
+  }, [vista, cargarLista, page, perPage, filtrosAplicados]);
 
   async function abrirDetalle(estudianteId) {
     setCargando(true);
@@ -170,6 +203,13 @@ export default function EstudiantesPanel({ onClose = null }) {
   }
 
   async function enviarFormulario(esEdicion) {
+    if (!gradoEsValidoParaNivel(formulario.nivel, formulario.grado)) {
+      setCampoErrores({
+        grado: ['El grado no es válido para el nivel indicado.'],
+      });
+      return;
+    }
+
     const cuerpo = {
       codigo: formulario.codigo.trim(),
       nombres: formulario.nombres.trim(),
@@ -331,8 +371,11 @@ export default function EstudiantesPanel({ onClose = null }) {
                   }
                 >
                   <option value="">Todos</option>
-                  <option value="primaria">Primaria</option>
-                  <option value="secundaria">Secundaria</option>
+                  {NIVELES_ESTUDIANTE.map((nivel) => (
+                    <option key={nivel.value} value={nivel.value}>
+                      {nivel.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="flex flex-col gap-1">
@@ -373,6 +416,7 @@ export default function EstudiantesPanel({ onClose = null }) {
                   variant="primary"
                   size="sm"
                   onClick={() => {
+                    setPage(1);
                     setFiltrosAplicados({ ...filtros });
                   }}
                 >
@@ -386,6 +430,7 @@ export default function EstudiantesPanel({ onClose = null }) {
                     const base = filtrosVacios();
                     setFiltros(base);
                     setFiltrosAplicados(base);
+                    setPage(1);
                   }}
                 >
                   Limpiar filtros
@@ -401,7 +446,9 @@ export default function EstudiantesPanel({ onClose = null }) {
             />
           ) : (
           <div className="space-y-3">
-            <p className="text-sm leading-relaxed text-muted">Listado completo institucional; use «Ver perfil» para datos académicos por alumno.</p>
+            <p className="text-sm leading-relaxed text-muted">
+              Mostrando {lista.length} de {paginacion.total} estudiantes. Use «Ver perfil» para datos académicos por alumno.
+            </p>
             <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-sm" data-testid="estudiantes-tabla">
               <table className="min-w-full text-left text-sm text-[var(--text)]">
                 <thead className="border-b border-[var(--border)] bg-[var(--background)] text-[11px] font-semibold uppercase tracking-wide text-muted">
@@ -425,7 +472,7 @@ export default function EstudiantesPanel({ onClose = null }) {
                       <td className="px-4 py-3 font-medium">{item.apellidos}, {item.nombres}</td>
                       <td className="hidden px-4 py-3 font-mono text-xs text-muted sm:table-cell">{item.codigo}</td>
                       <td className="px-4 py-3 text-muted">
-                        {item.grado} · {item.seccion}
+                        {etiquetaNivelEstudiante(item.nivel)} · {item.grado} · {item.seccion}
                       </td>
                       <td className="px-4 py-3">
                         {item.activo ? (
@@ -466,6 +513,59 @@ export default function EstudiantesPanel({ onClose = null }) {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <div
+              className="flex flex-col gap-3 border-t border-[var(--border)] pt-4 sm:flex-row sm:items-center sm:justify-between"
+              data-testid="estudiantes-paginacion"
+            >
+              <p className="text-sm text-muted">
+                Página {paginacion.currentPage} de {paginacion.lastPage}
+                {' · '}
+                {paginacion.total} registro{paginacion.total === 1 ? '' : 's'}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="flex items-center gap-2 text-sm text-muted">
+                  Por página
+                  <select
+                    className="sb-field min-w-0 py-1"
+                    value={perPage}
+                    disabled={cargando}
+                    onChange={(event) => {
+                      const valor = Number(event.target.value);
+                      setPerPage(valor);
+                      setPage(1);
+                    }}
+                    data-testid="estudiantes-per-page"
+                  >
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                </label>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={cargando || page <= 1}
+                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                  data-testid="estudiantes-pagina-anterior"
+                >
+                  Anterior
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={cargando || page >= paginacion.lastPage}
+                  onClick={() => setPage((prev) => Math.min(paginacion.lastPage, prev + 1))}
+                  data-testid="estudiantes-pagina-siguiente"
+                >
+                  Siguiente
+                </Button>
+              </div>
             </div>
           </div>
           )}
@@ -585,12 +685,36 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
 
               <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-[var(--text)]">Nivel</label>
+                <select
+                  required
+                  className="sb-field w-full min-w-0"
+                  value={formulario.nivel}
+                  onChange={(event) =>
+                    setFormulario((valor) => {
+                      const nivel = event.target.value;
+                      const grado = gradoEsValidoParaNivel(nivel, valor.grado) ? valor.grado : '';
+                      return { ...valor, nivel, grado };
+                    })
+                  }
+                >
+                  {NIVELES_ESTUDIANTE.map((nivel) => (
+                    <option key={nivel.value} value={nivel.value}>
+                      {nivel.label}
+                    </option>
+                  ))}
+                </select>
+                {campoErrores.nivel ? <p className="text-xs text-red-600">{campoErrores.nivel.join(' ')}</p> : null}
+              </div>
+
+              <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-[var(--text)]">Grado</label>
                 <select
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.grado}
                   onChange={(event) => setFormulario((valor) => ({ ...valor, grado: event.target.value }))}
+                  disabled={gradosFormulario.length === 0}
                 >
                   <option value="">Seleccione…</option>
                   {gradosFormulario.map((grado) => (
@@ -611,26 +735,6 @@ export default function EstudiantesPanel({ onClose = null }) {
                   onChange={(event) => setFormulario((valor) => ({ ...valor, seccion: event.target.value }))}
                 />
                 {campoErrores.seccion ? <p className="text-xs text-red-600">{campoErrores.seccion.join(' ')}</p> : null}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Nivel</label>
-                <select
-                  required
-                  className="sb-field w-full min-w-0"
-                  value={formulario.nivel}
-                  onChange={(event) =>
-                    setFormulario((valor) => {
-                      const nivel = event.target.value;
-                      const grado = gradoEsValidoParaNivel(nivel, valor.grado) ? valor.grado : '';
-                      return { ...valor, nivel, grado };
-                    })
-                  }
-                >
-                  <option value="primaria">Primaria</option>
-                  <option value="secundaria">Secundaria</option>
-                </select>
-                {campoErrores.nivel ? <p className="text-xs text-red-600">{campoErrores.nivel.join(' ')}</p> : null}
               </div>
 
               <div className="flex flex-col gap-1">
@@ -693,11 +797,13 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
               <div>
                 <dt className="text-muted">Nivel</dt>
-                <dd className="mt-0.5">{detalle.nivel}</dd>
+                <dd className="mt-0.5">{etiquetaNivelEstudiante(detalle.nivel)}</dd>
               </div>
               <div>
                 <dt className="text-muted">Sede</dt>
-                <dd className="mt-0.5">{detalle.sede}</dd>
+                <dd className="mt-0.5">
+                  {detalle.sede === 'chilca' ? 'Chilca' : detalle.sede === 'auquimarca' ? 'Auquimarca' : detalle.sede}
+                </dd>
               </div>
               <div>
                 <dt className="text-muted">Activo</dt>
@@ -714,29 +820,19 @@ export default function EstudiantesPanel({ onClose = null }) {
             </dl>
           </Card>
 
-          {permissions.includes('ver_notas_academicas') ? (
-            <ResumenAcademicoEstudiante estudianteId={detalle.id} anioEscolar={detalle.anio_escolar} />
-          ) : null}
+          <EstudiantePerfilRiesgo />
 
-          <EstudiantePerfilRiesgo
-            estudianteId={detalle.id}
-            ultimoIndice={detalle.ultimo_indice_riesgo}
-            puedeProcesar={permissions.includes('procesar_riesgo')}
-            onDetalleRefrescado={setDetalle}
-          />
-
-          {permissions.includes('registrar_datos_academicos') ? (
+          {permissions.includes('registrar_datos_academicos') ||
+          permissions.includes('ver_notas_academicas') ||
+          permissions.includes('ver_asistencia_curricular') ||
+          permissions.includes('registrar_asistencia_curricular') ? (
             <EstudiantePerfilDatos
               estudianteId={detalle.id}
               anioEscolarPorDefecto={detalle.anio_escolar}
-              ubicacionEstudiante={{
-                nivel: detalle.nivel,
-                grado: detalle.grado,
-                sede: detalle.sede,
-                anio_escolar: detalle.anio_escolar,
-              }}
-              puedeUsarCatalogoMaterias={
-                permissions.includes('gestionar_materias') || permissions.includes('registrar_datos_academicos')
+              mostrarResumenCurricular={permissions.includes('ver_notas_academicas')}
+              mostrarAsistenciaCurricular={
+                permissions.includes('ver_asistencia_curricular')
+                || permissions.includes('registrar_asistencia_curricular')
               }
             />
           ) : null}

@@ -18,8 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
 
+        $middleware->api(append: [
+            \App\Http\Middleware\EnsureUsuarioActivo::class,
+        ]);
+
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'usuario.activo' => \App\Http\Middleware\EnsureUsuarioActivo::class,
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
         ]);

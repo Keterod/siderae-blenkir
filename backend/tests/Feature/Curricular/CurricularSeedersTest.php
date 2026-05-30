@@ -29,9 +29,21 @@ class CurricularSeedersTest extends TestCase
     }
 
     #[Test]
-    public function equivalencias_grado_tiene_once_registros(): void
+    public function equivalencias_grado_tiene_catorce_registros(): void
     {
-        $this->assertSame(11, EquivalenciaGrado::query()->count());
+        $this->assertSame(14, EquivalenciaGrado::query()->count());
+    }
+
+    #[Test]
+    public function equivalencias_grado_incluye_tres_grados_inicial(): void
+    {
+        foreach (CatalogoNivelGrado::GRADOS_INICIAL as $grado) {
+            $this->assertDatabaseHas('equivalencias_grado', [
+                'nivel' => CatalogoNivelGrado::NIVEL_INICIAL,
+                'grado_curricular' => $grado,
+                'grado_estudiante_legacy' => $grado,
+            ]);
+        }
     }
 
     #[Test]

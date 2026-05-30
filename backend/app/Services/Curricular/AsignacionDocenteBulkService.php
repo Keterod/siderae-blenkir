@@ -33,6 +33,7 @@ class AsignacionDocenteBulkService
     {
         $docente = User::query()->findOrFail($datos['docente_id']);
         $this->validator->validarUsuarioDocente($docente);
+        $this->validator->validarAnioEscolarActivo($datos['anio_escolar']);
 
         $contexto = [
             'anio_escolar' => $datos['anio_escolar'],

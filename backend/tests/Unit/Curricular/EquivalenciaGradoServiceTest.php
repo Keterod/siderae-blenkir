@@ -34,4 +34,20 @@ class EquivalenciaGradoServiceTest extends TestCase
         $this->assertSame('2°', $this->service->aLegacy('primaria', '2do'));
         $this->assertSame('2do', $this->service->aCurricular('primaria', '2°'));
     }
+
+    #[Test]
+    public function equivalencia_inicial_tres_anos(): void
+    {
+        $this->assertSame('3 años', $this->service->aLegacy('inicial', '3 años'));
+        $this->assertSame('3 años', $this->service->aCurricular('inicial', '3 años'));
+    }
+
+    #[Test]
+    public function equivalencia_inicial_cuatro_y_cinco_anos(): void
+    {
+        $this->assertSame('4 años', $this->service->aLegacy('inicial', '4 años'));
+        $this->assertSame('4 años', $this->service->aCurricular('inicial', '4 años'));
+        $this->assertSame('5 años', $this->service->aLegacy('inicial', '5 años'));
+        $this->assertSame('5 años', $this->service->aCurricular('inicial', '5 años'));
+    }
 }

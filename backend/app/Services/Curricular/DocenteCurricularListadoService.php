@@ -15,6 +15,7 @@ class DocenteCurricularListadoService
     public function listarDocentes(?string $search, ?string $anioEscolar, ?string $nivel, ?string $sede): Collection
     {
         $query = User::role('docente')
+            ->where('activo', true)
             ->select(['id', 'name', 'email'])
             ->orderBy('name');
 

@@ -6,6 +6,8 @@ use App\Exceptions\Curricular\PesosEvaluacionInvalidosException;
 use App\Models\Curricular\ConfiguracionPesoEvaluacion;
 use App\Models\Curricular\MallaCurso;
 use App\Models\Curricular\MallaCurricular;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\ValidationException;
 
 class PesoEvaluacionResolver
 {
@@ -14,6 +16,16 @@ class PesoEvaluacionResolver
     public const PESO_LIBRO_DEFAULT = 33.33;
 
     public const PESO_TAREA_DEFAULT = 33.34;
+
+    public const SCOPE_CURSO = 'curso';
+
+    public const SCOPE_AREA = 'area';
+
+    public const SCOPE_NIVEL_GRADO = 'nivel_grado';
+
+    public const SCOPE_GLOBAL = 'global';
+
+    public const SCOPE_POR_DEFECTO = 'por_defecto';
 
     private const TOLERANCIA_SUMA = 0.01;
 
@@ -63,48 +75,188 @@ class PesoEvaluacionResolver
      */
     public function resolverParaCurso(MallaCurso $mallaCurso, MallaCurricular $malla): array
     {
+        return $this->resolverDetalleParaCurso($mallaCurso, $malla)['pesos'];
+    }
+
+    /**
+     * @return array{
+     *     pesos: array{cuaderno: float, libro: float, tarea: float},
+     *     configuracion: ConfiguracionPesoEvaluacion|null,
+     *     scope_aplicado: string,
+     *     es_por_defecto: bool
+     * }
+     */
+    public function resolverDetalleParaCurso(MallaCurso $mallaCurso, MallaCurricular $malla): array
+    {
         $config = ConfiguracionPesoEvaluacion::query()
             ->where('activo', true)
             ->where('curso_catalogo_id', $mallaCurso->curso_catalogo_id)
             ->where('area_id', $mallaCurso->area_id)
             ->first();
 
-        if ($config === null) {
-            $config = ConfiguracionPesoEvaluacion::query()
-                ->where('activo', true)
-                ->where('area_id', $mallaCurso->area_id)
-                ->whereNull('curso_catalogo_id')
-                ->first();
+        if ($config !== null) {
+            return $this->buildDetalle($config, self::SCOPE_CURSO);
         }
 
-        if ($config === null) {
-            $config = ConfiguracionPesoEvaluacion::query()
-                ->where('activo', true)
-                ->where('nivel', $malla->nivel)
-                ->where('grado', $malla->grado)
-                ->whereNull('area_id')
-                ->whereNull('curso_catalogo_id')
-                ->first();
+        $config = ConfiguracionPesoEvaluacion::query()
+            ->where('activo', true)
+            ->where('area_id', $mallaCurso->area_id)
+            ->whereNull('curso_catalogo_id')
+            ->first();
+
+        if ($config !== null) {
+            return $this->buildDetalle($config, self::SCOPE_AREA);
         }
 
-        if ($config === null) {
-            $config = ConfiguracionPesoEvaluacion::query()
-                ->where('activo', true)
-                ->whereNull('nivel')
-                ->whereNull('grado')
-                ->whereNull('area_id')
-                ->whereNull('curso_catalogo_id')
-                ->first();
+        $config = ConfiguracionPesoEvaluacion::query()
+            ->where('activo', true)
+            ->where('nivel', $malla->nivel)
+            ->where('grado', $malla->grado)
+            ->whereNull('area_id')
+            ->whereNull('curso_catalogo_id')
+            ->first();
+
+        if ($config !== null) {
+            return $this->buildDetalle($config, self::SCOPE_NIVEL_GRADO);
         }
 
-        if ($config === null) {
-            return $this->pesosPorDefecto();
+        $config = ConfiguracionPesoEvaluacion::query()
+            ->where('activo', true)
+            ->whereNull('nivel')
+            ->whereNull('grado')
+            ->whereNull('area_id')
+            ->whereNull('curso_catalogo_id')
+            ->first();
+
+        if ($config !== null) {
+            return $this->buildDetalle($config, self::SCOPE_GLOBAL);
         }
 
         return [
-            'cuaderno' => (float) $config->peso_cuaderno,
-            'libro' => (float) $config->peso_libro,
-            'tarea' => (float) $config->peso_tarea,
+            'pesos' => $this->pesosPorDefecto(),
+            'configuracion' => null,
+            'scope_aplicado' => self::SCOPE_POR_DEFECTO,
+            'es_por_defecto' => true,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array{nivel: ?string, grado: ?string, area_id: ?int, curso_catalogo_id: ?int}
+     */
+    public function normalizarScope(array $data): array
+    {
+        return [
+            'nivel' => $data['nivel'] ?? null,
+            'grado' => $data['grado'] ?? null,
+            'area_id' => isset($data['area_id']) ? (int) $data['area_id'] : null,
+            'curso_catalogo_id' => isset($data['curso_catalogo_id']) ? (int) $data['curso_catalogo_id'] : null,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function validarCombinacionScope(array $data): string
+    {
+        $scope = $this->normalizarScope($data);
+        $nivel = $scope['nivel'];
+        $grado = $scope['grado'];
+        $areaId = $scope['area_id'];
+        $cursoId = $scope['curso_catalogo_id'];
+
+        if ($cursoId !== null) {
+            if ($areaId === null) {
+                throw ValidationException::withMessages([
+                    'area_id' => ['Debe indicar el área cuando configura pesos por curso.'],
+                ]);
+            }
+
+            return self::SCOPE_CURSO;
+        }
+
+        if ($areaId !== null) {
+            if ($nivel !== null || $grado !== null) {
+                throw ValidationException::withMessages([
+                    'area_id' => ['La configuración por área no debe incluir nivel ni grado.'],
+                ]);
+            }
+
+            return self::SCOPE_AREA;
+        }
+
+        if ($nivel !== null || $grado !== null) {
+            if ($nivel === null || $grado === null) {
+                throw ValidationException::withMessages([
+                    'grado' => ['Debe indicar nivel y grado para configurar pesos por grado.'],
+                ]);
+            }
+
+            return self::SCOPE_NIVEL_GRADO;
+        }
+
+        return self::SCOPE_GLOBAL;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function assertScopeActivoUnico(array $data, ?int $exceptId = null): void
+    {
+        $this->validarCombinacionScope($data);
+        $scope = $this->normalizarScope($data);
+
+        $query = $this->queryPorScope($scope)->where('activo', true);
+
+        if ($exceptId !== null) {
+            $query->where('id', '!=', $exceptId);
+        }
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'scope' => ['Ya existe una configuración activa para este alcance. Desactívela antes de crear otra.'],
+            ]);
+        }
+    }
+
+    /**
+     * @param  array{nivel: ?string, grado: ?string, area_id: ?int, curso_catalogo_id: ?int}  $scope
+     */
+    private function queryPorScope(array $scope): Builder
+    {
+        $query = ConfiguracionPesoEvaluacion::query();
+
+        foreach (['nivel', 'grado', 'area_id', 'curso_catalogo_id'] as $field) {
+            $value = $scope[$field] ?? null;
+            if ($value === null) {
+                $query->whereNull($field);
+            } else {
+                $query->where($field, $value);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * @return array{
+     *     pesos: array{cuaderno: float, libro: float, tarea: float},
+     *     configuracion: ConfiguracionPesoEvaluacion,
+     *     scope_aplicado: string,
+     *     es_por_defecto: bool
+     * }
+     */
+    private function buildDetalle(ConfiguracionPesoEvaluacion $config, string $scope): array
+    {
+        return [
+            'pesos' => [
+                'cuaderno' => (float) $config->peso_cuaderno,
+                'libro' => (float) $config->peso_libro,
+                'tarea' => (float) $config->peso_tarea,
+            ],
+            'configuracion' => $config,
+            'scope_aplicado' => $scope,
+            'es_por_defecto' => false,
         ];
     }
 

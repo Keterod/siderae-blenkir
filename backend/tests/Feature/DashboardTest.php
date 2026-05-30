@@ -93,7 +93,25 @@ class DashboardTest extends TestCase
                     'secciones',
                     'niveles_riesgo',
                 ],
+                'indicadores_curriculares' => [
+                    'total_estudiantes_activos',
+                    'registros_asistencia_diaria',
+                    'resultados_bimestrales',
+                    'cursos_malla_activos',
+                    'asignaciones_docente_activas',
+                ],
             ]);
+    }
+
+    public function test_indicadores_curriculares_conteos_agregados(): void
+    {
+        Estudiante::factory()->create(['activo' => true, 'sede' => 'chilca', 'nivel' => 'primaria']);
+
+        $response = $this->actingAs($this->usuarioConPermisoDashboard())
+            ->getJson('/api/dashboard?sede=chilca');
+
+        $response->assertOk()
+            ->assertJsonPath('indicadores_curriculares.total_estudiantes_activos', 1);
     }
 
     public function test_estado_vacio_devuelve_ceros_y_array_sin_error(): void

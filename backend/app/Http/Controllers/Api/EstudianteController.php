@@ -50,7 +50,22 @@ class EstudianteController extends Controller
             $query->where('activo', true);
         }
 
-        return response()->json($query->get());
+        if ($request->boolean('all')) {
+            return response()->json($query->get());
+        }
+
+        $perPage = min(100, max(1, (int) $request->query('per_page', 25)));
+        $page = max(1, (int) $request->query('page', 1));
+
+        $paginated = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'data' => $paginated->items(),
+            'current_page' => $paginated->currentPage(),
+            'per_page' => $paginated->perPage(),
+            'total' => $paginated->total(),
+            'last_page' => $paginated->lastPage(),
+        ]);
     }
 
     public function store(StoreEstudianteRequest $request): JsonResponse

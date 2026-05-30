@@ -12,7 +12,7 @@ SIDERAE-Blenkir es un sistema web que permite:
 - Catálogo institucional de materias por sede/nivel/grado/año.
 - Registro individual y masivo de notas.
 - Registro individual y masivo de asistencia.
-- Registro de variables socioeconómicas por estudiante.
+- Registro de variables socioeconómicas por estudiante *(pausado en UI; ver nota al final)*.
 - Procesamiento de riesgo académico (manual por estudiante, automático por lotes académicos, y comando excepcional post-importación).
 - Gestión de alertas e intervenciones.
 - Dashboard con filtros y export PDF (alcance parcial frente al DRS).
@@ -199,13 +199,31 @@ Luego abre:
 docker compose exec app-backend php artisan migrate:fresh --seed
 ```
 
-Seeders recomendados para demo local:
+El comando `migrate:fresh --seed` ejecuta el demo curricular oficial (`DemoCurricularOperativoSeeder`), coherente con malla, notas bimestrales y asistencia diaria vigentes.
+
+Seeders legacy (solo si necesitas datos antiguos de materias/notas semanales):
 
 ```bash
-docker compose exec app-backend php artisan db:seed --class=PermissionsSeeder
-docker compose exec app-backend php artisan db:seed --class=DemoUsersSeeder
 docker compose exec app-backend php artisan db:seed --class=DemoAcademicDataSeeder
 ```
+
+---
+
+## Asignación docente (malla curricular)
+
+La asignación docente usa el **año escolar activo** y los **cursos de malla curricular** (`malla_curso_id`); no usa materias legacy ni filtro por bimestre.
+
+Los **pesos C/L/T** (cuaderno, libro, tarea) se administran por alcance y se resuelven con prioridad: curso → área → nivel/grado → global.
+
+---
+
+## 👤 Gestión de usuarios (RF-15)
+
+El módulo **Usuarios** en el frontend (menú lateral) permite al rol **administrador** crear y administrar cuentas del sistema (`gestionar_usuarios`): datos básicos, un rol por usuario, activar/desactivar y restablecer contraseña.
+
+API: `GET/POST/PATCH /api/usuarios` y acciones `activar`, `desactivar`, `restablecer-contrasena` (requieren sesión Sanctum y permiso `gestionar_usuarios`).
+
+**Pendiente de hardening (producción):** la ruta pública `POST /register` de Laravel Breeze sigue disponible; conviene restringirla o deshabilitarla antes de un despliegue real.
 
 ---
 
@@ -215,6 +233,8 @@ docker compose exec app-backend php artisan db:seed --class=DemoAcademicDataSeed
 |---|---|---|
 | Administrador | `admin@siderae.test` | `password` |
 | Docente | `docente@siderae.test` | `password` |
+| Docente (secundario demo) | `docente2@siderae.test` | `password` |
+| Docente adicional | `docente3@siderae.test` | `password` |
 | Coordinador académico | `coordinador@siderae.test` | `password` |
 | Psicólogo/Tutor | `psicologo@siderae.test` | `password` |
 | Directivo | `directivo@siderae.test` | `password` |
@@ -223,18 +243,15 @@ docker compose exec app-backend php artisan db:seed --class=DemoAcademicDataSeed
 
 ## 📚 Datos demo académicos (solo ficticios)
 
-`DemoAcademicDataSeeder` carga datos ficticios para pruebas locales:
+El demo principal (`migrate:fresh --seed`) carga:
 
-- Sede: `chilca`
-- Año escolar: `2026`
-- Bimestre: `1`
-- Primaria: `1°` a `6°`
-- Secundaria: `1°` a `5°`
-- Secciones: `A` y `B`
-- Estudiantes: `10` por sección (`220` total esperados)
-- Materias por grado: Matemática, Comunicación, Historia, Inglés (`44` total esperadas)
-- Incluye notas, 2 semanas de asistencias y variables socioeconómicas
-- Incluye un subconjunto de casos de riesgo demo (base académica/social más vulnerable)
+- **392 estudiantes** curriculares (`DemoEstudiantesCurricularesSeeder`): inicial, primaria y secundaria en sedes `chilca` y `auquimarca`.
+- **Mallas curriculares** provisionadas para primaria `2do`, secundaria `1ro` e inicial `3 años`.
+- **Aula operativa demo**: primaria `2°` sección `A`, sede `chilca`, año `2026`, bimestre `1`.
+- **Asignaciones docentes**, criterios (temas semanales), notas semanales/bimestrales y asistencia diaria curricular.
+- **Usuarios demo** por rol (ver tabla anterior).
+
+`DemoAcademicDataSeeder` (legacy, no ejecutado por defecto) poblaba materias, notas con `materia_id` y asistencia semanal antigua.
 
 Todos los nombres, correos y códigos usados para demo son ficticios.
 
@@ -388,6 +405,22 @@ Notas:
 
 ## 🚧 Próximos desarrollos (orientación)
 
+### Transición curricular: evaluación por criterios y bimestre
+
+**Flujo funcional acordado:**
+
+1. **Componentes para criterios por nivel/grado** *(fase posterior)* — Cuaderno / Libro / Tarea (C/L/T) con predeterminados: Inicial → Cuaderno 100 %; Primaria y Secundaria → C/L/T en partes iguales (33,33 / 33,33 / 33,34). Regla: para ese nivel/grado, todos los criterios se evalúan con esos componentes.
+2. **Nota de cada criterio** — CE semanal calculado con esos pesos.
+3. **Promedio de criterios** — agregación hacia la evaluación bimestral.
+4. **Configuración bimestral** — fórmula final del bimestre: Promedio de criterios, Oral, Promedio ETA, Examen bimestral (+ personalizados). Las ETAs se configuran en bloque aparte.
+5. **Nota bimestral final** — nivel de logro.
+
+**Estado actual en código:**
+
+- **UI:** *Pesos evaluación* (C/L/T) está **oculto del menú**; backend legacy (`/api/curricular/pesos*`, `PesoEvaluacionResolver`) sigue activo para el CE semanal.
+- **Configuración bimestral** mantiene los **cuatro componentes bimestrales** clásicos; **no** incluye Cuaderno/Libro/Tarea.
+- **Pendiente:** módulo «Componentes para criterios por nivel/grado» y migración del motor de notas semanales desde `PesoEvaluacionResolver`.
+
 - Pruebas integrales y de regresión ampliadas.
 - Fortalecimiento documental final de arquitectura, seguridad y operación.
 - Mejoras futuras fuera del alcance actual (por ejemplo importaciones avanzadas de archivos) según backlog formal.
@@ -420,5 +453,6 @@ Notas:
 - No eliminar estudiantes (integridad de datos)
 - Uso de permisos para control de acceso
 - Datos académicos estructurados para análisis predictivo
+- **Variables socioeconómicas:** las variables socioeconómicas actuales quedan pausadas y ocultas hasta el rediseño del módulo de riesgo académico. El backend se conserva; no se reconecta la UI ni se agregan seeders en este ciclo.
 
 ---

@@ -31,6 +31,9 @@ abstract class CurricularApiTestCase extends TestCase
             'registrar_notas_semanales',
             'ver_notas_academicas',
             'configurar_evaluacion_bimestral',
+            'registrar_asistencia_curricular',
+            'ver_asistencia_curricular',
+            'gestionar_calendario_academico',
         ];
 
         foreach ($names as $name) {
@@ -59,8 +62,8 @@ abstract class CurricularApiTestCase extends TestCase
             'configurar_pesos_evaluacion',
             'gestionar_asignaciones_docente',
                 'ver_notas_academicas',
-                'configurar_evaluacion_bimestral',
-            ]);
+            'configurar_evaluacion_bimestral',
+        ]);
     }
 
     protected function docente(): User

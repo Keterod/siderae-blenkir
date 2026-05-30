@@ -217,8 +217,11 @@ class CurricularApiTest extends CurricularApiTestCase
     #[Test]
     public function configura_pesos_validos(): void
     {
+        [$mallaCurso] = $this->prepararMallaYTemaSlot();
+
         $this->actingAs($this->coordinador())
             ->postJson('/api/curricular/pesos', [
+                'area_id' => $mallaCurso->area_id,
                 'peso_cuaderno' => 50,
                 'peso_libro' => 30,
                 'peso_tarea' => 20,
@@ -1334,10 +1337,13 @@ class CurricularApiTest extends CurricularApiTestCase
             ->assertOk()
             ->assertJsonStructure([
                 'estudiante_id',
+                'nivel',
+                'tiene_datos',
                 'ce_por_tema',
                 'promedios_por_curso',
                 'promedios_por_area',
                 'promedios_bimestrales',
+                'evaluaciones_bimestrales',
             ]);
     }
 
