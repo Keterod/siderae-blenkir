@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api\Curricular;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Curricular\BulkNotasSemanalesRequest;
+use App\Http\Requests\Curricular\ImportPlantillaNotasSemanalesRequest;
 use App\Models\Curricular\DocenteCursoAula;
 use App\Models\Curricular\TemaSemanal;
 use App\Models\Estudiante;
 use App\Models\User;
 use App\Services\Curricular\CatalogoNivelGrado;
+use App\Services\Curricular\ImportPlantillaRegistroAuxiliarService;
 use App\Services\Curricular\NotaSemanalBulkService;
 use App\Services\Curricular\NotaSemanalCalificacionAdapter;
 use App\Services\Curricular\NotaSemanalFormularioService;
@@ -27,6 +29,7 @@ class NotaSemanalController extends Controller
         private readonly NotaSemanalCalificacionAdapter $calificacionAdapter = new NotaSemanalCalificacionAdapter,
         private readonly PlantillaRegistroAuxiliarService $plantillaService = new PlantillaRegistroAuxiliarService,
         private readonly PlantillaRegistroAuxiliarExcelService $plantillaExcelService = new PlantillaRegistroAuxiliarExcelService,
+        private readonly ImportPlantillaRegistroAuxiliarService $importPlantillaService = new ImportPlantillaRegistroAuxiliarService,
     ) {}
 
     public static function usuarioPuedeConsultaGlobalNotas(User $user): bool
@@ -257,5 +260,52 @@ class NotaSemanalController extends Controller
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ],
         );
+    }
+
+    public function importarExcel(ImportPlantillaNotasSemanalesRequest $request): JsonResponse
+    {
+        if (! $request->user()->can('registrar_notas_semanales')) {
+            return response()->json(['message' => 'No tiene permiso para registrar notas semanales.'], 403);
+        }
+
+        $data = $request->validated();
+        $asignacion = DocenteCursoAula::query()->findOrFail($data['asignacion_docente_id']);
+
+        if ($asignacion->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Solo puede importar notas en sus asignaciones activas.'], 403);
+        }
+
+        $archivo = $request->file('archivo');
+        if ($archivo === null) {
+            return response()->json(['message' => 'Debe adjuntar un archivo Excel.'], 422);
+        }
+
+        $resultado = $this->importPlantillaService->importar(
+            $archivo->getContent(),
+            $request->user(),
+            $asignacion,
+            (int) $data['periodo_academico_id'],
+        );
+
+        activity()
+            ->causedBy($request->user())
+            ->withProperties([
+                'accion' => 'curricular.notas_semanales.importar_excel',
+                'asignacion_docente_id' => $asignacion->id,
+                'importados' => $resultado['importados'],
+            ])
+            ->log('Importación Excel de notas semanales');
+
+        return response()->json([
+            'notas' => array_map(
+                fn ($nota) => $this->calificacionAdapter->serializarNota($nota),
+                $resultado['notas'],
+            ),
+            'advertencias' => $resultado['advertencias'],
+            'importados' => $resultado['importados'],
+            'importados_criterios' => $resultado['importados_criterios'],
+            'importados_bimestral' => $resultado['importados_bimestral'],
+            'omitidos' => $resultado['omitidos'],
+        ], 201);
     }
 }

@@ -9,7 +9,6 @@ import {
 import { anioEscolarActual } from '../../lib/academico';
 import { resolverCalendarioActivoParaFiltros } from '../../lib/calendarioAcademico';
 import {
-  etiquetaNivelCurricular,
   NIVELES_CURRICULARES,
 } from '../../lib/academicoCurricular';
 import AlertMessage from '../ui/AlertMessage';
@@ -173,8 +172,8 @@ export default function ComponentesCalificacionNivelPanel() {
               value={filtros.nivel}
               onChange={(e) => setFiltros((prev) => ({ ...prev, nivel: e.target.value }))}
             >
-              {NIVELES_CURRICULARES.map((nivel) => (
-                <option key={nivel} value={nivel}>{etiquetaNivelCurricular(nivel)}</option>
+              {NIVELES_CURRICULARES.map((opcion) => (
+                <option key={opcion.value} value={opcion.value}>{opcion.label}</option>
               ))}
             </select>
           </label>

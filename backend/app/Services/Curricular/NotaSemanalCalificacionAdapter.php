@@ -42,12 +42,16 @@ class NotaSemanalCalificacionAdapter
     {
         $malla = $mallaCurso->mallaCurricular;
         $pesos = $this->pesoResolver->resolverParaCurso($mallaCurso, $malla);
-        $componentes = $this->componentesActivosValidos($asignacion->anio_escolar, $asignacion->nivel);
+        $componentesActivos = $this->componenteService->listar($asignacion->anio_escolar, $asignacion->nivel, true);
+        $evaluacion = $this->componenteService->evaluarSumaActivos($asignacion->anio_escolar, $asignacion->nivel);
 
         return [
             'pesos' => $pesos,
-            'componentes_calificacion' => $componentes->map(fn (ComponenteCalificacionNivel $c) => $this->serializarComponenteConfig($c))->values()->all(),
-            'calificacion_dinamica_disponible' => $componentes->isNotEmpty(),
+            'componentes_calificacion' => $componentesActivos
+                ->map(fn (ComponenteCalificacionNivel $c) => $this->serializarComponenteConfig($c))
+                ->values()
+                ->all(),
+            'calificacion_dinamica_disponible' => $evaluacion['valido'] && $componentesActivos->isNotEmpty(),
             'nivel' => $asignacion->nivel,
             'anio_escolar' => $asignacion->anio_escolar,
         ];

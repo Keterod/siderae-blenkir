@@ -1,4 +1,5 @@
 import RegistroNotasAlumnoRow from './RegistroNotasAlumnoRow';
+import { etiquetaComponenteConPeso } from './notasUtils';
 
 const CRITERIO_GROUP_W = 'w-[8.5rem] max-w-[8.5rem]';
 
@@ -8,11 +9,15 @@ export default function RegistroNotasCapacidadTable({
   estudiantes,
   matriz,
   pesos,
+  componentes = [],
+  modoDinamico = false,
   onChangeNota,
   soloLectura = false,
 }) {
   const criteriosActivos = criterios.filter((c) => c.activo !== false);
   if (criteriosActivos.length === 0) return null;
+
+  const columnasPorCriterio = modoDinamico ? componentes.length + 1 : 4;
 
   return (
     <div className="overflow-hidden rounded border border-[var(--border)] bg-[var(--surface)]">
@@ -35,7 +40,7 @@ export default function RegistroNotasCapacidadTable({
               {criteriosActivos.map((criterio) => (
                 <th
                   key={criterio.id}
-                  colSpan={4}
+                  colSpan={columnasPorCriterio}
                   className={`${CRITERIO_GROUP_W} border-l border-[var(--border)] px-1 py-0.5 text-center font-semibold normal-case text-[var(--text)]`}
                   title={criterio.titulo}
                 >
@@ -45,7 +50,11 @@ export default function RegistroNotasCapacidadTable({
             </tr>
             <tr className="border-b text-[9px] font-semibold uppercase tracking-wide text-muted">
               {criteriosActivos.map((criterio) => (
-                <SubHeaders key={criterio.id} />
+                modoDinamico ? (
+                  <SubHeadersDinamico key={criterio.id} componentes={componentes} />
+                ) : (
+                  <SubHeadersLegacy key={criterio.id} />
+                )
               ))}
             </tr>
           </thead>
@@ -57,6 +66,8 @@ export default function RegistroNotasCapacidadTable({
                 criterios={criteriosActivos}
                 filas={matriz[estudiante.id] ?? {}}
                 pesos={pesos}
+                componentes={componentes}
+                modoDinamico={modoDinamico}
                 soloLectura={soloLectura}
                 onChangeNota={onChangeNota}
               />
@@ -68,12 +79,29 @@ export default function RegistroNotasCapacidadTable({
   );
 }
 
-function SubHeaders() {
+function SubHeadersLegacy() {
   return (
     <>
       <th className="w-9 min-w-[2.125rem] border-l border-[var(--border)]/50 px-0 py-0.5 text-center">C</th>
       <th className="w-9 min-w-[2.125rem] px-0 py-0.5 text-center">L</th>
       <th className="w-9 min-w-[2.125rem] px-0 py-0.5 text-center">T</th>
+      <th className="w-9 min-w-[2.125rem] px-0 py-0.5 text-center text-[var(--primary-dark)]">CE</th>
+    </>
+  );
+}
+
+function SubHeadersDinamico({ componentes }) {
+  return (
+    <>
+      {componentes.map((componente) => (
+        <th
+          key={componente.id}
+          className="min-w-[4.5rem] max-w-[6rem] border-l border-[var(--border)]/50 px-0.5 py-0.5 text-center normal-case"
+          title={etiquetaComponenteConPeso(componente)}
+        >
+          <span className="line-clamp-2 text-[8px] leading-3">{etiquetaComponenteConPeso(componente)}</span>
+        </th>
+      ))}
       <th className="w-9 min-w-[2.125rem] px-0 py-0.5 text-center text-[var(--primary-dark)]">CE</th>
     </>
   );

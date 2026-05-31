@@ -59,41 +59,127 @@ export function claveCelda(estudianteId, criterioId) {
   return `${estudianteId}:${criterioId}`;
 }
 
-export function filaVacia() {
-  return { nota_cuaderno: '', nota_libro: '', nota_tarea: '', _teniaNota: false };
+export function esModoCalificacionDinamica(formulario) {
+  return formulario?.calificacion_dinamica_disponible === true
+    && obtenerComponentesCalificacion(formulario).length > 0;
 }
 
-export function initFilasEstudiante(criterios, notasPorCriterio) {
-  const filas = {};
-  for (const criterio of criterios) {
-    const nota = notasPorCriterio?.[criterio.id] ?? notasPorCriterio?.[String(criterio.id)];
-    filas[criterio.id] = {
-      nota_cuaderno: valorNotaParaInput(nota?.nota_cuaderno),
-      nota_libro: valorNotaParaInput(nota?.nota_libro),
-      nota_tarea: valorNotaParaInput(nota?.nota_tarea),
-      _teniaNota: Boolean(nota),
+/**
+ * @param {Record<string, unknown>|null|undefined} formulario
+ * @returns {Array<{ id: number, codigo: string, nombre: string, peso: number, orden: number }>}
+ */
+export function obtenerComponentesCalificacion(formulario) {
+  const lista = formulario?.componentes_calificacion ?? [];
+  return [...lista].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+}
+
+export function etiquetaComponenteConPeso(componente) {
+  const peso = Math.round(Number(componente.peso ?? 0));
+  return `${componente.nombre} (${peso}%)`;
+}
+
+export function esCampoComponente(campo) {
+  return String(campo).startsWith('comp_');
+}
+
+export function parseComponenteIdDesdeCampo(campo) {
+  return Number(String(campo).slice(5));
+}
+
+export function filaVaciaLegacy() {
+  return { nota_cuaderno: '', nota_libro: '', nota_tarea: '', _teniaNota: false, _modeloOriginal: 'legacy' };
+}
+
+/**
+ * @param {Array<{ id: number }>} componentes
+ */
+export function filaVaciaDinamica(componentes) {
+  return {
+    componentes: Object.fromEntries(componentes.map((c) => [c.id, ''])),
+    _teniaNota: false,
+    _modeloOriginal: 'dinamico',
+  };
+}
+
+const LEGACY_CODIGO_A_CAMPO = {
+  cuaderno: 'nota_cuaderno',
+  libro: 'nota_libro',
+  tarea: 'nota_tarea',
+};
+
+/**
+ * @param {Record<string, unknown>|null|undefined} nota
+ * @param {boolean} esDinamico
+ * @param {Array<{ id: number, codigo: string }>} componentes
+ */
+function initFilaDesdeNota(nota, esDinamico, componentes) {
+  const teniaNota = Boolean(nota);
+  const modeloOriginal = nota?.modelo_calificacion ?? 'legacy';
+
+  if (esDinamico) {
+    const componentesMap = Object.fromEntries(componentes.map((c) => [c.id, '']));
+
+    if (modeloOriginal === 'dinamico') {
+      for (const item of nota?.notas_componentes ?? []) {
+        if (item?.componente_id != null) {
+          componentesMap[item.componente_id] = valorNotaParaInput(item.nota);
+        }
+      }
+    } else if (teniaNota) {
+      for (const comp of componentes) {
+        const campo = LEGACY_CODIGO_A_CAMPO[comp.codigo];
+        if (campo && nota?.[campo] != null && nota[campo] !== '') {
+          componentesMap[comp.id] = valorNotaParaInput(nota[campo]);
+        }
+      }
+    }
+
+    return {
+      componentes: componentesMap,
+      _teniaNota: teniaNota,
+      _modeloOriginal: modeloOriginal,
     };
   }
+
+  return {
+    nota_cuaderno: valorNotaParaInput(nota?.nota_cuaderno),
+    nota_libro: valorNotaParaInput(nota?.nota_libro),
+    nota_tarea: valorNotaParaInput(nota?.nota_tarea),
+    _teniaNota: teniaNota,
+    _modeloOriginal: modeloOriginal,
+  };
+}
+
+export function initFilasEstudiante(criterios, notasPorCriterio, formulario = null) {
+  const esDinamico = esModoCalificacionDinamica(formulario);
+  const componentes = obtenerComponentesCalificacion(formulario);
+  const filas = {};
+
+  for (const criterio of criterios) {
+    const nota = notasPorCriterio?.[criterio.id] ?? notasPorCriterio?.[String(criterio.id)];
+    filas[criterio.id] = initFilaDesdeNota(nota, esDinamico, componentes);
+  }
+
   return filas;
 }
 
-export function initMatrizAula(estudiantes, criterios, notasPorEstudianteCriterio = {}) {
+export function initMatrizAula(estudiantes, criterios, notasPorEstudianteCriterio = {}, formulario = null) {
+  const esDinamico = esModoCalificacionDinamica(formulario);
+  const componentes = obtenerComponentesCalificacion(formulario);
   const matriz = {};
+
   for (const estudiante of estudiantes) {
     matriz[estudiante.id] = {};
     const notasEst = notasPorEstudianteCriterio?.[estudiante.id]
       ?? notasPorEstudianteCriterio?.[String(estudiante.id)]
       ?? {};
+
     for (const criterio of criterios) {
       const nota = notasEst[criterio.id] ?? notasEst[String(criterio.id)];
-      matriz[estudiante.id][criterio.id] = {
-        nota_cuaderno: valorNotaParaInput(nota?.nota_cuaderno),
-        nota_libro: valorNotaParaInput(nota?.nota_libro),
-        nota_tarea: valorNotaParaInput(nota?.nota_tarea),
-        _teniaNota: Boolean(nota),
-      };
+      matriz[estudiante.id][criterio.id] = initFilaDesdeNota(nota, esDinamico, componentes);
     }
   }
+
   return matriz;
 }
 
@@ -103,23 +189,53 @@ export function notaFueraDeRango(valor) {
   return Number.isNaN(n) || n < 0 || n > 20;
 }
 
-export function validarFilasEnRango(filas, criterios, etiquetaFn) {
+export function validarFilasEnRango(filas, criterios, etiquetaFn, formulario = null) {
+  const esDinamico = esModoCalificacionDinamica(formulario);
+  const componentes = obtenerComponentesCalificacion(formulario);
+
   for (const criterio of criterios) {
     const fila = filas[criterio.id] ?? {};
+
+    if (esDinamico) {
+      for (const comp of componentes) {
+        const valor = fila.componentes?.[comp.id] ?? fila.componentes?.[String(comp.id)];
+        if (notaFueraDeRango(valor)) {
+          return `La nota de «${etiquetaFn(criterio)} · ${comp.nombre}» debe estar entre 0 y 20.`;
+        }
+      }
+      continue;
+    }
+
     for (const campo of ['nota_cuaderno', 'nota_libro', 'nota_tarea']) {
       if (notaFueraDeRango(fila[campo])) {
         return `La nota de «${etiquetaFn(criterio)}» debe estar entre 0 y 20.`;
       }
     }
   }
+
   return null;
 }
 
-export function validarMatrizEnRango(matriz, estudiantes, criterios, nombreEstudianteFn) {
+export function validarMatrizEnRango(matriz, estudiantes, criterios, nombreEstudianteFn, formulario = null) {
+  const esDinamico = esModoCalificacionDinamica(formulario);
+  const componentes = obtenerComponentesCalificacion(formulario);
+
   for (const estudiante of estudiantes) {
     const filasEst = matriz[estudiante.id] ?? {};
+
     for (const criterio of criterios) {
       const fila = filasEst[criterio.id] ?? {};
+
+      if (esDinamico) {
+        for (const comp of componentes) {
+          const valor = fila.componentes?.[comp.id] ?? fila.componentes?.[String(comp.id)];
+          if (notaFueraDeRango(valor)) {
+            return `Nota inválida (${nombreEstudianteFn(estudiante)} · ${criterio.titulo} · ${comp.nombre}). Debe estar entre 0 y 20.`;
+          }
+        }
+        continue;
+      }
+
       for (const campo of ['nota_cuaderno', 'nota_libro', 'nota_tarea']) {
         if (notaFueraDeRango(fila[campo])) {
           return `Nota inválida (${nombreEstudianteFn(estudiante)} · ${criterio.titulo}). Debe estar entre 0 y 20.`;
@@ -127,21 +243,61 @@ export function validarMatrizEnRango(matriz, estudiantes, criterios, nombreEstud
       }
     }
   }
+
   return null;
 }
 
-export function construirPayloadEstudiante(filas, criterios) {
+/**
+ * @param {Record<string, unknown>} fila
+ * @param {number|string} criterioId
+ * @param {boolean} esDinamico
+ * @param {Array<{ id: number }>} componentes
+ */
+function construirRegistroDesdeFila(fila, criterioId, esDinamico, componentes) {
+  const payload = { tema_semanal_id: criterioId };
+
+  if (esDinamico) {
+    const notasComponentes = [];
+    for (const comp of componentes) {
+      const valor = fila.componentes?.[comp.id] ?? fila.componentes?.[String(comp.id)];
+      if (valor !== '' && valor != null) {
+        notasComponentes.push({
+          componente_id: comp.id,
+          nota: Number(valor),
+        });
+      }
+    }
+
+    if (notasComponentes.length === 0) {
+      return null;
+    }
+
+    payload.notas_componentes = notasComponentes;
+    return payload;
+  }
+
+  if (fila.nota_cuaderno !== '') payload.nota_cuaderno = Number(fila.nota_cuaderno);
+  if (fila.nota_libro !== '') payload.nota_libro = Number(fila.nota_libro);
+  if (fila.nota_tarea !== '') payload.nota_tarea = Number(fila.nota_tarea);
+
+  if (!filaTieneAlMenosUnaNota(fila, false)) {
+    return null;
+  }
+
+  return payload;
+}
+
+export function construirPayloadEstudiante(filas, criterios, formulario = null) {
+  const esDinamico = esModoCalificacionDinamica(formulario);
+  const componentes = obtenerComponentesCalificacion(formulario);
   const registros = [];
   let intentoBorrar = false;
 
   for (const criterio of criterios) {
     const fila = filas[criterio.id] ?? {};
-    const payload = { tema_semanal_id: criterio.id };
-    if (fila.nota_cuaderno !== '') payload.nota_cuaderno = Number(fila.nota_cuaderno);
-    if (fila.nota_libro !== '') payload.nota_libro = Number(fila.nota_libro);
-    if (fila.nota_tarea !== '') payload.nota_tarea = Number(fila.nota_tarea);
+    const payload = construirRegistroDesdeFila(fila, criterio.id, esDinamico, componentes);
 
-    if (filaTieneAlMenosUnaNota(fila)) {
+    if (payload) {
       registros.push(payload);
     } else if (fila._teniaNota) {
       intentoBorrar = true;
@@ -151,7 +307,9 @@ export function construirPayloadEstudiante(filas, criterios) {
   return { registros, intentoBorrar };
 }
 
-export function construirPayloadAula(matriz, estudiantes, criterios) {
+export function construirPayloadAula(matriz, estudiantes, criterios, formulario = null) {
+  const esDinamico = esModoCalificacionDinamica(formulario);
+  const componentes = obtenerComponentesCalificacion(formulario);
   const registrosPorEstudiante = [];
   let intentoBorrar = false;
 
@@ -161,12 +319,9 @@ export function construirPayloadAula(matriz, estudiantes, criterios) {
 
     for (const criterio of criterios) {
       const fila = filasEst[criterio.id] ?? {};
-      const payload = { tema_semanal_id: criterio.id };
-      if (fila.nota_cuaderno !== '') payload.nota_cuaderno = Number(fila.nota_cuaderno);
-      if (fila.nota_libro !== '') payload.nota_libro = Number(fila.nota_libro);
-      if (fila.nota_tarea !== '') payload.nota_tarea = Number(fila.nota_tarea);
+      const payload = construirRegistroDesdeFila(fila, criterio.id, esDinamico, componentes);
 
-      if (filaTieneAlMenosUnaNota(fila)) {
+      if (payload) {
         registros.push(payload);
       } else if (fila._teniaNota) {
         intentoBorrar = true;

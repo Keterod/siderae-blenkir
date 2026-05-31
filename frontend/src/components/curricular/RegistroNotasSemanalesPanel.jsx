@@ -6,6 +6,7 @@ import {
   getCurricularPeriodos,
   getDocenteAulasCursos,
   getFormularioNotasSemanales,
+  importarPlantillaRegistroAuxiliarExcel,
   postNotasSemanalesBulk,
 } from '../../lib/api';
 import {
@@ -42,11 +43,16 @@ import {
   construirOpcionesAreasFiltro,
   construirPayloadAula,
   construirPayloadEstudiante,
+  esCampoComponente,
+  esModoCalificacionDinamica,
   initFilasEstudiante,
   initMatrizAula,
+  obtenerComponentesCalificacion,
+  parseComponenteIdDesdeCampo,
   validarFilasEnRango,
   validarMatrizEnRango,
 } from './notas/notasUtils';
+import { MENSAJE_CALIFICACION_DINAMICA, MENSAJE_EXCEL_DINAMICO, MENSAJE_PLANTILLA_EXCEL } from '../../lib/notasCurricular';
 
 function nombreCursoAsignacion(a) {
   return a.malla_curso?.curso_catalogo?.nombre ?? a.mallaCurso?.cursoCatalogo?.nombre ?? 'Curso';
@@ -112,6 +118,7 @@ export default function RegistroNotasSemanalesPanel() {
   const [cargandoEvalBim, setCargandoEvalBim] = useState(false);
   const [guardandoEvalBim, setGuardandoEvalBim] = useState(false);
   const [descargandoPlantilla, setDescargandoPlantilla] = useState(false);
+  const [importandoPlantilla, setImportandoPlantilla] = useState(false);
   const [modoPlantilla, setModoPlantilla] = useState('vacia');
   const [modalConclusion, setModalConclusion] = useState({
     abierto: false,
@@ -271,10 +278,6 @@ export default function RegistroNotasSemanalesPanel() {
         etiqueta: c.titulo_opcion ?? `${c.curso_nombre}`,
       }));
 
-      // #region agent log
-      fetch('http://127.0.0.1:7660/ingest/a9ef591e-793a-4161-a2b6-989131aaf28a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'cfccdc'},body:JSON.stringify({sessionId:'cfccdc',runId:'post-fix',hypothesisId:'A',location:'RegistroNotasSemanalesPanel.jsx:opciones-consulta',message:'area filter options built',data:{filtrosNivel:filtros.nivel,modo:'consulta',rawCount:base.length,areas,duplicateLabels:areas.map(([,l])=>l).filter((l,i,a)=>a.indexOf(l)!==i)},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-
       return {
         modo: 'consulta',
         anios,
@@ -310,10 +313,6 @@ export default function RegistroNotasSemanalesPanel() {
       })),
       filtros.nivel,
     );
-
-    // #region agent log
-    fetch('http://127.0.0.1:7660/ingest/a9ef591e-793a-4161-a2b6-989131aaf28a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'cfccdc'},body:JSON.stringify({sessionId:'cfccdc',runId:'post-fix',hypothesisId:'A',location:'RegistroNotasSemanalesPanel.jsx:opciones-docente',message:'area filter options built',data:{filtrosNivel:filtros.nivel,modo:'docente',rawCount:base.length,areas,duplicateLabels:areas.map(([,l])=>l).filter((l,i,a)=>a.indexOf(l)!==i)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
 
     return {
       modo: 'docente',
@@ -440,10 +439,10 @@ export default function RegistroNotasSemanalesPanel() {
           estudianteActivo = String(estudiantesData[0].id);
           setFiltros((prev) => ({ ...prev, estudiante_id: estudianteActivo }));
         }
-        setFilas(initFilasEstudiante(criteriosData, data.notas_por_criterio ?? {}));
-        setMatriz(initMatrizAula(estudiantesData, criteriosData, data.notas_por_estudiante_criterio ?? {}));
+        setFilas(initFilasEstudiante(criteriosData, data.notas_por_criterio ?? {}, data));
+        setMatriz(initMatrizAula(estudiantesData, criteriosData, data.notas_por_estudiante_criterio ?? {}, data));
       } else {
-        setMatriz(initMatrizAula(estudiantesData, criteriosData, data.notas_por_estudiante_criterio ?? {}));
+        setMatriz(initMatrizAula(estudiantesData, criteriosData, data.notas_por_estudiante_criterio ?? {}, data));
         setFilas({});
       }
     } catch (err) {
@@ -519,6 +518,8 @@ export default function RegistroNotasSemanalesPanel() {
 
   const estudiantes = formulario?.estudiantes ?? evalBimFormulario?.estudiantes ?? [];
   const criterios = formulario?.criterios ?? [];
+  const modoCalificacionDinamica = esModoCalificacionDinamica(formulario);
+  const componentesCalificacion = obtenerComponentesCalificacion(formulario);
   const soloLectura = Boolean(formulario?.readonly ?? evalBimFormulario?.readonly);
   const soloLecturaEvalBim = Boolean(evalBimFormulario?.readonly ?? soloLectura);
 
@@ -539,7 +540,9 @@ export default function RegistroNotasSemanalesPanel() {
     && !modoConsultaGlobal
     && Boolean(filtros.asignacion_id && filtros.periodo_academico_id && estudiantes.length);
 
-  const puedeGuardar = !soloLectura && (vista === 'aula'
+  const puedeGuardar = !soloLectura
+    && (modoCalificacionDinamica ? componentesCalificacion.length > 0 : true)
+    && (vista === 'aula'
     ? Boolean(
       (modoConsultaGlobal ? filtros.consulta_contexto_clave : filtros.asignacion_id)
           && filtros.periodo_academico_id && estudiantes.length,
@@ -553,6 +556,10 @@ export default function RegistroNotasSemanalesPanel() {
     (modoConsultaGlobal ? filtros.consulta_contexto_clave : filtros.asignacion_id)
       && filtros.periodo_academico_id,
   );
+
+  const puedeImportarPlantilla = puedeDescargarPlantilla
+    && !modoConsultaGlobal
+    && !soloLectura;
 
   const descargarPlantillaExcel = useCallback(async () => {
     if (!puedeDescargarPlantilla) {
@@ -617,6 +624,60 @@ export default function RegistroNotasSemanalesPanel() {
     modoPlantilla,
   ]);
 
+  const importarPlantillaExcel = useCallback(async (archivo) => {
+    if (!puedeImportarPlantilla) {
+      setError('Seleccione curso y bimestre antes de importar la plantilla.');
+      return;
+    }
+
+    if (!filtros.asignacion_id || !filtros.periodo_academico_id) {
+      setError('Seleccione curso y bimestre antes de importar la plantilla.');
+      return;
+    }
+
+    setImportandoPlantilla(true);
+    setError(null);
+    setExito(null);
+    setAdvertencia(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('asignacion_docente_id', String(filtros.asignacion_id));
+      formData.append('periodo_academico_id', String(filtros.periodo_academico_id));
+      formData.append('archivo', archivo);
+
+      const resp = await importarPlantillaRegistroAuxiliarExcel(formData);
+
+      if (resp?.advertencias?.length) {
+        setAdvertencia(resp.advertencias.join(' '));
+      }
+
+      const importadosCriterios = resp?.importados_criterios ?? resp?.importados ?? 0;
+      const importadosBimestral = resp?.importados_bimestral ?? 0;
+
+      if (importadosBimestral > 0) {
+        setExito(
+          `Importación completada: ${importadosCriterios} registros de criterios y ${importadosBimestral} registros bimestrales actualizados.`,
+        );
+      } else {
+        setExito(`Se importaron ${importadosCriterios} nota(s) desde Excel.`);
+      }
+
+      await cargarFormulario(filtros, vista, false);
+      await cargarEvalBimestral(filtros, false, null);
+    } catch (err) {
+      setError(obtenerMensajeErrorNotas(err, 'No se pudo importar la plantilla Excel.'));
+    } finally {
+      setImportandoPlantilla(false);
+    }
+  }, [
+    puedeImportarPlantilla,
+    filtros,
+    vista,
+    cargarFormulario,
+    cargarEvalBimestral,
+  ]);
+
   function cambiarFiltro(partial) {
     setExito(null);
     setAdvertencia(null);
@@ -669,24 +730,59 @@ export default function RegistroNotasSemanalesPanel() {
 
   const cambiarNotaEstudiante = useCallback((criterioId, campo, valor) => {
     if (soloLectura) return;
-    setFilas((prev) => ({
-      ...prev,
-      [criterioId]: { ...prev[criterioId], [campo]: valor },
-    }));
+    setFilas((prev) => {
+      const filaActual = prev[criterioId] ?? {};
+      if (esCampoComponente(campo)) {
+        const componenteId = parseComponenteIdDesdeCampo(campo);
+        return {
+          ...prev,
+          [criterioId]: {
+            ...filaActual,
+            componentes: {
+              ...(filaActual.componentes ?? {}),
+              [componenteId]: valor,
+            },
+          },
+        };
+      }
+      return {
+        ...prev,
+        [criterioId]: { ...filaActual, [campo]: valor },
+      };
+    });
   }, [soloLectura]);
 
   const cambiarNotaAula = useCallback((estudianteId, criterioId, campo, valor) => {
     if (soloLectura) return;
-    setMatriz((prev) => ({
-      ...prev,
-      [estudianteId]: {
-        ...prev[estudianteId],
-        [criterioId]: {
-          ...(prev[estudianteId]?.[criterioId] ?? {}),
-          [campo]: valor,
+    setMatriz((prev) => {
+      const filaActual = prev[estudianteId]?.[criterioId] ?? {};
+      if (esCampoComponente(campo)) {
+        const componenteId = parseComponenteIdDesdeCampo(campo);
+        return {
+          ...prev,
+          [estudianteId]: {
+            ...prev[estudianteId],
+            [criterioId]: {
+              ...filaActual,
+              componentes: {
+                ...(filaActual.componentes ?? {}),
+                [componenteId]: valor,
+              },
+            },
+          },
+        };
+      }
+      return {
+        ...prev,
+        [estudianteId]: {
+          ...prev[estudianteId],
+          [criterioId]: {
+            ...filaActual,
+            [campo]: valor,
+          },
         },
-      },
-    }));
+      };
+    });
   }, [soloLectura]);
 
   const cambiarNotaEvalBim = useCallback((estudianteId, tipo, valor, idExtra) => {
@@ -805,16 +901,20 @@ export default function RegistroNotasSemanalesPanel() {
 
     setGuardando(true);
     try {
+      const mensajeSinNotas = modoCalificacionDinamica
+        ? 'Debe registrar al menos una nota en algún componente de calificación.'
+        : 'Debe registrar al menos una nota (C, L o T) en algún criterio.';
+
       if (vista === 'aula') {
-        const errRango = validarMatrizEnRango(matriz, estudiantes, criterios, nombreEstudiante);
+        const errRango = validarMatrizEnRango(matriz, estudiantes, criterios, nombreEstudiante, formulario);
         if (errRango) {
           setError(errRango);
           return;
         }
 
-        const { registrosPorEstudiante, intentoBorrar } = construirPayloadAula(matriz, estudiantes, criterios);
+        const { registrosPorEstudiante, intentoBorrar } = construirPayloadAula(matriz, estudiantes, criterios, formulario);
         if (registrosPorEstudiante.length === 0) {
-          setError('Debe registrar al menos una nota (C, L o T) en algún criterio.');
+          setError(mensajeSinNotas);
           return;
         }
         if (intentoBorrar) setAdvertencia(ADVERTENCIA_ELIMINAR_NOTA);
@@ -832,15 +932,15 @@ export default function RegistroNotasSemanalesPanel() {
           return;
         }
 
-        const errRango = validarFilasEnRango(filas, criterios, (c) => c.titulo);
+        const errRango = validarFilasEnRango(filas, criterios, (c) => c.titulo, formulario);
         if (errRango) {
           setError(errRango);
           return;
         }
 
-        const { registros, intentoBorrar } = construirPayloadEstudiante(filas, criterios);
+        const { registros, intentoBorrar } = construirPayloadEstudiante(filas, criterios, formulario);
         if (registros.length === 0) {
-          setError('Debe registrar al menos una nota (C, L o T) en algún criterio.');
+          setError(mensajeSinNotas);
           return;
         }
         if (intentoBorrar) setAdvertencia(ADVERTENCIA_ELIMINAR_NOTA);
@@ -913,6 +1013,39 @@ export default function RegistroNotasSemanalesPanel() {
         </div>
       ) : null}
 
+      {modoCalificacionDinamica ? (
+        <div
+          role="note"
+          className="-mx-4 mb-1 rounded-md border border-sky-400/60 bg-sky-50 px-3 py-1.5 text-[11px] text-sky-950 sm:-mx-6 sm:px-4 lg:-mx-10 lg:px-6"
+          data-testid="registro-notas-calificacion-dinamica-banner"
+        >
+          {MENSAJE_CALIFICACION_DINAMICA}
+          {' '}
+          {MENSAJE_EXCEL_DINAMICO}
+        </div>
+      ) : null}
+
+      {puedeDescargarPlantilla ? (
+        <div
+          role="note"
+          className="-mx-4 mb-1 rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-[11px] text-muted sm:-mx-6 sm:px-4 lg:-mx-10 lg:px-6"
+          data-testid="registro-notas-excel-info-banner"
+        >
+          {MENSAJE_PLANTILLA_EXCEL}
+        </div>
+      ) : null}
+
+      {formulario?.calificacion_dinamica_disponible === false
+        && (formulario?.componentes_calificacion?.length ?? 0) > 0 ? (
+          <div
+            role="note"
+            className="-mx-4 mb-1 rounded-md border border-red-400/60 bg-red-50 px-3 py-1.5 text-[11px] text-red-950 sm:-mx-6 sm:px-4 lg:-mx-10 lg:px-6"
+            data-testid="registro-notas-config-invalida-banner"
+          >
+            La configuración de componentes de calificación para este nivel no es válida (suma distinta de 100). Se usa el registro legacy Cuaderno/Libro/Tarea hasta que se corrija.
+          </div>
+      ) : null}
+
       {tieneAlertas ? (
         <div className="mb-1 flex flex-col gap-1">
           {error ? <AlertMessage variant="error">{error}</AlertMessage> : null}
@@ -963,10 +1096,13 @@ export default function RegistroNotasSemanalesPanel() {
                 puedeGuardar={puedeGuardar}
                 ocultarGuardar={soloLectura}
                 descargandoPlantilla={descargandoPlantilla}
+                importandoPlantilla={importandoPlantilla}
                 puedeDescargarPlantilla={puedeDescargarPlantilla}
+                puedeImportarPlantilla={puedeImportarPlantilla}
                 modoPlantilla={modoPlantilla}
                 onCambiarModoPlantilla={setModoPlantilla}
                 onDescargarPlantilla={descargarPlantillaExcel}
+                onImportarPlantilla={importarPlantillaExcel}
               />
             ) : null}
           </div>
@@ -999,6 +1135,8 @@ export default function RegistroNotasSemanalesPanel() {
                         estudiantes={estudiantes}
                         matriz={matriz}
                         pesos={formulario?.pesos}
+                        componentes={componentesCalificacion}
+                        modoDinamico={modoCalificacionDinamica}
                         onChangeNota={cambiarNotaAula}
                       />
                     ) : (

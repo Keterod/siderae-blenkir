@@ -1,7 +1,14 @@
-import { calcularCePreview } from '../../../lib/notasCurricular';
+import { calcularCePreview, calcularCePreviewDinamico } from '../../../lib/notasCurricular';
 import Button from '../../ui/Button';
 import NotaInputCell from './NotaInputCell';
-import { notaFueraDeRango } from './notasUtils';
+import {
+  esModoCalificacionDinamica,
+  etiquetaComponenteConPeso,
+  filaVaciaDinamica,
+  filaVaciaLegacy,
+  notaFueraDeRango,
+  obtenerComponentesCalificacion,
+} from './notasUtils';
 
 export default function RegistroNotasEstudianteView({
   soloLectura = false,
@@ -13,6 +20,9 @@ export default function RegistroNotasEstudianteView({
   guardando,
   cargandoFormulario,
 }) {
+  const modoDinamico = esModoCalificacionDinamica(formulario);
+  const componentes = obtenerComponentesCalificacion(formulario);
+
   return (
     <div className="rounded border border-[var(--border)] bg-[var(--surface)] p-2 sm:p-3">
       {!filtros.estudiante_id ? (
@@ -40,21 +50,38 @@ export default function RegistroNotasEstudianteView({
                     <thead>
                       <tr className="border-b bg-[var(--surface-muted)] text-left text-[10px] uppercase tracking-wide text-muted">
                         <th className="px-2 py-1 font-semibold">Criterio</th>
-                        <th className="w-12 px-1 py-1 text-center font-semibold">C</th>
-                        <th className="w-12 px-1 py-1 text-center font-semibold">L</th>
-                        <th className="w-12 px-1 py-1 text-center font-semibold">T</th>
+                        {modoDinamico ? (
+                          componentes.map((componente) => (
+                            <th
+                              key={componente.id}
+                              className="w-16 px-1 py-1 text-center font-semibold normal-case"
+                              title={etiquetaComponenteConPeso(componente)}
+                            >
+                              {etiquetaComponenteConPeso(componente)}
+                            </th>
+                          ))
+                        ) : (
+                          <>
+                            <th className="w-12 px-1 py-1 text-center font-semibold">C</th>
+                            <th className="w-12 px-1 py-1 text-center font-semibold">L</th>
+                            <th className="w-12 px-1 py-1 text-center font-semibold">T</th>
+                          </>
+                        )}
                         <th className="w-12 px-1 py-1 text-center font-semibold">CE</th>
                       </tr>
                     </thead>
                     <tbody>
                       {criterios.filter((c) => c.activo !== false).map((criterio) => {
-                        const fila = filas[criterio.id] ?? {};
-                        const ce = calcularCePreview(
-                          fila.nota_cuaderno,
-                          fila.nota_libro,
-                          fila.nota_tarea,
-                          formulario?.pesos,
-                        );
+                        const fila = filas[criterio.id]
+                          ?? (modoDinamico ? filaVaciaDinamica(componentes) : filaVaciaLegacy());
+                        const ce = modoDinamico
+                          ? calcularCePreviewDinamico(fila.componentes, componentes)
+                          : calcularCePreview(
+                            fila.nota_cuaderno,
+                            fila.nota_libro,
+                            fila.nota_tarea,
+                            formulario?.pesos,
+                          );
                         const ceInvalido = ce === 'invalid';
 
                         return (
@@ -64,16 +91,38 @@ export default function RegistroNotasEstudianteView({
                                 {criterio.titulo}
                               </p>
                             </td>
-                            {['nota_cuaderno', 'nota_libro', 'nota_tarea'].map((campo) => (
-                              <td key={campo} className="px-1 py-0.5 text-center align-top">
-                                <NotaInputCell
-                                  value={fila[campo]}
-                                  invalid={notaFueraDeRango(fila[campo])}
-                                  onChange={(valor) => onCambiarNota(criterio.id, campo, valor)}
-                                  disabled={soloLectura || !filtros.estudiante_id}
-                                />
-                              </td>
-                            ))}
+                            {modoDinamico ? (
+                              componentes.map((componente) => {
+                                const valor = fila.componentes?.[componente.id]
+                                  ?? fila.componentes?.[String(componente.id)]
+                                  ?? '';
+                                return (
+                                  <td key={componente.id} className="px-1 py-0.5 text-center align-top">
+                                    <NotaInputCell
+                                      value={valor}
+                                      invalid={notaFueraDeRango(valor)}
+                                      onChange={(nuevoValor) => onCambiarNota(
+                                        criterio.id,
+                                        `comp_${componente.id}`,
+                                        nuevoValor,
+                                      )}
+                                      disabled={soloLectura || !filtros.estudiante_id}
+                                    />
+                                  </td>
+                                );
+                              })
+                            ) : (
+                              ['nota_cuaderno', 'nota_libro', 'nota_tarea'].map((campo) => (
+                                <td key={campo} className="px-1 py-0.5 text-center align-top">
+                                  <NotaInputCell
+                                    value={fila[campo]}
+                                    invalid={notaFueraDeRango(fila[campo])}
+                                    onChange={(valor) => onCambiarNota(criterio.id, campo, valor)}
+                                    disabled={soloLectura || !filtros.estudiante_id}
+                                  />
+                                </td>
+                              ))
+                            )}
                             <td className="px-1 py-0.5 text-center align-top text-[10px] font-semibold tabular-nums text-[var(--primary-dark)]">
                               {ceInvalido ? (
                                 <span className="text-red-600">!</span>

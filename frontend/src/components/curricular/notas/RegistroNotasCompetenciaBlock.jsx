@@ -5,6 +5,8 @@ export default function RegistroNotasCompetenciaBlock({
   estudiantes,
   matriz,
   pesos,
+  componentes = [],
+  modoDinamico = false,
   onChangeNota,
   soloLectura = false,
 }) {
@@ -22,6 +24,8 @@ export default function RegistroNotasCompetenciaBlock({
           estudiantes={estudiantes}
           matriz={matriz}
           pesos={pesos}
+          componentes={componentes}
+          modoDinamico={modoDinamico}
           onChangeNota={onChangeNota}
           soloLectura={soloLectura}
         />

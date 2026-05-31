@@ -5,7 +5,14 @@ import NotaInputCell from './NotaInputCell';
 import { notaFueraDeRango } from './notasUtils';
 
 function RegistroNotasAlumnoRow({
-  estudiante, criterios, filas, pesos, onChangeNota, soloLectura = false,
+  estudiante,
+  criterios,
+  filas,
+  pesos,
+  componentes = [],
+  modoDinamico = false,
+  onChangeNota,
+  soloLectura = false,
 }) {
   return (
     <tr className="border-b last:border-b-0 hover:bg-orange-50/40">
@@ -22,6 +29,8 @@ function RegistroNotasAlumnoRow({
             criterioId={criterio.id}
             fila={fila}
             pesos={pesos}
+            componentes={componentes}
+            modoDinamico={modoDinamico}
             soloLectura={soloLectura}
             onChangeNota={onChangeNota}
             estudianteId={estudiante.id}
@@ -32,7 +41,37 @@ function RegistroNotasAlumnoRow({
   );
 }
 
-function CriterioCells({ criterioId, fila, pesos, onChangeNota, estudianteId, soloLectura }) {
+function CriterioCells({
+  criterioId,
+  fila,
+  pesos,
+  componentes,
+  modoDinamico,
+  onChangeNota,
+  estudianteId,
+  soloLectura,
+}) {
+  if (modoDinamico) {
+    return (
+      <>
+        {componentes.map((componente) => {
+          const valor = fila.componentes?.[componente.id] ?? fila.componentes?.[String(componente.id)] ?? '';
+          return (
+            <td key={componente.id} className="border-l border-[var(--border)]/40 px-0 py-0 text-center align-middle">
+              <NotaInputCell
+                value={valor}
+                invalid={notaFueraDeRango(valor)}
+                disabled={soloLectura}
+                onChange={(nuevoValor) => onChangeNota(estudianteId, criterioId, `comp_${componente.id}`, nuevoValor)}
+              />
+            </td>
+          );
+        })}
+        <NotaCeCell fila={fila} modoDinamico componentes={componentes} />
+      </>
+    );
+  }
+
   return (
     <>
       {['nota_cuaderno', 'nota_libro', 'nota_tarea'].map((campo) => (

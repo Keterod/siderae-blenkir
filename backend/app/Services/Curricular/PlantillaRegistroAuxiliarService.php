@@ -69,10 +69,16 @@ class PlantillaRegistroAuxiliarService
     {
         /** @var Collection<int, TemaSemanal> $criterios */
         $criterios = $formulario['criterios'];
+        $layout = PlantillaRegistroAuxiliarLayout::resolverDesdeFormulario($formulario);
         $columnasCriterios = $this->columnasCriterios($criterios);
         $columnasBimestral = $this->columnasBimestrales($evalBim);
+        $mapeoImportacion = PlantillaRegistroAuxiliarLayout::construirMapeoImportacion(
+            $columnasCriterios,
+            $layout['columnas_nota'],
+            $columnasBimestral,
+        );
 
-        $estudiantes = collect($formulario['estudiantes'])->map(function ($est) use ($formulario, $evalBim, $incluirNotas, $columnasCriterios, $columnasBimestral) {
+        $estudiantes = collect($formulario['estudiantes'])->map(function ($est) use ($formulario, $evalBim, $incluirNotas, $columnasCriterios, $columnasBimestral, $layout) {
             $notasPorCriterio = $formulario['notas_por_estudiante_criterio'][$est->id] ?? [];
             $resultado = $evalBim['resultados_por_estudiante'][$est->id] ?? null;
             $scalars = $evalBim['notas_scalar_por_estudiante'][$est->id] ?? [];
@@ -82,10 +88,12 @@ class PlantillaRegistroAuxiliarService
             foreach ($columnasCriterios as $col) {
                 $nota = $notasPorCriterio[$col['criterio_id']] ?? null;
                 $notasCriterio[] = [
-                    'c' => $incluirNotas ? $this->valorCelda($nota['nota_cuaderno'] ?? null) : null,
-                    'l' => $incluirNotas ? $this->valorCelda($nota['nota_libro'] ?? null) : null,
-                    't' => $incluirNotas ? $this->valorCelda($nota['nota_tarea'] ?? null) : null,
-                    'ce' => $incluirNotas ? $this->valorCelda($nota['ce_calculado'] ?? null) : null,
+                    'valores' => PlantillaRegistroAuxiliarLayout::valoresNotaParaPlantilla(
+                        is_array($nota) ? $nota : null,
+                        $layout['columnas_nota'],
+                        $layout['modo'],
+                        $incluirNotas,
+                    ),
                 ];
             }
 
@@ -96,6 +104,7 @@ class PlantillaRegistroAuxiliarService
 
             return [
                 'numero' => 0,
+                'estudiante_id' => (int) $est->id,
                 'nombre' => trim("{$est->apellidos} {$est->nombres}"),
                 'notas_criterio' => $notasCriterio,
                 'bimestral' => $bimestral,
@@ -113,6 +122,8 @@ class PlantillaRegistroAuxiliarService
 
         return [
             'incluir_notas' => $incluirNotas,
+            'periodo_academico_id' => (int) $periodo->id,
+            'asignacion_docente_id' => $asignacion?->id,
             'encabezado' => [
                 'titulo' => 'REGISTRO AUXILIAR DE EVALUACIÓN DE LOS APRENDIZAJES',
                 'bimestre' => $periodo->bimestre ?? '',
@@ -126,6 +137,11 @@ class PlantillaRegistroAuxiliarService
                 'sede' => $asignacion?->sede ?? ($ctx['sede'] ?? ''),
             ],
             'pesos_clt' => $formulario['pesos'],
+            'modo_calificacion_plantilla' => $layout['modo'],
+            'componentes_calificacion' => $layout['componentes'],
+            'columnas_nota' => $layout['columnas_nota'],
+            'columnas_por_criterio' => $layout['columnas_por_criterio'],
+            'mapeo_importacion' => $mapeoImportacion,
             'columnas_criterios' => $columnasCriterios,
             'columnas_bimestral' => $columnasBimestral,
             'pesos_nivel_componentes' => $this->pesosNivelComponentes($evalBim),

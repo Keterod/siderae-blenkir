@@ -663,6 +663,37 @@ export function postNotasSemanalesBulk(datos) {
   return request(`${CURRICULAR}/notas-semanales/bulk`, { method: 'POST', body: datos });
 }
 
+/** Importa plantilla Excel de notas semanales (.xlsx). */
+export async function importarPlantillaRegistroAuxiliarExcel(formData) {
+  const headers = {
+    Accept: 'application/json',
+  };
+
+  const xsrfToken = getCookie('XSRF-TOKEN');
+  if (xsrfToken) {
+    headers['X-XSRF-TOKEN'] = xsrfToken;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${CURRICULAR}/notas-semanales/importar-excel`, {
+    method: 'POST',
+    credentials: 'include',
+    headers,
+    body: formData,
+  });
+
+  const contentType = response.headers.get('content-type') || '';
+  const payload = contentType.includes('application/json') ? await response.json() : null;
+
+  if (!response.ok) {
+    const error = new Error('Import failed');
+    error.status = response.status;
+    error.payload = payload;
+    throw error;
+  }
+
+  return payload;
+}
+
 export function getResumenAcademico(estudianteId, params = {}) {
   const qs = buildQueryString(params);
   return request(

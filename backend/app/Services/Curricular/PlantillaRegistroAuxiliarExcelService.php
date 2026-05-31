@@ -22,11 +22,9 @@ class PlantillaRegistroAuxiliarExcelService
     private const BIM_FILL = 'FFDCE6F1';
     private const SUBHEADER_FILL = 'FFF3F6FC';
 
-    /** Fila donde inicia la tabla (encabezado competencia). */
-    public const FILA_INICIO_TABLA = 6;
+    private const FILA_INICIO_TABLA = PlantillaRegistroAuxiliarLayout::FILA_INICIO_TABLA;
 
-    /** Filas de encabezado de columnas antes de estudiantes. */
-    private const FILAS_ENCABEZADO_TABLA = 4;
+    private const FILAS_ENCABEZADO_TABLA = PlantillaRegistroAuxiliarLayout::FILAS_ENCABEZADO_TABLA;
 
     private const ALTURA_FILA_COMPETENCIA = 28;
     private const ALTURA_FILA_CAPACIDADES = 38;
@@ -45,15 +43,19 @@ class PlantillaRegistroAuxiliarExcelService
         $sheet->setShowGridlines(false);
 
         $ultimaCol = $this->ultimaColumna($payload);
+        $colEstudianteId = $ultimaCol + 1;
+        $payload['col_estudiante_id'] = $colEstudianteId;
 
         $this->escribirPortada($sheet, $payload['encabezado'] ?? [], $ultimaCol);
-        $ultimaFilaDatos = $this->escribirTabla($sheet, self::FILA_INICIO_TABLA, $payload, $ultimaCol);
+        $ultimaFilaDatos = $this->escribirTabla($sheet, self::FILA_INICIO_TABLA, $payload, $ultimaCol, $colEstudianteId);
 
         $filaEstudiantes = self::FILA_INICIO_TABLA + self::FILAS_ENCABEZADO_TABLA;
         $sheet->freezePane('C'.$filaEstudiantes);
 
+        $this->ocultarColumnaEstudianteId($sheet, $colEstudianteId);
         $this->aplicarAnchos($sheet, $ultimaCol, $payload);
         $this->aplicarBordesExteriores($sheet, self::FILA_INICIO_TABLA, $ultimaCol, $ultimaFilaDatos);
+        $this->escribirHojaMeta($spreadsheet, $payload);
 
         $writer = new Xlsx($spreadsheet);
         ob_start();
@@ -133,10 +135,12 @@ class PlantillaRegistroAuxiliarExcelService
     /**
      * @param  array<string, mixed>  $payload
      */
-    private function escribirTabla(Worksheet $sheet, int $startRow, array $payload, int $ultimaCol): int
+    private function escribirTabla(Worksheet $sheet, int $startRow, array $payload, int $ultimaCol, int $colEstudianteId): int
     {
         $columnasCriterios = $payload['columnas_criterios'] ?? [];
         $columnasBimestral = $payload['columnas_bimestral'] ?? [];
+        $columnasNota = $payload['columnas_nota'] ?? PlantillaRegistroAuxiliarLayout::columnasNotaLegacy();
+        $colsPorCriterio = (int) ($payload['columnas_por_criterio'] ?? count($columnasNota));
         $incluirNotas = (bool) ($payload['incluir_notas'] ?? false);
         $pesosNivel = $payload['pesos_nivel_componentes'] ?? [];
 
@@ -145,9 +149,9 @@ class PlantillaRegistroAuxiliarExcelService
         $rowCrit = $startRow + 2;
         $rowSub = $startRow + 3;
 
-        $bimColsStart = 3 + count($columnasCriterios) * 4;
+        $bimColsStart = 3 + count($columnasCriterios) * $colsPorCriterio;
         $ultimaColIndex = $ultimaCol;
-        $mapaColumnas = $this->construirMapaColumnas($columnasCriterios, $columnasBimestral, $bimColsStart);
+        $mapaColumnas = $this->construirMapaColumnas($columnasCriterios, $columnasBimestral, $bimColsStart, $colsPorCriterio);
 
         // Columnas fijas N° y Nombres (combinadas en 4 filas de encabezado)
         $sheet->mergeCellsByColumnAndRow(1, $rowComp, 1, $rowSub);
@@ -164,33 +168,38 @@ class PlantillaRegistroAuxiliarExcelService
         ]);
 
         // Merges competencia / capacidad / criterio (desde columna 3)
-        $this->aplicarMergeAgrupado($sheet, $rowComp, $columnasCriterios, 'competencia_nombre', 4, self::COMPETENCIA_FILL, true);
-        $this->aplicarMergeAgrupado($sheet, $rowCap, $columnasCriterios, 'capacidad_nombre', 4, self::CAPACIDAD_FILL, false);
+        $this->aplicarMergeAgrupado($sheet, $rowComp, $columnasCriterios, 'competencia_nombre', $colsPorCriterio, self::COMPETENCIA_FILL, true);
+        $this->aplicarMergeAgrupado($sheet, $rowCap, $columnasCriterios, 'capacidad_nombre', $colsPorCriterio, self::CAPACIDAD_FILL, false);
         $idx = 3;
         foreach ($columnasCriterios as $col) {
-            $sheet->mergeCellsByColumnAndRow($idx, $rowCrit, $idx + 3, $rowCrit);
+            $sheet->mergeCellsByColumnAndRow($idx, $rowCrit, $idx + $colsPorCriterio - 1, $rowCrit);
             $sheet->setCellValueByColumnAndRow($idx, $rowCrit, $col['criterio_titulo'] ?? '');
-            $this->estiloCelda($sheet, Coordinate::stringFromColumnIndex($idx).$rowCrit.':'.Coordinate::stringFromColumnIndex($idx + 3).$rowCrit, [
+            $this->estiloCelda($sheet, Coordinate::stringFromColumnIndex($idx).$rowCrit.':'.Coordinate::stringFromColumnIndex($idx + $colsPorCriterio - 1).$rowCrit, [
                 'bold' => true,
                 'fill' => self::CRITERIO_FILL,
                 'h' => Alignment::HORIZONTAL_CENTER,
                 'v' => Alignment::VERTICAL_CENTER,
                 'wrap' => true,
             ]);
-            $idx += 4;
+            $idx += $colsPorCriterio;
         }
 
-        // Subcolumnas C L T CE
+        // Subcolumnas de notas (legacy C/L/T o componentes dinámicos + CE)
         $idx = 3;
         foreach ($columnasCriterios as $_) {
-            foreach (['C', 'L', 'T', 'CE'] as $sub) {
-                $sheet->setCellValueByColumnAndRow($idx, $rowSub, $sub);
+            foreach ($columnasNota as $def) {
+                $etiqueta = $def['etiqueta'] ?? '';
+                if (($def['tipo'] ?? '') === 'componente' && isset($def['peso'])) {
+                    $etiqueta = sprintf('%s (%s%%)', $def['etiqueta'], round((float) $def['peso']));
+                }
+                $sheet->setCellValueByColumnAndRow($idx, $rowSub, $etiqueta);
                 $this->estiloCelda($sheet, Coordinate::stringFromColumnIndex($idx).$rowSub, [
                     'bold' => true,
                     'fill' => self::SUBHEADER_FILL,
                     'h' => Alignment::HORIZONTAL_CENTER,
                     'v' => Alignment::VERTICAL_CENTER,
                     'size' => 9,
+                    'wrap' => true,
                 ]);
                 $idx++;
             }
@@ -229,6 +238,9 @@ class PlantillaRegistroAuxiliarExcelService
 
             $sheet->setCellValueByColumnAndRow(1, $dataRow, $est['numero'] ?? '');
             $sheet->setCellValueByColumnAndRow(2, $dataRow, $est['nombre'] ?? '');
+            if (isset($est['estudiante_id'])) {
+                $sheet->setCellValueByColumnAndRow($colEstudianteId, $dataRow, (int) $est['estudiante_id']);
+            }
             $this->estiloCelda($sheet, Coordinate::stringFromColumnIndex(1).$dataRow, [
                 'h' => Alignment::HORIZONTAL_CENTER,
                 'v' => Alignment::VERTICAL_CENTER,
@@ -241,36 +253,35 @@ class PlantillaRegistroAuxiliarExcelService
 
             $idx = 3;
             foreach ($est['notas_criterio'] ?? [] as $notas) {
-                $cCol = $idx;
-                $lCol = $idx + 1;
-                $tCol = $idx + 2;
-                $ceCol = $idx + 3;
+                $valores = $notas['valores'] ?? [];
+                $startColGrupo = $idx;
 
-                if ($incluirNotas) {
-                    $this->setNumericCell($sheet, $cCol, $dataRow, $notas['c'] ?? null);
-                    $this->setNumericCell($sheet, $lCol, $dataRow, $notas['l'] ?? null);
-                    $this->setNumericCell($sheet, $tCol, $dataRow, $notas['t'] ?? null);
-                    $this->setNumericCell($sheet, $ceCol, $dataRow, $notas['ce'] ?? null);
-                } else {
-                    $cLetter = Coordinate::stringFromColumnIndex($cCol);
-                    $lLetter = Coordinate::stringFromColumnIndex($lCol);
-                    $tLetter = Coordinate::stringFromColumnIndex($tCol);
-                    $formula = sprintf(
-                        '=IFERROR(IF(COUNT(%1$s,%2$s,%3$s)=0,"",ROUND(AVERAGE(%1$s,%2$s,%3$s),2)),"")',
-                        $cLetter.$dataRow,
-                        $lLetter.$dataRow,
-                        $tLetter.$dataRow,
-                    );
-                    $sheet->setCellValueByColumnAndRow($ceCol, $dataRow, $formula);
-                }
+                for ($i = 0; $i < count($columnasNota); $i++) {
+                    $def = $columnasNota[$i];
+                    $col = $idx + $i;
+                    $valor = $valores[$i] ?? null;
 
-                foreach ([$cCol, $lCol, $tCol, $ceCol] as $c) {
-                    $this->estiloCelda($sheet, Coordinate::stringFromColumnIndex($c).$dataRow, [
+                    if (($def['tipo'] ?? '') === 'ce') {
+                        if ($incluirNotas) {
+                            $this->setNumericCell($sheet, $col, $dataRow, $valor);
+                        } else {
+                            $sheet->setCellValueByColumnAndRow(
+                                $col,
+                                $dataRow,
+                                $this->formulaCeGrupoCriterio($startColGrupo, $dataRow, $columnasNota),
+                            );
+                        }
+                    } elseif ($incluirNotas) {
+                        $this->setNumericCell($sheet, $col, $dataRow, $valor);
+                    }
+
+                    $this->estiloCelda($sheet, Coordinate::stringFromColumnIndex($col).$dataRow, [
                         'h' => Alignment::HORIZONTAL_CENTER,
                         'v' => Alignment::VERTICAL_CENTER,
                     ]);
                 }
-                $idx += 4;
+
+                $idx += count($columnasNota);
             }
 
             if (! $incluirNotas) {
@@ -338,13 +349,13 @@ class PlantillaRegistroAuxiliarExcelService
      *     }
      * }
      */
-    private function construirMapaColumnas(array $columnasCriterios, array $columnasBimestral, int $bimColsStart): array
+    private function construirMapaColumnas(array $columnasCriterios, array $columnasBimestral, int $bimColsStart, int $colsPorCriterio): array
     {
         $ceCols = [];
         $col = 3;
         foreach ($columnasCriterios as $_) {
-            $ceCols[] = $col + 3;
-            $col += 4;
+            $ceCols[] = $col + $colsPorCriterio - 1;
+            $col += $colsPorCriterio;
         }
 
         $bim = [
@@ -740,10 +751,82 @@ class PlantillaRegistroAuxiliarExcelService
      */
     private function ultimaColumna(array $payload): int
     {
-        $criterios = count($payload['columnas_criterios'] ?? []) * 4;
+        $colsPorCriterio = (int) ($payload['columnas_por_criterio'] ?? 4);
+        $criterios = count($payload['columnas_criterios'] ?? []) * $colsPorCriterio;
         $bim = count($payload['columnas_bimestral'] ?? []);
 
         return 2 + $criterios + $bim;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $columnasNota
+     */
+    private function formulaCeGrupoCriterio(int $startCol, int $row, array $columnasNota): string
+    {
+        $refs = [];
+        $terms = [];
+        $pesos = [];
+
+        foreach ($columnasNota as $i => $def) {
+            if (($def['tipo'] ?? '') === 'ce') {
+                continue;
+            }
+
+            $ref = Coordinate::stringFromColumnIndex($startCol + $i).$row;
+            $refs[] = $ref;
+
+            if (isset($def['peso'])) {
+                $peso = (float) $def['peso'];
+                $pesos[] = $peso;
+                $terms[] = sprintf('%s*%s', $ref, round($peso / 100, 4));
+            }
+        }
+
+        if ($refs === []) {
+            return '=""';
+        }
+
+        $joined = implode(',', $refs);
+
+        if ($pesos === [] || count(array_unique(array_map(fn (float $p) => round($p, 2), $pesos))) <= 1) {
+            return sprintf('=IFERROR(IF(COUNT(%1$s)=0,"",ROUND(AVERAGE(%1$s),2)),"")', $joined);
+        }
+
+        return sprintf('=IFERROR(IF(COUNT(%1$s)=0,"",ROUND(%2$s,2)),"")', $joined, implode('+', $terms));
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function escribirHojaMeta(Spreadsheet $spreadsheet, array $payload): void
+    {
+        $meta = $spreadsheet->createSheet();
+        $meta->setTitle(PlantillaRegistroAuxiliarLayout::META_SHEET);
+        $meta->setSheetState(Worksheet::SHEETSTATE_HIDDEN);
+
+        $filas = [
+            ['plantilla_version', (string) PlantillaRegistroAuxiliarLayout::PLANTILLA_VERSION],
+            ['modo_calificacion', (string) ($payload['modo_calificacion_plantilla'] ?? PlantillaRegistroAuxiliarLayout::MODO_LEGACY)],
+            ['periodo_academico_id', (string) ($payload['periodo_academico_id'] ?? '')],
+            ['anio_escolar', (string) ($payload['encabezado']['anio_escolar'] ?? '')],
+            ['nivel', (string) ($payload['encabezado']['nivel'] ?? '')],
+            ['grado', (string) ($payload['encabezado']['grado'] ?? '')],
+            ['seccion', (string) ($payload['encabezado']['seccion'] ?? '')],
+            ['sede', (string) ($payload['encabezado']['sede'] ?? '')],
+            ['asignacion_docente_id', (string) ($payload['asignacion_docente_id'] ?? '')],
+            ['fila_inicio_datos', (string) PlantillaRegistroAuxiliarLayout::FILA_INICIO_DATOS],
+            ['col_estudiante_id', (string) ($payload['col_estudiante_id'] ?? '')],
+            ['componentes_json', json_encode($payload['componentes_calificacion'] ?? [], JSON_UNESCAPED_UNICODE)],
+            ['mapeo_importacion_json', json_encode($payload['mapeo_importacion'] ?? [], JSON_UNESCAPED_UNICODE)],
+            ['columnas_bimestral_json', json_encode($payload['columnas_bimestral'] ?? [], JSON_UNESCAPED_UNICODE)],
+        ];
+
+        $row = 1;
+        foreach ($filas as [$clave, $valor]) {
+            $meta->setCellValue("A{$row}", $clave);
+            $meta->setCellValue("B{$row}", $valor);
+            $row++;
+        }
     }
 
     /**
@@ -755,9 +838,15 @@ class PlantillaRegistroAuxiliarExcelService
         $sheet->getColumnDimension('B')->setWidth(36);
 
         $col = 3;
+        $columnasNota = $payload['columnas_nota'] ?? PlantillaRegistroAuxiliarLayout::columnasNotaLegacy();
         foreach ($payload['columnas_criterios'] ?? [] as $_) {
-            foreach ([4, 4, 4, 5.5] as $w) {
-                $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($col++))->setWidth($w);
+            foreach ($columnasNota as $def) {
+                $letter = Coordinate::stringFromColumnIndex($col++);
+                $width = (($def['tipo'] ?? '') === 'ce') ? 5.5 : 5.5;
+                if (($def['tipo'] ?? '') === 'componente') {
+                    $width = 7.5;
+                }
+                $sheet->getColumnDimension($letter)->setWidth($width);
             }
         }
 
@@ -783,5 +872,14 @@ class PlantillaRegistroAuxiliarExcelService
         $romanos = [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV'];
 
         return ($romanos[$n] ?? (string) $n).' BIMESTRE';
+    }
+
+    private function ocultarColumnaEstudianteId(Worksheet $sheet, int $colEstudianteId): void
+    {
+        $letter = Coordinate::stringFromColumnIndex($colEstudianteId);
+        $dimension = $sheet->getColumnDimension($letter);
+        $dimension->setVisible(false);
+        $dimension->setWidth(0);
+        $dimension->setCollapsed(true);
     }
 }

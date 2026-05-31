@@ -225,6 +225,7 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
 
     Route::middleware(['permission:registrar_notas_semanales'])->group(function (): void {
         Route::post('/notas-semanales/bulk', [NotaSemanalController::class, 'bulk']);
+        Route::post('/notas-semanales/importar-excel', [NotaSemanalController::class, 'importarExcel']);
     });
 
     Route::middleware(['permission:ver_notas_academicas'])->group(function (): void {

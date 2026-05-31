@@ -50,10 +50,63 @@ export function calcularCePreview(cuaderno, libro, tarea, pesos = null) {
   return (sumaPonderada / sumaPesos).toFixed(2);
 }
 
-export function filaTieneAlMenosUnaNota(fila) {
-  return ['nota_cuaderno', 'nota_libro', 'nota_tarea'].some((c) => {
-    const v = fila?.[c];
-    return v !== '' && v != null;
+/**
+ * CE preview para componentes dinámicos por nivel.
+ * @param {Record<string|number, string|number>} componentesMap
+ * @param {Array<{ id: number, peso?: number|string }>} componentesConfig
+ */
+export function calcularCePreviewDinamico(componentesMap, componentesConfig = []) {
+  const presentes = [];
+
+  for (const comp of componentesConfig) {
+    const valor = componentesMap?.[comp.id] ?? componentesMap?.[String(comp.id)];
+    if (valor === '' || valor == null || Number.isNaN(Number(valor))) continue;
+    presentes.push({ nota: Number(valor), peso: Number(comp.peso ?? 0) });
+  }
+
+  if (presentes.length === 0) return null;
+
+  for (const item of presentes) {
+    if (item.nota < 0 || item.nota > 20) return 'invalid';
+  }
+
+  const pesos = presentes.map((item) => item.peso);
+  const referencia = pesos[0];
+  const pesosIguales = pesos.every((peso) => Math.abs(peso - referencia) < 0.02);
+
+  if (pesosIguales) {
+    const promedio = presentes.reduce((suma, item) => suma + item.nota, 0) / presentes.length;
+    return promedio.toFixed(2);
+  }
+
+  let sumaPesos = 0;
+  let sumaPonderada = 0;
+  for (const item of presentes) {
+    sumaPesos += item.peso;
+    sumaPonderada += item.nota * item.peso;
+  }
+
+  if (sumaPesos <= 0) return null;
+  return (sumaPonderada / sumaPesos).toFixed(2);
+}
+
+/**
+ * @param {Record<string, unknown>} fila
+ * @param {boolean} [esDinamico=false]
+ * @param {Array<{ id: number }>} [componentes=[]]
+ */
+export function filaTieneAlMenosUnaNota(fila, esDinamico = false, componentes = []) {
+  if (esDinamico) {
+    for (const comp of componentes) {
+      const valor = fila?.componentes?.[comp.id] ?? fila?.componentes?.[String(comp.id)];
+      if (valor !== '' && valor != null) return true;
+    }
+    return false;
+  }
+
+  return ['nota_cuaderno', 'nota_libro', 'nota_tarea'].some((campo) => {
+    const valor = fila?.[campo];
+    return valor !== '' && valor != null;
   });
 }
 
@@ -71,14 +124,23 @@ export function nombreEstudiante(est) {
   return `${est.apellidos ?? ''}, ${est.nombres ?? ''}`.trim();
 }
 
-export function obtenerMensajeErrorNotas(err) {
+export function obtenerMensajeErrorNotas(err, fallback = 'No se pudo completar la operación.') {
   if (err?.payload?.message) return err.payload.message;
   if (err?.payload?.errors) {
     const first = Object.values(err.payload.errors).flat()[0];
     if (first) return first;
   }
-  return 'No se pudo completar la operación.';
+  return fallback;
 }
 
 export const ADVERTENCIA_ELIMINAR_NOTA =
   'Para eliminar una nota registrada se requiere una acción específica.';
+
+export const MENSAJE_CALIFICACION_DINAMICA =
+  'Los criterios de este nivel se califican con componentes configurados por nivel.';
+
+export const MENSAJE_EXCEL_DINAMICO =
+  'Excel usará los componentes de calificación configurados para este nivel.';
+
+export const MENSAJE_PLANTILLA_EXCEL =
+  'La plantilla se genera con los componentes configurados para el nivel.';

@@ -6,6 +6,8 @@ export default function RegistroNotasAulaTable({
   estudiantes,
   matriz,
   pesos,
+  componentes = [],
+  modoDinamico = false,
   onChangeNota,
 }) {
   if (!estudiantes.length) {
@@ -23,6 +25,8 @@ export default function RegistroNotasAulaTable({
           estudiantes={estudiantes}
           matriz={matriz}
           pesos={pesos}
+          componentes={componentes}
+          modoDinamico={modoDinamico}
           soloLectura={soloLectura}
           onChangeNota={onChangeNota}
         />

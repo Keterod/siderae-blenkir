@@ -1,8 +1,10 @@
 import { memo } from 'react';
-import { calcularCePreview } from '../../../lib/notasCurricular';
+import { calcularCePreview, calcularCePreviewDinamico } from '../../../lib/notasCurricular';
 
-function NotaCeCell({ fila, pesos }) {
-  const ce = calcularCePreview(fila?.nota_cuaderno, fila?.nota_libro, fila?.nota_tarea, pesos);
+function NotaCeCell({ fila, pesos, modoDinamico = false, componentes = [] }) {
+  const ce = modoDinamico
+    ? calcularCePreviewDinamico(fila?.componentes, componentes)
+    : calcularCePreview(fila?.nota_cuaderno, fila?.nota_libro, fila?.nota_tarea, pesos);
   const ceInvalido = ce === 'invalid';
 
   return (
