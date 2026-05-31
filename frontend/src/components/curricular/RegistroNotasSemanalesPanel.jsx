@@ -16,6 +16,7 @@ import {
 } from '../../lib/evaluacionBimestral';
 import { anioEscolarActual } from '../../lib/academico';
 import { resolverCalendarioActivoParaFiltros } from '../../lib/calendarioAcademico';
+import { cargarOpcionesSeccionAula, combinarOpcionesSeccion } from '../../lib/seccionesAula';
 import {
   nombreEstudiante,
   obtenerMensajeErrorNotas,
@@ -106,6 +107,7 @@ export default function RegistroNotasSemanalesPanel() {
     periodo_academico_id: '',
     estudiante_id: '',
   });
+  const [seccionesCatalogo, setSeccionesCatalogo] = useState([]);
 
   const [error, setError] = useState(null);
   const [exito, setExito] = useState(null);
@@ -246,7 +248,36 @@ export default function RegistroNotasSemanalesPanel() {
     });
   }, [modoConsultaGlobal, aulas, filtros]);
 
+  useEffect(() => {
+    let cancelado = false;
+
+    if (!filtros.nivel || !filtros.grado) {
+      setSeccionesCatalogo([]);
+      return undefined;
+    }
+
+    void cargarOpcionesSeccionAula({
+      nivel: filtros.nivel,
+      grado: filtros.grado,
+      gradoFormato: 'curricular',
+    }).then((opcionesCatalogo) => {
+      if (!cancelado) {
+        setSeccionesCatalogo(opcionesCatalogo.map((o) => o.value));
+      }
+    });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [filtros.nivel, filtros.grado]);
+
   const opciones = useMemo(() => {
+    const mergeSecciones = (desdeContexto) => combinarOpcionesSeccion(
+      seccionesCatalogo,
+      desdeContexto,
+      filtros.seccion,
+    ).map((o) => o.value);
+
     if (modoConsultaGlobal) {
       const base = filtros.anio_escolar
         ? contextosConsulta.filter((c) => c.anio_escolar === filtros.anio_escolar)
@@ -284,7 +315,7 @@ export default function RegistroNotasSemanalesPanel() {
         niveles,
         sedes,
         grados,
-        secciones,
+        secciones: mergeSecciones(secciones),
         areas,
         cursosOpciones,
       };
@@ -320,11 +351,27 @@ export default function RegistroNotasSemanalesPanel() {
       niveles,
       sedes,
       grados,
-      secciones,
+      secciones: mergeSecciones(secciones),
       areas,
       cursosOpciones: [],
     };
-  }, [modoConsultaGlobal, contextosConsulta, contextosFiltrados, aulas, filtros.anio_escolar, filtros.nivel, filtros.grado]);
+  }, [modoConsultaGlobal, contextosConsulta, contextosFiltrados, aulas, filtros.anio_escolar, filtros.nivel, filtros.grado, filtros.seccion, seccionesCatalogo]);
+
+  useEffect(() => {
+    if (!filtros.seccion || !filtros.nivel || !filtros.grado) {
+      return;
+    }
+    const valores = opciones.secciones ?? [];
+    if (valores.length > 0 && !valores.includes(filtros.seccion)) {
+      setFiltros((prev) => ({
+        ...prev,
+        seccion: '',
+        ...(modoConsultaGlobal
+          ? { consulta_contexto_clave: '' }
+          : { asignacion_id: '' }),
+      }));
+    }
+  }, [opciones.secciones, filtros.seccion, filtros.nivel, filtros.grado, modoConsultaGlobal]);
 
   useEffect(() => {
     if (!modoConsultaGlobal || !filtros.consulta_contexto_clave) return;

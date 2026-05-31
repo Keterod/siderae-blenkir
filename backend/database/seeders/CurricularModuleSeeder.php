@@ -9,6 +9,7 @@ use Database\Seeders\Curricular\CurriculoNacionalBaseSeeder;
 use Database\Seeders\Curricular\EquivalenciasGradoSeeder;
 use Database\Seeders\Curricular\PeriodosSemanasDemoSeeder;
 use Database\Seeders\Curricular\PlantillasInstitucionalesSeeder;
+use Database\Seeders\Curricular\SeccionesAulasSeeder;
 use Illuminate\Database\Seeder;
 
 class CurricularModuleSeeder extends Seeder
@@ -23,6 +24,7 @@ class CurricularModuleSeeder extends Seeder
             ConfiguracionPesosGlobalSeeder::class,
             ComponentesCalificacionNivelSeeder::class,
             EvalBimEscalaLogroSeeder::class,
+            SeccionesAulasSeeder::class,
         ]);
     }
 }

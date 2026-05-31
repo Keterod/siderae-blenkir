@@ -9,6 +9,7 @@ import {
 import { anioEscolarActual } from '../../lib/academico';
 import { gradosCurricularesPorNivel, NIVELES_CURRICULARES } from '../../lib/academicoCurricular';
 import { resolverCalendarioActivoParaFiltros } from '../../lib/calendarioAcademico';
+import { useOpcionesSeccionAula } from '../../lib/seccionesAula';
 import AlertMessage from '../ui/AlertMessage';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -16,12 +17,11 @@ import EmptyState from '../ui/EmptyState';
 import LoadingState from '../ui/LoadingState';
 import { FIELD } from './malla/utils';
 
-const SECCIONES = ['A', 'B', 'C'];
 const DEMO_ASIGNACION = {
   nivel: 'primaria',
   sede: 'chilca',
   grado: '2do',
-  seccion: 'A',
+  seccion: 'AMISTAD',
   docenteEmail: 'docente@siderae.test',
 };
 const SEDES = [
@@ -62,7 +62,7 @@ export default function AsignacionDocentePanel() {
   const [docentes, setDocentes] = useState([]);
   const [docenteSeleccionado, setDocenteSeleccionado] = useState(null);
   const [grado, setGrado] = useState('2do');
-  const [seccion, setSeccion] = useState('A');
+  const [seccion, setSeccion] = useState('AMISTAD');
   const [mallaCursos, setMallaCursos] = useState([]);
   const [mallaProvisionada, setMallaProvisionada] = useState(true);
   const [asignacionesContexto, setAsignacionesContexto] = useState([]);
@@ -75,7 +75,44 @@ export default function AsignacionDocentePanel() {
   const [error, setError] = useState(null);
   const [exito, setExito] = useState(null);
 
+  const seccionesLegacy = useMemo(() => {
+    const nombres = new Set();
+    for (const grupo of resumenDocente) {
+      if (grupo.grado === grado && grupo.seccion) {
+        nombres.add(grupo.seccion);
+      }
+    }
+    for (const asignacion of asignacionesContexto) {
+      if (
+        asignacion.seccion
+        && asignacion.grado === grado
+        && asignacion.nivel === filtros.nivel
+      ) {
+        nombres.add(asignacion.seccion);
+      }
+    }
+    return [...nombres];
+  }, [resumenDocente, asignacionesContexto, grado, filtros.nivel]);
+
+  const opcionesSeccion = useOpcionesSeccionAula({
+    nivel: filtros.nivel,
+    grado,
+    gradoFormato: 'curricular',
+    legacy: seccionesLegacy,
+    valorActual: seccion,
+  });
+
   const puedeOperar = !sinAnioActivo && !cargandoAnioActivo;
+
+  useEffect(() => {
+    if (!seccion) {
+      return;
+    }
+    const valores = opcionesSeccion.map((o) => o.value);
+    if (valores.length > 0 && !valores.includes(seccion)) {
+      setSeccion('');
+    }
+  }, [opcionesSeccion, seccion]);
 
   useEffect(() => {
     let cancelado = false;
@@ -383,6 +420,7 @@ export default function AsignacionDocentePanel() {
                 const grados = gradosCurricularesPorNivel(nivel);
                 setFiltros((prev) => ({ ...prev, nivel }));
                 setGrado(grados[0] ?? '');
+                setSeccion('');
               }}
             >
               {NIVELES_CURRICULARES.map((n) => (
@@ -488,7 +526,10 @@ export default function AsignacionDocentePanel() {
                     className={FIELD}
                     value={grado}
                     disabled={!puedeOperar}
-                    onChange={(e) => setGrado(e.target.value)}
+                    onChange={(e) => {
+                      setGrado(e.target.value);
+                      setSeccion('');
+                    }}
                   >
                     {gradosCurricularesPorNivel(filtros.nivel).map((g) => (
                       <option key={g} value={g}>{g}</option>
@@ -503,8 +544,8 @@ export default function AsignacionDocentePanel() {
                     disabled={!puedeOperar}
                     onChange={(e) => setSeccion(e.target.value)}
                   >
-                    {SECCIONES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                    {opcionesSeccion.map((s) => (
+                      <option key={s.value} value={s.value}>{s.label}</option>
                     ))}
                   </select>
                 </label>

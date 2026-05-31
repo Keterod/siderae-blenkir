@@ -8,6 +8,7 @@ import {
   gradoEsValidoParaNivel,
 } from '../../../lib/academico';
 import { resolverCalendarioActivoParaFiltros } from '../../../lib/calendarioAcademico';
+import { useOpcionesSeccionAula } from '../../../lib/seccionesAula';
 import AlertMessage from '../../ui/AlertMessage';
 import Button from '../../ui/Button';
 import Card from '../../ui/Card';
@@ -63,6 +64,29 @@ export default function AsistenciaCurricularPanel() {
   const [exito, setExito] = useState(null);
   const [listaSolicitada, setListaSolicitada] = useState(false);
   const [sinAnioActivo, setSinAnioActivo] = useState(false);
+
+  const seccionesDesdeAulas = useMemo(
+    () => [...new Set(aulasDocente.map((a) => a.seccion).filter(Boolean))],
+    [aulasDocente],
+  );
+
+  const opcionesSeccion = useOpcionesSeccionAula({
+    nivel: filtros.nivel,
+    grado: filtros.grado,
+    gradoFormato: 'estudiante',
+    legacy: seccionesDesdeAulas,
+    valorActual: filtros.seccion,
+  });
+
+  useEffect(() => {
+    if (!filtros.seccion || !filtros.nivel || !filtros.grado) {
+      return;
+    }
+    const valores = opcionesSeccion.map((o) => o.value);
+    if (valores.length > 0 && !valores.includes(filtros.seccion)) {
+      setFiltros((prev) => ({ ...prev, seccion: '' }));
+    }
+  }, [opcionesSeccion, filtros.seccion, filtros.nivel, filtros.grado]);
 
   useEffect(() => {
     void resolverCalendarioActivoParaFiltros().then((cal) => {
@@ -284,7 +308,12 @@ export default function AsistenciaCurricularPanel() {
       </div>
 
       <Card className="sticky top-0 z-10 border-[var(--border)] bg-[var(--surface)]/95 p-4 shadow-card backdrop-blur-sm sm:p-6">
-        <AsistenciaFiltros filtros={filtros} onChange={actualizarFiltros} deshabilitado={cargando || guardando} />
+        <AsistenciaFiltros
+          filtros={filtros}
+          onChange={actualizarFiltros}
+          deshabilitado={cargando || guardando}
+          opcionesSeccion={opcionesSeccion}
+        />
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button
             type="button"

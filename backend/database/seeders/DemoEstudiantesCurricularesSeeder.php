@@ -36,8 +36,11 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
     /** @var list<string> */
     private const SEDES = ['chilca', 'auquimarca'];
 
-    /** @var list<string> */
-    private const SECCIONES = ['A', 'B'];
+    /** Segunda sección demo por nivel (pareja con la primera del catálogo). */
+    private const SECCION_DEMO_SECUNDARIA_POR_NIVEL = [
+        CatalogoNivelGrado::NIVEL_PRIMARIA => 'AMOR',
+        CatalogoNivelGrado::NIVEL_SECUNDARIA => 'CICLADO',
+    ];
 
     /** @var array<string, int> */
     private const GRADOS_NUMERICOS_POR_NIVEL = [
@@ -73,7 +76,7 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
 
         foreach (CatalogoNivelGrado::GRADOS_INICIAL as $indiceGrado => $grado) {
             foreach (self::SEDES as $sede) {
-                foreach (self::SECCIONES as $seccion) {
+                foreach ($this->seccionesDemo(CatalogoNivelGrado::NIVEL_INICIAL, $grado) as $seccion) {
                     for ($i = 0; $i < self::ESTUDIANTES_POR_AULA; $i++) {
                         $codigo = str_pad((string) $codigoNum, 8, '0', STR_PAD_LEFT);
                         $codigoNum++;
@@ -112,7 +115,7 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
                 $grado = $g.'°';
 
                 foreach (self::SEDES as $sede) {
-                    foreach (self::SECCIONES as $seccion) {
+                    foreach ($this->seccionesDemo($nivel, $grado) as $seccion) {
                         for ($i = 0; $i < self::ESTUDIANTES_POR_AULA; $i++) {
                             $codigo = str_pad((string) $codigoNum, 8, '0', STR_PAD_LEFT);
                             $codigoNum++;
@@ -181,5 +184,28 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
         $day = 1 + ($slotIndex % 28);
 
         return sprintf('%04d-%02d-%02d', $year, $month, $day);
+    }
+
+    /**
+     * Dos secciones demo por aula, alineadas con SeccionesAulasSeeder.
+     *
+     * @return list<string>
+     */
+    private function seccionesDemo(string $nivel, string $gradoEstudiante): array
+    {
+        if ($nivel === CatalogoNivelGrado::NIVEL_INICIAL) {
+            return match ($gradoEstudiante) {
+                '3 años' => ['ARDILLITAS', 'ESTRELLITAS DE MAR'],
+                '4 años' => ['HORMIGUITAS', 'LEONCITOS'],
+                '5 años' => ['CANGREJITOS', 'LORITOS'],
+                default => ['ARDILLITAS', 'ESTRELLITAS DE MAR'],
+            };
+        }
+
+        if ($nivel === CatalogoNivelGrado::NIVEL_SECUNDARIA) {
+            return ['BASICO', self::SECCION_DEMO_SECUNDARIA_POR_NIVEL[CatalogoNivelGrado::NIVEL_SECUNDARIA]];
+        }
+
+        return ['AMISTAD', self::SECCION_DEMO_SECUNDARIA_POR_NIVEL[CatalogoNivelGrado::NIVEL_PRIMARIA]];
     }
 }

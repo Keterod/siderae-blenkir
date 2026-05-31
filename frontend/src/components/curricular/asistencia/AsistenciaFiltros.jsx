@@ -1,7 +1,12 @@
 import { NIVELES_ESTUDIANTE, anioEscolarActual, gradosPorNivel } from '../../../lib/academico';
 import { fechaHoyIso } from './asistenciaUtils';
 
-export default function AsistenciaFiltros({ filtros, onChange, deshabilitado = false }) {
+export default function AsistenciaFiltros({
+  filtros,
+  onChange,
+  deshabilitado = false,
+  opcionesSeccion = [],
+}) {
   const grados = gradosPorNivel(filtros.nivel);
 
   return (
@@ -23,7 +28,7 @@ export default function AsistenciaFiltros({ filtros, onChange, deshabilitado = f
           className="sb-field min-w-0"
           value={filtros.nivel}
           disabled={deshabilitado}
-          onChange={(ev) => onChange({ nivel: ev.target.value, grado: '' })}
+          onChange={(ev) => onChange({ nivel: ev.target.value, grado: '', seccion: '' })}
         >
           <option value="">Seleccione…</option>
           {NIVELES_ESTUDIANTE.map((n) => (
@@ -54,7 +59,7 @@ export default function AsistenciaFiltros({ filtros, onChange, deshabilitado = f
           className="sb-field min-w-0"
           value={filtros.grado}
           disabled={deshabilitado || !filtros.nivel}
-          onChange={(ev) => onChange({ grado: ev.target.value })}
+          onChange={(ev) => onChange({ grado: ev.target.value, seccion: '' })}
         >
           <option value="">Seleccione…</option>
           {grados.map((grado) => (
@@ -67,14 +72,19 @@ export default function AsistenciaFiltros({ filtros, onChange, deshabilitado = f
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-muted">Sección</span>
-        <input
-          type="text"
+        <select
           className="sb-field min-w-0"
-          placeholder="p. ej. A"
           value={filtros.seccion}
-          disabled={deshabilitado}
+          disabled={deshabilitado || !filtros.nivel || !filtros.grado}
           onChange={(ev) => onChange({ seccion: ev.target.value })}
-        />
+        >
+          <option value="">Seleccione…</option>
+          {opcionesSeccion.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label className="flex flex-col gap-1 text-sm">

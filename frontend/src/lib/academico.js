@@ -37,6 +37,21 @@ const MAPA_GRADO_CURRICULAR_A_ESTUDIANTE = {
   secundaria: { '1ro': '1°', '2do': '2°', '3ro': '3°', '4to': '4°', '5to': '5°' },
 };
 
+const MAPA_GRADO_ESTUDIANTE_A_CURRICULAR = {
+  primaria: { '1°': '1ro', '2°': '2do', '3°': '3ro', '4°': '4to', '5°': '5to', '6°': '6to' },
+  secundaria: { '1°': '1ro', '2°': '2do', '3°': '3ro', '4°': '4to', '5°': '5to' },
+};
+
+export function gradoEstudianteACurricular(nivel, gradoEstudiante) {
+  if (!nivel || !gradoEstudiante) {
+    return gradoEstudiante ?? '';
+  }
+  if (nivel === 'inicial') {
+    return gradoEstudiante;
+  }
+  return MAPA_GRADO_ESTUDIANTE_A_CURRICULAR[nivel]?.[gradoEstudiante] ?? gradoEstudiante;
+}
+
 export function gradoCurricularAEstudiante(nivel, gradoCurricular) {
   if (!nivel || !gradoCurricular) {
     return gradoCurricular ?? '';
@@ -81,11 +96,11 @@ export function deduplicarAulasDocente(asignaciones) {
   return aulas;
 }
 
-/** Preset demo operativo: primaria 2° A Chilca 2026. */
+/** Preset demo operativo: primaria 2° AMISTAD Chilca 2026. */
 export const AULA_ASISTENCIA_DEMO = {
   anio_escolar: '2026',
   nivel: 'primaria',
   sede: 'chilca',
   grado: '2°',
-  seccion: 'A',
+  seccion: 'AMISTAD',
 };

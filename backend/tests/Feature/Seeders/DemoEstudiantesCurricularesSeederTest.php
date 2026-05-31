@@ -35,46 +35,46 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
     }
 
     #[Test]
-    public function existen_estudiantes_primaria_2_grado_a_chilca_2026(): void
+    public function existen_estudiantes_primaria_2_grado_amistad_chilca_2026(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('primaria', '2°', 'A', 'chilca')
+            $this->contarAula('primaria', '2°', 'AMISTAD', 'chilca')
         );
     }
 
     #[Test]
-    public function existen_estudiantes_primaria_2_grado_a_auquimarca_2026(): void
+    public function existen_estudiantes_primaria_2_grado_amistad_auquimarca_2026(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('primaria', '2°', 'A', 'auquimarca')
+            $this->contarAula('primaria', '2°', 'AMISTAD', 'auquimarca')
         );
     }
 
     #[Test]
-    public function existen_estudiantes_secundaria_1_grado_a_chilca_2026(): void
+    public function existen_estudiantes_secundaria_1_grado_basico_chilca_2026(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('secundaria', '1°', 'A', 'chilca')
+            $this->contarAula('secundaria', '1°', 'BASICO', 'chilca')
         );
     }
 
     #[Test]
-    public function existen_estudiantes_secundaria_1_grado_b_auquimarca_2026(): void
+    public function existen_estudiantes_secundaria_1_grado_ciclado_auquimarca_2026(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('secundaria', '1°', 'B', 'auquimarca')
+            $this->contarAula('secundaria', '1°', 'CICLADO', 'auquimarca')
         );
     }
 
@@ -90,13 +90,13 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
     }
 
     #[Test]
-    public function existen_estudiantes_inicial_3_anos_a_chilca_2026(): void
+    public function existen_estudiantes_inicial_3_anos_ardillitas_chilca_2026(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('inicial', '3 años', 'A', 'chilca')
+            $this->contarAula('inicial', '3 años', 'ARDILLITAS', 'chilca')
         );
     }
 
@@ -135,11 +135,11 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
         $this->assertSame(DemoEstudiantesCurricularesSeeder::TOTAL_ESPERADO, Estudiante::query()->count());
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('primaria', '2°', 'A', 'chilca')
+            $this->contarAula('primaria', '2°', 'AMISTAD', 'chilca')
         );
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('inicial', '3 años', 'A', 'chilca')
+            $this->contarAula('inicial', '3 años', 'ARDILLITAS', 'chilca')
         );
     }
 

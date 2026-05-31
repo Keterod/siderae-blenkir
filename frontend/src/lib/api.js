@@ -574,6 +574,27 @@ export function postAsegurarDefaultsComponentesCalificacion(datos) {
   return request(`${CURRICULAR}/componentes-calificacion/asegurar-defaults`, { method: 'POST', body: datos });
 }
 
+export function getSeccionesAulas(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `${CURRICULAR}/secciones-aulas?${qs}` : `${CURRICULAR}/secciones-aulas`);
+}
+
+export function createSeccionAula(datos) {
+  return request(`${CURRICULAR}/secciones-aulas`, { method: 'POST', body: datos });
+}
+
+export function updateSeccionAula(id, datos) {
+  return request(`${CURRICULAR}/secciones-aulas/${id}`, { method: 'PATCH', body: datos });
+}
+
+export function desactivarSeccionAula(id) {
+  return request(`${CURRICULAR}/secciones-aulas/${id}/desactivar`, { method: 'PATCH' });
+}
+
+export function activarSeccionAula(id) {
+  return request(`${CURRICULAR}/secciones-aulas/${id}/reactivar`, { method: 'PATCH' });
+}
+
 export function getAsignacionesDocente(params = {}) {
   const qs = buildQueryString(params);
   return request(qs ? `${CURRICULAR}/asignaciones-docente?${qs}` : `${CURRICULAR}/asignaciones-docente`);

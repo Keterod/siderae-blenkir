@@ -37,9 +37,10 @@ final class DemoCurricularContext
 
     public const SEDE_SECUNDARIA = 'auquimarca';
 
-    public const SECCION_PRINCIPAL = 'A';
+    public const SECCION_PRINCIPAL = 'AMISTAD';
 
-    public const SECCION_SECUNDARIA = 'B';
+    /** Aula demo secundaria (docente2) — auquimarca 1ro. */
+    public const SECCION_SECUNDARIA = 'BASICO';
 
     /** Cantidad de cursos de malla usados para notas/asignaciones demo. */
     public const CURSOS_DEMO = 3;

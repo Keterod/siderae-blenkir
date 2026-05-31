@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\Curricular\MallaCurricularController;
 use App\Http\Controllers\Api\Curricular\NotaSemanalController;
 use App\Http\Controllers\Api\Curricular\PeriodoAcademicoAdminController;
 use App\Http\Controllers\Api\Curricular\ResumenAcademicoController;
+use App\Http\Controllers\Api\Curricular\SeccionAulaController;
 use App\Http\Controllers\Api\Curricular\TemaSemanalController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\VariableSocioeconomicaController;
@@ -202,6 +203,19 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
         Route::patch('/componentes-calificacion/{componenteCalificacionNivel}', [ComponenteCalificacionController::class, 'update']);
         Route::patch('/componentes-calificacion/{componenteCalificacionNivel}/desactivar', [ComponenteCalificacionController::class, 'desactivar']);
         Route::patch('/componentes-calificacion/{componenteCalificacionNivel}/reactivar', [ComponenteCalificacionController::class, 'reactivar']);
+    });
+
+    Route::middleware([
+        'permission:gestionar_secciones_aulas|gestionar_asignaciones_docente|registrar_notas_semanales|ver_notas_academicas|registrar_asistencia_curricular|ver_asistencia_curricular',
+    ])->group(function (): void {
+        Route::get('/secciones-aulas', [SeccionAulaController::class, 'index']);
+    });
+
+    Route::middleware(['permission:gestionar_secciones_aulas'])->group(function (): void {
+        Route::post('/secciones-aulas', [SeccionAulaController::class, 'store']);
+        Route::patch('/secciones-aulas/{seccionAula}', [SeccionAulaController::class, 'update']);
+        Route::patch('/secciones-aulas/{seccionAula}/desactivar', [SeccionAulaController::class, 'desactivar']);
+        Route::patch('/secciones-aulas/{seccionAula}/reactivar', [SeccionAulaController::class, 'reactivar']);
     });
 
     Route::middleware(['permission:gestionar_asignaciones_docente'])->group(function (): void {
