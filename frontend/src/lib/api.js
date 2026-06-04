@@ -1,3 +1,5 @@
+import { conSedeOperativa } from './sedeOperativa';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function getCookie(name) {
@@ -89,7 +91,7 @@ function buildQueryString(params) {
 }
 
 export function getDashboard(params = {}) {
-  const qs = buildQueryString(params);
+  const qs = buildQueryString(conSedeOperativa(params));
   return request(qs ? `/api/dashboard?${qs}` : '/api/dashboard');
 }
 
@@ -98,7 +100,7 @@ export function getDashboard(params = {}) {
  * Devuelve Blob; el caller puede revocar URL al terminar.
  */
 export async function exportDashboardPdf(filters = {}) {
-  const qs = buildQueryString(filters);
+  const qs = buildQueryString(conSedeOperativa(filters));
   const path = qs ? `/api/dashboard/export?${qs}` : '/api/dashboard/export';
 
   const headers = {

@@ -61,19 +61,23 @@ export default function Sidebar({
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2 pb-6" role="navigation">
-          {!collapsed ? (
-            <p className="hidden px-2 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted md:block">
-              Menú principal
-            </p>
-          ) : null}
           {visible.map((item) => (
             <span key={item.key} className="contents">
               {item.dividerBefore ? (
                 <div
-                  className={`my-2 border-t border-[var(--border)] pt-1 ${collapsed ? 'md:mx-1' : ''}`}
+                  className={`my-2 shrink-0 border-t border-[var(--border)]/90 ${collapsed ? 'md:mx-1.5' : ''}`}
                   role="separator"
                   aria-hidden
                 />
+              ) : null}
+              {item.groupTitle ? (
+                <p
+                  className={`truncate px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-muted first:pt-1 ${
+                    collapsed ? 'md:hidden' : ''
+                  }`}
+                >
+                  {item.groupTitle}
+                </p>
               ) : null}
               <SidebarNavButton item={item} collapsed={collapsed} onCloseMobile={onCloseMobile} />
             </span>

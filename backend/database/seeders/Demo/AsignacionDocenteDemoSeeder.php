@@ -62,7 +62,7 @@ class AsignacionDocenteDemoSeeder extends Seeder
             'nivel' => DemoCurricularContext::NIVEL_SECUNDARIA,
             'grado' => DemoCurricularContext::GRADO_CURRICULAR_SECUNDARIA,
             'seccion' => DemoCurricularContext::SECCION_SECUNDARIA,
-            'sede' => DemoCurricularContext::SEDE_SECUNDARIA,
+            'sede' => DemoCurricularContext::SEDE_PRINCIPAL,
             'malla_curso_ids' => [$mallaCursoId],
         ]);
     }

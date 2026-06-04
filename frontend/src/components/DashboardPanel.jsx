@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { exportDashboardPdf, getDashboard } from '../lib/api';
+import {
+  ETIQUETA_SEDE_OPERATIVA,
+  filtrosConSedeOperativa,
+  tieneFiltrosAdemasDeSede,
+} from '../lib/sedeOperativa';
 import AlertMessage from './ui/AlertMessage';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
@@ -51,9 +56,6 @@ function etiquetasFiltrosHumano(filtros) {
     return [];
   }
   const partes = [];
-  if (filtros.sede) {
-    partes.push(`sede «${filtros.sede}»`);
-  }
   if (filtros.nivel) {
     partes.push(`nivel ${filtros.nivel}`);
   }
@@ -84,9 +86,11 @@ function BarraPct({ etiqueta, porcentaje, colorClass }) {
   );
 }
 
+const FILTROS_DASHBOARD_INICIAL = filtrosConSedeOperativa();
+
 export default function DashboardPanel() {
-  const [appliedFilters, setAppliedFilters] = useState({});
-  const [draftFilters, setDraftFilters] = useState({});
+  const [appliedFilters, setAppliedFilters] = useState(FILTROS_DASHBOARD_INICIAL);
+  const [draftFilters, setDraftFilters] = useState(FILTROS_DASHBOARD_INICIAL);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [datos, setDatos] = useState(null);
@@ -112,12 +116,12 @@ export default function DashboardPanel() {
   }, [appliedFilters, cargar]);
 
   const handleAplicar = () => {
-    setAppliedFilters({ ...draftFilters });
+    setAppliedFilters(filtrosConSedeOperativa(draftFilters));
   };
 
   const handleLimpiar = () => {
-    setDraftFilters({});
-    setAppliedFilters({});
+    setDraftFilters(FILTROS_DASHBOARD_INICIAL);
+    setAppliedFilters(FILTROS_DASHBOARD_INICIAL);
   };
 
   const handleExportarPdf = async () => {
@@ -186,16 +190,15 @@ export default function DashboardPanel() {
   const sinResultadosFiltros =
     total_estudiantes === 0 &&
     (ultimos_riesgos?.length ?? 0) === 0 &&
-    Object.keys(appliedFilters).length > 0;
+    tieneFiltrosAdemasDeSede(appliedFilters);
 
   const sinDatosOperativosGlobales =
     total_estudiantes === 0 &&
     (ultimos_riesgos?.length ?? 0) === 0 &&
     (riesgos_por_nivel?.alto ?? 0) + (riesgos_por_nivel?.medio ?? 0) + (riesgos_por_nivel?.bajo ?? 0) === 0 &&
-    Object.keys(appliedFilters).length === 0;
+    !tieneFiltrosAdemasDeSede(appliedFilters);
 
   const opc = opciones || {};
-  const mostrarSede = Array.isArray(opc.sedes) && opc.sedes.length > 0;
   const mostrarNivelEdu = Array.isArray(opc.niveles) && opc.niveles.length > 0;
   const mostrarGrado = Array.isArray(opc.grados) && opc.grados.length > 0;
   const mostrarSeccion = Array.isArray(opc.secciones) && opc.secciones.length > 0;
@@ -211,8 +214,8 @@ export default function DashboardPanel() {
           <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">Dashboard</h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted">
             Indicadores históricos de riesgo y alertas (el cálculo de riesgo está pendiente de actualización al flujo
-            curricular). Puede acotarlos por sede, nivel, grado, sección y clasificación según el último
-            índice calculado por estudiante.
+            curricular). Alcance institucional: sede {ETIQUETA_SEDE_OPERATIVA}. Puede acotar por nivel, grado,
+            sección y clasificación según el último índice calculado por estudiante.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -237,28 +240,11 @@ export default function DashboardPanel() {
         <div className="mb-5 border-b border-[var(--border)] pb-4">
           <h3 className="text-base font-semibold text-[var(--text)]">Filtros del dashboard</h3>
           <p className="mt-1.5 text-sm text-muted">
-            Elija alcance institucional; los filtros vigentes también se aplican cuando exporta PDF.
+            Elija alcance por nivel, grado o sección; los filtros vigentes también se aplican al exportar PDF.
           </p>
+          <p className="mt-1 text-xs text-muted">Sede: {ETIQUETA_SEDE_OPERATIVA}</p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {mostrarSede ? (
-            <label className="block text-xs text-muted">
-              Sede
-              <select
-                className={inputSelectClass}
-                value={draftFilters.sede ?? ''}
-                onChange={(e) => setDraftFilters((p) => ({ ...p, sede: e.target.value || undefined }))}
-              >
-                <option value="">Todas</option>
-                {opc.sedes.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : null}
-
           {mostrarNivelEdu ? (
             <label className="block text-xs text-muted">
               Nivel educativo
@@ -352,8 +338,10 @@ export default function DashboardPanel() {
               <span className="font-medium text-muted">Filtro aplicado: </span>
               <span>{legibles.join(' · ')}</span>
             </p>
-          ) : Object.keys(appliedFilters).length === 0 ? (
-            <p className="mt-3 text-sm text-muted">Viendo todas las opciones disponibles según cargue el servidor.</p>
+          ) : !tieneFiltrosAdemasDeSede(appliedFilters) ? (
+            <p className="mt-3 text-sm text-muted">
+              Vista institucional de la sede {ETIQUETA_SEDE_OPERATIVA} según datos del servidor.
+            </p>
           ) : null;
         })()}
       </Card>

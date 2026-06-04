@@ -26,6 +26,178 @@ const UsuariosPanel = lazy(() => import('./components/usuarios/UsuariosPanel'));
 
 const SIDEBAR_COLLAPSED_KEY = 'siderae-sidebar-collapsed';
 
+/** Orden y agrupación visual del menú lateral (sin cambiar permisos ni módulos). */
+const SIDEBAR_NAV_GROUPS = [
+  { title: 'Inicio', keys: ['dashboard'] },
+  {
+    title: 'Gestión académica',
+    keys: ['estudiantes', 'curricular_notas', 'curricular_asistencia', 'alertas'],
+  },
+  {
+    title: 'Gestión docente y aulas',
+    keys: ['curricular_secciones_aulas', 'curricular_asignacion'],
+  },
+  {
+    title: 'Configuración curricular',
+    keys: [
+      'curricular_malla',
+      'curricular_temas',
+      'curricular_componentes_calificacion',
+      'curricular_eval_bim',
+    ],
+  },
+  {
+    title: 'Configuración avanzada',
+    keys: ['curricular_competencias', 'curricular_calendario'],
+  },
+  { title: 'Administración', keys: ['usuarios'] },
+];
+
+/** Ítems fuera de grupos visibles (p. ej. ocultos por transición). */
+const SIDEBAR_NAV_KEYS_SIN_GRUPO = ['curricular_pesos'];
+
+function construirNavItemsSidebar(permissions, roles, moduloVista, setModuloActivo) {
+  const defs = {
+    dashboard: {
+      key: 'dashboard',
+      label: 'Dashboard',
+      visible: moduloPermitido('dashboard', permissions, roles),
+      active: moduloVista === 'dashboard',
+      onSelect: () => setModuloActivo('dashboard'),
+    },
+    estudiantes: {
+      key: 'estudiantes',
+      label: 'Estudiantes',
+      visible: moduloPermitido('estudiantes', permissions, roles),
+      active: moduloVista === 'estudiantes',
+      onSelect: () => setModuloActivo('estudiantes'),
+    },
+    usuarios: {
+      key: 'usuarios',
+      label: 'Usuarios',
+      visible: moduloPermitido('usuarios', permissions, roles),
+      active: moduloVista === 'usuarios',
+      onSelect: () => setModuloActivo('usuarios'),
+    },
+    curricular_malla: {
+      key: 'curricular_malla',
+      label: 'Malla curricular',
+      visible: moduloPermitido('curricular_malla', permissions, roles),
+      active: moduloVista === 'curricular_malla',
+      onSelect: () => setModuloActivo('curricular_malla'),
+    },
+    curricular_temas: {
+      key: 'curricular_temas',
+      label: 'Criterios de evaluación',
+      visible: moduloPermitido('curricular_temas', permissions, roles),
+      active: moduloVista === 'curricular_temas',
+      onSelect: () => setModuloActivo('curricular_temas'),
+    },
+    curricular_competencias: {
+      key: 'curricular_competencias',
+      label: 'Competencias y capacidades',
+      visible: moduloPermitido('curricular_competencias', permissions, roles),
+      active: moduloVista === 'curricular_competencias',
+      onSelect: () => setModuloActivo('curricular_competencias'),
+    },
+    curricular_componentes_calificacion: {
+      key: 'curricular_componentes_calificacion',
+      label: 'Componentes de calificación',
+      visible: moduloPermitido('curricular_componentes_calificacion', permissions, roles),
+      active: moduloVista === 'curricular_componentes_calificacion',
+      onSelect: () => setModuloActivo('curricular_componentes_calificacion'),
+    },
+    curricular_secciones_aulas: {
+      key: 'curricular_secciones_aulas',
+      label: 'Secciones / Aulas',
+      visible: moduloPermitido('curricular_secciones_aulas', permissions, roles),
+      active: moduloVista === 'curricular_secciones_aulas',
+      onSelect: () => setModuloActivo('curricular_secciones_aulas'),
+    },
+    curricular_pesos: {
+      key: 'curricular_pesos',
+      label: 'Pesos evaluación',
+      // Oculto en transición: el módulo sigue en código/API por compatibilidad con notas semanales.
+      visible: false,
+      active: moduloVista === 'curricular_pesos',
+      onSelect: () => setModuloActivo('curricular_pesos'),
+    },
+    curricular_eval_bim: {
+      key: 'curricular_eval_bim',
+      label: 'Configuración bimestral',
+      visible: moduloPermitido('curricular_eval_bim', permissions, roles),
+      active: moduloVista === 'curricular_eval_bim',
+      onSelect: () => setModuloActivo('curricular_eval_bim'),
+    },
+    curricular_asignacion: {
+      key: 'curricular_asignacion',
+      label: 'Asignación docente',
+      visible: moduloPermitido('curricular_asignacion', permissions, roles),
+      active: moduloVista === 'curricular_asignacion',
+      onSelect: () => setModuloActivo('curricular_asignacion'),
+    },
+    curricular_calendario: {
+      key: 'curricular_calendario',
+      label: 'Periodos académicos',
+      visible: moduloPermitido('curricular_calendario', permissions, roles),
+      active: moduloVista === 'curricular_calendario',
+      onSelect: () => setModuloActivo('curricular_calendario'),
+    },
+    curricular_notas: {
+      key: 'curricular_notas',
+      label: 'Notas semanales',
+      visible: moduloPermitido('curricular_notas', permissions, roles),
+      active: moduloVista === 'curricular_notas',
+      onSelect: () => setModuloActivo('curricular_notas'),
+    },
+    curricular_asistencia: {
+      key: 'curricular_asistencia',
+      label: 'Asistencia',
+      visible: moduloPermitido('curricular_asistencia', permissions, roles),
+      active: moduloVista === 'curricular_asistencia',
+      onSelect: () => setModuloActivo('curricular_asistencia'),
+    },
+    alertas: {
+      key: 'alertas',
+      label: 'Alertas',
+      visible: moduloPermitido('alertas', permissions, roles),
+      active: moduloVista === 'alertas',
+      onSelect: () => setModuloActivo('alertas'),
+    },
+  };
+
+  const items = [];
+  let primerGrupoVisible = true;
+
+  for (const group of SIDEBAR_NAV_GROUPS) {
+    const visibles = group.keys.map((key) => defs[key]).filter((item) => item?.visible);
+
+    visibles.forEach((item, index) => {
+      items.push({
+        ...item,
+        ...(index === 0 && !primerGrupoVisible ? { dividerBefore: true } : {}),
+        ...(index === 0 ? { groupTitle: group.title } : {}),
+      });
+    });
+
+    if (visibles.length > 0) {
+      primerGrupoVisible = false;
+    }
+  }
+
+  for (const key of SIDEBAR_NAV_KEYS_SIN_GRUPO) {
+    const item = defs[key];
+    if (item?.visible) {
+      items.push({
+        ...item,
+        ...(items.length > 0 ? { dividerBefore: true } : {}),
+      });
+    }
+  }
+
+  return items;
+}
+
 function leerSidebarColapsada() {
   try {
     return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
@@ -210,114 +382,10 @@ function App() {
     return () => window.removeEventListener(EVENTO_ABRIR_COMPETENCIAS, abrirCompetencias);
   }, [permissions, roles]);
 
-  const navItems = useMemo(() => [
-    {
-      key: 'dashboard',
-      label: 'Dashboard',
-      visible: moduloPermitido('dashboard', permissions, roles),
-      active: moduloVista === 'dashboard',
-      onSelect: () => setModuloActivo('dashboard'),
-    },
-    {
-      key: 'estudiantes',
-      label: 'Estudiantes',
-      visible: moduloPermitido('estudiantes', permissions, roles),
-      active: moduloVista === 'estudiantes',
-      onSelect: () => setModuloActivo('estudiantes'),
-    },
-    {
-      key: 'usuarios',
-      label: 'Usuarios',
-      visible: moduloPermitido('usuarios', permissions, roles),
-      active: moduloVista === 'usuarios',
-      onSelect: () => setModuloActivo('usuarios'),
-    },
-    {
-      key: 'curricular_malla',
-      label: 'Malla curricular',
-      visible: moduloPermitido('curricular_malla', permissions, roles),
-      active: moduloVista === 'curricular_malla',
-      onSelect: () => setModuloActivo('curricular_malla'),
-    },
-    {
-      key: 'curricular_temas',
-      label: 'Criterios de evaluación',
-      visible: moduloPermitido('curricular_temas', permissions, roles),
-      active: moduloVista === 'curricular_temas',
-      onSelect: () => setModuloActivo('curricular_temas'),
-    },
-    {
-      key: 'curricular_competencias',
-      label: 'Competencias y capacidades',
-      visible: moduloPermitido('curricular_competencias', permissions, roles),
-      active: moduloVista === 'curricular_competencias',
-      onSelect: () => setModuloActivo('curricular_competencias'),
-    },
-    {
-      key: 'curricular_componentes_calificacion',
-      label: 'Componentes de calificación',
-      visible: moduloPermitido('curricular_componentes_calificacion', permissions, roles),
-      active: moduloVista === 'curricular_componentes_calificacion',
-      onSelect: () => setModuloActivo('curricular_componentes_calificacion'),
-    },
-    {
-      key: 'curricular_secciones_aulas',
-      label: 'Secciones / Aulas',
-      visible: moduloPermitido('curricular_secciones_aulas', permissions, roles),
-      active: moduloVista === 'curricular_secciones_aulas',
-      onSelect: () => setModuloActivo('curricular_secciones_aulas'),
-    },
-    {
-      key: 'curricular_pesos',
-      label: 'Pesos evaluación',
-      // Oculto en transición: el módulo sigue en código/API por compatibilidad con notas semanales.
-      visible: false,
-      active: moduloVista === 'curricular_pesos',
-      onSelect: () => setModuloActivo('curricular_pesos'),
-    },
-    {
-      key: 'curricular_eval_bim',
-      label: 'Configuración bimestral',
-      visible: moduloPermitido('curricular_eval_bim', permissions, roles),
-      active: moduloVista === 'curricular_eval_bim',
-      onSelect: () => setModuloActivo('curricular_eval_bim'),
-    },
-    {
-      key: 'curricular_asignacion',
-      label: 'Asignación docente',
-      visible: moduloPermitido('curricular_asignacion', permissions, roles),
-      active: moduloVista === 'curricular_asignacion',
-      onSelect: () => setModuloActivo('curricular_asignacion'),
-    },
-    {
-      key: 'curricular_calendario',
-      label: 'Periodos académicos',
-      visible: moduloPermitido('curricular_calendario', permissions, roles),
-      active: moduloVista === 'curricular_calendario',
-      onSelect: () => setModuloActivo('curricular_calendario'),
-    },
-    {
-      key: 'curricular_notas',
-      label: 'Notas semanales',
-      visible: moduloPermitido('curricular_notas', permissions, roles),
-      active: moduloVista === 'curricular_notas',
-      onSelect: () => setModuloActivo('curricular_notas'),
-    },
-    {
-      key: 'curricular_asistencia',
-      label: 'Asistencia',
-      visible: moduloPermitido('curricular_asistencia', permissions, roles),
-      active: moduloVista === 'curricular_asistencia',
-      onSelect: () => setModuloActivo('curricular_asistencia'),
-    },
-    {
-      key: 'alertas',
-      label: 'Alertas',
-      visible: moduloPermitido('alertas', permissions, roles),
-      active: moduloVista === 'alertas',
-      onSelect: () => setModuloActivo('alertas'),
-    },
-  ], [permissions, roles, moduloVista]);
+  const navItems = useMemo(
+    () => construirNavItemsSidebar(permissions, roles, moduloVista, setModuloActivo),
+    [permissions, roles, moduloVista],
+  );
 
   if (isLoading && !authUser) {
     return (

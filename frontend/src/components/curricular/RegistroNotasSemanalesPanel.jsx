@@ -54,6 +54,7 @@ import {
   validarMatrizEnRango,
 } from './notas/notasUtils';
 import { MENSAJE_CALIFICACION_DINAMICA, MENSAJE_EXCEL_DINAMICO, MENSAJE_PLANTILLA_EXCEL } from '../../lib/notasCurricular';
+import { SEDE_OPERATIVA, conSedeOperativa } from '../../lib/sedeOperativa';
 
 function nombreCursoAsignacion(a) {
   return a.malla_curso?.curso_catalogo?.nombre ?? a.mallaCurso?.cursoCatalogo?.nombre ?? 'Curso';
@@ -63,12 +64,16 @@ function areaIdAsignacion(a) {
   return a.malla_curso?.area_id ?? a.mallaCurso?.area_id ?? a.malla_curso?.area?.id ?? a.mallaCurso?.area?.id;
 }
 
-/** Admin / coord / directivo: consulta institucional. */
+/** Coordinador / directivo: consulta institucional solo lectura. */
 function puedeConsultaInstitucional(permissions, roles) {
   return (
     permissions.includes('gestionar_asignaciones_docente')
     || (roles ?? []).includes('directivo')
   );
+}
+
+function esRolAdministrador(roles) {
+  return (roles ?? []).includes('administrador');
 }
 
 export default function RegistroNotasSemanalesPanel() {
@@ -87,6 +92,8 @@ export default function RegistroNotasSemanalesPanel() {
   const puedeAlternarDocente = permissions.includes('registrar_notas_semanales')
     && permissions.includes('gestionar_asignaciones_docente');
 
+  const esAdministrador = useMemo(() => esRolAdministrador(roles), [roles]);
+
   const modoConsultaGlobal = useMemo(
     () => permissions.includes('ver_notas_academicas')
       && puedeConsultaInstitucional(permissions, roles)
@@ -94,10 +101,13 @@ export default function RegistroNotasSemanalesPanel() {
     [permissions, roles, forzarModoDocente],
   );
 
+  /** Coordinador y directivo siguen en solo lectura; el administrador puede registrar en consulta global. */
+  const modoConsultaGlobalSoloLectura = modoConsultaGlobal && !esAdministrador;
+
   const [filtros, setFiltros] = useState({
     anio_escolar: anioEscolarActual(),
     nivel: '',
-    sede: '',
+    sede: SEDE_OPERATIVA,
     grado: '',
     seccion: '',
     area_id: '',
@@ -156,15 +166,14 @@ export default function RegistroNotasSemanalesPanel() {
         if (modoConsultaGlobal) {
           const data = await getContextosConsultaGlobales();
           if (!activo) return;
-          const lista = Array.isArray(data) ? data : [];
+          const lista = (Array.isArray(data) ? data : []).filter((c) => c.sede === SEDE_OPERATIVA);
           setContextosConsulta(lista);
           if (lista.length > 0) {
             const c0 = lista[0];
-            setFiltros((prev) => ({
+            setFiltros((prev) => conSedeOperativa({
               ...prev,
               anio_escolar: c0.anio_escolar ?? prev.anio_escolar,
               nivel: c0.nivel ?? '',
-              sede: c0.sede ?? '',
               grado: c0.grado ?? '',
               seccion: c0.seccion ?? '',
               area_id: c0.area_id != null ? String(c0.area_id) : '',
@@ -175,15 +184,14 @@ export default function RegistroNotasSemanalesPanel() {
         } else {
           const data = await getDocenteAulasCursos({ anio_escolar: anioEscolarActual() });
           if (!activo) return;
-          const lista = Array.isArray(data) ? data : [];
+          const lista = (Array.isArray(data) ? data : []).filter((a) => a.sede === SEDE_OPERATIVA);
           setAulasDocente(lista);
           if (lista.length > 0) {
             const primera = lista[0];
-            setFiltros((prev) => ({
+            setFiltros((prev) => conSedeOperativa({
               ...prev,
               anio_escolar: primera.anio_escolar ?? prev.anio_escolar,
               nivel: primera.nivel ?? '',
-              sede: primera.sede ?? '',
               grado: primera.grado ?? '',
               seccion: primera.seccion ?? '',
               area_id: String(areaIdAsignacion(primera) ?? ''),
@@ -227,7 +235,7 @@ export default function RegistroNotasSemanalesPanel() {
     return contextosConsulta.filter((c) => {
       if (filtros.anio_escolar && c.anio_escolar !== filtros.anio_escolar) return false;
       if (filtros.nivel && c.nivel !== filtros.nivel) return false;
-      if (filtros.sede && c.sede !== filtros.sede) return false;
+      if (c.sede !== SEDE_OPERATIVA) return false;
       if (filtros.grado && c.grado !== filtros.grado) return false;
       if (filtros.seccion && c.seccion !== filtros.seccion) return false;
       if (filtros.area_id && String(c.area_id) !== String(filtros.area_id)) return false;
@@ -240,7 +248,7 @@ export default function RegistroNotasSemanalesPanel() {
     return aulas.filter((a) => {
       if (filtros.anio_escolar && a.anio_escolar !== filtros.anio_escolar) return false;
       if (filtros.nivel && a.nivel !== filtros.nivel) return false;
-      if (filtros.sede && a.sede !== filtros.sede) return false;
+      if (a.sede !== SEDE_OPERATIVA) return false;
       if (filtros.grado && a.grado !== filtros.grado) return false;
       if (filtros.seccion && a.seccion !== filtros.seccion) return false;
       if (filtros.area_id && String(areaIdAsignacion(a)) !== String(filtros.area_id)) return false;
@@ -287,7 +295,6 @@ export default function RegistroNotasSemanalesPanel() {
       const anios = uniq(contextosConsulta, (c) => c.anio_escolar).sort();
 
       const niveles = uniq(base, (c) => c.nivel);
-      const sedes = uniq(base, (c) => c.sede);
       const grados = uniq(base, (c) => c.grado);
       const secciones = uniq(
         base.filter((c) => (!filtros.nivel || c.nivel === filtros.nivel)
@@ -313,7 +320,7 @@ export default function RegistroNotasSemanalesPanel() {
         modo: 'consulta',
         anios,
         niveles,
-        sedes,
+        sedes: [SEDE_OPERATIVA],
         grados,
         secciones: mergeSecciones(secciones),
         areas,
@@ -328,7 +335,6 @@ export default function RegistroNotasSemanalesPanel() {
     const uniq = (arr, key) => [...new Set(arr.map(key).filter(Boolean))];
 
     const niveles = uniq(base, (a) => a.nivel);
-    const sedes = uniq(base, (a) => a.sede);
     const grados = uniq(base, (a) => a.grado);
     const secciones = uniq(
       base.filter((a) => (!filtros.nivel || a.nivel === filtros.nivel)
@@ -349,7 +355,7 @@ export default function RegistroNotasSemanalesPanel() {
       modo: 'docente',
       anios: [...new Set(aulas.map((a) => a.anio_escolar))].filter(Boolean).sort(),
       niveles,
-      sedes,
+      sedes: [SEDE_OPERATIVA],
       grados,
       secciones: mergeSecciones(secciones),
       areas,
@@ -414,6 +420,10 @@ export default function RegistroNotasSemanalesPanel() {
     setCargandoEvalBim(true);
     try {
       const data = await getFormularioEvaluacionBimestral(query);
+      const asignacionId = data?.contexto?.asignacion_docente_id;
+      if (consultaInstitucional && asignacionId) {
+        setFiltros((prev) => ({ ...prev, asignacion_id: String(asignacionId) }));
+      }
       setEvalBimFormulario(data);
       const lista = estudiantesData?.length ? estudiantesData : (data.estudiantes ?? []);
       setEvalBimMatriz(initMatrizEvalBim(lista, data));
@@ -476,6 +486,11 @@ export default function RegistroNotasSemanalesPanel() {
 
       const data = await getFormularioNotasSemanales(query);
       setFormulario(data);
+
+      const asignacionId = data?.asignacion?.id ?? data?.asignacion_docente_id;
+      if (consultaInstitucional && asignacionId) {
+        setFiltros((prev) => ({ ...prev, asignacion_id: String(asignacionId) }));
+      }
 
       const criteriosData = data.criterios ?? [];
       const estudiantesData = data.estudiantes ?? [];
@@ -584,8 +599,13 @@ export default function RegistroNotasSemanalesPanel() {
   }, [formulario, evalBimFormulario, asignacionActual, vista, filtros.estudiante_id, estudiantes]);
 
   const puedeGuardarEvalBim = !soloLecturaEvalBim
-    && !modoConsultaGlobal
-    && Boolean(filtros.asignacion_id && filtros.periodo_academico_id && estudiantes.length);
+    && !modoConsultaGlobalSoloLectura
+    && Boolean(
+      (modoConsultaGlobal ? filtros.consulta_contexto_clave : filtros.asignacion_id)
+        && filtros.asignacion_id
+        && filtros.periodo_academico_id
+        && estudiantes.length,
+    );
 
   const puedeGuardar = !soloLectura
     && (modoCalificacionDinamica ? componentesCalificacion.length > 0 : true)
@@ -605,8 +625,9 @@ export default function RegistroNotasSemanalesPanel() {
   );
 
   const puedeImportarPlantilla = puedeDescargarPlantilla
-    && !modoConsultaGlobal
-    && !soloLectura;
+    && !modoConsultaGlobalSoloLectura
+    && !soloLectura
+    && Boolean(filtros.asignacion_id);
 
   const descargarPlantillaExcel = useCallback(async () => {
     if (!puedeDescargarPlantilla) {
@@ -710,8 +731,8 @@ export default function RegistroNotasSemanalesPanel() {
         setExito(`Se importaron ${importadosCriterios} nota(s) desde Excel.`);
       }
 
-      await cargarFormulario(filtros, vista, false);
-      await cargarEvalBimestral(filtros, false, null);
+      await cargarFormulario(filtros, vista, modoConsultaGlobal);
+      await cargarEvalBimestral(filtros, modoConsultaGlobal, null);
     } catch (err) {
       setError(obtenerMensajeErrorNotas(err, 'No se pudo importar la plantilla Excel.'));
     } finally {
@@ -736,7 +757,7 @@ export default function RegistroNotasSemanalesPanel() {
       || 'seccion' in partial
       || 'area_id' in partial
     );
-    setFiltros((prev) => ({
+    setFiltros((prev) => conSedeOperativa({
       ...prev,
       ...partial,
       ...(nextConsultaReset ? { consulta_contexto_clave: '' } : {}),
@@ -749,19 +770,19 @@ export default function RegistroNotasSemanalesPanel() {
     const row = contextosConsulta.find((c) => c.clave === clave)
       ?? contextosFiltrados.find((c) => c.clave === clave);
 
-    setFiltros((prev) => ({
+    setFiltros((prev) => conSedeOperativa({
       ...prev,
       consulta_contexto_clave: clave,
       ...(row
         ? {
             anio_escolar: row.anio_escolar,
             nivel: row.nivel,
-            sede: row.sede,
             grado: row.grado,
             seccion: row.seccion,
             area_id: row.area_id != null ? String(row.area_id) : '',
+            asignacion_id: row.asignacion_docente_id != null ? String(row.asignacion_docente_id) : '',
           }
-        : {}),
+        : { asignacion_id: '' }),
       estudiante_id: '',
     }));
   }
@@ -870,7 +891,7 @@ export default function RegistroNotasSemanalesPanel() {
   }, [modalConclusion.estudiante, cambiarNotaEvalBim]);
 
   async function guardarEvalBimestral() {
-    if (soloLecturaEvalBim || modoConsultaGlobal) return;
+    if (soloLecturaEvalBim || modoConsultaGlobalSoloLectura) return;
 
     setError(null);
     setExito(null);
@@ -935,7 +956,7 @@ export default function RegistroNotasSemanalesPanel() {
 
   async function guardar(e) {
     e.preventDefault();
-    if (soloLectura || modoConsultaGlobal) return;
+    if (soloLectura || modoConsultaGlobalSoloLectura) return;
 
     setError(null);
     setExito(null);
@@ -1008,8 +1029,8 @@ export default function RegistroNotasSemanalesPanel() {
         : null;
       const paramsRecarga = modoConsultaGlobal ? { ...filtros, _contextoRow: rowConsulta } : filtros;
       await cargarFormulario(paramsRecarga, vista, modoConsultaGlobal);
-      if (!modoConsultaGlobal) {
-        await cargarEvalBimestral(paramsRecarga, false, null);
+      if (!modoConsultaGlobalSoloLectura) {
+        await cargarEvalBimestral(paramsRecarga, modoConsultaGlobal, null);
       }
     } catch (err) {
       setError(obtenerMensajeErrorNotas(err));
@@ -1050,13 +1071,23 @@ export default function RegistroNotasSemanalesPanel() {
         </div>
       ) : null}
 
-      {(soloLectura || soloLecturaEvalBim) ? (
+      {modoConsultaGlobalSoloLectura && (soloLectura || soloLecturaEvalBim) ? (
         <div
           role="note"
           className="-mx-4 mb-1 rounded-md border border-amber-400/70 bg-amber-50 px-3 py-1.5 text-[11px] text-amber-950 sm:-mx-6 sm:px-4 lg:-mx-10 lg:px-6"
           data-testid="registro-notas-modo-consulta-banner"
         >
           Modo consulta: las notas y la evaluación bimestral solo pueden ser registradas por el docente asignado.
+        </div>
+      ) : null}
+
+      {esAdministrador && modoConsultaGlobal && !modoConsultaGlobalSoloLectura ? (
+        <div
+          role="note"
+          className="-mx-4 mb-1 rounded-md border border-sky-400/60 bg-sky-50 px-3 py-1.5 text-[11px] text-sky-950 sm:-mx-6 sm:px-4 lg:-mx-10 lg:px-6"
+          data-testid="registro-notas-modo-admin-banner"
+        >
+          Modo administrador: puede registrar y editar notas en cualquier curso con asignación docente activa. El docente asignado del curso no cambia.
         </div>
       ) : null}
 

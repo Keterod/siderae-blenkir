@@ -10,6 +10,7 @@ use App\Models\Curricular\TemaSemanal;
 use App\Models\Estudiante;
 use App\Models\User;
 use App\Services\Curricular\CatalogoNivelGrado;
+use App\Services\Curricular\CurricularNotasAuthService;
 use App\Services\Curricular\ImportPlantillaRegistroAuxiliarService;
 use App\Services\Curricular\NotaSemanalBulkService;
 use App\Services\Curricular\NotaSemanalCalificacionAdapter;
@@ -30,6 +31,7 @@ class NotaSemanalController extends Controller
         private readonly PlantillaRegistroAuxiliarService $plantillaService = new PlantillaRegistroAuxiliarService,
         private readonly PlantillaRegistroAuxiliarExcelService $plantillaExcelService = new PlantillaRegistroAuxiliarExcelService,
         private readonly ImportPlantillaRegistroAuxiliarService $importPlantillaService = new ImportPlantillaRegistroAuxiliarService,
+        private readonly CurricularNotasAuthService $notasAuth = new CurricularNotasAuthService,
     ) {}
 
     public static function usuarioPuedeConsultaGlobalNotas(User $user): bool
@@ -70,6 +72,15 @@ class NotaSemanalController extends Controller
             }
 
             $resultado = $this->formularioService->construirConsultaGlobal($data);
+            $asignacionActiva = $this->notasAuth->resolverAsignacionActiva($data);
+
+            if ($asignacionActiva !== null) {
+                $resultado['asignacion'] = $asignacionActiva;
+            }
+
+            if ($asignacionActiva !== null && $this->notasAuth->puedeRegistrarEnAsignacion($request->user(), $asignacionActiva)) {
+                $resultado['readonly'] = false;
+            }
 
             return response()->json($this->serializarRespuestaFormulario($resultado, consultaGlobal: true));
         }
@@ -87,7 +98,7 @@ class NotaSemanalController extends Controller
             ->with(['mallaCurso.area', 'mallaCurso.cursoCatalogo', 'mallaCurso.mallaCurricular'])
             ->findOrFail($data['asignacion_docente_id']);
 
-        if (! $request->user()->can('gestionar_asignaciones_docente') && $asignacion->user_id !== $request->user()->id) {
+        if (! $this->notasAuth->puedeVerAsignacion($request->user(), $asignacion)) {
             return response()->json(['message' => 'No autorizado para esta asignación.'], 403);
         }
 
@@ -97,10 +108,7 @@ class NotaSemanalController extends Controller
             isset($data['estudiante_id']) ? (int) $data['estudiante_id'] : null,
         );
 
-        $puedeRegistrarPropioCurso = $request->user()->can('registrar_notas_semanales')
-            && (int) $asignacion->user_id === (int) $request->user()->id;
-
-        $resultado['readonly'] = ! $puedeRegistrarPropioCurso;
+        $resultado['readonly'] = ! $this->notasAuth->puedeRegistrarEnAsignacion($request->user(), $asignacion);
 
         return response()->json($this->serializarRespuestaFormulario($resultado, consultaGlobal: false));
     }
@@ -138,7 +146,7 @@ class NotaSemanalController extends Controller
         $data = $request->validated();
         $asignacion = DocenteCursoAula::query()->findOrFail($data['asignacion_docente_id']);
 
-        if ($asignacion->user_id !== $request->user()->id) {
+        if (! $this->notasAuth->puedeRegistrarEnAsignacion($request->user(), $asignacion)) {
             return response()->json(['message' => 'Solo puede registrar notas en sus asignaciones activas.'], 403);
         }
 
@@ -166,13 +174,19 @@ class NotaSemanalController extends Controller
             );
         }
 
+        $propsLog = [
+            'accion' => 'curricular.notas_semanales.bulk',
+            'asignacion_docente_id' => $asignacion->id,
+            'docente_asignado_user_id' => $asignacion->user_id,
+            'cantidad' => count($resultado['notas']),
+        ];
+        if ($this->notasAuth->esAdministrador($request->user()) && (int) $asignacion->user_id !== (int) $request->user()->id) {
+            $propsLog['registro_institucional_admin'] = true;
+        }
+
         activity()
             ->causedBy($request->user())
-            ->withProperties([
-                'accion' => 'curricular.notas_semanales.bulk',
-                'asignacion_docente_id' => $asignacion->id,
-                'cantidad' => count($resultado['notas']),
-            ])
+            ->withProperties($propsLog)
             ->log('Registro masivo de notas semanales');
 
         return response()->json([
@@ -271,7 +285,7 @@ class NotaSemanalController extends Controller
         $data = $request->validated();
         $asignacion = DocenteCursoAula::query()->findOrFail($data['asignacion_docente_id']);
 
-        if ($asignacion->user_id !== $request->user()->id) {
+        if (! $this->notasAuth->puedeRegistrarEnAsignacion($request->user(), $asignacion)) {
             return response()->json(['message' => 'Solo puede importar notas en sus asignaciones activas.'], 403);
         }
 

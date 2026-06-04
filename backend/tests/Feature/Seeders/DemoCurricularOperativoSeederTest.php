@@ -24,7 +24,7 @@ class DemoCurricularOperativoSeederTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $this->assertDatabaseCount('estudiantes', 392);
+        $this->assertDatabaseCount('estudiantes', 196);
 
         $this->assertTrue(
             MallaCurricular::query()

@@ -7,6 +7,7 @@ use App\Http\Requests\Curricular\BulkAsignacionDocenteRequest;
 use App\Http\Requests\Curricular\StoreAsignacionDocenteRequest;
 use App\Models\Curricular\DocenteCursoAula;
 use App\Models\User;
+use App\Support\SedeOperativa;
 use App\Services\Curricular\AsignacionDocenteBulkService;
 use App\Services\Curricular\DocenteCurricularListadoService;
 use App\Services\Curricular\DocenteCursoAulaValidator;
@@ -58,9 +59,10 @@ class AsignacionDocenteController extends Controller
         if ($request->filled('nivel')) {
             $query->where('nivel', $request->query('nivel'));
         }
-        if ($request->filled('sede')) {
-            $query->where('sede', $request->query('sede'));
-        }
+        $query->where(
+            'sede',
+            SedeOperativa::defaultConsulta($request->filled('sede') ? (string) $request->query('sede') : null),
+        );
         if ($request->filled('grado')) {
             $query->where('grado', $request->query('grado'));
         }

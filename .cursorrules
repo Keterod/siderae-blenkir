@@ -2,8 +2,23 @@
 
 ## 1) Contexto y objetivo
 - **Proyecto:** SIDERAE-Blenkir (Sistema Inteligente de Detección Temprana de Riesgo Académico y Deserción Estudiantil).
-- **Cliente:** Colegio Blenkir (Chilca y Auquimarca, Huancayo).
+- **Cliente:** Colegio Blenkir (Huancayo). **Operación V1:** sede única **Chilca** (ver «Decisión operativa: sede única Chilca» más abajo).
 - **Objetivo técnico:** construir y mantener una plataforma desacoplada para gestión académica, riesgo, alertas e intervenciones con trazabilidad.
+
+## Decisión operativa: sede única Chilca
+
+Criterio vigente para desarrollo y documentación del prototipo:
+
+- SIDERAE-Blenkir **V1 opera solo con sede Chilca** en UI, consultas por defecto y datos demo nuevos.
+- El campo `sede` **se mantiene** en modelos, migraciones, payloads y validaciones (`chilca` / `auquimarca`) por compatibilidad técnica y posible multi-sede futura.
+- **No crear** nuevos selectores visibles de sede en frontend.
+- **No sembrar** nuevos datos demo en Auquimarca; seeders demo usan únicamente `chilca`.
+- **No eliminar** columnas `sede`, enums ni `Rule::in(['chilca', 'auquimarca'])` sin autorización explícita.
+- Si un formulario, filtro o request nuevo requiere `sede`, debe fijar **`sede = 'chilca'`** por defecto mediante los helpers existentes:
+  - Frontend: `frontend/src/lib/sedeOperativa.js` (`SEDE_OPERATIVA`, `conSedeOperativa`, `filtrosConSedeOperativa`).
+  - Backend: `App\Support\SedeOperativa` (`defaultConsulta()` en listados/dashboard cuando la UI opera como sede única).
+- **No tocar** Flask ni la lógica de riesgo académico por este criterio.
+- El DRS puede describir multi-sede; para el estado implementado V1, priorizar esta decisión frente a mockups o fichas que asuman selector de sede o demo en Auquimarca.
 
 ## 2) Stack objetivo (arquitectura base)
 - **Frontend:** React + Vite + Tailwind.

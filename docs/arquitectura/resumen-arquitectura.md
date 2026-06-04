@@ -3,6 +3,12 @@
 ## Descripcion breve del sistema
 SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y desercion estudiantil. El flujo confirmado en codigo integra gestion academica, procesamiento de riesgo, alertas e intervenciones.
 
+## Decisión operativa: sede única Chilca
+
+- **Confirmado en codigo (V1):** la UI y los seeders demo operan con sede **Chilca** unicamente; no hay selectores visibles de sede.
+- **Pendiente de desarrollo (DRS / futuro):** vista multi-sede para directivo u otras sedes (p. ej. Auquimarca) sin cambiar el esquema actual.
+- **Reglas:** mantener columna y validaciones `sede`; usar `frontend/src/lib/sedeOperativa.js` y `App\Support\SedeOperativa`; no alterar Flask ni riesgo academico por este criterio.
+
 ## Base formal del alcance
 - Documento formal: `DRS_SIDERAE_Blenkir_v1.pdf`.
 - Regla de lectura para esta v1:

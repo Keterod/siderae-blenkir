@@ -3,6 +3,13 @@
 ## 1. Descripción General
 SIDERAE-Blenkir utiliza una arquitectura de microservicios desacoplados orquestados mediante Docker, orientada a un **prototipo académico** con alcance formal definido en el DRS. El código real del repositorio puede ir por detrás del alcance DRS en varios RF; priorizar siempre verificación en código.
 
+## Decisión operativa: sede única Chilca
+
+- **V1:** operación institucional solo en sede **Chilca** (UI y demo; consultas por defecto).
+- **`sede` en datos:** se conserva en tablas y contratos API; validaciones siguen aceptando `chilca` y `auquimarca` para datos históricos y extensión futura.
+- **Implementación:** sin selectores de sede en React; helpers `frontend/src/lib/sedeOperativa.js` y `App\Support\SedeOperativa` en Laravel.
+- **Fuera de alcance de este criterio:** cambios en `ml-service/`, `RiesgoAcademicoService` o eliminación de columnas/migraciones de `sede`.
+
 ## 2. Componentes del Sistema
 
 ### A. Frontend (Client Tier)

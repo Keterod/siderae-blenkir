@@ -13,6 +13,13 @@ import {
   gradosPorNivel,
   NIVELES_ESTUDIANTE,
 } from '../../lib/academico';
+import {
+  ETIQUETA_SEDE_OPERATIVA,
+  SEDE_OPERATIVA,
+  conSedeOperativa,
+  filtrosConSedeOperativa,
+} from '../../lib/sedeOperativa';
+import { useOpcionesSeccionAula } from '../../lib/seccionesAula';
 import EstudiantePerfilDatos from './EstudiantePerfilDatos';
 import EstudiantePerfilRiesgo from './EstudiantePerfilRiesgo';
 import Badge from '../ui/Badge';
@@ -32,21 +39,20 @@ function formularioVacio() {
     grado: '',
     seccion: '',
     nivel: 'primaria',
-    sede: 'chilca',
+    sede: SEDE_OPERATIVA,
     anio_escolar: anioEscolarActual(),
     activo: true,
   };
 }
 
 function filtrosVacios() {
-  return {
+  return filtrosConSedeOperativa({
     q: '',
-    sede: '',
     nivel: '',
     grado: '',
     seccion: '',
     anio_escolar: anioEscolarActual(),
-  };
+  });
 }
 
 function llenarFormulario(desdeServidor) {
@@ -64,7 +70,7 @@ function llenarFormulario(desdeServidor) {
     grado: desdeServidor.grado ?? '',
     seccion: desdeServidor.seccion ?? '',
     nivel: desdeServidor.nivel ?? 'primaria',
-    sede: desdeServidor.sede ?? 'chilca',
+    sede: desdeServidor.sede ?? SEDE_OPERATIVA,
     anio_escolar: desdeServidor.anio_escolar ?? '',
     activo: desdeServidor.activo !== false,
   };
@@ -101,11 +107,11 @@ export default function EstudiantesPanel({ onClose = null }) {
     setErrorGeneral(null);
     setCampoErrores({});
     try {
-      const resultado = await getEstudiantes({
+      const resultado = await getEstudiantes(conSedeOperativa({
         ...filtrosConsulta,
         page: pageConsulta,
         per_page: perPageConsulta,
-      });
+      }));
       const filas = Array.isArray(resultado?.data) ? resultado.data : [];
       setLista(filas);
       setPaginacion({
@@ -180,6 +186,25 @@ export default function EstudiantesPanel({ onClose = null }) {
     [formulario.nivel],
   );
 
+  const opcionesSeccionFormulario = useOpcionesSeccionAula({
+    nivel: formulario.nivel,
+    grado: formulario.grado,
+    gradoFormato: 'estudiante',
+    valorActual: formulario.seccion,
+  });
+
+  const seccionFormularioHabilitada = Boolean(formulario.nivel && formulario.grado);
+
+  useEffect(() => {
+    if (!formulario.seccion || !seccionFormularioHabilitada) {
+      return;
+    }
+    const valores = opcionesSeccionFormulario.map((o) => o.value);
+    if (valores.length > 0 && !valores.includes(formulario.seccion)) {
+      setFormulario((prev) => ({ ...prev, seccion: '' }));
+    }
+  }, [opcionesSeccionFormulario, formulario.seccion, seccionFormularioHabilitada]);
+
   const gradosFiltro = useMemo(
     () => (filtros.nivel ? gradosPorNivel(filtros.nivel) : []),
     [filtros.nivel],
@@ -217,7 +242,7 @@ export default function EstudiantesPanel({ onClose = null }) {
       grado: formulario.grado.trim(),
       seccion: formulario.seccion.trim(),
       nivel: formulario.nivel,
-      sede: formulario.sede,
+      sede: SEDE_OPERATIVA,
       anio_escolar: formulario.anio_escolar.trim(),
       fecha_nacimiento: formulario.fecha_nacimiento || null,
       sexo: formulario.sexo || null,
@@ -345,17 +370,9 @@ export default function EstudiantesPanel({ onClose = null }) {
                   onChange={(event) => setFiltros((prev) => ({ ...prev, q: event.target.value }))}
                 />
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted">Sede</label>
-                <select
-                  className="sb-field min-w-0"
-                  value={filtros.sede}
-                  onChange={(event) => setFiltros((prev) => ({ ...prev, sede: event.target.value }))}
-                >
-                  <option value="">Todas</option>
-                  <option value="chilca">Chilca</option>
-                  <option value="auquimarca">Auquimarca</option>
-                </select>
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <span className="text-xs font-medium text-muted">Sede</span>
+                <p className="sb-field min-w-0 bg-[var(--background)] text-sm text-[var(--text)]">{ETIQUETA_SEDE_OPERATIVA}</p>
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-muted">Nivel</label>
@@ -417,7 +434,7 @@ export default function EstudiantesPanel({ onClose = null }) {
                   size="sm"
                   onClick={() => {
                     setPage(1);
-                    setFiltrosAplicados({ ...filtros });
+                    setFiltrosAplicados(filtrosConSedeOperativa(filtros));
                   }}
                 >
                   Aplicar filtros
@@ -694,7 +711,7 @@ export default function EstudiantesPanel({ onClose = null }) {
                     setFormulario((valor) => {
                       const nivel = event.target.value;
                       const grado = gradoEsValidoParaNivel(nivel, valor.grado) ? valor.grado : '';
-                      return { ...valor, nivel, grado };
+                      return { ...valor, nivel, grado, seccion: '' };
                     })
                   }
                 >
@@ -713,7 +730,9 @@ export default function EstudiantesPanel({ onClose = null }) {
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.grado}
-                  onChange={(event) => setFormulario((valor) => ({ ...valor, grado: event.target.value }))}
+                  onChange={(event) =>
+                    setFormulario((valor) => ({ ...valor, grado: event.target.value, seccion: '' }))
+                  }
                   disabled={gradosFormulario.length === 0}
                 >
                   <option value="">Seleccione…</option>
@@ -728,29 +747,29 @@ export default function EstudiantesPanel({ onClose = null }) {
 
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-[var(--text)]">Sección</label>
-                <input
-                  required
-                  className="sb-field w-full min-w-0"
-                  value={formulario.seccion}
-                  onChange={(event) => setFormulario((valor) => ({ ...valor, seccion: event.target.value }))}
-                />
-                {campoErrores.seccion ? <p className="text-xs text-red-600">{campoErrores.seccion.join(' ')}</p> : null}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Sede</label>
                 <select
                   required
                   className="sb-field w-full min-w-0"
-                  value={formulario.sede}
-                  onChange={(event) => setFormulario((valor) => ({ ...valor, sede: event.target.value }))}
+                  value={formulario.seccion}
+                  disabled={!seccionFormularioHabilitada}
+                  onChange={(event) => setFormulario((valor) => ({ ...valor, seccion: event.target.value }))}
                 >
-                  <option value="chilca">Chilca</option>
-                  <option value="auquimarca">Auquimarca</option>
+                  <option value="">
+                    {seccionFormularioHabilitada ? 'Seleccione…' : 'Seleccione nivel y grado…'}
+                  </option>
+                  {opcionesSeccionFormulario.map((opcion) => (
+                    <option key={opcion.value} value={opcion.value}>
+                      {opcion.label}
+                    </option>
+                  ))}
                 </select>
-                {campoErrores.sede ? <p className="text-xs text-red-600">{campoErrores.sede.join(' ')}</p> : null}
+                {campoErrores.seccion ? <p className="text-xs text-red-600">{campoErrores.seccion.join(' ')}</p> : null}
               </div>
+
+              <input type="hidden" name="sede" value={SEDE_OPERATIVA} />
             </div>
+            <p className="text-xs text-muted">Sede: {ETIQUETA_SEDE_OPERATIVA}</p>
+            {campoErrores.sede ? <p className="text-xs text-red-600">{campoErrores.sede.join(' ')}</p> : null}
           </Card>
 
           <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border)] pt-4">
@@ -802,7 +821,7 @@ export default function EstudiantesPanel({ onClose = null }) {
               <div>
                 <dt className="text-muted">Sede</dt>
                 <dd className="mt-0.5">
-                  {detalle.sede === 'chilca' ? 'Chilca' : detalle.sede === 'auquimarca' ? 'Auquimarca' : detalle.sede}
+                  {detalle.sede === SEDE_OPERATIVA ? ETIQUETA_SEDE_OPERATIVA : detalle.sede}
                 </dd>
               </div>
               <div>

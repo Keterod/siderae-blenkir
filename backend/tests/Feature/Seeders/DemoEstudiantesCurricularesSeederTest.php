@@ -46,17 +46,6 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
     }
 
     #[Test]
-    public function existen_estudiantes_primaria_2_grado_amistad_auquimarca_2026(): void
-    {
-        $this->seed(DemoEstudiantesCurricularesSeeder::class);
-
-        $this->assertSame(
-            DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('primaria', '2°', 'AMISTAD', 'auquimarca')
-        );
-    }
-
-    #[Test]
     public function existen_estudiantes_secundaria_1_grado_basico_chilca_2026(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
@@ -68,18 +57,18 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
     }
 
     #[Test]
-    public function existen_estudiantes_secundaria_1_grado_ciclado_auquimarca_2026(): void
+    public function existen_estudiantes_secundaria_1_grado_ciclado_chilca_2026(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
         $this->assertSame(
             DemoEstudiantesCurricularesSeeder::ESTUDIANTES_POR_AULA,
-            $this->contarAula('secundaria', '1°', 'CICLADO', 'auquimarca')
+            $this->contarAula('secundaria', '1°', 'CICLADO', 'chilca')
         );
     }
 
     #[Test]
-    public function existen_84_estudiantes_inicial(): void
+    public function existen_42_estudiantes_inicial(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 
@@ -101,7 +90,7 @@ class DemoEstudiantesCurricularesSeederTest extends TestCase
     }
 
     #[Test]
-    public function total_esperado_de_estudiantes_es_392(): void
+    public function total_esperado_de_estudiantes_es_196(): void
     {
         $this->seed(DemoEstudiantesCurricularesSeeder::class);
 

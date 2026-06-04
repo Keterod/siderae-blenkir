@@ -28,6 +28,7 @@ class NotaSemanalBulkService
         private readonly EstudianteAsignacionDocenteValidator $estudianteValidator = new EstudianteAsignacionDocenteValidator,
         private readonly EvalBimResultadoPersistService $resultadoPersistService = new EvalBimResultadoPersistService,
         private readonly EvaluacionComponentesResolver $componentesResolver = new EvaluacionComponentesResolver,
+        private readonly CurricularNotasAuthService $notasAuth = new CurricularNotasAuthService,
     ) {}
 
     /**
@@ -68,11 +69,7 @@ class NotaSemanalBulkService
      */
     public function registrarPorEstudiante(User $docente, DocenteCursoAula $asignacion, Estudiante $estudiante, array $registros): array
     {
-        if ($asignacion->user_id !== $docente->id) {
-            throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['La asignación no pertenece al docente autenticado.'],
-            ]);
-        }
+        $this->notasAuth->assertPuedeRegistrarEnAsignacion($docente, $asignacion);
 
         if (! $this->estudianteValidator->perteneceAAsignacion($estudiante, $asignacion)) {
             throw ValidationException::withMessages([
@@ -163,11 +160,7 @@ class NotaSemanalBulkService
      */
     public function registrarPorVariosEstudiantes(User $docente, DocenteCursoAula $asignacion, array $bloques): array
     {
-        if ($asignacion->user_id !== $docente->id) {
-            throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['La asignación no pertenece al docente autenticado.'],
-            ]);
-        }
+        $this->notasAuth->assertPuedeRegistrarEnAsignacion($docente, $asignacion);
 
         $mallaCurso = MallaCurso::query()
             ->with('mallaCurricular')
@@ -399,11 +392,7 @@ class NotaSemanalBulkService
      */
     private function validarContexto(User $docente, DocenteCursoAula $asignacion, TemaSemanal $tema): array
     {
-        if ($asignacion->user_id !== $docente->id) {
-            throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['La asignación no pertenece al docente autenticado.'],
-            ]);
-        }
+        $this->notasAuth->assertPuedeRegistrarEnAsignacion($docente, $asignacion);
 
         if ($asignacion->malla_curso_id !== $tema->malla_curso_id) {
             throw ValidationException::withMessages([

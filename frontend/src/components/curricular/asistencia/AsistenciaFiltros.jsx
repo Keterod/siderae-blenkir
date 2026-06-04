@@ -1,4 +1,5 @@
 import { NIVELES_ESTUDIANTE, anioEscolarActual, gradosPorNivel } from '../../../lib/academico';
+import { ETIQUETA_SEDE_OPERATIVA, SEDE_OPERATIVA } from '../../../lib/sedeOperativa';
 import { fechaHoyIso } from './asistenciaUtils';
 
 export default function AsistenciaFiltros({
@@ -39,19 +40,10 @@ export default function AsistenciaFiltros({
         </select>
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <p className="flex flex-col gap-1 text-sm sm:col-span-2">
         <span className="text-muted">Sede</span>
-        <select
-          className="sb-field min-w-0"
-          value={filtros.sede}
-          disabled={deshabilitado}
-          onChange={(ev) => onChange({ sede: ev.target.value })}
-        >
-          <option value="">Seleccione…</option>
-          <option value="chilca">Chilca</option>
-          <option value="auquimarca">Auquimarca</option>
-        </select>
-      </label>
+        <span className="font-medium text-[var(--text)]">{ETIQUETA_SEDE_OPERATIVA}</span>
+      </p>
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-muted">Grado</span>
@@ -105,7 +97,7 @@ export function filtrosAsistenciaIniciales() {
   return {
     anio_escolar: anioEscolarActual(),
     nivel: '',
-    sede: 'chilca',
+    sede: SEDE_OPERATIVA,
     grado: '',
     seccion: '',
     fecha: fechaHoyIso(),

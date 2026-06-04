@@ -232,7 +232,7 @@ export default function ConfiguracionBimestralPanel() {
 
       <Card className="border-[var(--border)] bg-[var(--surface-muted)]/30 p-4 text-sm text-muted">
         <ul className="list-inside list-disc space-y-1">
-          <li>Esta configuración aplica al curso y bimestre seleccionados para todas las sedes.</li>
+          <li>Esta configuración aplica al curso y bimestre seleccionados en la sede Chilca.</li>
           <li>
             Los componentes bimestrales definen cómo se compone la nota final del bimestre a partir del
             promedio de criterios, oral, ETAs y examen.

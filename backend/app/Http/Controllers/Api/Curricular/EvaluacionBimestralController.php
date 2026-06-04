@@ -18,6 +18,7 @@ use App\Models\Curricular\EvalBimResultado;
 use App\Models\Curricular\PeriodoAcademico;
 use App\Models\Estudiante;
 use App\Services\Curricular\CatalogoNivelGrado;
+use App\Services\Curricular\CurricularNotasAuthService;
 use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralBulkService;
 use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralConfiguracionService;
 use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralFormularioService;
@@ -46,6 +47,7 @@ class EvaluacionBimestralController extends Controller
         private readonly EscalaLogroService $escalaLogroService = new EscalaLogroService,
         private readonly EstudianteAsignacionDocenteValidator $estudianteValidator = new EstudianteAsignacionDocenteValidator,
         private readonly EquivalenciaGradoService $equivalenciaGradoService = new EquivalenciaGradoService,
+        private readonly CurricularNotasAuthService $notasAuth = new CurricularNotasAuthService,
     ) {}
 
     public function config(EvaluacionBimestralConfigQueryRequest $request): JsonResponse
@@ -247,11 +249,17 @@ class EvaluacionBimestralController extends Controller
             ])->validate();
 
             $resultado = $this->formularioService->construirConsulta($data);
+            $asignacionActiva = $this->notasAuth->resolverAsignacionActiva($data);
+
+            if ($asignacionActiva !== null && $this->notasAuth->puedeRegistrarEnAsignacion($request->user(), $asignacionActiva)) {
+                $resultado['readonly'] = false;
+                $resultado['contexto']['asignacion_docente_id'] = $asignacionActiva->id;
+            }
 
             return response()->json($resultado);
         }
 
-        if (! $request->user()?->can('registrar_notas_semanales')) {
+        if (! $request->user()?->can('registrar_notas_semanales') && ! $request->user()?->can('ver_notas_academicas')) {
             return response()->json(['message' => 'Permiso denegado.'], 403);
         }
 
@@ -262,7 +270,7 @@ class EvaluacionBimestralController extends Controller
 
         $asignacion = DocenteCursoAula::query()->findOrFail($data['asignacion_docente_id']);
 
-        if ((int) $asignacion->user_id !== (int) $request->user()->id) {
+        if (! $this->notasAuth->puedeVerAsignacion($request->user(), $asignacion)) {
             return response()->json(['message' => 'No autorizado para esta asignación.'], 403);
         }
 
@@ -271,6 +279,8 @@ class EvaluacionBimestralController extends Controller
             (int) $data['periodo_academico_id'],
         );
 
+        $resultado['readonly'] = ! $this->notasAuth->puedeRegistrarEnAsignacion($request->user(), $asignacion);
+
         return response()->json($resultado);
     }
 
@@ -278,6 +288,10 @@ class EvaluacionBimestralController extends Controller
     {
         $data = $request->validated();
         $asignacion = DocenteCursoAula::query()->findOrFail($data['asignacion_docente_id']);
+
+        if (! $this->notasAuth->puedeRegistrarEnAsignacion($request->user(), $asignacion)) {
+            return response()->json(['message' => 'Solo puede registrar evaluación bimestral en sus asignaciones activas.'], 403);
+        }
 
         $resultado = $this->bulkService->registrar(
             $request->user(),

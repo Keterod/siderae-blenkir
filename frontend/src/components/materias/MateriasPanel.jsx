@@ -7,6 +7,7 @@ import {
   listarMaterias,
 } from '../../lib/api';
 import { anioEscolarActual, gradoEsValidoParaNivel, gradosPorNivel } from '../../lib/academico';
+import { ETIQUETA_SEDE_OPERATIVA, SEDE_OPERATIVA, conSedeOperativa } from '../../lib/sedeOperativa';
 import AlertMessage from '../ui/AlertMessage';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -18,14 +19,13 @@ const F_INICIAL = {
   nivel: 'primaria',
   grado: '',
   anio_escolar: anioEscolarActual(),
-  sede: 'chilca',
+  sede: SEDE_OPERATIVA,
 };
 
 const F_FILTROS = {
   nivel: '',
   grado: '',
   anio_escolar: anioEscolarActual(),
-  sede: '',
   activo: '',
 };
 
@@ -67,10 +67,7 @@ export default function MateriasPanel() {
     if (aplicados.anio_escolar) {
       p.anio_escolar = aplicados.anio_escolar.trim();
     }
-    if (aplicados.sede) {
-      p.sede = aplicados.sede;
-    }
-    return { ...p, ...filtroActivoParam(aplicados.activo) };
+    return conSedeOperativa({ ...p, ...filtroActivoParam(aplicados.activo) });
   }, [aplicados]);
 
   const cargar = useCallback(async () => {
@@ -101,7 +98,7 @@ export default function MateriasPanel() {
     setAplicados(next);
     setFormulario((prev) => ({
       ...prev,
-      sede: next.sede || prev.sede,
+      sede: SEDE_OPERATIVA,
       nivel: next.nivel || prev.nivel,
       grado: next.grado || prev.grado,
       anio_escolar: next.anio_escolar || prev.anio_escolar,
@@ -118,12 +115,12 @@ export default function MateriasPanel() {
         nivel: formulario.nivel,
         grado: formulario.grado.trim(),
         anio_escolar: formulario.anio_escolar.trim(),
-        sede: formulario.sede,
+        sede: SEDE_OPERATIVA,
         activo: true,
       });
       setFormulario((prev) => ({
         ...F_INICIAL,
-        sede: aplicados.sede || prev.sede || F_INICIAL.sede,
+        sede: SEDE_OPERATIVA,
         nivel: aplicados.nivel || prev.nivel || F_INICIAL.nivel,
         grado: aplicados.grado || '',
         anio_escolar: aplicados.anio_escolar || prev.anio_escolar || F_INICIAL.anio_escolar,
@@ -173,7 +170,7 @@ export default function MateriasPanel() {
         nivel: formEdicion.nivel,
         grado: formEdicion.grado.trim(),
         anio_escolar: formEdicion.anio_escolar.trim(),
-        sede: formEdicion.sede,
+        sede: SEDE_OPERATIVA,
       });
       cerrarEditar();
       await cargar();
@@ -222,7 +219,7 @@ export default function MateriasPanel() {
       <Card className="border-[var(--border)] bg-[var(--surface)] shadow-card">
         <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">Gestión de materias</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Catálogo por sede, nivel, grado y año escolar. Las materias desactivadas no pueden asignarse a nuevas notas con
+          Catálogo de la sede {ETIQUETA_SEDE_OPERATIVA} por nivel, grado y año escolar. Las materias desactivadas no pueden asignarse a nuevas notas con
           vínculo oficial. No se eliminan filas usadas en el historial.
         </p>
       </Card>
@@ -233,19 +230,8 @@ export default function MateriasPanel() {
 
       <Card padding className="border-[var(--border)] shadow-sm">
         <h3 className="text-sm font-semibold text-[var(--text)]">Filtrar catálogo</h3>
-        <form className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" onSubmit={(e) => aplicarFiltros(e)}>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Sede</label>
-            <select
-              className="sb-field min-w-0"
-              value={filtros.sede}
-              onChange={(e) => setFiltros((f) => ({ ...f, sede: e.target.value }))}
-            >
-              <option value="">Todas</option>
-              <option value="chilca">Chilca</option>
-              <option value="auquimarca">Auquimarca</option>
-            </select>
-          </div>
+        <p className="mt-2 text-xs text-muted">Sede: {ETIQUETA_SEDE_OPERATIVA}</p>
+        <form className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(e) => aplicarFiltros(e)}>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-muted">Nivel</label>
             <select
@@ -301,7 +287,7 @@ export default function MateriasPanel() {
               <option value="no">Inactivas</option>
             </select>
           </div>
-          <div className="flex flex-wrap items-end gap-2 sm:col-span-2 lg:col-span-5">
+          <div className="flex flex-wrap items-end gap-2 sm:col-span-2 lg:col-span-4">
             <Button type="submit" variant="primary" size="sm" data-testid="materias-filtrar">
               Aplicar filtros
             </Button>
@@ -311,7 +297,8 @@ export default function MateriasPanel() {
 
       <Card padding className="border-[var(--border)] shadow-sm">
         <h3 className="text-sm font-semibold text-[var(--text)]">Registrar materia nueva</h3>
-        <form className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" onSubmit={(e) => void crear(e)}>
+        <p className="mt-1 text-xs text-muted">Sede: {ETIQUETA_SEDE_OPERATIVA}</p>
+        <form className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(e) => void crear(e)}>
           <div className="flex flex-col gap-1 sm:col-span-2">
             <label className="text-xs font-medium text-muted">Nombre</label>
             <input
@@ -321,18 +308,6 @@ export default function MateriasPanel() {
               onChange={(e) => setFormulario((v) => ({ ...v, nombre: e.target.value }))}
             />
             {formErr.nombre?.[0] ? <p className="text-xs text-red-600">{formErr.nombre[0]}</p> : null}
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Sede</label>
-            <select
-              required
-              className="sb-field min-w-0"
-              value={formulario.sede}
-              onChange={(e) => setFormulario((v) => ({ ...v, sede: e.target.value }))}
-            >
-              <option value="chilca">Chilca</option>
-              <option value="auquimarca">Auquimarca</option>
-            </select>
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-muted">Nivel</label>
@@ -379,7 +354,7 @@ export default function MateriasPanel() {
             />
             {formErr.anio_escolar?.[0] ? <p className="text-xs text-red-600">{formErr.anio_escolar[0]}</p> : null}
           </div>
-          <div className="sm:col-span-2 lg:col-span-5">
+          <div className="sm:col-span-2 lg:col-span-4">
             <Button type="submit" variant="primary" size="sm" disabled={guardando} data-testid="materia-guardar-nueva">
               {guardando ? 'Guardando…' : 'Registrar materia'}
             </Button>
@@ -410,7 +385,7 @@ export default function MateriasPanel() {
                 {items.map((row) => (
                   <tr key={row.id} className="border-b border-[var(--border)]/70 last:border-b-0">
                     <td className="px-4 py-3 font-medium text-[var(--text)]">{row.nombre}</td>
-                    <td className="px-4 py-3 text-muted">{row.sede}</td>
+                    <td className="px-4 py-3 text-muted">{ETIQUETA_SEDE_OPERATIVA}</td>
                     <td className="px-4 py-3 text-muted">{row.nivel}</td>
                     <td className="px-4 py-3 text-muted">{row.grado}</td>
                     <td className="px-4 py-3 text-muted">{row.anio_escolar}</td>
@@ -460,18 +435,6 @@ export default function MateriasPanel() {
                 onChange={(e) => setFormEdicion((v) => ({ ...v, nombre: e.target.value }))}
               />
               {errEdicion.nombre?.[0] ? <p className="text-xs text-red-600">{errEdicion.nombre[0]}</p> : null}
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Sede</label>
-              <select
-                required
-                className="sb-field min-w-0"
-                value={formEdicion.sede}
-                onChange={(e) => setFormEdicion((v) => ({ ...v, sede: e.target.value }))}
-              >
-                <option value="chilca">Chilca</option>
-                <option value="auquimarca">Auquimarca</option>
-              </select>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-muted">Nivel</label>

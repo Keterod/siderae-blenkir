@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\SedeOperativa;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -52,7 +53,7 @@ class DashboardQueryRequest extends FormRequest
         $validated = $this->validated();
 
         return [
-            'sede' => $validated['sede'] ?? null,
+            'sede' => SedeOperativa::defaultConsulta($validated['sede'] ?? null),
             'nivel' => $validated['nivel'] ?? null,
             'grado' => $validated['grado'] ?? null,
             'seccion' => $validated['seccion'] ?? null,

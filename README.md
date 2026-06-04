@@ -19,6 +19,19 @@ SIDERAE-Blenkir es un sistema web que permite:
 
 ---
 
+## Decisión operativa: sede única Chilca
+
+SIDERAE-Blenkir **V1** opera únicamente con la sede **Chilca** en interfaz, filtros por defecto y datos demo nuevos.
+
+- El campo `sede` permanece en base de datos y API (`enum` `chilca` / `auquimarca`) para compatibilidad y eventual multi-sede.
+- La UI **no** expone selectores de sede; los payloads envían `sede: chilca` (helpers en `frontend/src/lib/sedeOperativa.js`).
+- Los listados/dashboard aplican Chilca por defecto si no se envía `sede` (`App\Support\SedeOperativa` en backend).
+- No sembrar datos demo nuevos en Auquimarca. No modificar Flask ni el flujo de riesgo académico por este criterio.
+
+Detalle para agentes y contribuidores: `.cursorrules` (misma sección) y `AGENTS.md`.
+
+---
+
 ## 🏗️ Arquitectura del sistema
 
 El sistema está dividido en:
@@ -245,7 +258,7 @@ API: `GET/POST/PATCH /api/usuarios` y acciones `activar`, `desactivar`, `restabl
 
 El demo principal (`migrate:fresh --seed`) carga:
 
-- **392 estudiantes** curriculares (`DemoEstudiantesCurricularesSeeder`): inicial, primaria y secundaria en sedes `chilca` y `auquimarca`.
+- **196 estudiantes** curriculares (`DemoEstudiantesCurricularesSeeder`): inicial, primaria y secundaria en sede `chilca`.
 - **Mallas curriculares** provisionadas para primaria `2do`, secundaria `1ro` e inicial `3 años`.
 - **Aula operativa demo**: primaria `2°` sección `A`, sede `chilca`, año `2026`, bimestre `1`.
 - **Asignaciones docentes**, criterios (temas semanales), notas semanales/bimestrales y asistencia diaria curricular.

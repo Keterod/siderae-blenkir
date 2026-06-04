@@ -168,25 +168,26 @@ class EvaluacionBimestralApiTest extends EvaluacionBimestralTestCase
     }
 
     #[Test]
-    public function get_formulario_consulta_admin_readonly_true(): void
+    public function get_formulario_consulta_admin_readonly_false(): void
     {
-        [$mallaCurso, $periodo, , $estudiantes] = $this->prepararAulaEvaluacionBimestral(1);
+        [$asignacion, $periodoId, , $mallaCurso] = $this->prepararAsignacionDocenteEvalBim();
 
         $response = $this->actingAs($this->administrador())
             ->getJson('/api/curricular/evaluacion-bimestral/formulario?'.http_build_query([
                 'consulta_global' => '1',
-                'anio_escolar' => '2026',
-                'nivel' => 'primaria',
-                'sede' => 'chilca',
-                'grado' => '2do',
-                'seccion' => 'A',
+                'anio_escolar' => $asignacion->anio_escolar,
+                'nivel' => $asignacion->nivel,
+                'sede' => $asignacion->sede,
+                'grado' => $asignacion->grado,
+                'seccion' => $asignacion->seccion,
                 'malla_curso_id' => $mallaCurso->id,
-                'periodo_academico_id' => $periodo->id,
+                'periodo_academico_id' => $periodoId,
             ]));
 
         $response->assertOk()
-            ->assertJsonPath('readonly', true)
-            ->assertJsonPath('contexto.modo', 'consulta');
+            ->assertJsonPath('readonly', false)
+            ->assertJsonPath('contexto.modo', 'consulta')
+            ->assertJsonPath('contexto.asignacion_docente_id', $asignacion->id);
     }
 
     #[Test]

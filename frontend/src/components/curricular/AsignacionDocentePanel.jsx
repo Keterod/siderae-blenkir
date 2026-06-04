@@ -15,20 +15,16 @@ import Button from '../ui/Button';
 import Card from '../ui/Card';
 import EmptyState from '../ui/EmptyState';
 import LoadingState from '../ui/LoadingState';
+import { ETIQUETA_SEDE_OPERATIVA, SEDE_OPERATIVA } from '../../lib/sedeOperativa';
 import { FIELD } from './malla/utils';
 
 const DEMO_ASIGNACION = {
   nivel: 'primaria',
-  sede: 'chilca',
+  sede: SEDE_OPERATIVA,
   grado: '2do',
   seccion: 'AMISTAD',
   docenteEmail: 'docente@siderae.test',
 };
-const SEDES = [
-  { value: 'chilca', label: 'Chilca' },
-  { value: 'auquimarca', label: 'Auquimarca' },
-];
-
 function agruparCursosPorArea(cursos) {
   const mapa = new Map();
   for (const curso of cursos) {
@@ -54,7 +50,7 @@ export default function AsignacionDocentePanel() {
   const [filtros, setFiltros] = useState({
     anio_escolar: anioEscolarActual(),
     nivel: 'primaria',
-    sede: 'chilca',
+    sede: SEDE_OPERATIVA,
   });
   const [cargandoAnioActivo, setCargandoAnioActivo] = useState(true);
   const [sinAnioActivo, setSinAnioActivo] = useState(false);
@@ -428,19 +424,9 @@ export default function AsignacionDocentePanel() {
               ))}
             </select>
           </label>
-          <label className="block text-sm font-medium text-[var(--text)]">
-            Sede
-            <select
-              className={FIELD}
-              value={filtros.sede}
-              disabled={!puedeOperar}
-              onChange={(e) => setFiltros((prev) => ({ ...prev, sede: e.target.value }))}
-            >
-              {SEDES.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
-              ))}
-            </select>
-          </label>
+          <p className="text-sm text-muted">
+            Sede: <span className="font-medium text-[var(--text)]">{ETIQUETA_SEDE_OPERATIVA}</span>
+          </p>
         </div>
         {puedeOperar ? (
           <div className="mt-4">
@@ -649,7 +635,7 @@ export default function AsignacionDocentePanel() {
               <h3 className="text-sm font-semibold text-[var(--text)]">Asignaciones actuales — {docenteSeleccionado.name}</h3>
               {resumenDocente.length === 0 ? (
                 <p className="mt-3 text-sm text-muted">
-                  Este docente no tiene cursos asignados en el año {filtros.anio_escolar} para la sede y nivel seleccionados.
+                  Este docente no tiene cursos asignados en el año {filtros.anio_escolar} para el nivel seleccionado (sede {ETIQUETA_SEDE_OPERATIVA}).
                 </p>
               ) : (
                 <ul className="mt-3 space-y-4">

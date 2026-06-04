@@ -1,3 +1,5 @@
+import { SEDE_OPERATIVA } from './sedeOperativa';
+
 /** Niveles del módulo de estudiantes (alineado con backend / CatalogoNivelGrado). */
 export const NIVELES_ESTUDIANTE = [
   { value: 'inicial', label: 'Inicial' },
@@ -100,7 +102,7 @@ export function deduplicarAulasDocente(asignaciones) {
 export const AULA_ASISTENCIA_DEMO = {
   anio_escolar: '2026',
   nivel: 'primaria',
-  sede: 'chilca',
+  sede: SEDE_OPERATIVA,
   grado: '2°',
   seccion: 'AMISTAD',
 };

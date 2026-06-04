@@ -3,11 +3,6 @@ import { etiquetaBimestre, nombreEstudiante } from '../../../lib/notasCurricular
 import { FIELD_COMPACT, LABEL_COMPACT } from './notasUtils';
 import RegistroNotasVistaToggle from './RegistroNotasVistaToggle';
 
-const SEDES = [
-  { value: 'chilca', label: 'Chilca' },
-  { value: 'auquimarca', label: 'Auquimarca' },
-];
-
 function FiltroSelect({ label, children }) {
   return (
     <label className={LABEL_COMPACT}>
@@ -68,22 +63,6 @@ export default function RegistroNotasFiltros({
               <option key={n} value={n}>
                 {NIVELES_CURRICULARES.find((x) => x.value === n)?.label ?? n}
               </option>
-            ))}
-          </select>
-        </FiltroSelect>
-        <FiltroSelect label="Sede">
-          <select
-            className={FIELD_COMPACT}
-            value={filtros.sede}
-            onChange={(e) => onCambiarFiltro(
-              modoConsultaGlobal
-                ? { sede: e.target.value, consulta_contexto_clave: '' }
-                : { sede: e.target.value, asignacion_id: '' },
-            )}
-          >
-            <option value="">Todas</option>
-            {opciones.sedes.map((s) => (
-              <option key={s} value={s}>{SEDES.find((x) => x.value === s)?.label ?? s}</option>
             ))}
           </select>
         </FiltroSelect>

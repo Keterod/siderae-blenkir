@@ -206,7 +206,7 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
     });
 
     Route::middleware([
-        'permission:gestionar_secciones_aulas|gestionar_asignaciones_docente|registrar_notas_semanales|ver_notas_academicas|registrar_asistencia_curricular|ver_asistencia_curricular',
+        'permission:gestionar_secciones_aulas|gestionar_estudiantes|gestionar_asignaciones_docente|registrar_notas_semanales|ver_notas_academicas|registrar_asistencia_curricular|ver_asistencia_curricular',
     ])->group(function (): void {
         Route::get('/secciones-aulas', [SeccionAulaController::class, 'index']);
     });

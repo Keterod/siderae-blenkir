@@ -13,6 +13,7 @@ use App\Models\Curricular\EvalBimNotaScalar;
 use App\Models\Curricular\PeriodoAcademico;
 use App\Models\Estudiante;
 use App\Models\User;
+use App\Services\Curricular\CurricularNotasAuthService;
 use App\Services\Curricular\EstudianteAsignacionDocenteValidator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +26,7 @@ class EvaluacionBimestralBulkService
         private readonly EvaluacionComponentesResolver $componentesResolver = new EvaluacionComponentesResolver,
         private readonly EvalBimResultadoPersistService $resultadoPersistService = new EvalBimResultadoPersistService,
         private readonly EstudianteAsignacionDocenteValidator $estudianteValidator = new EstudianteAsignacionDocenteValidator,
+        private readonly CurricularNotasAuthService $notasAuth = new CurricularNotasAuthService,
     ) {}
 
     /**
@@ -37,11 +39,7 @@ class EvaluacionBimestralBulkService
         int $periodoAcademicoId,
         array $registrosPorEstudiante,
     ): array {
-        if ((int) $asignacion->user_id !== (int) $docente->id) {
-            throw ValidationException::withMessages([
-                'asignacion_docente_id' => ['La asignación no pertenece al docente autenticado.'],
-            ]);
-        }
+        $this->notasAuth->assertPuedeRegistrarEnAsignacion($docente, $asignacion);
 
         if (! $asignacion->activo) {
             throw ValidationException::withMessages([

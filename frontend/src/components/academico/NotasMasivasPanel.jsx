@@ -5,6 +5,7 @@ import {
   postNotasLote,
 } from '../../lib/api';
 import { anioEscolarActual, gradoEsValidoParaNivel, gradosPorNivel } from '../../lib/academico';
+import { ETIQUETA_SEDE_OPERATIVA, SEDE_OPERATIVA } from '../../lib/sedeOperativa';
 import AlertMessage from '../ui/AlertMessage';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -12,7 +13,7 @@ import EmptyState from '../ui/EmptyState';
 import LoadingState from '../ui/LoadingState';
 
 const F_CTX = {
-  sede: 'chilca',
+  sede: SEDE_OPERATIVA,
   nivel: 'primaria',
   grado: '',
   seccion: '',
@@ -183,17 +184,12 @@ export default function NotasMasivasPanel() {
       <Card className="border-[var(--border)] bg-[var(--surface)] p-6 shadow-card">
         <h3 className="text-sm font-semibold text-[var(--text)]">Contexto</h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <label className="flex flex-col gap-1 text-sm">
+          <p className="flex flex-col gap-1 text-sm">
             <span className="text-muted">Sede</span>
-            <select
-              className="rounded-md border border-[var(--border)] bg-white px-3 py-2 text-[var(--text)]"
-              value={ctx.sede}
-              onChange={(ev) => setCtx((c) => ({ ...c, sede: ev.target.value }))}
-            >
-              <option value="chilca">Chilca</option>
-              <option value="auquimarca">Auquimarca</option>
-            </select>
-          </label>
+            <span className="rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-medium text-[var(--text)]">
+              {ETIQUETA_SEDE_OPERATIVA}
+            </span>
+          </p>
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-muted">Nivel</span>
             <select

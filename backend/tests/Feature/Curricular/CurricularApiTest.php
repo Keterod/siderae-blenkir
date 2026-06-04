@@ -680,7 +680,7 @@ class CurricularApiTest extends CurricularApiTestCase
     }
 
     #[Test]
-    public function administrador_no_puede_bulk_en_asignacion_de_otro_docente(): void
+    public function administrador_puede_bulk_en_asignacion_de_otro_docente(): void
     {
         [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotas();
 
@@ -692,7 +692,41 @@ class CurricularApiTest extends CurricularApiTestCase
                     ['estudiante_id' => $estudiante->id, 'nota_cuaderno' => 14],
                 ],
             ])
+            ->assertCreated();
+    }
+
+    #[Test]
+    public function coordinador_no_puede_bulk_en_asignacion_de_otro_docente(): void
+    {
+        [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotas();
+
+        $coord = $this->coordinador();
+        $coord->givePermissionTo('registrar_notas_semanales');
+
+        $this->actingAs($coord)
+            ->postJson('/api/curricular/notas-semanales/bulk', [
+                'asignacion_docente_id' => $asignacion->id,
+                'tema_semanal_id' => $tema->id,
+                'notas' => [
+                    ['estudiante_id' => $estudiante->id, 'nota_cuaderno' => 14],
+                ],
+            ])
             ->assertForbidden();
+    }
+
+    #[Test]
+    public function consulta_global_admin_formulario_editable_con_asignacion(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotas();
+        $periodoId = $tema->periodo_academico_id;
+        $qs = $this->queryStringConsultaGlobal($asignacion, $periodoId);
+
+        $this->actingAs($this->administrador())
+            ->getJson("/api/curricular/notas-semanales/formulario?{$qs}")
+            ->assertOk()
+            ->assertJsonPath('consulta_global', true)
+            ->assertJsonPath('readonly', false)
+            ->assertJsonPath('asignacion.id', $asignacion->id);
     }
 
     #[Test]
@@ -707,7 +741,7 @@ class CurricularApiTest extends CurricularApiTestCase
             ->assertOk()
             ->assertJsonPath('consulta_global', true)
             ->assertJsonPath('readonly', true)
-            ->assertJsonPath('asignacion', null);
+            ->assertJsonPath('asignacion.id', $asignacion->id);
     }
 
     #[Test]

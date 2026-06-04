@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEstudianteRequest;
 use App\Http\Requests\UpdateEstudianteRequest;
 use App\Models\Estudiante;
+use App\Support\SedeOperativa;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,9 +18,10 @@ class EstudianteController extends Controller
             ->orderBy('apellidos')
             ->orderBy('nombres');
 
-        if ($request->filled('sede')) {
-            $query->where('sede', $request->query('sede'));
-        }
+        $query->where(
+            'sede',
+            SedeOperativa::defaultConsulta($request->filled('sede') ? (string) $request->query('sede') : null),
+        );
 
         if ($request->filled('nivel')) {
             $query->where('nivel', $request->query('nivel'));

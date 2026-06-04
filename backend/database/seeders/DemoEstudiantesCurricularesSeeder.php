@@ -11,9 +11,9 @@ use Illuminate\Database\Seeder;
  * Idempotente vía updateOrCreate por codigo.
  *
  * Rangos de código:
- * - Inicial: 82000001–82000084 (84)
- * - Primaria/Secundaria: 80000001–80308308 (308)
- * - Total: 392
+ * - Inicial: 82000001–82000042 (42)
+ * - Primaria/Secundaria: 80000001–80154007 (154)
+ * - Total: 196 (sede operativa demo: chilca)
  */
 class DemoEstudiantesCurricularesSeeder extends Seeder
 {
@@ -21,20 +21,20 @@ class DemoEstudiantesCurricularesSeeder extends Seeder
 
     public const ESTUDIANTES_POR_AULA = 7;
 
-    public const TOTAL_INICIAL = 84;
+    public const TOTAL_INICIAL = 42;
 
-    public const TOTAL_PRIMARIA_SECUNDARIA = 308;
+    public const TOTAL_PRIMARIA_SECUNDARIA = 154;
 
-    public const TOTAL_ESPERADO = 392;
+    public const TOTAL_ESPERADO = 196;
 
-    /** Códigos demo Inicial (3 grados × 2 sedes × 2 secciones × 7). */
+    /** Códigos demo Inicial (3 grados × 1 sede × 2 secciones × 7). */
     private const CODIGO_INICIO_INICIAL = 82_000_001;
 
     /** Códigos demo Primaria/Secundaria. */
     private const CODIGO_INICIO_PRIMARIA_SECUNDARIA = 80_000_001;
 
     /** @var list<string> */
-    private const SEDES = ['chilca', 'auquimarca'];
+    private const SEDES = ['chilca'];
 
     /** Segunda sección demo por nivel (pareja con la primera del catálogo). */
     private const SECCION_DEMO_SECUNDARIA_POR_NIVEL = [

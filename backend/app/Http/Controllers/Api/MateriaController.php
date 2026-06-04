@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMateriaRequest;
 use App\Http\Requests\UpdateMateriaRequest;
 use App\Models\Materia;
+use App\Support\SedeOperativa;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,9 +28,10 @@ class MateriaController extends Controller
             $query->where('anio_escolar', $request->query('anio_escolar'));
         }
 
-        if ($request->filled('sede')) {
-            $query->where('sede', $request->query('sede'));
-        }
+        $query->where(
+            'sede',
+            SedeOperativa::defaultConsulta($request->filled('sede') ? (string) $request->query('sede') : null),
+        );
 
         if ($request->filled('activo')) {
             $filtroActivo = filter_var($request->query('activo'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);

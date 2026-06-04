@@ -408,7 +408,7 @@ export default function AsistenciaCurricularPanel() {
                 {resumenAula.seccion}
               </p>
               <p className="mt-0.5 text-muted">
-                {resumenAula.sede === 'chilca' ? 'Chilca' : 'Auquimarca'} · Año {resumenAula.anio_escolar} · Fecha{' '}
+                Chilca · Año {resumenAula.anio_escolar} · Fecha{' '}
                 {resumenAula.fecha}
                 {formulario.totales
                   ? ` · ${formulario.totales.registrados ?? 0} de ${formulario.totales.alumnos ?? 0} con registro`

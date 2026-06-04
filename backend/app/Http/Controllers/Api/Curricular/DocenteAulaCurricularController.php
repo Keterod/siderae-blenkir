@@ -109,6 +109,7 @@ class DocenteAulaCurricularController extends Controller
 
             $resultado[] = [
                 'clave' => $clave,
+                'asignacion_docente_id' => $a->id,
                 'anio_escolar' => $a->anio_escolar,
                 'nivel' => $a->nivel,
                 'sede' => $a->sede,

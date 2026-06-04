@@ -17,7 +17,7 @@ export default function ConfiguracionBimestralFiltros({
     <Card className="p-5 sm:p-6">
       <h3 className="text-sm font-semibold text-[var(--text)]">Filtros</h3>
       <p className="mt-1 text-xs text-muted">
-        La configuración aplica al curso y bimestre seleccionados para todas las sedes.
+        La configuración aplica al curso y bimestre seleccionados (sede operativa Chilca).
       </p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <label className="block text-sm font-medium text-[var(--text)]">
