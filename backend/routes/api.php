@@ -231,6 +231,10 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
         Route::get('/docente/aulas-cursos', [DocenteAulaCurricularController::class, 'aulasCursos']);
     });
 
+    Route::middleware(['permission:descargar_excel_aula'])->group(function (): void {
+        Route::get('/excel-aula', [NotaSemanalController::class, 'excelAula']);
+    });
+
     Route::middleware(['permission:registrar_notas_semanales|ver_notas_academicas'])->group(function (): void {
         Route::get('/notas-semanales/formulario', [NotaSemanalController::class, 'formulario']);
         Route::get('/notas-semanales/plantilla-excel', [NotaSemanalController::class, 'plantillaExcel']);

@@ -3,6 +3,7 @@
 namespace App\Services\Curricular;
 
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -67,9 +68,120 @@ class PlantillaRegistroAuxiliarExcelService
     }
 
     /**
+     * @param  array{colegio: string, sede: string, anio_escolar: string, nivel: string, grado: string, seccion: string, bimestre: string|int, modo: string}  $resumen
+     * @param  list<array{titulo: string, payload: array<string, mixed>}>  $hojasCurso
+     */
+    public function generarExcelAula(array $resumen, array $hojasCurso): string
+    {
+        $spreadsheet = new Spreadsheet;
+        $estSheet = $spreadsheet->getActiveSheet();
+        $estSheet->setTitle(PlantillaExcelAulaLayout::HOJA_ESTUDIANTES);
+        $estSheet->setShowGridlines(false);
+        $this->escribirHojaEstudiantesAula($estSheet, $resumen);
+
+        foreach ($hojasCurso as $item) {
+            $sheet = $spreadsheet->createSheet();
+            $sheet->setTitle($item['titulo']);
+            $sheet->setShowGridlines(false);
+
+            $payload = $item['payload'];
+            $ultimaCol = $this->ultimaColumna($payload);
+            $this->escribirPortada($sheet, $payload['encabezado'] ?? [], $ultimaCol, sinDocente: true);
+            $ultimaFilaDatos = $this->escribirTabla(
+                $sheet,
+                self::FILA_INICIO_TABLA,
+                $payload,
+                $ultimaCol,
+                0,
+                modoAula: true,
+            );
+
+            $filaEstudiantes = self::FILA_INICIO_TABLA + self::FILAS_ENCABEZADO_TABLA;
+            $sheet->freezePane('C'.$filaEstudiantes);
+            $this->aplicarAnchos($sheet, $ultimaCol, $payload);
+            $this->aplicarBordesExteriores($sheet, self::FILA_INICIO_TABLA, $ultimaCol, $ultimaFilaDatos);
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->setPreCalculateFormulas(false);
+        ob_start();
+        $writer->save('php://output');
+        $binary = ob_get_clean();
+        $spreadsheet->disconnectWorksheets();
+
+        return $binary !== false ? $binary : '';
+    }
+
+    /**
+     * @param  array{colegio: string, sede: string, anio_escolar: string, nivel: string, grado: string, seccion: string, bimestre: string|int, modo: string}  $resumen
+     */
+    private function escribirHojaEstudiantesAula(Worksheet $sheet, array $resumen): void
+    {
+        $ultimaLetra = 'F';
+
+        $sheet->mergeCells("A1:{$ultimaLetra}1");
+        $sheet->setCellValue('A1', $resumen['colegio'] ?? 'SIDERAE-Blenkir');
+        $sheet->getRowDimension(1)->setRowHeight(26);
+        $this->estiloCelda($sheet, "A1:{$ultimaLetra}1", [
+            'bold' => true,
+            'size' => 14,
+            'fill' => self::TITLE_FILL,
+            'fontColor' => self::TITLE_FONT,
+            'h' => Alignment::HORIZONTAL_CENTER,
+            'v' => Alignment::VERTICAL_CENTER,
+        ]);
+
+        $lineas = [
+            ['Sede', $resumen['sede'] ?? 'Chilca'],
+            ['Año escolar', $resumen['anio_escolar'] ?? ''],
+            ['Nivel', mb_strtoupper((string) ($resumen['nivel'] ?? ''))],
+            ['Grado', $resumen['grado'] ?? ''],
+            ['Sección', $resumen['seccion'] ?? ''],
+            ['Bimestre', $this->etiquetaBimestre($resumen['bimestre'] ?? '')],
+            ['Modo', 'Sin datos'],
+        ];
+
+        $row = 2;
+        foreach ($lineas as [$label, $value]) {
+            $sheet->setCellValue("A{$row}", $label);
+            $sheet->mergeCells("B{$row}:{$ultimaLetra}{$row}");
+            $sheet->setCellValue("B{$row}", $value);
+            $this->estiloCelda($sheet, "A{$row}", ['bold' => true, 'fill' => self::META_FILL, 'size' => 10]);
+            $this->estiloCelda($sheet, "B{$row}:{$ultimaLetra}{$row}", ['fill' => self::META_FILL, 'size' => 10]);
+            $sheet->getRowDimension($row)->setRowHeight(18);
+            $row++;
+        }
+
+        $sheet->getRowDimension($row)->setRowHeight(6);
+        $headerRow = PlantillaExcelAulaLayout::FILA_ENCABEZADO_ESTUDIANTES;
+        $sheet->setCellValue("A{$headerRow}", 'N°');
+        $sheet->setCellValue("B{$headerRow}", 'Apellidos y nombres');
+        $this->estiloCelda($sheet, "A{$headerRow}:B{$headerRow}", [
+            'bold' => true,
+            'fill' => self::HEADER_FILL,
+            'h' => Alignment::HORIZONTAL_CENTER,
+        ]);
+
+        $inicio = PlantillaExcelAulaLayout::FILA_INICIO_DATOS;
+        $fin = $inicio + PlantillaExcelAulaLayout::FILAS_ESTUDIANTES - 1;
+        for ($fila = $inicio; $fila <= $fin; $fila++) {
+            $sheet->setCellValue("A{$fila}", $fila - $inicio + 1);
+            $this->estiloCelda($sheet, "A{$fila}", ['h' => Alignment::HORIZONTAL_CENTER]);
+            $this->estiloCelda($sheet, "B{$fila}", [
+                'h' => Alignment::HORIZONTAL_LEFT,
+                'wrap' => true,
+            ]);
+        }
+
+        $sheet->getColumnDimension('A')->setWidth(5);
+        $sheet->getColumnDimension('B')->setWidth(42);
+        $sheet->freezePane('A'.$inicio);
+    }
+
+    /**
      * @param  array<string, mixed>  $encabezado
      */
-    private function escribirPortada(Worksheet $sheet, array $encabezado, int $ultimaCol): void
+    private function escribirPortada(Worksheet $sheet, array $encabezado, int $ultimaCol, bool $sinDocente = false): void
     {
         $ultimaLetra = Coordinate::stringFromColumnIndex(max($ultimaCol, 6));
 
@@ -97,11 +209,16 @@ class PlantillaRegistroAuxiliarExcelService
             'v' => Alignment::VERTICAL_CENTER,
         ]);
 
-        $metaBlocks = [
-            ['A3', 'B3', 'C3', 'ÁREA', mb_strtoupper((string) ($encabezado['area'] ?? ''))],
-            ['D3', 'E3', 'F3', 'CURSO', mb_strtoupper((string) ($encabezado['curso'] ?? ''))],
-            ['G3', 'H3', 'I3', 'DOCENTE', (string) ($encabezado['docente'] ?? '')],
-        ];
+        $metaBlocks = $sinDocente
+            ? [
+                ['A3', 'B3', 'D3', 'ÁREA', mb_strtoupper((string) ($encabezado['area'] ?? ''))],
+                ['E3', 'F3', 'I3', 'CURSO', mb_strtoupper((string) ($encabezado['curso'] ?? ''))],
+            ]
+            : [
+                ['A3', 'B3', 'C3', 'ÁREA', mb_strtoupper((string) ($encabezado['area'] ?? ''))],
+                ['D3', 'E3', 'F3', 'CURSO', mb_strtoupper((string) ($encabezado['curso'] ?? ''))],
+                ['G3', 'H3', 'I3', 'DOCENTE', (string) ($encabezado['docente'] ?? '')],
+            ];
         foreach ($metaBlocks as [$c0, $c1, $cEnd, $label, $value]) {
             $sheet->setCellValue($c0, $label);
             $sheet->mergeCells("{$c1}:{$cEnd}");
@@ -135,8 +252,14 @@ class PlantillaRegistroAuxiliarExcelService
     /**
      * @param  array<string, mixed>  $payload
      */
-    private function escribirTabla(Worksheet $sheet, int $startRow, array $payload, int $ultimaCol, int $colEstudianteId): int
-    {
+    private function escribirTabla(
+        Worksheet $sheet,
+        int $startRow,
+        array $payload,
+        int $ultimaCol,
+        int $colEstudianteId,
+        bool $modoAula = false,
+    ): int {
         $columnasCriterios = $payload['columnas_criterios'] ?? [];
         $columnasBimestral = $payload['columnas_bimestral'] ?? [];
         $columnasNota = $payload['columnas_nota'] ?? PlantillaRegistroAuxiliarLayout::columnasNotaLegacy();
@@ -236,10 +359,16 @@ class PlantillaRegistroAuxiliarExcelService
         foreach ($payload['estudiantes'] ?? [] as $est) {
             $sheet->getRowDimension($dataRow)->setRowHeight(self::ALTURA_FILA_ESTUDIANTE);
 
-            $sheet->setCellValueByColumnAndRow(1, $dataRow, $est['numero'] ?? '');
-            $sheet->setCellValueByColumnAndRow(2, $dataRow, $est['nombre'] ?? '');
-            if (isset($est['estudiante_id'])) {
-                $sheet->setCellValueByColumnAndRow($colEstudianteId, $dataRow, (int) $est['estudiante_id']);
+            if ($modoAula) {
+                $hojaEst = PlantillaExcelAulaLayout::HOJA_ESTUDIANTES;
+                $this->asignarFormulaCelda($sheet, 1, $dataRow, "={$hojaEst}!A{$dataRow}");
+                $this->asignarFormulaCelda($sheet, 2, $dataRow, "={$hojaEst}!B{$dataRow}");
+            } else {
+                $sheet->setCellValueByColumnAndRow(1, $dataRow, $est['numero'] ?? '');
+                $sheet->setCellValueByColumnAndRow(2, $dataRow, $est['nombre'] ?? '');
+                if (isset($est['estudiante_id']) && $colEstudianteId > 0) {
+                    $sheet->setCellValueByColumnAndRow($colEstudianteId, $dataRow, (int) $est['estudiante_id']);
+                }
             }
             $this->estiloCelda($sheet, Coordinate::stringFromColumnIndex(1).$dataRow, [
                 'h' => Alignment::HORIZONTAL_CENTER,
@@ -881,5 +1010,11 @@ class PlantillaRegistroAuxiliarExcelService
         $dimension->setVisible(false);
         $dimension->setWidth(0);
         $dimension->setCollapsed(true);
+    }
+
+    private function asignarFormulaCelda(Worksheet $sheet, int $col, int $row, string $formula): void
+    {
+        $coordinate = Coordinate::stringFromColumnIndex($col).$row;
+        $sheet->getCell($coordinate)->setValueExplicit($formula, DataType::TYPE_FORMULA);
     }
 }

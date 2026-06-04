@@ -228,6 +228,63 @@ class NotaSemanalFormularioService
     }
 
     /**
+     * Formulario por curso de malla y aula, sin exigir asignación docente activa.
+     *
+     * @param  array{
+     *     anio_escolar: string,
+     *     nivel: string,
+     *     sede: string,
+     *     grado: string,
+     *     seccion: string,
+     *     malla_curso_id: int,
+     *     periodo_academico_id: int
+     * }  $filtros
+     * @return array<string, mixed>
+     */
+    public function construirPorAula(array $filtros, int $mallaCursoId): array
+    {
+        $periodo = PeriodoAcademico::query()->findOrFail($filtros['periodo_academico_id']);
+
+        if ($periodo->anio_escolar !== $filtros['anio_escolar']) {
+            throw ValidationException::withMessages([
+                'periodo_academico_id' => ['El bimestre no corresponde al año escolar indicado.'],
+            ]);
+        }
+
+        $mallaCurso = MallaCurso::query()
+            ->with(['area', 'cursoCatalogo', 'mallaCurricular'])
+            ->findOrFail($mallaCursoId);
+
+        if (! $mallaCurso->activo) {
+            throw ValidationException::withMessages([
+                'malla_curso_id' => ['El curso de malla está inactivo.'],
+            ]);
+        }
+
+        $virtual = new DocenteCursoAula([
+            'user_id' => 0,
+            'malla_curso_id' => $mallaCurso->id,
+            'anio_escolar' => $filtros['anio_escolar'],
+            'nivel' => $filtros['nivel'],
+            'grado' => $filtros['grado'],
+            'seccion' => $filtros['seccion'],
+            'sede' => $filtros['sede'],
+            'activo' => true,
+        ]);
+
+        $virtual->exists = false;
+        $virtual->id = null;
+        $virtual->setRelation('mallaCurso', $mallaCurso);
+
+        return $this->construir(
+            $virtual,
+            (int) $filtros['periodo_academico_id'],
+            null,
+            true,
+        );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function serializarNota(NotaSemanal $nota): array

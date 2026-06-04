@@ -18,6 +18,7 @@ const ComponentesCalificacionNivelPanel = lazy(() => import('./components/curric
 const SeccionesAulasPanel = lazy(() => import('./components/curricular/SeccionesAulasPanel'));
 const AsignacionDocentePanel = lazy(() => import('./components/curricular/AsignacionDocentePanel'));
 const RegistroNotasSemanalesPanel = lazy(() => import('./components/curricular/RegistroNotasSemanalesPanel'));
+const ExcelPorAulaPanel = lazy(() => import('./components/curricular/ExcelPorAulaPanel'));
 const ConfiguracionBimestralPanel = lazy(() => import('./components/curricular/configuracion-bimestral/ConfiguracionBimestralPanel'));
 const PeriodosAcademicosPanel = lazy(() => import('./components/curricular/calendario/PeriodosAcademicosPanel'));
 const AsistenciaCurricularPanel = lazy(() => import('./components/curricular/asistencia/AsistenciaCurricularPanel'));
@@ -31,7 +32,7 @@ const SIDEBAR_NAV_GROUPS = [
   { title: 'Inicio', keys: ['dashboard'] },
   {
     title: 'Gestión académica',
-    keys: ['estudiantes', 'curricular_notas', 'curricular_asistencia', 'alertas'],
+    keys: ['estudiantes', 'curricular_notas', 'curricular_excel_aula', 'curricular_asistencia', 'alertas'],
   },
   {
     title: 'Gestión docente y aulas',
@@ -150,6 +151,13 @@ function construirNavItemsSidebar(permissions, roles, moduloVista, setModuloActi
       active: moduloVista === 'curricular_notas',
       onSelect: () => setModuloActivo('curricular_notas'),
     },
+    curricular_excel_aula: {
+      key: 'curricular_excel_aula',
+      label: 'Excel por aula',
+      visible: moduloPermitido('curricular_excel_aula', permissions, roles),
+      active: moduloVista === 'curricular_excel_aula',
+      onSelect: () => setModuloActivo('curricular_excel_aula'),
+    },
     curricular_asistencia: {
       key: 'curricular_asistencia',
       label: 'Asistencia',
@@ -245,6 +253,8 @@ function moduloPermitido(key, permissions, roles) {
         || permissions.includes('gestionar_asignaciones_docente')
         || roles.includes('directivo')
       );
+    case 'curricular_excel_aula':
+      return permissions.includes('descargar_excel_aula');
     default:
       return false;
   }
@@ -285,6 +295,7 @@ function tituloModulo(key) {
     curricular_asignacion: 'Asignación docente',
     curricular_calendario: 'Periodos académicos',
     curricular_notas: 'Notas semanales',
+    curricular_excel_aula: 'Excel por aula',
     curricular_asistencia: 'Asistencia',
   };
   return titulos[key] ?? 'SIDERAE-Blenkir';
@@ -333,6 +344,8 @@ function PanelModulo({ modulo }) {
       return <PeriodosAcademicosPanel />;
     case 'curricular_notas':
       return <RegistroNotasSemanalesPanel />;
+    case 'curricular_excel_aula':
+      return <ExcelPorAulaPanel />;
     case 'curricular_asistencia':
       return <AsistenciaCurricularPanel />;
     case 'alertas':

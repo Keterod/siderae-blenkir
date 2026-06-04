@@ -3,6 +3,7 @@
 namespace App\Services\Curricular;
 
 use App\Models\Curricular\DocenteCursoAula;
+use App\Models\Curricular\MallaCurso;
 use App\Models\Curricular\TemaSemanal;
 use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralFormularioService;
 use Illuminate\Support\Collection;
@@ -58,6 +59,27 @@ class PlantillaRegistroAuxiliarService
             ->first();
 
         return $this->armarPayload($formulario, $evalBim, $asignacion, $incluirNotas);
+    }
+
+    /**
+     * @param  array{
+     *     anio_escolar: string,
+     *     nivel: string,
+     *     sede: string,
+     *     grado: string,
+     *     seccion: string,
+     *     malla_curso_id: int,
+     *     periodo_academico_id: int
+     * }  $filtros
+     * @return array<string, mixed>
+     */
+    public function construirPorMallaCursoEnAula(array $filtros, MallaCurso $mallaCurso, bool $incluirNotas): array
+    {
+        $filtros['malla_curso_id'] = $mallaCurso->id;
+        $formulario = $this->formularioService->construirPorAula($filtros, $mallaCurso->id);
+        $evalBim = $this->evalBimFormularioService->construirConsulta($filtros);
+
+        return $this->armarPayload($formulario, $evalBim, null, $incluirNotas);
     }
 
     /**

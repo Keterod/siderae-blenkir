@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Curricular;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Curricular\BulkNotasSemanalesRequest;
+use App\Http\Requests\Curricular\ExcelAulaRequest;
 use App\Http\Requests\Curricular\ImportPlantillaNotasSemanalesRequest;
 use App\Models\Curricular\DocenteCursoAula;
 use App\Models\Curricular\TemaSemanal;
@@ -15,8 +16,10 @@ use App\Services\Curricular\ImportPlantillaRegistroAuxiliarService;
 use App\Services\Curricular\NotaSemanalBulkService;
 use App\Services\Curricular\NotaSemanalCalificacionAdapter;
 use App\Services\Curricular\NotaSemanalFormularioService;
+use App\Services\Curricular\PlantillaRegistroAuxiliarAulaService;
 use App\Services\Curricular\PlantillaRegistroAuxiliarExcelService;
 use App\Services\Curricular\PlantillaRegistroAuxiliarService;
+use App\Support\SedeOperativa;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -31,6 +34,7 @@ class NotaSemanalController extends Controller
         private readonly PlantillaRegistroAuxiliarService $plantillaService = new PlantillaRegistroAuxiliarService,
         private readonly PlantillaRegistroAuxiliarExcelService $plantillaExcelService = new PlantillaRegistroAuxiliarExcelService,
         private readonly ImportPlantillaRegistroAuxiliarService $importPlantillaService = new ImportPlantillaRegistroAuxiliarService,
+        private readonly PlantillaRegistroAuxiliarAulaService $excelAulaService = new PlantillaRegistroAuxiliarAulaService,
         private readonly CurricularNotasAuthService $notasAuth = new CurricularNotasAuthService,
     ) {}
 
@@ -196,6 +200,24 @@ class NotaSemanalController extends Controller
             ),
             'advertencias' => $resultado['advertencias'],
         ], 201);
+    }
+
+    public function excelAula(ExcelAulaRequest $request): StreamedResponse|JsonResponse
+    {
+        $data = $request->validated();
+        $data['sede'] = SedeOperativa::defaultConsulta($data['sede'] ?? null);
+
+        $resultado = $this->excelAulaService->generarSinDatos($data);
+
+        return response()->streamDownload(
+            static function () use ($resultado): void {
+                echo $resultado['binary'];
+            },
+            $resultado['filename'],
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ],
+        );
     }
 
     public function plantillaExcel(Request $request): StreamedResponse|JsonResponse

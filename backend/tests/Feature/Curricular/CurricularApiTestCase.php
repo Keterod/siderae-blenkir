@@ -37,6 +37,7 @@ abstract class CurricularApiTestCase extends TestCase
             'gestionar_calendario_academico',
             'gestionar_competencias_capacidades',
             'gestionar_secciones_aulas',
+            'descargar_excel_aula',
         ];
 
         foreach ($names as $name) {
@@ -69,6 +70,7 @@ abstract class CurricularApiTestCase extends TestCase
             'ver_notas_academicas',
             'configurar_evaluacion_bimestral',
             'gestionar_secciones_aulas',
+            'descargar_excel_aula',
         ]);
     }
 
@@ -97,6 +99,7 @@ abstract class CurricularApiTestCase extends TestCase
             'registrar_notas_semanales',
             'ver_notas_academicas',
             'gestionar_secciones_aulas',
+            'descargar_excel_aula',
         ]);
         $user->assignRole('administrador');
 
