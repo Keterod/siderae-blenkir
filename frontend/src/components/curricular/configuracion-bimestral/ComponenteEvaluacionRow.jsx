@@ -4,6 +4,7 @@ import {
   etiquetaTipoComponente,
   FIELD,
   formatoPeso,
+  validarPesoEdicionPlantillaGrado,
   validarSumaManual,
 } from './configuracionBimestralUtils';
 
@@ -14,6 +15,7 @@ export default function ComponenteEvaluacionRow({
   onToggleActivo,
   onGuardarPeso,
   onGuardarNombre,
+  esPlantillaGrado = false,
 }) {
   const esPersonalizado = componente.tipo === 'personalizado';
   const [editandoPeso, setEditandoPeso] = useState(false);
@@ -31,7 +33,9 @@ export default function ComponenteEvaluacionRow({
   }
 
   async function confirmarPeso() {
-    const error = validarSumaManual(activos, componente.id, pesoDraft, 'peso');
+    const error = esPlantillaGrado
+      ? validarPesoEdicionPlantillaGrado(pesoDraft)
+      : validarSumaManual(activos, componente.id, pesoDraft, 'peso');
     if (error) {
       setErrorLocal(error);
       return;

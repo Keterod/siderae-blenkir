@@ -58,6 +58,78 @@ export function validarSumaManual(activos, idEditado, nuevoPeso, campo = 'peso')
   return null;
 }
 
+/** Modo plantilla por grado: permite editar pesos sin exigir suma 100 en cada paso. */
+export function validarPesoEdicionPlantillaGrado(nuevoPeso) {
+  return validarPesoIndividual(nuevoPeso);
+}
+
+/** Plantilla institucional por defecto (alineada al backend). */
+export function crearPlantillaBimestralPorDefecto() {
+  const componentes = [
+    { id: 'promedio_criterios', codigo: 'promedio_criterios', tipo: 'promedio_criterios', nombre: 'Promedio de criterios', peso: 25, orden: 1, activo: true },
+    { id: 'oral', codigo: 'oral', tipo: 'oral', nombre: 'Oral', peso: 25, orden: 2, activo: true },
+    { id: 'promedio_eta', codigo: 'promedio_eta', tipo: 'promedio_eta', nombre: 'Promedio ETA', peso: 25, orden: 3, activo: true },
+    { id: 'examen_bimestral', codigo: 'examen_bimestral', tipo: 'examen_bimestral', nombre: 'Examen bimestral', peso: 25, orden: 4, activo: true },
+  ];
+  const etas = [
+    { id: 'eta-1', nombre: 'ETA 1', peso_interno: 33.33, orden: 1, activo: true },
+    { id: 'eta-2', nombre: 'ETA 2', peso_interno: 33.33, orden: 2, activo: true },
+    { id: 'eta-3', nombre: 'ETA 3', peso_interno: 33.34, orden: 3, activo: true },
+  ];
+  return { componentes, etas };
+}
+
+export function serializarPlantillaParaApi(plantilla) {
+  return {
+    componentes: (plantilla?.componentes ?? []).map((c) => ({
+      codigo: c.codigo ?? c.tipo,
+      nombre: c.nombre,
+      peso: Number(c.peso),
+      activo: Boolean(c.activo),
+      orden: Number(c.orden ?? 0),
+    })),
+    etas: (plantilla?.etas ?? []).map((e) => ({
+      nombre: e.nombre,
+      peso_interno: Number(e.peso_interno),
+      activo: Boolean(e.activo),
+      orden: Number(e.orden ?? 0),
+    })),
+  };
+}
+
+export function redistribuirEquitativo(items, campo = 'peso') {
+  const activos = items.filter((i) => i.activo);
+  if (activos.length === 0) {
+    return items.map((item) => ({ ...item, [campo]: 0 }));
+  }
+
+  const base = Math.round((100 / activos.length) * 100) / 100;
+  const pesos = Array(activos.length).fill(base);
+  const suma = Math.round(pesos.reduce((acc, p) => acc + p, 0) * 100) / 100;
+  const ajuste = Math.round((100 - suma) * 100) / 100;
+  pesos[pesos.length - 1] = Math.round((pesos[pesos.length - 1] + ajuste) * 100) / 100;
+
+  let indice = 0;
+
+  return items.map((item) => {
+    if (!item.activo) {
+      return { ...item, [campo]: 0 };
+    }
+    const actualizado = { ...item, [campo]: pesos[indice] };
+    indice += 1;
+    return actualizado;
+  });
+}
+
+export function slugPersonalizado(nombre) {
+  const base = String(nombre ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '');
+  return base ? `personalizado_${base}` : `personalizado_${Date.now()}`;
+}
+
 export function obtenerMensajeError(err, fallback) {
   const payload = err?.payload;
   if (!payload) return fallback;

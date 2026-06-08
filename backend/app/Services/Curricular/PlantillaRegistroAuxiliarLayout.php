@@ -9,6 +9,14 @@ class PlantillaRegistroAuxiliarLayout
     /** @var list<string> */
     public const TIPOS_BIMESTRAL_IMPORTABLES = ['oral', 'eta', 'examen_bimestral'];
 
+    /** @var list<string> */
+    public const CODIGOS_SISTEMA_BIMESTRAL = [
+        'promedio_criterios',
+        'oral',
+        'promedio_eta',
+        'examen_bimestral',
+    ];
+
     public const MODO_LEGACY = 'legacy';
 
     public const MODO_DINAMICO = 'dinamico';
@@ -142,6 +150,51 @@ class PlantillaRegistroAuxiliarLayout
         return $cols;
     }
 
+    public static function esComponentePersonalizadoBimestral(array $componente): bool
+    {
+        if (($componente['tipo'] ?? '') === 'personalizado') {
+            return true;
+        }
+
+        $codigo = (string) ($componente['codigo'] ?? '');
+
+        return str_starts_with($codigo, 'personalizado_')
+            && ! in_array($codigo, self::CODIGOS_SISTEMA_BIMESTRAL, true);
+    }
+
+    /**
+     * Pesos de componentes activos para la fórmula Excel de nivel numérico (orden configurado).
+     *
+     * @param  array{componentes?: iterable<int, array<string, mixed>>}  $evalBim
+     * @return list<array{codigo?: string, tipo?: string, componente_id?: int, peso: float}>
+     */
+    public static function pesosNivelComponentesDesdeEval(array $evalBim): array
+    {
+        $pesos = [];
+
+        foreach (collect($evalBim['componentes'] ?? [])->where('activo', true)->sortBy('orden') as $componente) {
+            $codigo = (string) ($componente['codigo'] ?? '');
+
+            if (in_array($codigo, self::CODIGOS_SISTEMA_BIMESTRAL, true)) {
+                $pesos[] = [
+                    'codigo' => $codigo,
+                    'peso' => (float) ($componente['peso'] ?? 0),
+                ];
+                continue;
+            }
+
+            if (self::esComponentePersonalizadoBimestral($componente)) {
+                $pesos[] = [
+                    'tipo' => 'personalizado',
+                    'componente_id' => (int) $componente['id'],
+                    'peso' => (float) ($componente['peso'] ?? 0),
+                ];
+            }
+        }
+
+        return $pesos;
+    }
+
     /**
      * @param  array{componentes?: iterable<int, array<string, mixed>>, etas?: iterable<int, array<string, mixed>>}  $evalBim
      * @return list<array<string, mixed>>
@@ -152,44 +205,69 @@ class PlantillaRegistroAuxiliarLayout
         $componentes = collect($evalBim['componentes'] ?? [])->where('activo', true)->sortBy('orden')->values();
         $etas = collect($evalBim['etas'] ?? [])->where('activo', true)->sortBy('orden')->values();
 
-        $promCrit = $componentes->firstWhere('codigo', 'promedio_criterios');
-        if ($promCrit) {
-            $columnas[] = [
-                'tipo' => 'promedio_criterios',
-                'etiqueta' => 'PROMEDIO DE CRITERIO',
-                'componente_id' => $promCrit['id'],
-            ];
-        }
+        foreach ($componentes as $componente) {
+            $codigo = (string) ($componente['codigo'] ?? '');
 
-        $oral = $componentes->firstWhere('codigo', 'oral');
-        if ($oral) {
-            $columnas[] = ['tipo' => 'oral', 'etiqueta' => 'ORAL', 'componente_id' => $oral['id']];
-        }
+            if ($codigo === 'promedio_criterios') {
+                $columnas[] = [
+                    'tipo' => 'promedio_criterios',
+                    'etiqueta' => 'PROMEDIO DE CRITERIO',
+                    'componente_id' => (int) $componente['id'],
+                ];
 
-        foreach ($etas as $eta) {
-            $columnas[] = [
-                'tipo' => 'eta',
-                'etiqueta' => mb_strtoupper((string) ($eta['nombre'] ?? '')),
-                'eta_id' => $eta['id'],
-            ];
-        }
+                continue;
+            }
 
-        $promEta = $componentes->firstWhere('codigo', 'promedio_eta');
-        if ($promEta) {
-            $columnas[] = [
-                'tipo' => 'promedio_eta',
-                'etiqueta' => 'PROMEDIO ETA',
-                'componente_id' => $promEta['id'],
-            ];
-        }
+            if ($codigo === 'oral') {
+                $columnas[] = [
+                    'tipo' => 'oral',
+                    'etiqueta' => 'ORAL',
+                    'componente_id' => (int) $componente['id'],
+                ];
 
-        $examen = $componentes->firstWhere('codigo', 'examen_bimestral');
-        if ($examen) {
-            $columnas[] = [
-                'tipo' => 'examen_bimestral',
-                'etiqueta' => 'EXAMEN BIMESTRAL',
-                'componente_id' => $examen['id'],
-            ];
+                continue;
+            }
+
+            if (self::esComponentePersonalizadoBimestral($componente)) {
+                $columnas[] = [
+                    'tipo' => 'personalizado',
+                    'codigo' => $codigo,
+                    'componente_id' => (int) $componente['id'],
+                    'nombre' => (string) ($componente['nombre'] ?? ''),
+                    'etiqueta' => mb_strtoupper((string) ($componente['nombre'] ?? '')),
+                    'peso' => (float) ($componente['peso'] ?? 0),
+                    'orden' => (int) ($componente['orden'] ?? 0),
+                    'importable' => false,
+                ];
+
+                continue;
+            }
+
+            if ($codigo === 'promedio_eta') {
+                foreach ($etas as $eta) {
+                    $columnas[] = [
+                        'tipo' => 'eta',
+                        'etiqueta' => mb_strtoupper((string) ($eta['nombre'] ?? '')),
+                        'eta_id' => (int) $eta['id'],
+                    ];
+                }
+
+                $columnas[] = [
+                    'tipo' => 'promedio_eta',
+                    'etiqueta' => 'PROMEDIO ETA',
+                    'componente_id' => (int) $componente['id'],
+                ];
+
+                continue;
+            }
+
+            if ($codigo === 'examen_bimestral') {
+                $columnas[] = [
+                    'tipo' => 'examen_bimestral',
+                    'etiqueta' => 'EXAMEN BIMESTRAL',
+                    'componente_id' => (int) $componente['id'],
+                ];
+            }
         }
 
         $columnas[] = ['tipo' => 'nivel_numerico', 'etiqueta' => 'NIVEL NUMÉRICO'];

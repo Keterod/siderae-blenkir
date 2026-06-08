@@ -4,6 +4,7 @@ namespace Tests\Feature\Curricular;
 
 use App\Models\Curricular\ComponenteCalificacionNivel;
 use App\Services\Curricular\ComponenteCalificacionNivelService;
+use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 
 class ComponentesCalificacionNivelTest extends CurricularApiTestCase
@@ -77,7 +78,7 @@ class ComponentesCalificacionNivelTest extends CurricularApiTestCase
     }
 
     #[Test]
-    public function rechaza_crear_activo_si_suma_no_es_cien(): void
+    public function rechaza_crear_activo_si_suma_supera_cien(): void
     {
         $this->actingAs($this->coordinador())
             ->postJson('/api/curricular/componentes-calificacion', [
@@ -95,6 +96,128 @@ class ComponentesCalificacionNivelTest extends CurricularApiTestCase
             'nivel' => 'inicial',
             'codigo' => 'observacion_extra',
         ]);
+    }
+
+    #[Test]
+    public function permite_bajar_unico_activo_de_100_a_80(): void
+    {
+        $cuaderno = ComponenteCalificacionNivel::query()
+            ->where('anio_escolar', self::ANIO)
+            ->where('nivel', 'inicial')
+            ->where('codigo', 'cuaderno')
+            ->firstOrFail();
+
+        $response = $this->actingAs($this->coordinador())
+            ->patchJson("/api/curricular/componentes-calificacion/{$cuaderno->id}", ['peso' => 80])
+            ->assertOk();
+
+        $this->assertEqualsWithDelta(80.0, (float) $response->json('peso'), 0.01);
+        $this->assertEqualsWithDelta(80.0, (float) $cuaderno->fresh()->peso, 0.01);
+    }
+
+    #[Test]
+    public function por_nivel_indica_configuracion_incompleta_cuando_suma_80(): void
+    {
+        $cuaderno = ComponenteCalificacionNivel::query()
+            ->where('anio_escolar', self::ANIO)
+            ->where('nivel', 'inicial')
+            ->where('codigo', 'cuaderno')
+            ->firstOrFail();
+
+        $this->actingAs($this->coordinador())
+            ->patchJson("/api/curricular/componentes-calificacion/{$cuaderno->id}", ['peso' => 80])
+            ->assertOk();
+
+        $this->actingAs($this->coordinador())
+            ->getJson('/api/curricular/componentes-calificacion/por-nivel/inicial?anio_escolar='.self::ANIO)
+            ->assertOk()
+            ->assertJsonPath('validacion.valido', false)
+            ->assertJsonPath('validacion.completo', false)
+            ->assertJsonPath('validacion.suma', 80)
+            ->assertJsonPath('validacion.faltante', 20)
+            ->assertJsonPath('validacion.excede', 0);
+    }
+
+    #[Test]
+    public function permite_completar_configuracion_con_segundo_componente_de_20(): void
+    {
+        $cuaderno = ComponenteCalificacionNivel::query()
+            ->where('anio_escolar', self::ANIO)
+            ->where('nivel', 'inicial')
+            ->where('codigo', 'cuaderno')
+            ->firstOrFail();
+
+        $this->actingAs($this->coordinador())
+            ->patchJson("/api/curricular/componentes-calificacion/{$cuaderno->id}", ['peso' => 80])
+            ->assertOk();
+
+        $response = $this->actingAs($this->coordinador())
+            ->postJson('/api/curricular/componentes-calificacion', [
+                'anio_escolar' => self::ANIO,
+                'nivel' => 'inicial',
+                'nombre' => 'Observación',
+                'peso' => 20,
+                'activo' => true,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('activo', true);
+
+        $this->assertEqualsWithDelta(20.0, (float) $response->json('peso'), 0.01);
+
+        $this->actingAs($this->coordinador())
+            ->getJson('/api/curricular/componentes-calificacion/por-nivel/inicial?anio_escolar='.self::ANIO)
+            ->assertOk()
+            ->assertJsonPath('validacion.valido', true)
+            ->assertJsonPath('validacion.suma', 100);
+    }
+
+    #[Test]
+    public function rechaza_peso_si_suma_supera_100(): void
+    {
+        $cuaderno = ComponenteCalificacionNivel::query()
+            ->where('anio_escolar', self::ANIO)
+            ->where('nivel', 'inicial')
+            ->where('codigo', 'cuaderno')
+            ->firstOrFail();
+
+        $this->actingAs($this->coordinador())
+            ->postJson('/api/curricular/componentes-calificacion', [
+                'anio_escolar' => self::ANIO,
+                'nivel' => 'inicial',
+                'nombre' => 'Libro transitorio',
+                'peso' => 30,
+                'activo' => false,
+            ])
+            ->assertCreated();
+
+        $libro = ComponenteCalificacionNivel::query()
+            ->where('anio_escolar', self::ANIO)
+            ->where('nivel', 'inicial')
+            ->where('codigo', 'libro_transitorio')
+            ->firstOrFail();
+
+        $this->actingAs($this->coordinador())
+            ->patchJson("/api/curricular/componentes-calificacion/{$libro->id}/reactivar", ['peso' => 30])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['peso']);
+    }
+
+    #[Test]
+    public function validar_suma_activos_exige_configuracion_completa(): void
+    {
+        $cuaderno = ComponenteCalificacionNivel::query()
+            ->where('anio_escolar', self::ANIO)
+            ->where('nivel', 'inicial')
+            ->where('codigo', 'cuaderno')
+            ->firstOrFail();
+
+        $this->actingAs($this->coordinador())
+            ->patchJson("/api/curricular/componentes-calificacion/{$cuaderno->id}", ['peso' => 80])
+            ->assertOk();
+
+        $this->expectException(ValidationException::class);
+
+        (new ComponenteCalificacionNivelService)->validarSumaActivos(self::ANIO, 'inicial');
     }
 
     #[Test]

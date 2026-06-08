@@ -256,6 +256,7 @@ Route::middleware(['auth:sanctum'])->prefix('curricular')->group(function (): vo
     });
 
     Route::middleware(['permission:configurar_evaluacion_bimestral'])->group(function (): void {
+        Route::post('/evaluacion-bimestral/config/aplicar-grado', [EvaluacionBimestralController::class, 'aplicarConfiguracionGrado']);
         Route::post('/evaluacion-bimestral/componentes', [EvaluacionBimestralController::class, 'storeComponente']);
         Route::patch('/evaluacion-bimestral/componentes/{componente}', [EvaluacionBimestralController::class, 'updateComponente']);
         Route::post('/evaluacion-bimestral/etas', [EvaluacionBimestralController::class, 'storeEta']);

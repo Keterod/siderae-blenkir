@@ -309,7 +309,7 @@ class ComponenteCalificacionNivelService
                 }
             }
 
-            $this->validarEstadoActivosColeccion($componentes);
+            $this->validarEstadoActivosColeccionCompleta($componentes);
 
             foreach ($componentes as $componente) {
                 if ($componente->isDirty()) {
@@ -322,7 +322,15 @@ class ComponenteCalificacionNivelService
     }
 
     /**
-     * @return array{suma: float, valido: bool, cantidad_activos: int, componentes_activos: list<array{id: int, codigo: string, nombre: string, peso: float}>}
+     * @return array{
+     *     suma: float,
+     *     valido: bool,
+     *     completo: bool,
+     *     faltante: float,
+     *     excede: float,
+     *     cantidad_activos: int,
+     *     componentes_activos: list<array{id: int, codigo: string, nombre: string, peso: float}>
+     * }
      */
     public function evaluarSumaActivos(string $anioEscolar, string $nivel): array
     {
@@ -330,10 +338,20 @@ class ComponenteCalificacionNivelService
 
         $activos = $this->queryActivos($anioEscolar, $nivel)->orderBy('orden')->get();
         $suma = round((float) $activos->sum(fn (ComponenteCalificacionNivel $c) => (float) $c->peso), 2);
+        $completo = $activos->isNotEmpty() && abs($suma - 100.0) <= self::TOLERANCIA_SUMA;
+        $excede = $activos->isNotEmpty() && $suma > 100.0 + self::TOLERANCIA_SUMA
+            ? round($suma - 100.0, 2)
+            : 0.0;
+        $faltante = $activos->isNotEmpty() && ! $completo && $suma < 100.0 - self::TOLERANCIA_SUMA
+            ? round(100.0 - $suma, 2)
+            : 0.0;
 
         return [
             'suma' => $suma,
-            'valido' => abs($suma - 100.0) <= self::TOLERANCIA_SUMA && $activos->isNotEmpty(),
+            'valido' => $completo,
+            'completo' => $completo,
+            'faltante' => $faltante,
+            'excede' => $excede,
             'cantidad_activos' => $activos->count(),
             'componentes_activos' => $activos->map(fn (ComponenteCalificacionNivel $c) => [
                 'id' => $c->id,
@@ -550,11 +568,11 @@ class ComponenteCalificacionNivelService
         $sumaActual = round((float) $this->queryActivos($anioEscolar, $nivel)->sum('peso'), 2);
         $sumaProyectada = round($sumaActual + $nuevoPeso, 2);
 
-        if (abs($sumaProyectada - 100.0) > self::TOLERANCIA_SUMA) {
+        if ($sumaProyectada > 100.0 + self::TOLERANCIA_SUMA) {
             throw ValidationException::withMessages([
                 'peso' => [
                     sprintf(
-                        'La suma de los pesos de los componentes activos debe ser 100 (quedaría: %s). Ajuste los pesos en una sola operación atómica.',
+                        'La suma de componentes activos no puede superar 100%% (quedaría: %s).',
                         $sumaProyectada,
                     ),
                 ],
@@ -590,13 +608,40 @@ class ComponenteCalificacionNivelService
             }
         }
 
-        $this->validarEstadoActivosColeccion($componentes);
+        $this->validarEstadoActivosColeccionParaConfiguracion($componentes);
     }
 
     /**
      * @param  Collection<int|string, ComponenteCalificacionNivel>  $componentes
      */
-    private function validarEstadoActivosColeccion(Collection $componentes): void
+    private function validarEstadoActivosColeccionParaConfiguracion(Collection $componentes): void
+    {
+        $activos = $componentes->filter(fn (ComponenteCalificacionNivel $c) => $c->activo);
+
+        if ($activos->isEmpty()) {
+            throw ValidationException::withMessages([
+                'activo' => ['Debe permanecer al menos un componente activo en el nivel.'],
+            ]);
+        }
+
+        $suma = round((float) $activos->sum(fn (ComponenteCalificacionNivel $c) => (float) $c->peso), 2);
+
+        if ($suma > 100.0 + self::TOLERANCIA_SUMA) {
+            throw ValidationException::withMessages([
+                'peso' => [
+                    sprintf(
+                        'La suma de componentes activos no puede superar 100%% (actual: %s).',
+                        $suma,
+                    ),
+                ],
+            ]);
+        }
+    }
+
+    /**
+     * @param  Collection<int|string, ComponenteCalificacionNivel>  $componentes
+     */
+    private function validarEstadoActivosColeccionCompleta(Collection $componentes): void
     {
         $activos = $componentes->filter(fn (ComponenteCalificacionNivel $c) => $c->activo);
 

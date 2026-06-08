@@ -69,7 +69,11 @@ export default function ComponentesCalificacionNivelPanel() {
 
   const componentes = data?.componentes ?? [];
   const validacion = data?.validacion;
-  const sumaValida = validacion?.valido === true;
+  const sumaActiva = validacion?.suma;
+  const sumaCompleta = validacion?.valido === true;
+  const sumaExcedida = Number(validacion?.excede) > 0
+    || (typeof sumaActiva === 'number' && sumaActiva > 100.01);
+  const sumaIncompleta = !sumaCompleta && !sumaExcedida && Number(validacion?.cantidad_activos) > 0;
 
   const filasOrdenadas = useMemo(
     () => [...componentes].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)),
@@ -147,7 +151,8 @@ export default function ComponentesCalificacionNivelPanel() {
       <div>
         <h2 className="text-lg font-semibold text-[var(--text)]">Componentes de calificación</h2>
         <p className="mt-1 text-sm text-muted">
-          Configure los componentes y pesos por nivel educativo. Los componentes activos deben sumar 100%.
+          Configure los componentes y pesos por nivel educativo. La suma de activos no puede superar 100%;
+          debe llegar a 100% para usarse en evaluación.
         </p>
       </div>
 
@@ -186,11 +191,31 @@ export default function ComponentesCalificacionNivelPanel() {
         <EmptyState title="Sin componentes" description="No hay componentes configurados para este año y nivel." />
       ) : (
         <Card className="overflow-hidden p-0">
-          <div className="border-b border-[var(--border)] px-3 py-2 sm:px-4">
-            <p className={`text-sm font-medium ${sumaValida ? 'text-emerald-700' : 'text-amber-700'}`}>
-              Suma activos: {validacion?.suma ?? '—'}%
-              {sumaValida ? ' · válida' : ' · debe ser 100%'}
+          <div className="border-b border-[var(--border)] px-3 py-2 sm:px-4 space-y-1">
+            <p
+              className={`text-sm font-medium ${
+                sumaCompleta
+                  ? 'text-emerald-700'
+                  : sumaExcedida
+                    ? 'text-red-700'
+                    : 'text-amber-700'
+              }`}
+            >
+              Suma activos: {sumaActiva ?? '—'}%
+              {sumaCompleta ? ' · configuración completa' : null}
             </p>
+            {sumaIncompleta ? (
+              <p className="text-xs text-amber-800">
+                Configuración incompleta: la suma de componentes activos debe llegar a 100% para usarse en evaluación.
+                {Number(validacion?.faltante) > 0 ? ` Faltan ${validacion.faltante}%.` : null}
+              </p>
+            ) : null}
+            {sumaExcedida ? (
+              <p className="text-xs text-red-800">
+                La suma de componentes activos no puede superar 100%.
+                {Number(validacion?.excede) > 0 ? ` Excede ${validacion.excede}%.` : null}
+              </p>
+            ) : null}
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse text-sm">

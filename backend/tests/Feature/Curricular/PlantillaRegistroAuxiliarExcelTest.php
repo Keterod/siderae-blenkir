@@ -5,6 +5,7 @@ namespace Tests\Feature\Curricular;
 use App\Enums\Curricular\EvalBimEstadoCalculo;
 use App\Models\Curricular\ComponenteCalificacionNivel;
 use App\Models\Curricular\DocenteCursoAula;
+use App\Models\Curricular\EvalBimComponente;
 use App\Models\Curricular\EvalBimEtaItem;
 use App\Models\Curricular\EvalBimResultado;
 use App\Models\Curricular\MallaCurso;
@@ -17,6 +18,7 @@ use App\Services\Curricular\ImportPlantillaRegistroAuxiliarService;
 use App\Services\Curricular\NotaSemanalCalificacionAdapter;
 use App\Services\Curricular\PlantillaRegistroAuxiliarLayout;
 use Illuminate\Http\UploadedFile;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -517,6 +519,99 @@ class PlantillaRegistroAuxiliarExcelTest extends EvaluacionBimestralTestCase
     }
 
     #[Test]
+    public function excel_solitario_incluye_columna_componente_personalizado_activo(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotasPrimaria();
+        $periodoId = $tema->periodo_academico_id;
+        $this->asegurarEvalBimParaAsignacion($asignacion, $periodoId);
+        $this->crearComponentePersonalizadoActivo($asignacion, $periodoId, 'Exposición');
+
+        $binary = $this->descargarPlantillaBinaria($asignacion, $periodoId);
+        $meta = $this->leerMetaPlantilla($binary);
+        $mapeo = json_decode($meta['mapeo_importacion_json'] ?? '[]', true);
+
+        $personalizado = collect($mapeo['bimestral_cols'] ?? [])->firstWhere('tipo', 'personalizado');
+        $this->assertNotNull($personalizado);
+        $this->assertSame('EXPOSICIÓN', mb_strtoupper((string) ($personalizado['etiqueta'] ?? '')));
+        $this->assertFalse($personalizado['importable'] ?? true);
+
+        $oral = collect($mapeo['bimestral_cols'])->firstWhere('tipo', 'oral');
+        $examen = collect($mapeo['bimestral_cols'])->firstWhere('tipo', 'examen_bimestral');
+        $this->assertNotNull($oral);
+        $this->assertNotNull($examen);
+
+        $sheet = $this->leerHojaRegistro($binary);
+        $this->assertStringContainsString(
+            'EXPOSICIÓN',
+            mb_strtoupper((string) $sheet->getCellByColumnAndRow((int) $personalizado['col'], 9)->getValue()),
+        );
+    }
+
+    #[Test]
+    public function excel_solitario_no_incluye_componente_personalizado_inactivo(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotasPrimaria();
+        $periodoId = $tema->periodo_academico_id;
+        $this->asegurarEvalBimParaAsignacion($asignacion, $periodoId);
+
+        $componente = $this->crearComponentePersonalizadoActivo($asignacion, $periodoId, 'Proyecto');
+
+        $this->actingAs($this->coordinador())
+            ->patchJson("/api/curricular/evaluacion-bimestral/componentes/{$componente->id}", [
+                'activo' => false,
+            ])
+            ->assertOk();
+
+        $binary = $this->descargarPlantillaBinaria($asignacion, $periodoId);
+        $meta = $this->leerMetaPlantilla($binary);
+        $mapeo = json_decode($meta['mapeo_importacion_json'] ?? '[]', true);
+
+        $this->assertNull(collect($mapeo['bimestral_cols'] ?? [])->firstWhere('tipo', 'personalizado'));
+    }
+
+    #[Test]
+    public function formula_nivel_numerico_incluye_columna_y_peso_del_personalizado(): void
+    {
+        [$asignacion, $tema] = $this->prepararFlujoNotasPrimaria();
+        $periodoId = $tema->periodo_academico_id;
+        $this->asegurarEvalBimParaAsignacion($asignacion, $periodoId);
+        $personalizado = $this->crearComponentePersonalizadoActivo($asignacion, $periodoId, 'Exposición');
+
+        $binary = $this->descargarPlantillaBinaria($asignacion, $periodoId);
+        $meta = $this->leerMetaPlantilla($binary);
+
+        $colPersonalizado = $this->colBimestralDesdeMeta($meta, 'personalizado', 'EXPOSICIÓN');
+        $colNivel = $this->colBimestralDesdeMeta($meta, 'nivel_numerico');
+
+        $sheet = $this->leerHojaRegistro($binary);
+        $formula = (string) $sheet->getCellByColumnAndRow($colNivel, 10)->getValue();
+        $refPersonalizado = Coordinate::stringFromColumnIndex($colPersonalizado).'10';
+
+        $this->assertStringContainsString($refPersonalizado, $formula);
+
+        $pesoEsperado = round((float) $personalizado->fresh()->peso / 100, 4);
+        $this->assertStringContainsString('*'.$pesoEsperado, $formula);
+    }
+
+    #[Test]
+    public function excel_solitario_con_notas_muestra_valor_del_personalizado(): void
+    {
+        [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotasPrimaria();
+        $periodoId = $tema->periodo_academico_id;
+        $this->asegurarEvalBimParaAsignacion($asignacion, $periodoId);
+        $personalizado = $this->crearComponentePersonalizadoActivo($asignacion, $periodoId, 'Exposición');
+
+        $this->guardarNotaScalar($estudiante, $personalizado, 17.0);
+
+        $binary = $this->descargarPlantillaBinaria($asignacion, $periodoId, true);
+        $meta = $this->leerMetaPlantilla($binary);
+        $colPersonalizado = $this->colBimestralDesdeMeta($meta, 'personalizado', 'EXPOSICIÓN');
+
+        $sheet = $this->leerHojaRegistro($binary);
+        $this->assertEquals(17, $sheet->getCellByColumnAndRow($colPersonalizado, 10)->getValue());
+    }
+
+    #[Test]
     public function importa_oral_etas_y_examen_desde_excel(): void
     {
         [$asignacion, $tema, $estudiante] = $this->prepararFlujoNotasPrimaria();
@@ -953,6 +1048,26 @@ class PlantillaRegistroAuxiliarExcelTest extends EvaluacionBimestralTestCase
         $this->asegurarConfigBimestral($malla, $periodo);
     }
 
+    private function crearComponentePersonalizadoActivo(
+        DocenteCursoAula $asignacion,
+        int $periodoId,
+        string $nombre,
+    ): EvalBimComponente {
+        $this->actingAs($this->coordinador())
+            ->postJson('/api/curricular/evaluacion-bimestral/componentes', [
+                'malla_curso_id' => $asignacion->malla_curso_id,
+                'periodo_academico_id' => $periodoId,
+                'nombre' => $nombre,
+            ])
+            ->assertCreated();
+
+        return EvalBimComponente::query()
+            ->where('malla_curso_id', $asignacion->malla_curso_id)
+            ->where('periodo_academico_id', $periodoId)
+            ->where('nombre', $nombre)
+            ->firstOrFail();
+    }
+
     /**
      * @param  array<string, string>  $meta
      */
@@ -980,10 +1095,8 @@ class PlantillaRegistroAuxiliarExcelTest extends EvaluacionBimestralTestCase
         $query = [
             'asignacion_docente_id' => $asignacion->id,
             'periodo_academico_id' => $periodoId,
+            'incluir_notas' => $incluirNotas ? '1' : '0',
         ];
-        if (! $incluirNotas) {
-            $query['incluir_notas'] = '0';
-        }
 
         $response = $this->actingAs($asignacion->user)
             ->get('/api/curricular/notas-semanales/plantilla-excel?'.http_build_query($query));

@@ -3,6 +3,7 @@ import Button from '../../ui/Button';
 import {
   FIELD,
   formatoPeso,
+  validarPesoEdicionPlantillaGrado,
   validarSumaManual,
 } from './configuracionBimestralUtils';
 
@@ -13,6 +14,7 @@ export default function EtaConfigRow({
   onToggleActivo,
   onGuardarPeso,
   onGuardarNombre,
+  esPlantillaGrado = false,
 }) {
   const [editandoPeso, setEditandoPeso] = useState(false);
   const [pesoDraft, setPesoDraft] = useState('');
@@ -23,7 +25,9 @@ export default function EtaConfigRow({
   const bloqueado = procesando === eta.id;
 
   async function confirmarPeso() {
-    const error = validarSumaManual(activas, eta.id, pesoDraft, 'peso_interno');
+    const error = esPlantillaGrado
+      ? validarPesoEdicionPlantillaGrado(pesoDraft)
+      : validarSumaManual(activas, eta.id, pesoDraft, 'peso_interno');
     if (error) {
       setErrorLocal(error);
       return;

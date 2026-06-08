@@ -96,5 +96,12 @@ export function patchEvalBimEta(id, datos) {
   return request(`${CURRICULAR}/evaluacion-bimestral/etas/${id}`, { method: 'PATCH', body: datos });
 }
 
+export function postAplicarConfiguracionBimestralGrado(datos) {
+  return request(`${CURRICULAR}/evaluacion-bimestral/config/aplicar-grado`, {
+    method: 'POST',
+    body: datos,
+  });
+}
+
 export const ADVERTENCIA_NO_ELIMINAR_NOTA_EVAL_BIM =
   'Para eliminar una nota registrada se requiere una acción específica.';

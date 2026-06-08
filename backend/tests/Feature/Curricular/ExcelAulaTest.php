@@ -4,6 +4,7 @@ namespace Tests\Feature\Curricular;
 
 use App\Models\Curricular\MallaCurso;
 use App\Models\Curricular\PeriodoAcademico;
+use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralConfiguracionService;
 use App\Services\Curricular\PlantillaExcelAulaLayout;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PHPUnit\Framework\Attributes\Test;
@@ -102,6 +103,58 @@ class ExcelAulaTest extends CurricularApiTestCase
 
         $this->assertNotNull($spreadsheet->getSheetByName(PlantillaExcelAulaLayout::HOJA_ESTUDIANTES));
         $this->assertSame(1 + $cantidadCursos, $spreadsheet->getSheetCount());
+    }
+
+    #[Test]
+    public function excel_aula_incluye_columna_componente_personalizado_activo(): void
+    {
+        $this->actingAs($this->coordinador())->getJson(
+            '/api/curricular/mallas/grado?anio_escolar=2026&nivel=primaria&grado=2do',
+        )->assertOk();
+
+        $mallaCurso = MallaCurso::query()->where('activo', true)->orderBy('id')->firstOrFail();
+        $periodo = PeriodoAcademico::query()
+            ->where('anio_escolar', '2026')
+            ->where('bimestre', '1')
+            ->firstOrFail();
+
+        (new EvaluacionBimestralConfiguracionService)->asegurarConfiguracionPorDefecto(
+            $mallaCurso->id,
+            $periodo->id,
+        );
+
+        $this->actingAs($this->coordinador())
+            ->postJson('/api/curricular/evaluacion-bimestral/componentes', [
+                'malla_curso_id' => $mallaCurso->id,
+                'periodo_academico_id' => $periodo->id,
+                'nombre' => 'Exposición',
+            ])
+            ->assertCreated();
+
+        $spreadsheet = $this->cargarSpreadsheet($this->descargarExcelAula($this->coordinador()));
+
+        $hojaCurso = null;
+        foreach ($spreadsheet->getWorksheetIterator() as $sheet) {
+            if ($sheet->getTitle() !== PlantillaExcelAulaLayout::HOJA_ESTUDIANTES) {
+                $hojaCurso = $sheet;
+                break;
+            }
+        }
+
+        $this->assertNotNull($hojaCurso);
+
+        $encontrado = false;
+        foreach (range(1, 60) as $col) {
+            foreach ([8, 9] as $row) {
+                $valor = mb_strtoupper((string) $hojaCurso->getCellByColumnAndRow($col, $row)->getValue());
+                if (str_contains($valor, 'EXPOSICIÓN')) {
+                    $encontrado = true;
+                    break 2;
+                }
+            }
+        }
+
+        $this->assertTrue($encontrado, 'La hoja de curso debe incluir la columna del componente personalizado activo.');
     }
 
     #[Test]

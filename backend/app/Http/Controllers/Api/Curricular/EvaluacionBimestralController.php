@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Curricular;
 use App\DTO\Curricular\AulaEvaluacionContext;
 use App\Enums\Curricular\EvalBimComponenteTipo;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Curricular\AplicarConfiguracionBimestralGradoRequest;
 use App\Http\Requests\Curricular\BulkEvaluacionBimestralRequest;
 use App\Http\Requests\Curricular\EvaluacionBimestralConfigQueryRequest;
 use App\Http\Requests\Curricular\StoreEvalBimComponenteRequest;
@@ -20,6 +21,7 @@ use App\Models\Estudiante;
 use App\Services\Curricular\CatalogoNivelGrado;
 use App\Services\Curricular\CurricularNotasAuthService;
 use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralBulkService;
+use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralConfiguracionGradoService;
 use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralConfiguracionService;
 use App\Services\Curricular\EvaluacionBimestral\EvaluacionBimestralFormularioService;
 use App\Services\Curricular\EvaluacionBimestral\EvaluacionComponentesResolver;
@@ -39,6 +41,7 @@ class EvaluacionBimestralController extends Controller
     public function __construct(
         private readonly EvaluacionComponentesResolver $componentesResolver = new EvaluacionComponentesResolver,
         private readonly EvaluacionBimestralConfiguracionService $configuracionService = new EvaluacionBimestralConfiguracionService,
+        private readonly EvaluacionBimestralConfiguracionGradoService $configuracionGradoService = new EvaluacionBimestralConfiguracionGradoService,
         private readonly EvaluacionBimestralFormularioService $formularioService = new EvaluacionBimestralFormularioService,
         private readonly EvaluacionBimestralBulkService $bulkService = new EvaluacionBimestralBulkService,
         private readonly EvalBimResultadoPersistService $resultadoPersistService = new EvalBimResultadoPersistService,
@@ -80,6 +83,25 @@ class EvaluacionBimestralController extends Controller
             ])->values(),
             'escala_logro' => $this->escalaLogroService->listarEscalaActiva(),
         ]);
+    }
+
+    public function aplicarConfiguracionGrado(AplicarConfiguracionBimestralGradoRequest $request): JsonResponse
+    {
+        $resultado = $this->configuracionGradoService->aplicar($request->validated());
+
+        activity()
+            ->causedBy($request->user())
+            ->withProperties([
+                'accion' => 'curricular.evaluacion_bimestral.config_aplicar_grado',
+                'anio_escolar' => $request->validated('anio_escolar'),
+                'nivel' => $request->validated('nivel'),
+                'grado' => $request->validated('grado'),
+                'periodo_academico_id' => $request->validated('periodo_academico_id'),
+                'total_afectados' => $resultado['total_afectados'],
+            ])
+            ->log('Configuración bimestral aplicada por grado');
+
+        return response()->json($resultado);
     }
 
     public function storeComponente(StoreEvalBimComponenteRequest $request): JsonResponse

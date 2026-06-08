@@ -272,65 +272,18 @@ class PlantillaRegistroAuxiliarService
      */
     private function columnasBimestrales(array $evalBim): array
     {
-        $columnas = [];
-        $componentes = collect($evalBim['componentes'] ?? [])->where('activo', true)->sortBy('orden')->values();
-        $etas = collect($evalBim['etas'] ?? [])->where('activo', true)->sortBy('orden')->values();
-
-        $promCrit = $componentes->firstWhere('codigo', 'promedio_criterios');
-        if ($promCrit) {
-            $columnas[] = ['tipo' => 'promedio_criterios', 'etiqueta' => 'PROMEDIO DE CRITERIO', 'componente_id' => $promCrit['id']];
-        }
-
-        $oral = $componentes->firstWhere('codigo', 'oral');
-        if ($oral) {
-            $columnas[] = ['tipo' => 'oral', 'etiqueta' => 'ORAL', 'componente_id' => $oral['id']];
-        }
-
-        foreach ($etas as $eta) {
-            $columnas[] = [
-                'tipo' => 'eta',
-                'etiqueta' => mb_strtoupper($eta['nombre']),
-                'eta_id' => $eta['id'],
-            ];
-        }
-
-        $promEta = $componentes->firstWhere('codigo', 'promedio_eta');
-        if ($promEta) {
-            $columnas[] = ['tipo' => 'promedio_eta', 'etiqueta' => 'PROMEDIO ETA', 'componente_id' => $promEta['id']];
-        }
-
-        $examen = $componentes->firstWhere('codigo', 'examen_bimestral');
-        if ($examen) {
-            $columnas[] = ['tipo' => 'examen_bimestral', 'etiqueta' => 'EXAMEN BIMESTRAL', 'componente_id' => $examen['id']];
-        }
-
-        $columnas[] = ['tipo' => 'nivel_numerico', 'etiqueta' => 'NIVEL NUMÉRICO'];
-        $columnas[] = ['tipo' => 'nivel_literal', 'etiqueta' => 'NIVEL LITERAL'];
-        $columnas[] = ['tipo' => 'conclusion', 'etiqueta' => 'CONCLUSIONES DESCRIPTIVAS'];
-
-        return $columnas;
+        return PlantillaRegistroAuxiliarLayout::columnasBimestralesDesdeEval($evalBim);
     }
 
     /**
      * Pesos de componentes activos para fórmulas Excel de nivel (solo plantilla vacía).
      *
      * @param  array<string, mixed>  $evalBim
-     * @return list<array{codigo: string, peso: float}>
+     * @return list<array{codigo?: string, tipo?: string, componente_id?: int, peso: float}>
      */
     private function pesosNivelComponentes(array $evalBim): array
     {
-        $orden = ['promedio_criterios', 'oral', 'promedio_eta', 'examen_bimestral'];
-
-        return collect($evalBim['componentes'] ?? [])
-            ->where('activo', true)
-            ->filter(fn ($c) => in_array($c['codigo'] ?? '', $orden, true))
-            ->sortBy(fn ($c) => array_search($c['codigo'], $orden, true))
-            ->map(fn ($c) => [
-                'codigo' => (string) $c['codigo'],
-                'peso' => (float) $c['peso'],
-            ])
-            ->values()
-            ->all();
+        return PlantillaRegistroAuxiliarLayout::pesosNivelComponentesDesdeEval($evalBim);
     }
 
     /**
@@ -350,6 +303,7 @@ class PlantillaRegistroAuxiliarService
             'eta' => $this->valorCelda($etasNotas[$col['eta_id']]['nota'] ?? null),
             'promedio_eta' => $this->valorCelda($resultado['promedio_eta'] ?? null),
             'examen_bimestral' => $this->valorCelda($resultado['examen_bimestral'] ?? ($scalars[$col['componente_id']]['nota'] ?? null)),
+            'personalizado' => $this->valorCelda($scalars[$col['componente_id']]['nota'] ?? null),
             'nivel_numerico' => $this->valorCelda($resultado['nivel_logro_numerico'] ?? null),
             'nivel_literal' => $resultado['nivel_logro_literal'] ?? null,
             'conclusion' => $resultado['conclusion_descriptiva'] ?? null,

@@ -45,7 +45,16 @@ function AgregarEtaForm({ disabled, procesando, onAgregar }) {
   );
 }
 
-function TablaEtas({ titulo, items, activas, procesando, onToggleActivo, onGuardarPeso, onGuardarNombre }) {
+function TablaEtas({
+  titulo,
+  items,
+  activas,
+  procesando,
+  onToggleActivo,
+  onGuardarPeso,
+  onGuardarNombre,
+  esPlantillaGrado,
+}) {
   if (!items.length) return null;
 
   return (
@@ -71,6 +80,7 @@ function TablaEtas({ titulo, items, activas, procesando, onToggleActivo, onGuard
                 onToggleActivo={onToggleActivo}
                 onGuardarPeso={onGuardarPeso}
                 onGuardarNombre={onGuardarNombre}
+                esPlantillaGrado={esPlantillaGrado}
               />
             ))}
           </tbody>
@@ -87,6 +97,7 @@ export default function EtasConfigTable({
   onGuardarPeso,
   onGuardarNombre,
   onAgregar,
+  esPlantillaGrado = false,
 }) {
   const { activos: activas, inactivos: inactivas } = separarActivosInactivos(etas);
 
@@ -109,6 +120,7 @@ export default function EtasConfigTable({
         onToggleActivo={onToggleActivo}
         onGuardarPeso={onGuardarPeso}
         onGuardarNombre={onGuardarNombre}
+        esPlantillaGrado={esPlantillaGrado}
       />
 
       <TablaEtas
@@ -119,6 +131,7 @@ export default function EtasConfigTable({
         onToggleActivo={onToggleActivo}
         onGuardarPeso={onGuardarPeso}
         onGuardarNombre={onGuardarNombre}
+        esPlantillaGrado={esPlantillaGrado}
       />
 
       <AgregarEtaForm

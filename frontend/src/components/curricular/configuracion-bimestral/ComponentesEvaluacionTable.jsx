@@ -45,7 +45,16 @@ function AgregarComponenteForm({ disabled, procesando, onAgregar }) {
   );
 }
 
-function TablaComponentes({ titulo, items, activos, procesando, onToggleActivo, onGuardarPeso, onGuardarNombre }) {
+function TablaComponentes({
+  titulo,
+  items,
+  activos,
+  procesando,
+  onToggleActivo,
+  onGuardarPeso,
+  onGuardarNombre,
+  esPlantillaGrado = false,
+}) {
   if (!items.length) return null;
 
   return (
@@ -72,6 +81,7 @@ function TablaComponentes({ titulo, items, activos, procesando, onToggleActivo, 
                 onToggleActivo={onToggleActivo}
                 onGuardarPeso={onGuardarPeso}
                 onGuardarNombre={onGuardarNombre}
+                esPlantillaGrado={esPlantillaGrado}
               />
             ))}
           </tbody>
@@ -88,6 +98,7 @@ export default function ComponentesEvaluacionTable({
   onGuardarPeso,
   onGuardarNombre,
   onAgregar,
+  esPlantillaGrado = false,
 }) {
   const { activos, inactivos } = separarActivosInactivos(componentes);
 
@@ -110,6 +121,7 @@ export default function ComponentesEvaluacionTable({
         onToggleActivo={onToggleActivo}
         onGuardarPeso={onGuardarPeso}
         onGuardarNombre={onGuardarNombre}
+        esPlantillaGrado={esPlantillaGrado}
       />
 
       <TablaComponentes
@@ -120,6 +132,7 @@ export default function ComponentesEvaluacionTable({
         onToggleActivo={onToggleActivo}
         onGuardarPeso={onGuardarPeso}
         onGuardarNombre={onGuardarNombre}
+        esPlantillaGrado={esPlantillaGrado}
       />
 
       <AgregarComponenteForm

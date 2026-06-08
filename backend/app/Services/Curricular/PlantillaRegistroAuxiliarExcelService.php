@@ -474,7 +474,8 @@ class PlantillaRegistroAuxiliarExcelService
      *         examen_bimestral: ?int,
      *         nivel_numerico: ?int,
      *         nivel_literal: ?int,
-     *         etas: list<int>
+     *         etas: list<int>,
+     *         personalizados: array<int, int>
      *     }
      * }
      */
@@ -495,6 +496,7 @@ class PlantillaRegistroAuxiliarExcelService
             'nivel_numerico' => null,
             'nivel_literal' => null,
             'etas' => [],
+            'personalizados' => [],
         ];
 
         $c = $bimColsStart;
@@ -502,7 +504,9 @@ class PlantillaRegistroAuxiliarExcelService
             $tipo = $def['tipo'] ?? '';
             if ($tipo === 'eta') {
                 $bim['etas'][] = $c;
-            } elseif (array_key_exists($tipo, $bim)) {
+            } elseif ($tipo === 'personalizado' && isset($def['componente_id'])) {
+                $bim['personalizados'][(int) $def['componente_id']] = $c;
+            } elseif (array_key_exists($tipo, $bim) && ! is_array($bim[$tipo])) {
                 $bim[$tipo] = $c;
             }
             $c++;
@@ -599,9 +603,10 @@ class PlantillaRegistroAuxiliarExcelService
      *     examen_bimestral: ?int,
      *     nivel_numerico: ?int,
      *     nivel_literal: ?int,
-     *     etas: list<int>
+     *     etas: list<int>,
+     *     personalizados: array<int, int>
      * }  $bim
-     * @param  list<array{codigo: string, peso: float}>  $pesosNivel
+     * @param  list<array{codigo?: string, tipo?: string, componente_id?: int, peso: float}>  $pesosNivel
      */
     private function formulaNivelNumerico(array $bim, array $pesosNivel, int $row): string
     {
@@ -615,7 +620,12 @@ class PlantillaRegistroAuxiliarExcelService
         $refs = [];
         $terms = [];
         foreach ($pesosNivel as $comp) {
-            $col = $codigoCol[$comp['codigo']] ?? null;
+            if (($comp['tipo'] ?? '') === 'personalizado') {
+                $col = $bim['personalizados'][$comp['componente_id'] ?? 0] ?? null;
+            } else {
+                $col = $codigoCol[$comp['codigo'] ?? ''] ?? null;
+            }
+
             if ($col === null) {
                 continue;
             }
@@ -715,6 +725,22 @@ class PlantillaRegistroAuxiliarExcelService
                     $col++;
                 }
                 $i = $j;
+                continue;
+            }
+
+            if ($tipo === 'personalizado') {
+                $sheet->setCellValueByColumnAndRow($col, $rowSub, $def['etiqueta'] ?? '');
+                $this->estiloCelda($sheet, Coordinate::stringFromColumnIndex($col).$rowSub, [
+                    'bold' => true,
+                    'fill' => self::SUBHEADER_FILL,
+                    'h' => Alignment::HORIZONTAL_CENTER,
+                    'v' => Alignment::VERTICAL_CENTER,
+                    'size' => 9,
+                    'wrap' => true,
+                ]);
+                $col++;
+                $i++;
+
                 continue;
             }
 
