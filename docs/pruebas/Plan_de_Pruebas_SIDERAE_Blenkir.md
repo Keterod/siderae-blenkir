@@ -1,5 +1,9 @@
 # Plan de Pruebas de Software
 
+> **Estado del documento:** plan de pruebas **histórico/parcial** (v1.0, 02/04/2026). Describe alcance **planificado TO-BE**; no refleja por completo el estado V1 del repositorio.
+>
+> **Referencia vigente V1:** [`informe-pruebas.md`](informe-pruebas.md) · **Trazabilidad formal:** [`matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md) · **DRS vigente:** [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md)
+
 ## Sistema Inteligente de Detección Temprana de Riesgo Académico y Deserción Estudiantil — SIDERAE-Blenkir
 
 **Área:** Informática  
@@ -32,7 +36,7 @@
 
 | Fecha      | Versión | Autor                | Organización                      | Descripción                                                                        |
 | ---------- | ------- | -------------------- | --------------------------------- | ---------------------------------------------------------------------------------- |
-| 02/04/2026 | 1.0     | Carhuamaca / Chuchon | SIDERAE-Blenkir / Colegio Blenkir | Frontend en React 18 y Backend en Laravel 11. Arquitectura desacoplada con Docker. |
+| 02/04/2026 | 1.0     | Carhuamaca / Chuchon | SIDERAE-Blenkir / Colegio Blenkir | Frontend en React 18 y Backend en Laravel ^13. Arquitectura desacoplada con Docker. |
 
 ---
 
@@ -65,7 +69,9 @@
 
 El presente documento constituye el Plan de Pruebas de Software del sistema SIDERAE-Blenkir, desarrollado para el Colegio Blenkir de Huancayo, Junín. Cubre la totalidad de los veinte (20) requerimientos funcionales definidos en el Formato 06, trazables con el proceso TO-BE y los problemas identificados en el análisis AS-IS del Formato 04.
 
-El sistema se implementa con arquitectura desacoplada utilizando un frontend en React 18, un backend con Laravel 11 (PHP 8.3) y MySQL 8, contenerizados y orquestados mediante Docker y Docker Compose. El motor de Machine Learning (Random Forest, SVM, XGBoost) se implementa como microservicio Python/Flask consumido desde Laravel vía HTTP.
+El sistema se implementa con arquitectura desacoplada utilizando un frontend en React 18, un backend con Laravel **^13.0** (PHP 8.3) y MySQL 8, contenerizados y orquestados mediante Docker y Docker Compose.
+
+**ML en V1 (estado real):** microservicio Python/Flask **determinístico** consumido desde Laravel vía HTTP. Los modelos **Random Forest, SVM y XGBoost** del DRS formal **no están implementados** en el repositorio V1; constituyen brecha/futuro (véase DRS v2 §RF-06, RF-18).
 
 **Restricciones:** equipo de 2 desarrolladores que asumen también el rol de testers. Las pruebas se ejecutan en entorno local basado en contenedores Docker (Ubuntu 22.04 LTS). Presupuesto limitado a herramientas de software libre.
 
@@ -75,20 +81,24 @@ El sistema se implementa con arquitectura desacoplada utilizando un frontend en 
 
 ### 5.1 Elementos de pruebas
 
-Módulos y componentes del sistema SIDERAE-Blenkir a probar: Carga de Datos, Asistencia, Reportes Conductuales, Motor ML, Alertas Tempranas, Intervención, Derivación, Dashboard/Panel, Usuarios y Roles, Validación de Datos, Log de Auditoría, Reentrenamiento ML, Semáforo de Completitud y Reporte ISO 9001.
+Módulos y componentes del sistema SIDERAE-Blenkir a probar (alcance **planificado**): Carga de Datos, Asistencia, Reportes Conductuales, Motor ML, Alertas Tempranas, Intervención, Derivación, Dashboard/Panel, Usuarios y Roles, Validación de Datos, Log de Auditoría, Reentrenamiento ML, Semáforo de Completitud y Reporte ISO 9001.
+
+**Matiz V1:** varios ítems anteriores están **pendientes, parciales o no confirmados** en el prototipo actual — ver [`matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md).
 
 ### 5.2 Nuevas funcionalidades a probar
 
-- El docente registra digitalmente la asistencia semanal sin usar papel.
-- El coordinador importa resultados del Fast Test desde Excel y el sistema los vincula automáticamente.
-- El psicólogo registra reportes conductuales integrados al perfil de riesgo.
-- El sistema genera automáticamente alertas tempranas con nivel de riesgo y recomendación.
-- El docente ve el perfil completo del estudiante en riesgo y registra la intervención.
-- El directivo revisa el mapa de riesgo de todas las sedes y registra la derivación.
-- El administrador gestiona usuarios con roles y permisos diferenciados.
-- El sistema valida automáticamente la integridad de los datos antes de procesarlos.
-- El directivo recibe un reporte mensual automático de calidad basado en ISO 25010.
-- El administrador reentrena el modelo ML y visualiza las nuevas métricas.
+> Lista **TO-BE / planificada**. No implica que todas estén implementadas en V1.
+
+- El docente registra digitalmente la asistencia semanal sin usar papel. *(RF-02 confirmado curricular en V1.)*
+- El coordinador importa resultados del Fast Test desde Excel y el sistema los vincula automáticamente. *(RF-03 **pendiente**.)*
+- El psicólogo registra reportes conductuales integrados al perfil de riesgo. *(RF-04 **pendiente**.)*
+- El sistema genera automáticamente alertas tempranas con nivel de riesgo y recomendación. *(RF-08 confirmado en V1.)*
+- El docente ve el perfil completo del estudiante en riesgo y registra la intervención. *(Alertas RF-09 confirmadas; UI riesgo en perfil **pausada** — RF-06 parcial.)*
+- El directivo revisa el mapa de riesgo de todas las sedes y registra la derivación. *(Multi-sede y RF-10 **pendientes**; V1 opera sede **Chilca**.)*
+- El administrador gestiona usuarios con roles y permisos diferenciados. *(RF-15 confirmado en V1.)*
+- El sistema valida automáticamente la integridad de los datos antes de procesarlos. *(Parcial; RF-19 semáforo **pendiente**.)*
+- El directivo recibe un reporte mensual automático de calidad basado en ISO 25010. *(Referencia académica; **sin certificación ISO**.)*
+- El administrador reentrena el modelo ML y visualiza las nuevas métricas. *(RF-18 **pendiente**; ML determinístico V1.)*
 
 ### 5.3 Pruebas de regresión
 
@@ -98,11 +108,11 @@ Se ejecutan tras cada corrección de defecto. Componentes afectados indirectamen
 - Laravel Notifications/Alertas (RF-08) ante cambios en umbrales o respuesta ML.
 - Dashboard en React (RF-14) ante modificaciones en la API y modelos.
 - `spatie/activitylog` (RF-17) ante cualquier cambio en acciones de usuario.
-- Semáforo en React (RF-19) ante cambios en la ingesta de datos.
+- Semáforo en React (RF-19) ante cambios en la ingesta de datos. *(RF-19 **pendiente / no encontrado** en V1.)*
 
 ### 5.4 Funcionalidades a no probar
 
-- Integración directa con SIAGIE (API) — SIAGIE no dispone de API pública; se usa importación Excel.
+- Integración directa con SIAGIE (API) — SIAGIE no dispone de API pública; importación SIAGIE global del DRS **pendiente en V1** (distinto de plantilla Excel curricular confirmada).
 - Pruebas de carga con 1,082 usuarios simultáneos — el entorno local no replica la producción.
 - Compatibilidad con navegadores distintos a Chrome y Firefox.
 - Validación del modelo ML con datos reales del Blenkir — datos históricos no digitalizados.
@@ -116,8 +126,8 @@ Se aplica el **Modelo en V** con ejecución incremental por módulos, con relaci
 
 - **Unitarias** — PHPUnit para el backend y Jest + React Testing Library para el frontend React; caja blanca RF-06, 07, 16, 19.
 - **Integración** — PHPUnit Feature Tests usando `Http::fake()` para simular el microservicio Flask ML (RF-01 al RF-09).
-- **Sistema** — Cypress E2E, caja negra RF-01 al RF-20.
-- **Funcionales** — Cypress + casos manuales.
+- **Sistema** — Cypress E2E planificado (**no encontrado en repo V1**), caja negra RF-01 al RF-20.
+- **Funcionales** — Cypress planificado + casos manuales (informe V1: pruebas manuales recomendadas, sin Cypress).
 - **Aceptación** — con el Colegio Blenkir, Cypress + escenarios reales (RF-02, 08, 09, 14).
 
 **Tipos de pruebas ejecutadas:** funcionalidad, validación de datos, interfaz de usuario, seguridad y autenticación por roles, y auditoría conforme a ISO 25010.
@@ -181,18 +191,19 @@ Se aplica el **Modelo en V** con ejecución incremental por módulos, con relaci
 | Software                      | Versión           | Licencia            | Uso en pruebas                                        |
 | ----------------------------- | ----------------- | ------------------- | ----------------------------------------------------- |
 | PHP                           | 8.3+              | PHP License (libre) | Runtime del backend Laravel                           |
-| Laravel                       | 11.x              | MIT                 | Framework principal backend + routing + ORM + Queue   |
+| Laravel                       | **^13.0**         | MIT                 | Framework principal backend + routing + ORM + Queue (**stack vigente V1**) |
 | React                         | 18.x              | MIT                 | Framework principal para la interfaz de usuario (SPA) |
 | Node.js                       | 20+               | Open Source         | Entorno de ejecución para el proyecto React           |
-| Cypress                       | 13.x              | MIT                 | Pruebas funcionales E2E sobre la interfaz React       |
+| Cypress                       | 13.x (planeado)   | MIT                 | E2E **planeado** — **no confirmado en repo V1** (sin carpeta `cypress/`) |
 | MySQL                         | 8.x               | GPL (libre)         | Base de datos relacional del sistema                  |
 | Docker / Docker Compose       | Última            | Apache 2.0 (libre)  | Contenerización y orquestación de servicios           |
 | Laravel Breeze                | 2.x               | MIT                 | Scaffold de autenticación (login, registro, sesión)   |
 | Spatie Permission             | 6.x               | MIT                 | Gestión de roles y permisos (RF-15)                   |
 | spatie/activitylog            | 4.x               | MIT                 | Log de auditoría automático (RF-17)                   |
-| Laravel Excel (Maatwebsite)   | 3.x               | MIT                 | Importación de archivos .xlsx/.csv (RF-01, 03, 05)    |
-| Barryvdh DomPDF               | 3.x               | MIT                 | Generación de reportes PDF (RF-11, RF-20)             |
-| Python + Flask + scikit-learn | 3.11 / 3.x / 1.3+ | PSF / BSD (libre)   | Microservicio ML interno (RF-06, 07, 18)              |
+| Laravel Excel (Maatwebsite)   | 3.x               | MIT                 | Importación plantilla Excel **curricular** (RF-01 parcial); **no** SIAGIE global |
+| Barryvdh DomPDF               | 3.x               | MIT                 | Generación de reportes PDF (RF-16 parcial — export dashboard)             |
+| Python + Flask                | 3.11 / 3.x        | PSF / BSD (libre)   | Microservicio ML **determinístico V1** (RF-06 parcial)                    |
+| scikit-learn (ensemble DRS)   | 1.3+ (planeado)   | BSD (libre)         | RF/SVM/XGBoost del DRS — **no implementado**; brecha RF-06/RF-18          |
 | PHPUnit                       | 11.x              | BSD (libre)         | Pruebas unitarias y de feature (`php artisan test`)   |
 | Jest + React Testing Library  | Última            | MIT                 | Pruebas unitarias para componentes React              |
 | Google Chrome / Firefox       | Última            | Libre               | Navegadores para pruebas de interfaz React y Cypress  |
@@ -202,7 +213,7 @@ Se aplica el **Modelo en V** con ejecución incremental por módulos, con relaci
 | Herramienta                            | Propósito en SIDERAE-Blenkir                                                                                            |
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | PHPUnit (`php artisan test`)           | Pruebas unitarias de Services, Models, Helpers y clases de negocio; pruebas de Feature para endpoints y Jobs de Laravel |
-| Cypress 13.x                           | Pruebas E2E y funcionales automatizadas sobre componentes React, dashboard, formularios y flujos de usuario             |
+| Cypress 13.x                           | E2E planificado — **no encontrado en repo V1**; usar smoke manual por rol ([`manual-usuario.md`](../manual-usuario.md)) |
 | Jest + React Testing Library           | Pruebas unitarias de componentes, funciones y lógica del frontend en React                                              |
 | Docker + Docker Compose                | Contenerización y orquestación del entorno de pruebas (Frontend React, Backend Laravel, MySQL 8, Microservicio Flask)   |
 | Laravel Factories + Seeders            | Generación de datos sintéticos representativos para poblar la BD de pruebas automáticamente                             |
@@ -320,7 +331,7 @@ Se aplica el **Modelo en V** con ejecución incremental por módulos, con relaci
 | ISO 9001:2015 - Sistemas de Gestión de Calidad                   | ISO                            | 2015            |
 | ISO/IEC 25010 - Calidad del Producto Software                    | ISO/IEC                        | 2023            |
 | ISO/IEC 29119 - Pruebas de Software                              | ISO/IEC                        | 2013+           |
-| Documentación oficial Laravel 11                                 | Laravel LLC                    | 11.x            |
+| Documentación oficial Laravel 13                                 | Laravel LLC                    | 13.x            |
 | Documentación oficial React 18                                   | Meta / React Team              | 18.x            |
 | Documentación Spatie Laravel Permission                          | Spatie                         | 6.x             |
 | Documentación Docker y Docker Compose                            | Docker Inc.                    | Última          |
@@ -343,16 +354,16 @@ Se aplica el **Modelo en V** con ejecución incremental por módulos, con relaci
 | Spatie Permission     | Paquete Laravel para gestión de roles y permisos de usuario (Administrador, Docente, Coordinador, Psicólogo, Directivo).                                          |
 | spatie/activitylog    | Paquete Laravel que registra automáticamente en `activity_log` todas las acciones realizadas en el sistema.                                                       |
 | PHPUnit               | Framework de pruebas unitarias para PHP, integrado en Laravel mediante `php artisan test`.                                                                        |
-| Cypress               | Herramienta de pruebas E2E automatizadas sobre la interfaz React que simula interacciones reales de usuario.                                                      |
+| Cypress               | Herramienta E2E **planeada** en este plan; **no confirmada en repo V1** (sin carpeta `cypress/`). |
 | Jest                  | Framework de pruebas unitarias JavaScript para componentes React y lógica del frontend.                                                                           |
 | React Testing Library | Librería complementaria a Jest para pruebas de componentes React centradas en el comportamiento del usuario.                                                      |
 | `Http::fake()`        | Método de Laravel para simular (mock) respuestas HTTP externas; usado para aislar el microservicio Flask durante pruebas.                                         |
 | Docker                | Plataforma de contenerización que empaqueta la aplicación y sus dependencias en contenedores aislados y reproducibles.                                            |
 | Docker Compose        | Herramienta de orquestación que define y ejecuta múltiples contenedores Docker (Frontend, Backend, BD, Flask) mediante un archivo YAML.                           |
-| ML                    | Machine Learning: modelos (Random Forest, SVM, XGBoost) en microservicio Python/Flask para predecir el riesgo académico.                                          |
-| Índice de riesgo      | Valor calculado por el motor ML que clasifica a cada estudiante en nivel de riesgo alto, medio o bajo.                                                            |
-| SIAGIE                | Sistema de Información de Apoyo a la Gestión de la IE del MINEDU Perú; fuente de datos académicos oficiales.                                                      |
-| ISO 9001              | Norma internacional de gestión de calidad aplicada en SIDERAE-Blenkir para garantizar trazabilidad y mejora continua de procesos.                                 |
+| ML                    | Machine Learning: en **V1** Flask **determinístico**; ensemble Random Forest/SVM/XGBoost del DRS = **brecha/futuro** (RF-06, RF-18). |
+| Índice de riesgo      | Valor calculado por el servicio ML que clasifica a cada estudiante en nivel Alto, Medio o Bajo. |
+| SIAGIE                | Sistema MINEDU Perú; importación global **pendiente en V1** (distinto de plantilla Excel curricular confirmada). |
+| ISO 9001              | Norma de referencia académica para trazabilidad; **sin certificación** ni SGC auditado en V1. |
 | ISO 25010             | Norma ISO/IEC que define las características de calidad del producto software: funcionalidad, rendimiento, seguridad, usabilidad, mantenibilidad y escalabilidad. |
 | ISO 29119             | Estándar internacional que guía la estrategia, documentación y ejecución de pruebas de software.                                                                  |
 | TDD                   | Test Driven Development: enfoque de desarrollo donde las pruebas se definen antes de implementar el código, guiando el diseño del sistema.                        |

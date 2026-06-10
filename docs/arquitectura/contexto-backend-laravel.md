@@ -1,126 +1,189 @@
-# Contexto backend Laravel (v1)
+# Contexto backend Laravel (v2 — Fase 2)
 
 ## Rol del backend
-El backend Laravel es la capa central de negocio: autentica usuarios, valida permisos, expone API REST, persiste en MySQL, coordina el calculo de riesgo con Flask y gestiona alertas/intervenciones.
 
-## Relacion con el DRS
-- El DRS (`DRS_SIDERAE_Blenkir_v1.pdf`) define el alcance formal de RF y RN.
-- El backend actual confirma parte importante del flujo operativo, pero no todo el alcance formal del DRS esta implementado en codigo revisado.
+Capa central de negocio: autenticación Sanctum, autorización Spatie (23 permisos), API REST, persistencia MySQL, módulo curricular, orquestación ML, alertas/intervenciones, gestión de usuarios y auditoría parcial.
+
+Referencia cruzada: [`docs/limitaciones.md`](../limitaciones.md) · [`docs/api.md`](../api.md) · [`docs/manual-tecnico.md`](../manual-tecnico.md)
+
+---
+
+## Relación con el DRS
+
+- Alcance formal: `DRS_SIDERAE_Blenkir_v1.pdf` (**externo al repo**).
+- Resumen en repo: [`contexto-drs-requerimientos.md`](contexto-drs-requerimientos.md).
+- El backend confirma gran parte del flujo operativo; varios RF del DRS siguen **pendientes o parciales**.
+
+---
 
 ## Stack verificado (`backend/composer.json`)
-- Laravel Framework.
-- Laravel Sanctum.
-- Spatie Permission.
-- Spatie Activitylog.
-- Laravel Excel (dependencia presente).
-- Barryvdh DomPDF (dependencia presente).
 
-## Rutas principales verificadas
-- Desde `backend/routes/auth.php`:
-  - `POST /login`
-  - `POST /logout`
-- Desde `backend/routes/api.php`:
-  - `GET /api/health`
-  - `GET /api/me`
-  - `GET /api/dashboard` (ruta declarada con permiso)
-  - CRUD parcial de estudiantes
-  - Endpoints de notas, asistencias y variables socioeconomicas
-  - `POST /api/estudiantes/{id}/procesar-riesgo`
-  - Endpoints de alertas, intervenciones y cierre
+| Paquete | Uso |
+|---------|-----|
+| Laravel ^13, PHP ^8.3 | Framework API |
+| laravel/sanctum | Sesión SPA |
+| spatie/laravel-permission | RBAC |
+| spatie/laravel-activitylog | Auditoría parcial |
+| maatwebsite/excel | Import/export Excel curricular |
+| barryvdh/laravel-dompdf | Export PDF dashboard |
+| laravel/breeze | Auth (`routes/auth.php`) |
 
-## Controladores principales detectados
-- API:
-  - `EstudianteController`
-  - `NotaController`
-  - `AsistenciaController`
-  - `VariableSocioeconomicaController`
-  - `ProcesarRiesgoController`
-  - `AlertaController`
-  - `IntervencionController`
-  - `AlertaCierreController`
-- Auth:
-  - `AuthenticatedSessionController`
-  - `RegisteredUserController`
-  - otros controladores de flujo auth/recuperacion/verificacion
+---
 
-## Modelos principales detectados
-- `User`
-- `Estudiante`
-- `Nota`
-- `Asistencia`
-- `VariableSocioeconomica`
-- `IndiceRiesgo`
-- `Alerta`
-- `Intervencion`
-- `ReporteConductual`
+## Rutas — autenticación (`backend/routes/auth.php`)
 
-## Autenticacion y autorizacion
-- **Sanctum**: confirmado por middleware `auth:sanctum` y flujo frontend.
-- **Spatie roles/permisos**: confirmado por `HasRoles`, seeders de roles/permisos y middleware `permission:*`.
-- Roles seeders detectados: administrador, docente, coordinador_academico, psicologo_tutor, directivo.
+| Método | Ruta | Notas |
+|--------|------|-------|
+| POST | `/login` | Guest |
+| POST | `/logout` | Auth |
+| POST | `/register` | Guest — **público**; restringir en producción |
+| POST | `/forgot-password`, `/reset-password` | Guest |
+| GET | `/verify-email/{id}/{hash}` | Auth + signed |
 
-## Relacion con MySQL
-- Conexion definida en `backend/.env.example` (`DB_CONNECTION=mysql`, `DB_HOST=db-mysql`).
-- Migraciones y modelos activos confirman persistencia por Eloquent.
+Sanctum CSRF: `GET /sanctum/csrf-cookie` (ruta framework).
 
-## Relacion con ML Service Flask
-- `backend/config/services.php` define `services.ml.url`.
-- `App\Services\MlRiskService` llama `POST {ML_SERVICE_URL}/predict`.
-- `ProcesarRiesgoController` construye payload, invoca ML y persiste `indices_riesgo`.
+---
 
-## Relacion con alertas e intervenciones
-- Generacion de alerta por riesgo alto: confirmada en flujo de `ProcesarRiesgoController`.
-- Listado/detalle de alertas: `AlertaController`.
-- Registro de intervencion: `IntervencionController`.
-- Cierre de alerta: `AlertaCierreController` (validado por pruebas Feature).
+## Rutas — API core (`backend/routes/api.php`)
 
-## Auditoria (`activity_log`, Spatie)
-- Dependencia y migraciones de tabla: **confirmadas en codigo**.
-- **Sprint 7.5A:** registro manual con `activity()->causedBy(...)->performedOn(...)->withProperties(...)->log(...)` en:
-  - `EstudianteController` (store, update)
-  - `NotaController::store`
-  - `AsistenciaController::store`
-  - `VariableSocioeconomicaController::store`
-  - `ProcesarRiesgoController::store` (log `riesgo.procesado` y, si aplica, `alerta.generada`)
-  - `IntervencionController::store`
-  - `AlertaCierreController::store`
-  - `DashboardController::export` (`dashboard.pdf_exportado`, sin `subject` morph)
-- **No publicado** en repo: `config/activitylog.php` (se usan valores por defecto del paquete).
-- **Pendiente de desarrollo / Sprint 8+:** pantalla o API de consulta de logs, cobertura total segun RF-17 del DRS, decision de retencion y matriz rol–accion–auditoria.
+Prefijo `/api` salvo `/api/me` y health.
 
-## Pruebas Feature detectadas
-- Auth:
-  - `AuthenticationTest`, `RegistrationTest`, `PasswordResetTest`, `EmailVerificationTest`
-- Dominio:
-  - `EstudianteTest`
-  - `DatosAcademicosTest`
-  - `RiesgoTest`
-  - `AlertaIntervencionTest`
-  - `DashboardTest`
-  - `ActivityLogTest` (auditoria en acciones criticas)
+| Grupo | Permiso(s) | Endpoints principales |
+|-------|------------|----------------------|
+| Health | — | `GET /health` |
+| Sesión | `auth:sanctum` | `GET /me`, `GET /user` |
+| Usuarios | `gestionar_usuarios` | CRUD + activar/desactivar/restablecer contraseña |
+| Dashboard | `ver_dashboard` | `GET /dashboard`, `GET /dashboard/export` |
+| Materias (legacy) | `gestionar_materias` / lectura OR `registrar_datos_academicos` | CRUD + activar/desactivar |
+| Estudiantes | `gestionar_estudiantes` / lectura OR `registrar_datos_academicos` | listado, detalle, alta, edición |
+| Datos académicos legacy | `registrar_datos_academicos` | notas/asistencias/VSE anidadas; lotes `/notas/lote`, `/asistencias/lote` |
+| Riesgo | `procesar_riesgo` | `POST /estudiantes/{id}/procesar-riesgo` |
+| Alertas | `ver_alertas` | listado, detalle |
+| Intervención | `registrar_intervencion` | intervenciones, cierre |
 
-## Estado backend frente a RF relevantes
-- RF-01: **Implementado parcialmente** (carga manual de notas confirmada; importacion `.xlsx/.csv` no confirmada por rutas/controladores revisados).
-- RF-02: **Confirmado en codigo**.
-- RF-05: **Confirmado en codigo**.
-- RF-06: **Confirmado en codigo**.
-- RF-07: **Confirmado en codigo**.
-- RF-08: **Confirmado en codigo**.
-- RF-09: **Confirmado en codigo**.
-- RF-13: **Confirmado en codigo**.
-- RF-15: **Confirmado en codigo**.
-- RF-17: **Implementado parcialmente** (registros en acciones criticas API desde Sprint 7.5A; consulta de logs y alcance total REQ-17.x **pendiente de verificar** frente al DRS).
+Catálogo completo curricular: [`docs/api.md`](../api.md) § Curricular.
 
-## Reglas para Cursor (backend)
-- No romper autenticacion ni sesion.
-- No cambiar endpoints existentes sin necesidad funcional clara.
-- No modificar migraciones sin autorizacion explicita.
-- No inventar permisos ni roles fuera de seeders/politicas reales.
-- Mantener proteccion backend por middleware real (`auth:sanctum`, `permission:*`).
-- Distinguir siempre entre alcance DRS y estado implementado.
+---
 
-## Pendientes de verificar
-- Ampliacion de dashboard/export frente a todos los REQ del DRS (RF-14, RF-16).
-- Endpoints/servicios de importacion Excel/CSV (RF-01 completo).
-- Cobertura completa de auditoria segun RF-17 (UI, politicas, retencion).
-- Matriz rol–permiso–cierre de alerta (p. ej. directivo sin `registrar_intervencion` en seeder actual): decision de negocio para Sprint 8.
+## Módulo curricular (`/api/curricular/*`)
+
+Confirmado en código. Grupos principales (todos `auth:sanctum` + `permission:*`):
+
+| Área | Permisos ejemplo | Rutas ejemplo |
+|------|------------------|---------------|
+| Catálogo | autenticado / `ver_malla_curricular` | `/catalogo/niveles-grados`, `/areas`, `/periodos` |
+| Años y periodos | `gestionar_calendario_academico` | `/anios-escolares/*`, `/periodos-academicos/*` |
+| Malla | `ver_malla_curricular`, `gestionar_malla_curricular` | `/mallas/*`, `/temas/*` |
+| Competencias | `gestionar_competencias_capacidades` | CRUD competencias/capacidades |
+| Pesos C/L/T | `configurar_pesos_evaluacion` | `/pesos/*` |
+| Componentes calificación | `gestionar_componentes_calificacion` | `/componentes-calificacion/*` |
+| Secciones/aulas | `gestionar_secciones_aulas` | `/secciones-aulas/*` |
+| Asignación docente | `gestionar_asignaciones_docente` | `/asignaciones-docente/*`, `/docentes` |
+| Notas semanales | `registrar_notas_semanales`, `ver_notas_academicas` | `/notas-semanales/*`, **import Excel** |
+| Excel aula | `descargar_excel_aula` | `GET /excel-aula` |
+| Evaluación bimestral | `configurar_evaluacion_bimestral`, notas | `/evaluacion-bimestral/*` |
+| Asistencia diaria | `registrar_asistencia_curricular`, `ver_asistencia_curricular` | `/asistencias-diarias/*` |
+| Resumen académico | `ver_notas_academicas` | `GET /estudiantes/{id}/resumen-academico` |
+
+**Import Excel curricular confirmado:** `POST /curricular/notas-semanales/importar-excel` — **no** es importación SIAGIE global (RF-01 pendiente).
+
+---
+
+## Controladores principales
+
+### API legacy + riesgo + alertas
+
+`EstudianteController`, `NotaController`, `AsistenciaController`, `VariableSocioeconomicaController`, `NotaBatchController`, `AsistenciaBatchController`, `MateriaController`, `ProcesarRiesgoController`, `AlertaController`, `IntervencionController`, `AlertaCierreController`, `DashboardController`, `UsuarioController`.
+
+### API curricular (`App\Http\Controllers\Api\Curricular\`)
+
+`CatalogoCurricularController`, `MallaCurricularController`, `TemaSemanalController`, `CompetenciaCapacidadController`, `ConfiguracionPesoEvaluacionController`, `ComponenteCalificacionController`, `SeccionAulaController`, `AsignacionDocenteController`, `NotaSemanalController`, `EvaluacionBimestralController`, `AsistenciaDiariaController`, `AnioEscolarController`, `PeriodoAcademicoAdminController`, `ResumenAcademicoController`, `DocenteAulaCurricularController`.
+
+---
+
+## Servicios relevantes
+
+| Servicio | Archivo | Función |
+|----------|---------|---------|
+| ML | `App\Services\MlRiskService` | HTTP → Flask `/predict` |
+| Riesgo | `App\Services\RiesgoAcademicoService` | Payload + persistencia |
+| Excel plantilla | `App\Services\Curricular\PlantillaRegistroAuxiliarExcelService` | Generación/import Excel |
+| CE / bimestre | `App\Services\Curricular\*` | Cálculos curriculares |
+
+Config ML: [`backend/config/services.php`](../../backend/config/services.php) → `services.ml.url` ← `ML_SERVICE_URL`.
+
+---
+
+## Seeders (`backend/database/seeders/`)
+
+| Seeder | Rol |
+|--------|-----|
+| `RolesSeeder`, `PermissionsSeeder` | 5 roles, 23 permisos |
+| `DemoUsersSeeder` | Usuarios demo por rol |
+| `CurricularModuleSeeder` | Catálogo curricular base |
+| `DemoEstudiantesCurricularesSeeder` | Estudiantes demo |
+| `DemoCurricularOperativoSeeder` | Aula operativa, notas, asistencia demo |
+| `DemoAcademicDataSeeder` | Legacy materias/notas (**no** en seed por defecto) |
+
+Orquestación: `DatabaseSeeder.php`. **Docker no ejecuta seed** al arrancar — solo migrate.
+
+---
+
+## Modelos — pendientes sin API
+
+| Modelo / tabla | Estado |
+|----------------|--------|
+| `ReporteConductual` | Migración sí; **sin rutas API** (RF-04 pendiente) |
+| Comunicaciones familiares | Migración sí; **sin rutas API** (RF-12 pendiente) |
+
+---
+
+## Integración ML
+
+```text
+ProcesarRiesgoController → RiesgoAcademicoService → MlRiskService
+  → POST {ML_SERVICE_URL}/predict
+  → persistencia IndiceRiesgo, posible Alerta
+```
+
+Ver [`docs/ml-service.md`](../ml-service.md).
+
+---
+
+## Auditoría (`activity_log`)
+
+- Registro manual en controladores API (estudiante, notas, asistencia, VSE, riesgo, alerta, intervención, cierre, export PDF dashboard, acciones curriculares seleccionadas).
+- Tests: `ActivityLogTest.php`.
+- **Parcial** frente RF-17: sin UI consulta logs; cobertura no total.
+
+---
+
+## Pruebas Feature
+
+~49 archivos en `backend/tests/`. Destacados:
+
+- Core: `EstudianteTest`, `DatosAcademicosTest`, `RiesgoTest`, `AlertaIntervencionTest`, `DashboardTest`, `GestionUsuariosTest`, `ActivityLogTest`
+- Curricular: `tests/Feature/Curricular/*` (incl. `PlantillaRegistroAuxiliarExcelTest`, `ExcelAulaTest`)
+- Auth: `AuthenticationTest`, `RegistrationTest`, etc.
+
+**Nota Fase 1:** suite completa con `memory_limit` 128M falló por OOM en `ExcelAulaTest`; pasó con 512M. Ver [`docs/pruebas/hallazgos-fase1-documentacion.md`](../pruebas/hallazgos-fase1-documentacion.md).
+
+---
+
+## Estado backend por RF (resumen)
+
+| RF | Estado |
+|----|--------|
+| RF-01 | **Parcial** — manual + Excel curricular; SIAGIE pendiente |
+| RF-02 | **Confirmado** — legacy + asistencia curricular |
+| RF-05 | **Parcial** — API sí; UI VSE pausada |
+| RF-06/07 | **Confirmado** — integración ML determinística |
+| RF-08–09, RF-13 | **Confirmado** |
+| RF-15 | **Confirmado** — incl. API usuarios |
+| RF-14/16 | **Parcial** — dashboard + PDF dashboard |
+| RF-17 | **Parcial** — activitylog |
+| RF-04, RF-10–12, RF-18, RF-19 | **Pendiente** |
+
+---
+
+*Actualizado: Fase 2 documental (2026-06-09).*

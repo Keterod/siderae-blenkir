@@ -1,81 +1,141 @@
-# Contexto frontend React (v1)
+# Contexto frontend React (v2 — Fase 2)
+
+> **Documento de contexto operativo.** Fuente formal vigente del estado V1: [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md). Flujos de usuario: [`docs/manual-usuario.md`](../manual-usuario.md).
 
 ## Rol del frontend
-El frontend React es la capa de interfaz del usuario. Consume la API Laravel, muestra estados por permisos y permite operar flujos de estudiantes, datos academicos, riesgo y alertas.
 
-## Relacion con el DRS
-- El DRS define el alcance funcional esperado de UI.
-- La UI actual confirma parte de ese alcance; varias funcionalidades del DRS aun no se observan completas en `frontend/src`.
+SPA React que consume la API Laravel, adapta menú y acciones por permisos (`GET /api/me`) y concentra la operación académica curricular, riesgo y alertas.
 
-## Stack verificado (`frontend/package.json`)
-- React.
-- Vite.
-- Tailwind CSS.
-- ESLint.
+Referencia: [`docs/limitaciones.md`](../limitaciones.md) · [`frontend/src/lib/api.js`](../../frontend/src/lib/api.js)
 
-## Estructura base detectada (`frontend/src`)
-- Entrada:
-  - `main.jsx`
-  - `App.jsx`
-- Sesion:
-  - `context/AuthContext.jsx`
-  - `components/LoginForm.jsx`
-- API:
-  - `lib/api.js`
-- Modulos:
-  - `components/estudiantes/*`
-  - `components/alertas/AlertasPanel.jsx`
+---
 
-## Cliente API detectado
-- Archivo central: `frontend/src/lib/api.js`.
-- Opera contra `VITE_API_URL` (por defecto `http://localhost:8000`).
-- Endpoints consumidos: auth, `/api/me`, estudiantes, notas, asistencias, variables, procesamiento de riesgo, alertas, intervenciones y cierre.
+## Stack (`frontend/package.json`)
 
-## Manejo de sesion/autenticacion
-- `AuthContext` carga sesion con `/api/me`.
-- Login y logout via API (`/login`, `/logout`).
-- Sesion basada en cookies y CSRF (`/sanctum/csrf-cookie`).
-- Menu y acciones condicionadas por permisos devueltos por backend.
+- React 18, Vite, Tailwind CSS, ESLint
+- **Sin** React Router — navegación por estado `moduloActivo` en [`App.jsx`](../../frontend/src/App.jsx)
+- **Sin** Cypress en el repositorio
 
-## Componentes/paneles principales detectados
-- `LoginForm` (inicio de sesion).
-- `EstudiantesPanel` (lista/alta/edicion/perfil).
-- `EstudiantePerfilDatos` (notas, asistencia, variables socioeconomicas).
-- `EstudiantePerfilRiesgo` (procesar riesgo, mostrar ultimo indice).
-- `AlertasPanel` (listado, detalle, intervencion, cierre).
+---
 
-## Relacion con mockups (`docs/ui/mockups/`)
-- Existen mockups 01-12 y guia UI.
-- El frontend actual cubre flujos funcionales base, pero no se confirma alineacion visual completa con todos los mockups.
+## Estructura (`frontend/src`)
 
-## Estado UI frente a RF visibles
-- RF-01 (carga manual/importacion):
-  - Carga manual de notas: **Confirmado en codigo**.
-  - Importacion `.xlsx/.csv`: **Pendiente de verificar**.
-- RF-02 asistencia: **Confirmado en codigo**.
-- RF-05 variables socioeconomicas: **Confirmado en codigo**.
-- RF-06/RF-07 riesgo: **Confirmado en codigo**.
-- RF-08 alertas: **Confirmado en codigo**.
-- RF-09 intervencion: **Confirmado en codigo**.
-- RF-14 dashboard: **Implementado parcialmente** (panel con KPIs/filtros y consumo de `GET /api/dashboard`; alcance completo REQ-14.x del DRS **pendiente de verificar**).
-- RF-16 exportacion: **Implementado parcialmente** (export PDF del dashboard desde UI vía `exportDashboardPdf` en `lib/api.js`; otros PDF del DRS **pendiente de desarrollo**).
-- RF-17 auditoria: **Confirmado en codigo** solo en backend (`activity_log`); **sin** pantalla de consulta de logs en el front.
-- RF-19 semaforo: **Pendiente de desarrollo** (no se observa componente semaforo verde/amarillo/rojo).
-- RF-20 historial de riesgo: **Implementado parcialmente** (se muestra ultimo indice; historial visual bimestral no confirmado).
+| Ruta | Rol |
+|------|-----|
+| `main.jsx` | Entrada |
+| `App.jsx` | Layout, sidebar, routing por módulo |
+| `context/AuthContext.jsx` | Sesión, roles, permisos |
+| `components/LoginForm.jsx` | Login |
+| `lib/api.js` | Cliente HTTP (Sanctum cookies + CSRF) |
+| `lib/sedeOperativa.js` | Sede fija Chilca en payloads |
+| `components/estudiantes/*` | Estudiantes + perfil + riesgo |
+| `components/alertas/AlertasPanel.jsx` | Alertas |
+| `components/usuarios/UsuariosPanel.jsx` | Gestión usuarios |
+| `components/curricular/*` | Módulo curricular completo |
+| `components/DashboardPanel.jsx` | Dashboard |
+| `components/materias/MateriasPanel.jsx` | **Legacy — sin menú** |
+| `components/academico/*` | **Legacy — sin menú** |
 
-## Reglas visuales basicas para Cursor
-- Seguir `docs/ui/mockups/guia-ui-siderae.md` como referencia visual.
-- No dejar botones muertos sin accion o estado controlado.
-- Ocultar/deshabilitar acciones segun permisos reales del backend.
-- Mantener estados de carga, error y vacio en cada panel.
-- No presentar como implementado algo que solo esta definido en DRS.
+---
 
-## Pruebas futuras
-- No se confirma suite Cypress en el estado actual revisado.
-- Recomendado: automatizar flujos criticos UI con Cypress en version posterior.
+## Autenticación
 
-## Pendientes de verificar
-- Pantalla dashboard funcional y filtros por rol.
-- Flujo de exportacion PDF/PNG desde UI.
-- Semaforo de completitud completo (RF-19).
-- Vista de historial de riesgo por bimestre (RF-20) con grafico/linea de tiempo.
+1. `getCsrfCookie()` → `/sanctum/csrf-cookie`
+2. `login()` → `POST /login`
+3. `getMe()` → `GET /api/me` (usuario, roles, permisos)
+4. `logout()` → `POST /logout`
+
+Implementación: [`AuthContext.jsx`](../../frontend/src/context/AuthContext.jsx).
+
+Base URL: `VITE_API_URL` ([`frontend/.env.example`](../../frontend/.env.example) → `http://localhost:8000`).
+
+---
+
+## Módulos UI y permisos (`App.jsx`)
+
+Función `moduloPermitido(key, permissions, roles)` controla visibilidad del sidebar.
+
+| Módulo sidebar | Clave | Permiso / regla principal |
+|----------------|-------|---------------------------|
+| Dashboard | `dashboard` | `ver_dashboard` |
+| Estudiantes | `estudiantes` | `gestionar_estudiantes` |
+| Usuarios | `usuarios` | `gestionar_usuarios` |
+| Notas semanales | `curricular_notas` | `registrar_notas_semanales` OR `gestionar_asignaciones_docente` OR rol `directivo` (consulta institucional / excepción UI) |
+| Excel por aula | `curricular_excel_aula` | `descargar_excel_aula` |
+| Asistencia | `curricular_asistencia` | `registrar_asistencia_curricular` OR `ver_asistencia_curricular` |
+| Alertas | `alertas` | `ver_alertas` |
+| Malla curricular | `curricular_malla` | `ver_malla_curricular` OR `gestionar_malla_curricular` |
+| Criterios evaluación | `curricular_temas` | `gestionar_temas_semanales` |
+| Componentes calificación | `curricular_componentes_calificacion` | `gestionar_componentes_calificacion` |
+| Configuración bimestral | `curricular_eval_bim` | `configurar_evaluacion_bimestral` |
+| Secciones/Aulas | `curricular_secciones_aulas` | `gestionar_secciones_aulas` |
+| Asignación docente | `curricular_asignacion` | `gestionar_asignaciones_docente` |
+| Competencias | `curricular_competencias` | `gestionar_competencias_capacidades` |
+| Periodos académicos | `curricular_calendario` | `gestionar_calendario_academico` |
+| Pesos evaluación | `curricular_pesos` | **`visible: false`** (oculto) |
+
+Matriz vigente completa: [`docs/seguridad-roles-permisos.md`](../seguridad-roles-permisos.md).
+
+---
+
+## Cliente API (`lib/api.js`)
+
+Funciones exportadas agrupadas:
+
+- **Auth/sesión:** `login`, `logout`, `getMe`
+- **Dashboard:** `getDashboard`, `exportDashboardPdf`
+- **Estudiantes / legacy académico:** CRUD, notas, asistencias, VSE, lotes, materias
+- **Riesgo/alertas:** `postProcesarRiesgo`, alertas, intervención, cierre
+- **Usuarios:** CRUD + activar/desactivar/restablecer
+- **Curricular:** catálogo, malla, temas, competencias, pesos, componentes, secciones, asignaciones, notas semanales, Excel, bimestre, asistencia diaria
+
+El frontend **no** llama a `:5000` (Flask); riesgo vía backend.
+
+---
+
+## Perfil estudiante
+
+- `EstudiantesPanel` + `EstudiantePerfilRiesgo` — sección **riesgo en pausa** en V1: aviso de actualización pendiente; **sin botón «Procesar riesgo»** visible (RF-06 parcial; procesamiento vía API/comando técnico).
+- `EstudiantePerfilDatos`:
+  - Notas curriculares (`ver_notas_academicas`)
+  - Asistencia curricular
+  - **Variables socioeconómicas:** componente existe pero `mostrarVariablesSocio` **no se pasa** desde `EstudiantesPanel` → UI **pausada** (RF-05 parcial)
+
+---
+
+## Mockups vs UI real
+
+- Mockups [`docs/ui/mockups/01–12`](../ui/mockups/) y [`guia-ui-siderae.md`](../ui/mockups/guia-ui-siderae.md): referencia **histórica/diseño** flujo legacy.
+- Módulos curricurales **no** tienen mockups equivalentes.
+- Sede única Chilca: mockups pueden asumir multi-sede — UI real no expone selector.
+
+---
+
+## Estado UI por RF
+
+| RF | Estado UI |
+|----|-----------|
+| RF-01 | **Parcial** — notas/asistencia curricular; plantilla Excel curricular; Excel aula descarga; **SIAGIE pendiente** |
+| RF-02 | **Confirmado** — asistencia curricular |
+| RF-05 | **Parcial** — API backend; **pestaña VSE pausada** en perfil |
+| RF-06/07 | **Parcial** — UI riesgo **pausada**; sin botón procesar en perfil; backend/API operativo |
+| RF-08–09 | **Confirmado** — alertas e intervenciones |
+| RF-13 | **Parcial** — cierre vía intervención; sin derivación/comunicación familiar en UI |
+| RF-14 | **Parcial** — dashboard básico (subset REQ-14) |
+| RF-16 | **Parcial** — export PDF dashboard; Excel aula `.xlsx` |
+| RF-15 | **Confirmado** — panel usuarios |
+| RF-17 | **N/A UI** — activity log solo backend |
+| RF-19 | **Pendiente** |
+| RF-20 | **Parcial** — persistencia backend; perfil riesgo pausado |
+
+---
+
+## Pruebas
+
+- Build smoke: `npm run build` (documentado en manual técnico)
+- Cypress: **no confirmado** (sin carpeta en repo)
+- PHPUnit cubre API; pruebas UI manuales pendientes de informe formal
+
+---
+
+*Actualizado: saneamiento post-Fase 8 (2026-06-09). Alineado a DRS v2.*

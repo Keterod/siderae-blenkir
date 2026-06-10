@@ -28,16 +28,17 @@ Criterio vigente para desarrollo y documentación del prototipo:
 - **Infraestructura:** Docker + Docker Compose.
 
 ## 3) Jerarquía de fuentes (obligatoria)
-1. **DRS_SIDERAE_Blenkir_v1.pdf** = alcance formal (RF, RN, RNF).
-2. **Código del repositorio** = estado real implementado.
-3. **Docs de contexto V1**:
+1. **`docs/drs/DRS_SIDERAE_Blenkir_v2.md`** = DRS vigente con **estado real V1** (RF, RN, RNF actualizados).
+2. **DRS_SIDERAE_Blenkir_v1.pdf** = alcance formal histórico (externo al repo).
+3. **Código del repositorio** = evidencia de implementación.
+4. **Docs de contexto V1**:
    - `docs/arquitectura/resumen-arquitectura.md`
    - `docs/arquitectura/contexto-backend-laravel.md`
    - `docs/arquitectura/contexto-frontend-react.md`
    - `docs/arquitectura/contexto-ml-service-flask.md`
    - `docs/arquitectura/contexto-docker-infraestructura.md`
-4. `sprints/` = planificación operativa por etapas.
-5. `docs/ui/mockups/guia-ui-siderae.md` = referencia visual (no fuente de datos reales).
+5. `sprints/` = planificación operativa por etapas.
+6. `docs/ui/mockups/guia-ui-siderae.md` = referencia visual (no fuente de datos reales).
 
 ## 4) Regla crítica: DRS != implementación actual
 Nunca confundir requerimiento definido con funcionalidad ya implementada.

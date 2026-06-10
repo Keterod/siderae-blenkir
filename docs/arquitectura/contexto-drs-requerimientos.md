@@ -1,8 +1,10 @@
 # Contexto DRS — requerimientos (resumen operativo para IA/Cursor)
 
-Fuente formal transcrita desde **`DRS_SIDERAE_Blenkir_v1.pdf`** (Versión **1.0**, Fecha **02/04/2026**) salvo donde se indique explícitamente **Pendiente de verificar** frente al **código** del repositorio.
+> **Documento de contexto histórico.** Transcribe el DRS v1 PDF. La **fuente formal vigente del estado V1** es [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md).
 
-Este Markdown **no reemplaza** al PDF.
+Fuente formal transcrita desde **`DRS_SIDERAE_Blenkir_v1.pdf`** (Versión **1.0**, Fecha **02/04/2026**) salvo donde se indique el **estado V1** actualizado según código y DRS v2.
+
+Este Markdown **no reemplaza** al PDF ni al DRS v2.
 
 ---
 
@@ -24,7 +26,7 @@ Este Markdown **no reemplaza** al PDF.
 | **Pendiente de desarrollo** | No hay equivalencia suficiente en código según revisión previa del proyecto. |
 | **Pendiente de verificar** | Contraste PDF ↔ código **no realizado aquí** o contradictorio entre docs. |
 
-Discrepancia entre narrativas (**README**, `ARCHITECTURE.md`) y **PDF + código**: priorizar **PDF + código**.
+Discrepancia entre narrativas: priorizar **`docs/drs/DRS_SIDERAE_Blenkir_v2.md`** + **código** + [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md) para estado V1. El PDF v1 describe alcance formal histórico.
 
 ---
 
@@ -34,26 +36,26 @@ Origen de **nombre, actor y prioridad**: **Tabla «7. Requerimientos Funcionales
 
 | RF | Nombre resumido | Actor principal | Prioridad | Estado actual general |
 |----|-----------------|-----------------|-----------|------------------------|
-| RF-01 | Carga e importación de datos académicos | Docente / Administrador | Alta | **Implementado parcialmente** — carga manual referida en docs; importación SIAGIE `.xlsx/.csv` y REQ-01.x completos **Pendiente de verificar** en código |
-| RF-02 | Registro digital de asistencia semanal | Docente | Alta | **Confirmado en código** (docs arquitectura) |
-| RF-03 | Importación de resultados del Fast Test | Coordinador Académico | Alta | **Pendiente de verificar** / desarrollo — import Fast Test en docs no confirmada |
-| RF-04 | Registro digital de reportes conductuales | Psicólogo / Tutor | Alta | **Pendiente de verificar** — modelo `ReporteConductual` citado en backend; alineación total REQ-04.x **Pendiente de verificar** |
-| RF-05 | Integración de variables socioeconómicas | Administrador / Sistema | Alta | **Confirmado en código** (docs arquitectura) |
-| RF-06 | Procesamiento multivariable y cálculo del índice de riesgo | Sistema | Alta | **Implementado parcialmente** — flujo Laravel → Flask confirmado; **tres modelos** RF/SVM/XGBoost y promedio ponderado (REQ-06.2 DRS) **Pendiente de verificar** frente a `ml-service` |
-| RF-07 | Evaluación automática del nivel de riesgo | Sistema | Alta | **Confirmado en código** — umbrales DRS 0,70 / 0,40 **Pendiente de verificar** si son configurables por admin (REQ-07.2) |
-| RF-08 | Emisión de alertas tempranas accionables | Sistema | Alta | **Confirmado en código** — notificaciones Laravel Notifications / múltiples factores REQ-08 **Pendiente de verificar** frente a RN-03 completa |
-| RF-09 | Intervención preventiva del docente | Docente | Alta | **Confirmado en código** (docs) |
-| RF-10 | Decisión de derivación por el directivo | Directivo | Alta | **Pendiente de desarrollo** / **Pendiente de verificar** — no confirmado en resumen arquitectura |
-| RF-11 | Atención psicológica preventiva con perfil integrado | Psicólogo / Tutor | Media | **Pendiente de verificar** — depende de RF-10 y flujo derivación |
-| RF-12 | Comunicación formal y trazable con la familia | Docente / Directivo | Media | **Pendiente de desarrollo** / **Pendiente de verificar** |
-| RF-13 | Registro de acción tomada y cierre de alerta | Docente / Directivo / Psicólogo | Alta | **Confirmado en código** — DRS además exige cierre con intervención **o** derivación **o** comunicación familiar (REQ-13.1); si solo intervención está implementado, marcar **Implementado parcialmente** frente al PDF **Pendiente de verificar** |
-| RF-14 | Panel de visualización (dashboard) de riesgo | Docente / Directivo | Alta | **Implementado parcialmente** — existen piezas (p. ej. API dashboard, permiso `ver_dashboard`); **no** equivale a REQ-14.1–14.5 completos (gráficos, filtros sede/nivel todos los casos, export gráficos PDF/PNG, % alertas, vista solo aula vs todas las sedes) — **Pendiente de verificar** en código |
-| RF-15 | Gestión de usuarios y control de acceso por rol | Administrador | Alta | **Confirmado en código** — cinco roles DRS; gestión UI usuarios **Pendiente de verificar** |
-| RF-16 | Exportación de reportes en PDF | Docente / Directivo | Media | **Pendiente de verificar** — DomPDF en stack; flujo REQ-16.x **Pendiente de verificar** |
-| RF-17 | Registro de auditoría de acciones | Sistema | Alta | **Pendiente de verificar** — activitylog presente; cobertura REQ-17.x **Pendiente de verificar** |
-| RF-18 | Reentrenamiento del modelo ML | Administrador | Media | **Pendiente de desarrollo** |
-| RF-19 | Semáforo de completitud de datos | Docente / Administrador | Media | **Pendiente de desarrollo** |
-| RF-20 | Historial de riesgo por estudiante | Docente / Directivo | Media | **Implementado parcialmente** — persistencia histórica; línea tiempo / export PDF historial REQ-20 **Pendiente de verificar** |
+| RF-01 | Carga e importación de datos académicos | Docente / Administrador | Alta | **Implementado parcialmente** — plantilla Excel curricular + Excel aula (descarga) confirmados; **importación SIAGIE pendiente** |
+| RF-02 | Registro digital de asistencia semanal | Docente | Alta | **Confirmado en código** (asistencia curricular) |
+| RF-03 | Importación de resultados del Fast Test | Coordinador Académico | Alta | **Pendiente** |
+| RF-04 | Registro digital de reportes conductuales | Psicólogo / Tutor | Alta | **Pendiente** — migración sin API |
+| RF-05 | Integración de variables socioeconómicas | Administrador / Sistema | Alta | **Implementado parcialmente** — API confirmada; **UI pausada** (pestaña no expuesta) |
+| RF-06 | Procesamiento multivariable y cálculo del índice de riesgo | Sistema | Alta | **Implementado parcialmente** — Laravel → Flask **determinístico**; **UI riesgo pausada**; RF/SVM/XGBoost **no implementados** |
+| RF-07 | Evaluación automática del nivel de riesgo | Sistema | Alta | **Confirmado en código** — umbrales 0,70 / 0,40; configuración admin **pendiente** |
+| RF-08 | Emisión de alertas tempranas accionables | Sistema | Alta | **Confirmado en código** — RN-03 completa (dos disparadores) **pendiente verificar** |
+| RF-09 | Intervención preventiva del docente | Docente | Alta | **Confirmado en código** |
+| RF-10 | Decisión de derivación por el directivo | Directivo | Alta | **Pendiente** |
+| RF-11 | Atención psicológica preventiva con perfil integrado | Psicólogo / Tutor | Media | **Implementado parcialmente** — alertas; sin RF-10 ni perfil integrado completo |
+| RF-12 | Comunicación formal y trazable con la familia | Docente / Directivo | Media | **Pendiente** |
+| RF-13 | Registro de acción tomada y cierre de alerta | Docente / Directivo / Psicólogo | Alta | **Implementado parcialmente** — cierre vía intervención; derivación/comunicación familiar **pendientes** |
+| RF-14 | Panel de visualización (dashboard) de riesgo | Docente / Directivo | Alta | **Implementado parcialmente** — subset REQ-14; multi-sede directivo **fuera V1** |
+| RF-15 | Gestión de usuarios y control de acceso por rol | Administrador | Alta | **Confirmado en código** — register público = brecha pre-producción |
+| RF-16 | Exportación de reportes en PDF | Docente / Directivo | Media | **Implementado parcialmente** — export PDF dashboard; Excel aula `.xlsx` distinto |
+| RF-17 | Registro de auditoría de acciones | Sistema | Alta | **Implementado parcialmente** — activitylog parcial |
+| RF-18 | Reentrenamiento del modelo ML | Administrador | Media | **Pendiente** |
+| RF-19 | Semáforo de completitud de datos | Docente / Administrador | Media | **Pendiente** |
+| RF-20 | Historial de riesgo por estudiante | Docente / Directivo | Media | **Implementado parcialmente** — persistencia; UI/timeline **pausada** |
 
 ---
 
@@ -189,7 +191,7 @@ Resumen de la **Sección 10** del DRS (RNF-01 a RNF-10), **sin** desarrollar mar
 6. **No asumir** restricción **docente–aula** ni **mapa multi-sede** para **RF-14** sin modelo/relación **confirmada en código**.
 7. **RN-03** tiene **dos** disparadores de alerta (Alto **o** transición Bajo→Medio dos bimestres); no reducir solo a umbral Alto sin verificar código.
 8. **Mockups** son referencia visual; **no** son datos reales.
-9. Antes de implementar: **`.cursorrules`** + **`DRS PDF`** + **código** + estos contextos **`docs/arquitectura/`**.
+9. Antes de implementar: **`docs/drs/DRS_SIDERAE_Blenkir_v2.md`** + **código** + [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md) + contextos `docs/arquitectura/`.
 
 ---
 
@@ -204,9 +206,11 @@ Resumen de la **Sección 10** del DRS (RNF-01 a RNF-10), **sin** desarrollar mar
 
 | Documento | Uso |
 |-----------|-----|
-| `DRS_SIDERAE_Blenkir_v1.pdf` | Fuente formal |
+| [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md) | **DRS vigente — estado V1** |
+| `DRS_SIDERAE_Blenkir_v1.pdf` | Fuente formal histórica |
 | `.cursorrules` | Jerarquía y anti-alucinación |
 | `docs/arquitectura/resumen-arquitectura.md` | Matriz rápida DRS ↔ código |
+| [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md) | Trazabilidad RF–test |
 
 ---
 

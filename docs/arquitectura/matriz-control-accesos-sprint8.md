@@ -1,5 +1,8 @@
 # Matriz de control de accesos — Sprint 8 (FASE 1)
 
+> **Estado del documento:** Histórico.  
+> Este archivo corresponde a la matriz trabajada durante Sprint 8. La referencia vigente de seguridad, roles y permisos para la documentación V1 se encuentra en [`docs/seguridad-roles-permisos.md`](../seguridad-roles-permisos.md). Este documento se conserva para trazabilidad y no debe usarse como fuente única del estado actual.
+
 ## 1. Alcance del documento
 
 Este documento describe el estado **vigente en código** del control de accesos basado en roles y permisos (Spatie Permission) para el prototipo SIDERAE-Blenkir, tras la **FASE 1 de Sprint 8**. Complementa la auditoría FASE 0 y la planificación en `sprints/sprint 8.md`.

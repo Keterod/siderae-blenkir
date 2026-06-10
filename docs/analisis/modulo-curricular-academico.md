@@ -1,7 +1,23 @@
 # Módulo Curricular Académico — SIDERAE-Blenkir
 
-**Versión documento:** 3.1 (reglas finales aprobadas — Sprint 8.5A Fase 2)  
-**Estado en código:** Fase 2 backend (migraciones, modelos, seeders, servicios CE) en progreso; API/frontend pendiente (8.5B).
+**Versión documento:** 4.0 (alineado V1 — Fase 6 documental)  
+**Estado en código:** **API y UI curriculares confirmados** (Sprint 8.5A/B/C). Operación V1 sede **Chilca**; legacy sin menú.
+
+> **Documento operativo V1:** [`docs/aula-notas-excel.md`](../aula-notas-excel.md) — flujos aula/notas/Excel, SIAGIE vs plantilla curricular.  
+> **Trazabilidad:** [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md) · [`docs/pruebas/informe-pruebas.md`](../pruebas/informe-pruebas.md)
+
+### Estado V1 resumido
+
+| Tema | Estado |
+|------|--------|
+| Sede operativa | **Chilca** — sin selector multi-sede ([`AGENTS.md`](../../AGENTS.md)) |
+| Flujo UI principal | Curricular (malla → criterios → bimestral → asignación → notas/asistencia) |
+| Legacy (materias, notas masivas) | API activa; **sin menú** en [`App.jsx`](../../frontend/src/App.jsx) |
+| Variables socioeconómicas | API legacy; **pestaña pausada** en perfil estudiante |
+| Pesos C/L/T | API `/pesos*`; menú **oculto** (`visible: false`) |
+| Excel por aula | **Descarga** confirmada — [`ExcelPorAulaPanel`](../../frontend/src/components/curricular/ExcelPorAulaPanel.jsx) |
+| Plantilla registro auxiliar | **Descarga + importación curricular** — Notas semanales; **no SIAGIE** |
+| Importación SIAGIE (RF-01 DRS) | **Pendiente** |
 
 ---
 
@@ -28,7 +44,7 @@ Sirve para:
 | Boletas institucionales Blenkir (cursos por nivel) | [`docs/referencias/cursos/boletas blenkir INICIAL (1).docx`](../referencias/cursos/boletas%20blenkir%20INICIAL%20(1).docx) | Plantilla institucional **Inicial** (áreas y cursos internos). |
 | | [`docs/referencias/cursos/boletas blenkir PRIMARIA.docx`](../referencias/cursos/boletas%20blenkir%20PRIMARIA.docx) | Plantilla institucional **Primaria** (todos los grados). |
 | | [`docs/referencias/cursos/boletas blenkir.docx`](../referencias/cursos/boletas%20blenkir.docx) | Plantilla institucional **Secundaria** (todos los grados). |
-| Excel registro auxiliar 2do | `REGISTRO_AUXILIAR_2DO_GRADO.xlsx` — **obsoleto / no usar** | Reemplazado por boletas DOCX anteriores. No implementar importación Excel en 8.5. |
+| Excel registro auxiliar 2do | `REGISTRO_AUXILIAR_2DO_GRADO.xlsx` — **obsoleto / no usar** | Sustituido por plantilla curricular generada en código (`PlantillaRegistroAuxiliarExcelService`) y boletas DOCX institucionales. **No** equivale a SIAGIE. |
 | Sprint 7.6 (legacy) | `materias`, `notas`, lotes | Conviven en paralelo; UI separada. |
 | Plan / sprints | `sprints/sprint 8.5A.md`, `sprints/sprint 8.5B.md` | Ejecución por fases. |
 
@@ -448,8 +464,11 @@ Grupos: catálogo CN, mallas, periodos/semanas, temas, pesos, asignaciones docen
 3. Configuración de pesos  
 4. **Asignación docente** (obligatoria)  
 5. Registro semanal de notas (docente)  
-6. Consulta de notas académicas (coordinador)  
+6. Consulta de notas académicas (coordinador / directivo — solo lectura)  
 7. Resumen académico en perfil estudiante  
+8. Excel por aula (descarga — admin/coordinador)  
+
+**Oculto en menú V1:** `PesosEvaluacionPanel` (`visible: false` en `App.jsx`).
 
 ### Menú
 
@@ -472,14 +491,15 @@ Coherencia con `docs/ui/mockups/guia-ui-siderae.md`. Sin botones muertos.
 ## 21. Restricciones para implementación
 
 - No romper: login, Sanctum, estudiantes legacy, asistencia, VSE, riesgo, alertas, dashboard, Docker.  
-- No importación Excel en 8.5.  
-- No reportes PDF nuevos en 8.5.  
+- **Importación plantilla curricular Excel** confirmada (`importar-excel`); **no** importación SIAGIE global.  
+- Excel por aula: **solo descarga** (`GET /excel-aula`).  
+- No reportes PDF nuevos curriculares en alcance documental V1 (PDF dashboard es otro RF).  
 - No roles nuevos.  
 - No migrar enum `estudiantes`/`materias` en 8.5.  
 - No estándares/desempeños CN en seed.  
 - No cursos Secundaria inventados.  
-- Notas Inicial: mismo flujo que P/S (sin riesgo académico).  
-- No coordinador registrando notas semanales.  
+- Notas Inicial: mismo flujo que P/S (sin riesgo académico en UI).  
+- Coordinador: consulta notas; **no** `registrar_notas_semanales` en seed.  
 
 ---
 
@@ -496,7 +516,7 @@ Ver tabla en `sprint 8.5B.md` (403, plantilla 2do, unicidad tema, docente sin as
 
 ### Sprint 9
 
-Regresión integral + smoke curricular en Cypress si aplica.
+Regresión integral documentada en [`docs/pruebas/informe-pruebas.md`](../pruebas/informe-pruebas.md). **Cypress no existe** en el repositorio.
 
 ---
 
@@ -527,4 +547,4 @@ Regresión integral + smoke curricular en Cypress si aplica.
 - Dos temas activos misma semana/c curso.  
 - Permiso coordinador para registrar notas.  
 - Plantilla Secundaria institucional validada.  
-- ~~Importación registro auxiliar Excel~~ (obsoleto; fuentes DOCX en §2).
+- ~~Importación registro auxiliar Excel~~ — **Implementado** como plantilla curricular (`plantilla-excel` / `importar-excel`); ver [`docs/aula-notas-excel.md`](../aula-notas-excel.md). SIAGIE sigue pendiente.
