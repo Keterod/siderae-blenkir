@@ -67,7 +67,20 @@ ISO = **alineación progresiva / referencia académica** — sin certificación.
 
 ---
 
-## 6. Pruebas y trazabilidad
+## 6. Metodología y desarrollo asistido por IA
+
+| Documento | Ruta |
+|-----------|------|
+| Entrada metodología | [`metodologia/README.md`](metodologia/README.md) |
+| Análisis AI-DLC (Fase 1A) | [`metodologia/analisis-ai-dlc-siderae.md`](metodologia/analisis-ai-dlc-siderae.md) |
+| AI-DLC aplicado (Fase 1B) | [`metodologia/ai-dlc-aplicado-siderae.md`](metodologia/ai-dlc-aplicado-siderae.md) |
+| Agentes metodológicos | [`metodologia/agentes-ai-dlc-siderae.md`](metodologia/agentes-ai-dlc-siderae.md) |
+
+La metodología **no reemplaza** el DRS v2.1. **AI-DLC** (*AI-Driven Development Life Cycle*) es la metodología principal y guía el proceso de desarrollo con IA asistida y revisión humana obligatoria. Los **agentes** en `agentes-ai-dlc-siderae.md` son **perfiles metodológicos** de instrucción, **no** agentes autónomos end-to-end. **Scrum** organiza sprints ([`metodologia/scrum-complemento.md`](metodologia/scrum-complemento.md)). **MLOps básico** aplica al componente Flask ([`metodologia/mlops-basico.md`](metodologia/mlops-basico.md)), especialmente RF-18 planificado; ML actual **determinístico**.
+
+---
+
+## 7. Pruebas y trazabilidad
 
 | Documento | Ruta | Notas |
 |-----------|------|-------|
@@ -78,7 +91,7 @@ ISO = **alineación progresiva / referencia académica** — sin certificación.
 
 ---
 
-## 7. Documentos históricos
+## 8. Documentos históricos
 
 | Documento | Ruta | Notas |
 |-----------|------|-------|
@@ -90,7 +103,7 @@ ISO = **alineación progresiva / referencia académica** — sin certificación.
 
 ---
 
-## 8. Advertencias globales
+## 9. Advertencias globales
 
 | Tema | Estado V1 |
 |------|-----------|
@@ -111,7 +124,7 @@ Detalle: [`limitaciones.md`](limitaciones.md) · [`INDICE_DOCUMENTACION.md`](IND
 
 ---
 
-## 9. Regla de jerarquía documental
+## 10. Regla de jerarquía documental
 
 Al interpretar alcance, estado V1 o evidencias, aplicar este orden:
 
@@ -126,4 +139,4 @@ Repositorio raíz: [`../README.md`](../README.md) · reglas desarrollo: [`../AGE
 
 ---
 
-*Cierre documental Markdown — 2026-06-09.*
+*Cierre documental Markdown — 2026-06-09; metodología AI-DLC Fase 1B — 2026-06-10.*

@@ -24,3 +24,7 @@ Criterio vigente para **V1** del prototipo:
 ### Jerarquía
 
 Si el DRS o un mockup asumen selector de sede o datos en Auquimarca, documentar la diferencia y aplicar esta decisión para cambios nuevos en V1.
+
+### Metodología AI-DLC (desarrollo asistido)
+
+Guía operativa y perfiles metodológicos (no agentes autónomos): [`docs/metodologia/ai-dlc-aplicado-siderae.md`](docs/metodologia/ai-dlc-aplicado-siderae.md) · [`docs/metodologia/agentes-ai-dlc-siderae.md`](docs/metodologia/agentes-ai-dlc-siderae.md).

@@ -73,7 +73,22 @@ Entrada a `docs/`: [`README.md`](README.md).
 
 ---
 
-## 6. Pruebas y trazabilidad
+## 6. Metodología y desarrollo asistido por IA
+
+| Documento | Ruta | Notas |
+|-----------|------|-------|
+| Carpeta metodología | [`metodologia/README.md`](metodologia/README.md) | AI-DLC + Scrum + MLOps básico |
+| Análisis AI-DLC (Fase 1A) | [`metodologia/analisis-ai-dlc-siderae.md`](metodologia/analisis-ai-dlc-siderae.md) | Comprensión del marco existente |
+| AI-DLC aplicado (Fase 1B) | [`metodologia/ai-dlc-aplicado-siderae.md`](metodologia/ai-dlc-aplicado-siderae.md) | Guía operativa por RF |
+| Agentes metodológicos | [`metodologia/agentes-ai-dlc-siderae.md`](metodologia/agentes-ai-dlc-siderae.md) | Perfiles de instrucción; **no** autónomos |
+| Marco AI-DLC | [`metodologia/ai-dlc.md`](metodologia/ai-dlc.md) | Definición canónica del ciclo |
+| Metodología integrada | [`metodologia/metodologia-siderae.md`](metodologia/metodologia-siderae.md) | Visión AI-DLC + Scrum + MLOps |
+
+La metodología **no reemplaza** el DRS v2.1. **AI-DLC** guía el proceso de desarrollo con validación humana obligatoria. Los agentes documentados son **perfiles metodológicos**, no agentes autónomos. **Scrum** organiza sprints. **MLOps básico** aplica al componente Flask (especialmente RF-18 planificado; ML actual determinístico).
+
+---
+
+## 7. Pruebas y trazabilidad
 
 | Documento | Ruta |
 |-----------|------|
@@ -85,7 +100,7 @@ Entrada a `docs/`: [`README.md`](README.md).
 
 ---
 
-## 7. Documentos históricos o de referencia
+## 8. Documentos históricos o de referencia
 
 | Documento | Ruta | Notas |
 |-----------|------|-------|
@@ -97,7 +112,7 @@ Entrada a `docs/`: [`README.md`](README.md).
 
 ---
 
-## 8. Orden recomendado de lectura para jurado
+## 9. Orden recomendado de lectura para jurado
 
 1. [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) — alcance y RF con estado honesto  
 2. [`README.md`](README.md) — entrada a `docs/` · [`../README.md`](../README.md) — visión y arranque del repo  
@@ -112,7 +127,7 @@ Entrada a `docs/`: [`README.md`](README.md).
 
 ---
 
-## 9. Advertencias globales
+## 10. Advertencias globales
 
 | Advertencia | Detalle |
 |-------------|---------|
@@ -138,4 +153,4 @@ Entrada a `docs/`: [`README.md`](README.md).
 
 ---
 
-*Índice actualizado — Fase 9 reestructuración RF V2.1 (2026-06-09).*
+*Índice actualizado — Fase 9 reestructuración RF V2.1 (2026-06-09); metodología AI-DLC Fase 1B (2026-06-10).*

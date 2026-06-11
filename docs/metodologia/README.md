@@ -17,6 +17,21 @@ Sirve como **base para sustentación académica** y para una futura revisión co
 | `aplicacion-en-siderae.md` | Cómo se aplica la metodología al trabajo diario del proyecto: flujo, evidencias esperadas y limitaciones. | Redactado |
 | `matriz-metodologia-sprints.md` | Matriz sprint ↔ componente metodológico ↔ evidencias; estado de revisión (borrador refinable). | Borrador operativo |
 | `referencias-metodologia.md` | Plan de fuentes metodológicas **pendientes**; criterios y vínculo con `docs/referencias/`. | Pendiente de fuentes externas |
+| `analisis-ai-dlc-siderae.md` | Análisis Fase 1A: comprensión de AI-DLC existente; recomendación Opción B. | Redactado |
+| `ai-dlc-aplicado-siderae.md` | Guía operativa Fase 1B: ciclo por RF, fuentes de verdad, RF priorizados, cierre de fase. | Redactado |
+| `agentes-ai-dlc-siderae.md` | Perfiles metodológicos de instrucción para IA asistida (no agentes autónomos). | Redactado |
+
+## Metodología y desarrollo asistido por IA
+
+Esta carpeta describe **cómo** desarrollar SIDERAE-Blenkir con IA generativa bajo supervisión humana. Aclaraciones:
+
+- La metodología **no reemplaza** el DRS v2.1 ([`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md)).
+- **AI-DLC** (*AI-Driven Development Life Cycle*) es la **metodología principal**; guía el proceso de desarrollo (planificación, construcción, revisión, documentación).
+- Los **agentes** en [`agentes-ai-dlc-siderae.md`](agentes-ai-dlc-siderae.md) son **perfiles metodológicos** de trabajo e instrucción, **no** agentes autónomos end-to-end.
+- **Scrum** ([`scrum-complemento.md`](scrum-complemento.md)) **organiza sprints** y criterios de cierre incremental.
+- **MLOps básico** ([`mlops-basico.md`](mlops-basico.md)) aplica al **componente Flask** y especialmente a **RF-18** (reentrenamiento planificado; ML actual determinístico).
+
+**Entrada recomendada post-DRS v2.1:** [`analisis-ai-dlc-siderae.md`](analisis-ai-dlc-siderae.md) → [`ai-dlc-aplicado-siderae.md`](ai-dlc-aplicado-siderae.md) → [`agentes-ai-dlc-siderae.md`](agentes-ai-dlc-siderae.md).
 
 ## Orden recomendado de lectura
 
@@ -26,7 +41,10 @@ Sirve como **base para sustentación académica** y para una futura revisión co
 4. `mlops-basico.md` — componente ML y gobierno técnico mínimo.  
 5. `aplicacion-en-siderae.md` — aplicación práctica y evidencias.  
 6. `matriz-metodologia-sprints.md` — vista tabular para trazabilidad.  
-7. `referencias-metodologia.md` — qué falta citar y dónde ubicarlo después.
+7. `referencias-metodologia.md` — qué falta citar y dónde ubicarlo después.  
+8. `analisis-ai-dlc-siderae.md` — análisis Fase 1A (comprensión del marco).  
+9. `ai-dlc-aplicado-siderae.md` — guía operativa para continuar desarrollo por RF.  
+10. `agentes-ai-dlc-siderae.md` — perfiles metodológicos para prompts y revisiones.
 
 ## Estado actual de la documentación
 
