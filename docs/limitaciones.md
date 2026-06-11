@@ -4,7 +4,7 @@
 
 Este documento registra las **diferencias verificables** entre:
 
-- **Alcance formal/documentado** — [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) (v2, estado V1 real) y resumen histórico v1 en [`docs/arquitectura/contexto-drs-requerimientos.md`](arquitectura/contexto-drs-requerimientos.md) a partir del PDF (`DRS_SIDERAE_Blenkir_v1.pdf`, **fuente formal externa al repositorio**).
+- **Alcance formal/documentado** — [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) (v2.1, estado V1 real) y resumen histórico v1 en [`docs/arquitectura/contexto-drs-requerimientos.md`](arquitectura/contexto-drs-requerimientos.md) a partir del PDF (`DRS_SIDERAE_Blenkir_v1.pdf`, **fuente formal externa al repositorio**).
 - **Implementación real del prototipo** — lo confirmado en código, rutas, UI y pruebas del repositorio.
 - **Pendientes para versiones futuras** — funcionalidades definidas en el DRS o en sprints pero no equivalentes en código.
 
@@ -105,19 +105,19 @@ Cada ítem incluye evidencia por ruta.
 | Flujo curricular (notas semanales, bimestre, bulk) | Confirmado en código | Rutas `/api/curricular/*`; tests `Feature/Curricular/*` |
 | Importación Excel **plantilla curricular** | Confirmado en código | `importar-excel`, `PlantillaRegistroAuxiliarExcelTest` — ver [`aula-notas-excel.md`](aula-notas-excel.md) |
 | Excel por aula (descarga) | Confirmado en código | `GET /excel-aula`, `ExcelAulaTest` — **solo descarga**; no import |
-| Importación masiva **SIAGIE** (.xlsx/.csv institucional RF-01 DRS) | **Pendiente** | No hay test `ImportarDatosTest` ni ruta equivalente global |
+| Importación masiva **SIAGIE** | **Fuera del alcance actual** | Decisión de alcance v2.1; plantillas Excel propias RF-32/RF-33 |
 
-### RF-05 — Variables socioeconómicas — **Implementado parcialmente**
+### RF-05 — Variables socioeconómicas — **Retirado del flujo funcional de riesgo**
 
-- **Backend confirmado:** API anidada bajo estudiante — [`backend/routes/api.php`](../backend/routes/api.php) (L109–110), [`backend/app/Http/Controllers/Api/VariableSocioeconomicaController.php`](../backend/app/Http/Controllers/Api/VariableSocioeconomicaController.php).
-- **UI pausada:** la pestaña no se expone porque [`frontend/src/components/estudiantes/EstudiantesPanel.jsx`](../frontend/src/components/estudiantes/EstudiantesPanel.jsx) no pasa `mostrarVariablesSocio` a [`EstudiantePerfilDatos.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilDatos.jsx) (prop por defecto `false`).
-- Nota README: [`README.md`](../README.md) (nota final sobre VSE pausadas).
+- **API legacy:** puede existir bajo estudiante — [`backend/routes/api.php`](../backend/routes/api.php), `VariableSocioeconomicaController`.
+- **No** es insumo obligatorio del cálculo de riesgo (RF-06) en alcance vigente v2.1.
+- UI pausada en perfil estudiante.
 
-### RF-14 / RF-16 — Dashboard y exportación PDF — **Implementado parcialmente**
+### RF-14 / RF-16 — Dashboard académico-institucional y reportes de riesgo — **Implementado parcialmente**
 
-- Dashboard con filtros y visualización básica: confirmado (`DashboardPanel`, `DashboardTest`).
-- Export PDF del dashboard vía DomPDF: confirmado (`GET /api/dashboard/export`; registro en `ActivityLogTest`).
-- **No confirmado** frente al DRS: gráficos exportables PNG, vista multi-sede directivo, % alertas REQ-14.5, reportes PDF individuales/aula completos (REQ-16.x).
+- Dashboard con filtros y KPIs (subset académico/riesgo): confirmado (`DashboardPanel`, `DashboardTest`).
+- Export PDF del dashboard vía DomPDF: confirmado — **antecedente parcial** de RF-16, no zona completa de reportes de riesgo.
+- **Planificado:** RF-16 zona reportes por estudiante/aula/grado/periodo; RF-14 indicadores académicos ampliados.
 
 ### RF-17 — Auditoría (`activity_log`) — **Implementado parcialmente**
 
@@ -146,22 +146,38 @@ Cada ítem incluye evidencia por ruta.
 
 ---
 
-## 5. Alcance pendiente o no confirmado
+## 5. Alcance retirado, planificado o no confirmado
+
+### Retirado del alcance vigente (v2.1)
 
 | Tema | Estado | Notas |
 |------|--------|-------|
-| **RF-10** — Derivación por directivo | Pendiente | Sin rutas API en [`backend/routes/`](../backend/routes/) |
-| **RF-11** — Atención psicológica integrada completa | Pendiente / parcial | Depende RF-10; perfil estudiante parcial vía otros módulos |
-| **RF-12** — Comunicación formal con familia | Pendiente | Tabla `comunicaciones_familiares` en migraciones; **sin API** |
-| **RF-04** — Reportes conductuales | Pendiente | Modelo/migración `reportes_conductuales`; **sin rutas API** |
-| **RF-18** — Reentrenamiento ML | Pendiente | Sin endpoints en [`ml-service/main.py`](../ml-service/main.py) |
-| **RF-19** — Semáforo de completitud | Pendiente | No hay componente UI ni lógica explícita en frontend/backend revisado |
-| **Importación SIAGIE (RF-01)** | Pendiente | Distinto de import Excel curricular confirmado |
-| **Cypress / E2E** | No confirmado en repo | Sin carpeta `cypress/` ni dependencia en frontend |
-| **Random Forest / SVM / XGBoost** | Pendiente | DRS los define; [`ml-service/main.py`](../ml-service/main.py) usa fórmula determinística |
-| **Certificación ISO** | No aplica | Ver §9 |
-| **Despliegue productivo** | Pendiente | Solo entorno local Docker documentado |
-| **DRS PDF / Formato 06 digital** | Fuente externa | Referenciados en docs; **no presentes en el repositorio** |
+| **RF-03** — Fast Test | **Retirado** | Institución no utiliza Fast Test |
+| **RF-05** — VSE en flujo de riesgo | **Retirado del flujo** | API legacy puede existir; no insumo obligatorio RF-06 |
+| **RF-12** — Comunicación familiar | **Eliminado** | Gestión fuera del sistema |
+| **Importación SIAGIE (RF-01)** | **Fuera del alcance** | Plantillas Excel propias RF-32/RF-33 |
+
+### Planificado (DRS v2.1 — por implementar en código)
+
+| Tema | Estado | Notas |
+|------|--------|-------|
+| **RF-04** — Reportes conductuales | **Planificado** | Migración sin API |
+| **RF-10** — Escalamiento directivo crítico | **Planificado** | Solo casos críticos/extremos |
+| **RF-11** — Perfil integral psicólogo (lectura) | **Planificado** | Alertas operativas hoy |
+| **RF-16** — Zona reportes de riesgo | **Planificado** | PDF dashboard = parcial |
+| **RF-18** — Reentrenamiento ML | **Planificado** | Requiere dataset histórico; no implementado |
+| **RF-19** — Semáforo completitud | **Planificado** | Sin UI/lógica en V1 |
+| **RF-20** — Historial evolutivo | **Planificado** | Persistencia sí; timeline UI no |
+
+### Otros pendientes técnicos
+
+| Tema | Estado | Notas |
+|------|--------|-------|
+| **Cypress / E2E** | No confirmado | Sin carpeta `cypress/` |
+| **Random Forest / SVM / XGBoost** | No implementado | ML determinístico en V1 |
+| **Certificación ISO** | No aplica | Alineación progresiva únicamente |
+| **Despliegue productivo** | Pendiente | Solo Docker local |
+| **DRS PDF / Formato 06** | Fuente externa | Markdown v2.1 vigente en repo |
 
 ---
 
@@ -189,7 +205,11 @@ Cada ítem incluye evidencia por ruta.
 |------------|---------|
 | Visibilidad por rol | Cada módulo del sidebar depende de permisos Spatie; ver `moduloPermitido` en [`frontend/src/App.jsx`](../frontend/src/App.jsx). |
 | Legacy sin menú | Materias, notas masivas y asistencia masiva legacy existen en código pero **no** están en el menú principal. |
-| VSE no expuesta | Pestaña variables socioeconómicas oculta en perfil estudiante (backend operativo). |
+| VSE retiradas del flujo de riesgo | API legacy puede existir; pestaña UI oculta; **no** insumo obligatorio RF-06 (v2.1) |
+| Directivo y alertas | Directivo **no** es actor inicial de todas las alertas; escalamiento RF-10 planificado solo casos críticos |
+| Psicólogo perfil integral | **Planificado** RF-11: lectura académica completa; hoy solo alertas |
+| Comunicación familiar | **Fuera del sistema** — RF-12 eliminado |
+| Fast Test / VSE en riesgo | **No** aparecen como flujos de usuario vigentes |
 | Pesos C/L/T ocultos | Panel `PesosEvaluacionPanel` con `visible: false` en sidebar. |
 | Sede única en UI (V1) | Sin selectores de sede; payloads fijan Chilca — [`AGENTS.md`](../AGENTS.md), [`frontend/src/lib/sedeOperativa.js`](../frontend/src/lib/sedeOperativa.js). La BD puede contener registros en otras sedes (p. ej. Auquimarca) por datos históricos o seeds previos. |
 | Mockups vs UI real | Mockups `docs/ui/mockups/01–12` reflejan flujo legacy; módulos curriculares **no** tienen mockups equivalentes. |
@@ -235,15 +255,16 @@ Cada ítem incluye evidencia por ruta.
 
 ---
 
-## 11. Pendientes post-consolidación (Fase 8)
+## 11. Pendientes post-consolidación (Fase 9)
 
-Documentación principal **completada** (Fases 1–8). Paquete **Markdown** listo para revisión humana.
+Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1 listo para revisión humana.
 
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
+- Implementar en código RF planificados: RF-04, RF-10, RF-16, RF-18, RF-19, RF-20 (historial evolutivo UI).
 
-**Etapa posterior (opcional):** conversión formal DRS v2 y anexos a PDF/Word tras revisión humana y maquetación.
+**Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 
 Índice maestro: [`INDICE_DOCUMENTACION.md`](INDICE_DOCUMENTACION.md) · entrada `docs/`: [`README.md`](README.md).
 

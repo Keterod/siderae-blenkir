@@ -86,7 +86,9 @@ Usuarios demo: [`DemoUsersSeeder.php`](../backend/database/seeders/DemoUsersSeed
 
 ## 6. Permisos confirmados
 
-Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **23 permisos**, `guard_name` = `web`.
+Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **23 permisos implementados actualmente**, `guard_name` = `web`.
+
+> **Permisos adicionales sugeridos/planificados:** 8 permisos para RF-04, RF-10, RF-11, RF-16, RF-18 y RF-19 documentados en §16 — **no** están en `PermissionsSeeder` ni en rutas API.
 
 ### Legacy (8)
 
@@ -261,7 +263,7 @@ Prefijo `/api/curricular/*`: grupo con `auth:sanctum`; subgrupos con permisos es
 | UI consulta logs | — | **Pendiente de desarrollo** |
 | Auditoría completa REQ-17 DRS | — | **No confirmado** |
 
-No afirmar trazabilidad total del sistema; solo acciones donde `activity()` está implementado y probada.
+No afirmar trazabilidad total del sistema; solo acciones donde `activity()` está implementado y probada. **RF-17** se mantiene por trazabilidad y apoyo a **alineación progresiva** con ISO/IEC 27000 e ISO 9001 — **no** porque ISO lo exija directamente ni implica certificación.
 
 ---
 
@@ -281,7 +283,9 @@ La documentación de seguridad de este prototipo aporta evidencias (roles, permi
 |-----------------|---------|-----------|---------------|-----------|
 | `POST /register` público | Alto en producción | `auth.php`, `RegistrationTest` | Deshabilitar o restringir en despliegue real | Alta |
 | UI oculta vs API legacy activa | Medio | Materias/notas legacy sin menú | Documentar; restringir permisos en prod si no se usa | Media |
-| Directivo ve «Notas» sin permiso registro | Bajo | `App.jsx` excepción rol | Alinear UI con permisos o documentar lectura institucional | Media |
+| Directivo ve «Notas» sin permiso registro | Bajo | `App.jsx` excepción rol | Lectura institucional documentada | Media |
+| Directivo actor inicial de alertas | Medio | DRS v2.1 RF-10 | **Planificado:** solo escalamiento casos críticos | Media |
+| Psicólogo sin perfil integral | Medio | RF-11 planificado | **Planificado:** lectura académica completa | Media |
 | Cobertura 401/403 incompleta | Medio | §12 | Ampliar Feature Tests por ruta crítica | Media |
 | Activity log parcial | Medio | `ActivityLogTest` | Extender logging + UI consulta si RF-17 exige | Media |
 | Datos Auquimarca en BD local | Bajo (V1) | Fase 1 audit | No confundir con multi-sede operativa; Chilca en UI | Baja |
@@ -298,7 +302,22 @@ La documentación de seguridad de este prototipo aporta evidencias (roles, permi
 3. Decidir política de **`POST /register`** antes de cualquier despliegue fuera de prototipo.
 4. Crear **`docs/matriz-rf-sprint-test.md`** enlazando RF de seguridad (RF-15, RF-17) con tests existentes — **disponible** en [`matriz-rf-sprint-test.md`](matriz-rf-sprint-test.md).
 5. Plantilla registro auxiliar (descarga + import por curso): ver [`docs/aula-notas-excel.md`](aula-notas-excel.md) §11.
-6. Alimentar **DRS actualizado** solo tras verificación en código; marcar RF multi-sede como futuro.
+6. Alimentar **DRS v2.1**; RF vigentes RF-01 a RF-35.
+
+### Permisos sugeridos (planificados — no confirmados en `PermissionsSeeder`)
+
+Los siguientes permisos **no existen** aún en código; se documentan como objetivo de RF planificados:
+
+| Permiso sugerido | RF | Estado |
+|------------------|-----|--------|
+| `ver_reportes_conductuales` | RF-04 | Planificado |
+| `registrar_reportes_conductuales` | RF-04 | Planificado |
+| `ver_perfil_integral_estudiante` | RF-11 | Planificado |
+| `escalar_alerta_directivo` | RF-10 | Planificado |
+| `ver_reportes_riesgo` | RF-16 | Planificado |
+| `generar_reportes_riesgo` | RF-16 | Planificado |
+| `ver_semaforo_completitud` | RF-19 | Planificado |
+| `gestionar_reentrenamiento_ml` | RF-18 | Planificado |
 
 ---
 

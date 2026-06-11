@@ -56,7 +56,16 @@ Presentar cómo el prototipo académico **SIDERAE-Blenkir V1** documenta evidenc
 | ISO/IEC 25010 | Calidad producto | Módulos UI, matriz RF, manuales, Docker | Evidencia parcial | [`matriz-iso-25010.md`](matriz-iso-25010.md) |
 | ISO/IEC 27000 | Seguridad información | Sanctum, Spatie RBAC, 401/403, activity log parcial | Evidencia parcial | [`matriz-seguridad-iso-27000.md`](matriz-seguridad-iso-27000.md) |
 | ISO 9001 (referencia) | Trazabilidad / mejora | Matriz RF–Sprint–Test, fases documentales, NC | Evidencia parcial | [`trazabilidad-iso-9001.md`](trazabilidad-iso-9001.md) |
-| Mejora continua | Brechas registradas | Registro NC-01…NC-12 | Evidencia confirmada (documental) | [`no-conformidades-y-mejora.md`](no-conformidades-y-mejora.md) |
+| Mejora continua | Brechas registradas | Registro NC-01…NC-21 | Evidencia confirmada (documental) | [`no-conformidades-y-mejora.md`](no-conformidades-y-mejora.md) |
+
+### RF-17 y RF-19 frente a ISO
+
+| RF | Relación con ISO | Redacción permitida |
+|----|------------------|---------------------|
+| **RF-17** Auditoría | **Apoya** alineación progresiva con trazabilidad y control de acciones | «sirve como evidencia parcial», «criterio orientativo» |
+| **RF-19** Semáforo completitud | **Apoya** calidad de datos y confiabilidad del riesgo | «apoya la alineación progresiva» |
+
+**No usar:** «cumple ISO», «certificado», «obligatorio por ISO». **RF-17 y RF-19 no equivalen a certificación** ni son exigencia directa de normas ISO en este prototipo.
 
 ---
 
@@ -90,12 +99,10 @@ Documentación consolidada (Fases 1–6 + ISO):
 | Activity log parcial (RF-17) | [`seguridad-roles-permisos.md`](../seguridad-roles-permisos.md) §13 |
 | Pruebas 401/403 no exhaustivas | Idem §12 |
 | Suite PHPUnit OOM @ 128M | [`hallazgos-fase1-documentacion.md`](../pruebas/hallazgos-fase1-documentacion.md) |
-| RF pendientes (SIAGIE, RF-10–12, RF-18–19, etc.) | [`matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md) |
-| Seed oficial de referencia pendiente | [`informe-pruebas.md`](../pruebas/informe-pruebas.md) §10 |
-| ML determinístico vs DRS ensemble | [`limitaciones.md`](../limitaciones.md) §5 |
-| `POST /register` público (prototipo) | [`README.md`](../../README.md) §12 |
-| DRS v2 publicado; PDF v1 histórico | [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md) |
-| Índice documental Fase 8 | [`docs/INDICE_DOCUMENTACION.md`](../INDICE_DOCUMENTACION.md) |
+| RF planificados (RF-04, RF-10, RF-16, RF-18–20) | [`matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md) |
+| SIAGIE, Fast Test, VSE riesgo, comunicación familiar **retirados** | DRS v2.1 §2.3 |
+| ML determinístico vs ensemble | [`limitaciones.md`](../limitaciones.md) §5 |
+| DRS v2.1 publicado; PDF v1 histórico | [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md) |
 
 Registro formal: [`no-conformidades-y-mejora.md`](no-conformidades-y-mejora.md).
 
@@ -103,14 +110,15 @@ Registro formal: [`no-conformidades-y-mejora.md`](no-conformidades-y-mejora.md).
 
 ## 8. Uso en DRS actualizado
 
-El **DRS v2** ([`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md)) integra esta fase ISO así:
+El **DRS v2.1** ([`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md)) integra esta fase ISO así:
 
-1. Usar la expresión **«alineación progresiva con criterios inspirados en ISO/IEC 25010, ISO/IEC 27000 e ISO 9001»**.
+1. Usar **«alineación progresiva con criterios inspirados en ISO/IEC 25010, ISO/IEC 27000 e ISO 9001»**.
 2. **No** afirmar certificación, auditoría externa ni cumplimiento total.
-3. Referenciar las matrices de `docs/calidad/` como **evidencia académica** (§15 DRS v2).
-4. Separar **alcance formal DRS v1** vs **estado V1 prototipo** ([`limitaciones.md`](../limitaciones.md)).
-5. Declarar explícitamente sede **Chilca** en operación V1 y brechas SIAGIE / multi-sede.
+3. **RF-17** y **RF-19** apoyan trazabilidad y calidad de datos como **evidencia parcial**, no como requisito ISO directo.
+4. Referenciar matrices de `docs/calidad/` como **evidencia académica orientativa**.
+5. Separar alcance formal DRS v1 vs estado V1 prototipo (RF-01 a RF-35).
+6. Declarar SIAGIE/Fast Test/VSE/comunicación familiar según decisiones v2.1.
 
 ---
 
-*Documento generado en Fase ISO del plan de actualización documental SIDERAE-Blenkir.*
+*Documento actualizado — Fase 9 / DRS v2.1.*

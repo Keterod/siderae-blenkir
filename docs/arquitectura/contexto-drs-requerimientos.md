@@ -1,6 +1,6 @@
 # Contexto DRS — requerimientos (resumen operativo para IA/Cursor)
 
-> **Documento de contexto histórico.** Transcribe el DRS v1 PDF. La **fuente formal vigente del estado V1** es [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md).
+> **Documento de contexto histórico.** Transcribe el DRS v1 PDF. La **fuente formal vigente** es [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../drs/DRS_SIDERAE_Blenkir_v2.md) **versión documental 2.1** (RF-01 a RF-35). Las decisiones de alcance v2.1 (SIAGIE/Fast Test/VSE/comunicación familiar retirados) **no** están reflejadas en las tablas de este resumen v1.
 
 Fuente formal transcrita desde **`DRS_SIDERAE_Blenkir_v1.pdf`** (Versión **1.0**, Fecha **02/04/2026**) salvo donde se indique el **estado V1** actualizado según código y DRS v2.
 

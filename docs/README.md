@@ -10,7 +10,7 @@ Entrada principal a la carpeta `docs/` del repositorio. **Paquete vigente en Mar
 
 | Documento | Ruta |
 |-----------|------|
-| **DRS v2 (estado V1 real)** | [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) |
+| **DRS v2.1 (estado V1 real)** | [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) — versión documental **2.1**; RF **RF-01 a RF-35** |
 
 El PDF `DRS_SIDERAE_Blenkir_v1.pdf` permanece como **histórico** (externo al repositorio).
 
@@ -96,8 +96,11 @@ ISO = **alineación progresiva / referencia académica** — sin certificación.
 |------|-----------|
 | **Sede operativa** | Solo **Chilca** en UI y consultas por defecto |
 | **Auquimarca** | Dato **histórico/local** en BD auditada; no operación multi-sede V1 |
-| **SIAGIE** | Importación global **pendiente** (RF-01 parcial; plantilla Excel curricular **sí**) |
-| **ML** | Servicio Flask **determinístico**; sin RF/SVM/XGBoost ni reentrenamiento (RF-18) |
+| **SIAGIE** | **Fuera del alcance actual** — plantillas Excel RF-32/RF-33 |
+| **Fast Test / VSE en riesgo / comunicación familiar** | **Retirados/eliminados** del alcance v2.1 |
+| **ML** | **Determinístico**; RF-18 reentrenamiento **planificado**, no implementado |
+| **Permisos RBAC** | **23 implementados** en seeder; **8 sugeridos/planificados** — ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) §16 |
+| **RF vigentes** | **RF-01 a RF-35** (curricular RF-21–RF-35 confirmado en código según matriz) |
 | **Cypress / E2E** | **No confirmado** en el repositorio |
 | **ISO** | Referencia académica únicamente; **sin certificación** ni auditoría externa |
 | **Seed oficial** | **Pendiente** — conteos BD Fase 1 = entorno local auditado |
@@ -117,7 +120,7 @@ Al interpretar alcance, estado V1 o evidencias, aplicar este orden:
 3. **[`matriz-rf-sprint-test.md`](matriz-rf-sprint-test.md)** — trazabilidad RF → sprint → código → test.
 4. **[`limitaciones.md`](limitaciones.md)** — alcance real vs formal y brechas consolidadas.
 5. **Manuales y especializados:** [`manual-tecnico.md`](manual-tecnico.md) · [`manual-usuario.md`](manual-usuario.md) · [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) · [`pruebas/informe-pruebas.md`](pruebas/informe-pruebas.md) · [`aula-notas-excel.md`](aula-notas-excel.md) · [`calidad/`](calidad/).
-6. **Documentos históricos** (§7) — solo contexto; no sustituyen DRS v2.
+6. **Documentos históricos** (§7) — solo contexto; no sustituyen DRS v2.1.
 
 Repositorio raíz: [`../README.md`](../README.md) · reglas desarrollo: [`../AGENTS.md`](../AGENTS.md) · [`../.cursorrules`](../.cursorrules).
 

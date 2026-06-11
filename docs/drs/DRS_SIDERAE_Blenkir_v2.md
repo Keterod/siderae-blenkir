@@ -1,7 +1,7 @@
 # Documento de Requerimientos de Software
 # SIDERAE-Blenkir V2
 
-**Versión:** 2.0 (actualización documental)  
+**Versión:** 2.1 (actualización documental — reestructuración RF)  
 **Fecha:** 2026-06-09  
 **Tipo de documento:** Prototipo académico V1 — estado real verificado en repositorio
 
@@ -19,6 +19,7 @@
 |-------|---------|----------------|-------------|-------------|
 | 02/04/2026 | 1.0 | Equipo SIDERAE-Blenkir (Colegio Blenkir) | DRS formal original — alcance institucional completo | `DRS_SIDERAE_Blenkir_v1.pdf` (externo al repo) |
 | 2026-06-09 | 2.0 | Equipo documentación SIDERAE-Blenkir (Diego Carhuamaca Vasquez, Ernesto Chuchon Sotelo) | Actualización documental V1 real: RF/RNF con estado honesto, brechas, trazabilidad a código y pruebas | Fases 1–6 + ISO + matriz RF–Sprint–Test + informe de pruebas + limitaciones |
+| 2026-06-09 | 2.1 | Equipo documentación SIDERAE-Blenkir | Reestructuración de alcance: retiro Fast Test / SIAGIE / VSE / comunicación familiar del alcance vigente; ajuste RF-10/RF-11/RF-13/RF-14/RF-16/RF-18/RF-19/RF-20; incorporación RF-21–RF-35 del módulo curricular como RF oficiales | Fase 9 documental |
 
 ---
 
@@ -58,10 +59,10 @@ SIDERAE-Blenkir V1 es un sistema web desacoplado (React + Laravel + MySQL + Flas
 | Módulo | Evidencia principal |
 |--------|---------------------|
 | Autenticación Sanctum + sesión `/api/me` | `backend/routes/auth.php`, `AuthContext.jsx` |
-| RBAC — 5 roles, 23 permisos | `PermissionsSeeder.php`, `api.php` |
+| RBAC — 5 roles, **23 permisos implementados** | `PermissionsSeeder.php`, `api.php` |
 | Gestión estudiantes | `EstudianteController`, `EstudiantesPanel` |
 | Gestión usuarios (RF-15) | `/api/usuarios/*`, `UsuariosPanel` |
-| Módulo curricular completo en menú | `/api/curricular/*`, paneles en `App.jsx` |
+| Módulo curricular **RF-21–RF-35** (confirmado en código) | `/api/curricular/*`, paneles en `App.jsx`, tests `Feature/Curricular/` |
 | Asistencia curricular (RF-02) | `/api/curricular/asistencias-diarias/*`, `AsistenciaDiariaTest` |
 | Alertas, intervenciones, cierre (RF-08, RF-09) | `AlertaController`, `AlertasPanel`, `AlertaIntervencionTest` |
 | Clasificación de riesgo por umbrales (RF-07) | `RiesgoAcademicoService`, `RiesgoTest` |
@@ -71,26 +72,27 @@ SIDERAE-Blenkir V1 es un sistema web desacoplado (React + Laravel + MySQL + Flas
 
 | Módulo / RF | Qué opera en V1 | Qué falta frente al DRS v1 |
 |-------------|-----------------|---------------------------|
-| **RF-01** Carga/importación datos | Notas semanales, plantilla Excel curricular (import/export), Excel aula (descarga), legacy API | Importación **SIAGIE** global; REQ-01.x completos |
-| **RF-05** Variables socioeconómicas | API bajo estudiante | UI **pausada** (pestaña no expuesta) |
-| **RF-06** Procesamiento ML | Laravel → Flask determinístico; comando batch | Ensemble RF/SVM/XGBoost; UI procesar riesgo en perfil |
-| **RF-11** Atención psicológica | Alertas + permisos psicólogo | Perfil integrado; depende RF-10 |
-| **RF-13** Cierre alerta | Cierre vía intervención | Cierre vía derivación o comunicación familiar |
-| **RF-14** Dashboard | KPIs básicos, filtros parciales | Multi-sede directivo, PNG, % alertas REQ-14.5 |
-| **RF-16** Exportación | PDF dashboard; Excel aula `.xlsx` | PDF individual/aula completo REQ-16.x |
-| **RF-17** Auditoría | `activity_log` parcial en controladores | UI consulta logs; cobertura REQ-17.x |
-| **RF-20** Historial riesgo | Persistencia `indices_riesgo` | Timeline UI; export PDF historial |
+| **RF-01** Carga/importación datos | Notas semanales, plantilla Excel curricular (import/export), Excel aula (descarga), legacy API | **SIAGIE fuera del alcance actual** (decisión de alcance) |
+| **RF-05** Variables socioeconómicas | API legacy bajo estudiante (código histórico) | **Retirado del flujo funcional de riesgo** — no insumo obligatorio |
+| **RF-06** Procesamiento ML | Laravel → Flask determinístico; comando batch | ML real / ensemble — ver RF-18 planificado |
+| **RF-11** Atención psicológica | Alertas + permisos psicólogo | Perfil integral lectura — **planificado** (RF-11 reformulado) |
+| **RF-13** Cierre alerta | Cierre vía intervención | Escalamiento RF-10; **sin** cierre por comunicación familiar |
+| **RF-14** Dashboard | KPIs básicos, filtros parciales | Dashboard **académico-institucional** ampliado — planificado |
+| **RF-16** Reportes | PDF dashboard; Excel aula `.xlsx` | Zona **reportes de riesgo** — planificado |
+| **RF-17** Auditoría | `activity_log` parcial | UI consulta logs |
+| **RF-20** Historial riesgo | Persistencia `indices_riesgo` | Timeline evolutivo por periodo — planificado |
 
 ### 2.3 Alcance pendiente o no confirmado
 
 | RF | Estado V1 |
 |----|-----------|
-| RF-03 Importación Fast Test | **Pendiente** — sin ruta API |
-| RF-04 Reportes conductuales | **Pendiente** — migración sin API |
-| RF-10 Derivación directivo | **Pendiente** — sin rutas API |
-| RF-12 Comunicación familiar | **Pendiente** — tabla sin API |
-| RF-18 Reentrenamiento ML | **Pendiente** — sin endpoint |
-| RF-19 Semáforo completitud | **Pendiente** — sin UI/lógica explícita |
+| RF-03 Importación Fast Test | **Retirado del alcance vigente** — la institución no utiliza Fast Test |
+| RF-04 Reportes conductuales | **Planificado** — migración sin API; parte del flujo de riesgo |
+| RF-10 Escalamiento directivo crítico | **Planificado** — solo casos críticos/extremos |
+| RF-12 Comunicación familiar | **Eliminado del alcance** — gestión fuera del sistema |
+| RF-18 Reentrenamiento ML | **Planificado** — requiere dataset histórico; no implementado |
+| RF-19 Semáforo completitud | **Planificado** — calidad de datos para riesgo |
+| RF-20 Historial evolutivo (UI/timeline) | **Planificado** — persistencia `indices_riesgo` confirmada |
 | Cypress / E2E | **No confirmado** — no existe en repo |
 | Despliegue productivo | **Pendiente** — solo Docker local |
 | Certificación ISO | **No aplica V1** — referencia académica únicamente |
@@ -98,8 +100,11 @@ SIDERAE-Blenkir V1 es un sistema web desacoplado (React + Laravel + MySQL + Flas
 ### 2.4 Fuera del alcance V1
 
 - Operación **multi-sede activa** (selector sedes, mapa consolidado todas las sedes).
-- **Random Forest / SVM / XGBoost** entrenados y reentrenamiento automático (RF-18).
-- **Importación SIAGIE** institucional automática.
+- **Importación SIAGIE** institucional — **fuera del alcance actual** (decisión de alcance; plantillas propias en su lugar).
+- **Fast Test** — retirado del alcance vigente.
+- **Variables socioeconómicas** como insumo obligatorio de riesgo — retiradas del flujo funcional.
+- **Comunicación formal con familia** dentro del sistema — eliminada del alcance.
+- **Random Forest / SVM / XGBoost** entrenados y reentrenamiento automático (RF-18 planificado, no implementado).
 - **Auditoría externa**, pentest, certificación ISO/SGSI.
 - **Cypress** obligatorio como gate de cierre.
 - Eliminación de estudiantes (política README: no eliminar).
@@ -117,8 +122,8 @@ SIDERAE-Blenkir V1 es un sistema web desacoplado (React + Laravel + MySQL + Flas
 | **ML** | Machine Learning — en V1: servicio Flask **determinístico/prototipo** |
 | **API** | Interfaz REST Laravel (`/api/*`) |
 | **RBAC** | Control de acceso basado en roles (Spatie Permission) |
-| **VSE** | Variables socioeconómicas del estudiante |
-| **SIAGIE** | Sistema de información académico institucional peruano — importación **pendiente** en V1 |
+| **VSE** | Variables socioeconómicas — **retiradas del flujo funcional de riesgo**; API legacy puede existir |
+| **SIAGIE** | Sistema de información académico institucional peruano — **fuera del alcance actual** |
 | **ISO** | Normas de referencia académica (25010, 27000, 9001) — **sin certificación** |
 | **V1** | Versión prototipo académica actual del repositorio |
 | **Chilca** | Sede operativa única V1 |
@@ -237,8 +242,8 @@ Basado en [`docs/seguridad-roles-permisos.md`](../seguridad-roles-permisos.md).
 | **administrador** | Configuración total del prototipo | Los 23 permisos | Gestión usuarios, malla, curricular, riesgo | No equivale a superusuario producción hardening |
 | **docente** | Registro académico y alertas de su ámbito | Estudiantes, notas/asistencia curricular, alertas, intervenciones, lectura malla | Flujo curricular Chilca | Sin gestión usuarios ni malla escritura completa |
 | **coordinador_academico** | Configuración curricular y riesgo | Malla, asignaciones, calendario, Excel aula, procesar riesgo | Operación Chilca | Sin gestión usuarios |
-| **psicologo_tutor** | Seguimiento alertas e intervenciones | Alertas, intervenciones, lectura académica/asistencia | Solo módulo alertas visible | Sin RF-11 perfil integrado completo |
-| **directivo** | Visión consolidada riesgo | Dashboard, alertas, lectura malla/notas/asistencia | Dashboard subset; excepción UI notas semanales | Sin mapa multi-sede REQ-14.2 |
+| **psicologo_tutor** | Seguimiento alertas e intervenciones; perfil integral lectura (planificado RF-11) | Alertas, intervenciones | Perfil 360° lectura académica — **planificado** |
+| **directivo** | Visión consolidada; escalamiento casos críticos (planificado RF-10) | Dashboard, alertas, lectura malla/notas/asistencia | **No** actor inicial de todas las alertas; solo críticos/extremos |
 
 **Principio RN-05:** el backend valida permisos **antes** de procesar; el frontend solo oculta menú.
 
@@ -255,13 +260,13 @@ Estados derivados de [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.
 ### RF-01 — Carga e importación de datos académicos
 
 - **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** El prototipo V1 permite carga manual de notas semanales (UI + bulk API), registro curricular completo, **plantilla Excel curricular** (descarga + importación por curso/asignación) y **Excel por aula** (descarga multi-hoja). Existe API legacy de notas/asistencia por estudiante y lote **sin menú V1**. La importación masiva **SIAGIE** (.xlsx/.csv institucional global) **no está implementada**.
+- **Descripción actualizada:** El prototipo V1 cubre la importación académica mediante **registro manual curricular**, **plantilla Excel curricular propia** (descarga + importación por curso/asignación), **Excel por aula** (descarga multi-hoja) y API legacy de notas/asistencia por estudiante y lote **sin menú V1**. **SIAGIE no se implementará** en este alcance: no se cuenta con formato SIAGIE institucional real y el proyecto prioriza plantillas propias controladas.
 - **Actor(es):** Docente, Administrador, Coordinador académico
 - **Prioridad:** Alta
 - **Evidencia de implementación:** `/api/curricular/notas-semanales/*`, `GET/POST plantilla-excel` / `importar-excel`, `GET /excel-aula`, `PlantillaRegistroAuxiliarExcelService.php`, paneles curriculares en `App.jsx`
-- **Evidencia de prueba:** `DatosAcademicosTest`, `PlantillaRegistroAuxiliarExcelTest`, `CurricularApiTest`, `NotasSemanales*`, `ExcelAulaTest` (8 passed @ 512M)
-- **Brechas / pendientes:** SIAGIE pendiente; `ImportarDatosTest` planeado/no encontrado; Excel aula **solo descarga** (no import); suite OOM @ 128M
-- **Observaciones para versión futura:** Implementar pipeline SIAGIE con validación RN-08; no confundir plantilla curricular con SIAGIE ([`aula-notas-excel.md`](../aula-notas-excel.md) §3)
+- **Evidencia de prueba:** `DatosAcademicosTest`, `PlantillaRegistroAuxiliarExcelTest`, `CurricularApiTest`, `NotasSemanales*`, `ExcelAulaTest`
+- **Brechas / pendientes:** SIAGIE **fuera del alcance actual** (no pendiente obligatorio); Excel aula **solo descarga** (no import); suite OOM @ 128M
+- **Observaciones para versión futura:** SIAGIE permanece fuera de alcance por decisión institucional; no confundir plantilla curricular con SIAGIE ([`aula-notas-excel.md`](../aula-notas-excel.md) §3). Ver RF-21–RF-35 para módulo curricular oficial.
 
 ---
 
@@ -280,53 +285,53 @@ Estados derivados de [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.
 
 ### RF-03 — Importación de resultados del Fast Test
 
-- **Estado V1:** Pendiente
-- **Descripción actualizada:** Sin ruta API dedicada ni UI visible. Requerimiento definido en DRS v1; no implementado en V1.
-- **Actor(es):** Coordinador académico
-- **Prioridad:** Alta
+- **Estado V1:** **Retirado del alcance vigente**
+- **Descripción actualizada:** RF-03 se retira del alcance vigente porque la institución no cuenta con Fast Test como insumo operativo. El cálculo de riesgo se apoyará en notas, asistencia, reportes conductuales y variables institucionales disponibles. Se conserva como referencia histórica del DRS v1; **no** es requisito funcional futuro obligatorio.
+- **Actor(es):** — (no aplica en alcance vigente)
+- **Prioridad:** — (retirado)
 - **Evidencia de implementación:** —
 - **Evidencia de prueba:** —
-- **Brechas / pendientes:** Implementación completa RF-03; tests `FastTestImportTest` planeados/no encontrados
-- **Observaciones para versión futura:** Backlog post-V1; vincular a RF-19 semáforo
+- **Brechas / pendientes:** N/A — fuera de alcance
+- **Observaciones para versión futura:** No planificar implementación salvo cambio institucional de insumos
 
 ---
 
 ### RF-04 — Registro digital de reportes conductuales
 
-- **Estado V1:** Pendiente
-- **Descripción actualizada:** Existe migración/modelo `reportes_conductuales`; **sin rutas API** ni UI en V1.
-- **Actor(es):** Psicólogo / Tutor
+- **Estado V1:** **Planificado / Se implementará**
+- **Descripción actualizada:** Parte del flujo de riesgo. Debe permitir registrar reportes conductuales por estudiante con datos sugeridos: estudiante, fecha, tipo, gravedad, descripción, usuario registrador, estado. Actores: docente, psicólogo/tutor, coordinador académico; directivo con lectura en casos críticos. Debe relacionarse con riesgo, alertas y seguimiento. Existe migración/modelo `reportes_conductuales`; **sin rutas API** ni UI en V1.
+- **Actor(es):** Docente, Psicólogo / Tutor, Coordinador académico; Directivo (lectura crítica)
 - **Prioridad:** Alta
 - **Evidencia de implementación:** Migración BD únicamente
 - **Evidencia de prueba:** —
-- **Brechas / pendientes:** API, UI, tests conductuales
-- **Observaciones para versión futura:** Requerido para RN-02 completitud y RF-19
+- **Brechas / pendientes:** API, UI, tests conductuales; integración con RF-06 y RF-19
+- **Observaciones para versión futura:** Requerido para completitud del flujo de riesgo junto con RF-19
 
 ---
 
 ### RF-05 — Integración de variables socioeconómicas
 
-- **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** API anidada `GET/POST /api/estudiantes/{id}/variables-socioeconomicas` operativa. **Pestaña UI pausada** — `EstudiantesPanel` no expone VSE al perfil.
-- **Actor(es):** Administrador, Sistema
-- **Prioridad:** Alta
-- **Evidencia de implementación:** `VariableSocioeconomicaController`, rutas api.php
-- **Evidencia de prueba:** `DatosAcademicosTest` (API)
-- **Brechas / pendientes:** UI oculta; RN-02 completitud VSE no visible al docente
-- **Observaciones para versión futura:** Reactivar pestaña o documentar carga solo vía API/admin
+- **Estado V1:** **Retirado del flujo funcional de riesgo**
+- **Descripción actualizada:** RF-05 se retira del flujo funcional vigente. Las variables socioeconómicas no serán usadas como insumo obligatorio del cálculo de riesgo. El sistema podrá operar con datos académicos, asistencia, reportes conductuales y variables institucionales disponibles. La API legacy `GET/POST /api/estudiantes/{id}/variables-socioeconomicas` puede permanecer como código histórico/técnico; **no** debe presentarse como requisito funcional vigente ni dependencia del riesgo.
+- **Actor(es):** — (no actor principal en flujo de riesgo vigente)
+- **Prioridad:** — (retirado del flujo de riesgo)
+- **Evidencia de implementación:** `VariableSocioeconomicaController` (API legacy; UI pausada)
+- **Evidencia de prueba:** `DatosAcademicosTest` (API legacy)
+- **Brechas / pendientes:** N/A en flujo de riesgo — retirado por decisión de alcance
+- **Observaciones para versión futura:** No reactivar como insumo obligatorio de RF-06 salvo nueva decisión institucional
 
 ---
 
 ### RF-06 — Procesamiento multivariable e índice de riesgo
 
-- **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** Laravel invoca Flask vía `POST /api/estudiantes/{id}/procesar-riesgo` y `MlRiskService`. El servicio ML V1 es **determinístico** (fórmula ponderada), **no** ensemble Random Forest/SVM/XGBoost del DRS v1. Comando batch `DemoProcesarRiesgosCommand` disponible. **UI perfil riesgo en pausa** — sin botón procesar visible.
+- **Estado V1:** Implementado parcialmente (prototipo determinístico)
+- **Descripción actualizada:** **Estado actual:** Laravel invoca Flask vía `POST /api/estudiantes/{id}/procesar-riesgo` y `MlRiskService`. El servicio ML V1 es **determinístico** (fórmula o reglas ponderadas), **no** ensemble Random Forest/SVM/XGBoost entrenado. Comando batch `DemoProcesarRiesgosCommand` disponible. **UI perfil riesgo en pausa.** **Evolución planificada:** transición a ML real cuando exista dataset histórico suficiente (RF-18). Si no existen todas las variables (notas, asistencia, reportes conductuales, etc.), el cálculo debe operar con datos disponibles y advertir mediante RF-19 semáforo de completitud.
 - **Actor(es):** Sistema, Coordinador académico (permiso `procesar_riesgo`)
 - **Prioridad:** Alta
 - **Evidencia de implementación:** `RiesgoAcademicoService`, `ml-service/main.py`, `EstudiantePerfilRiesgo.jsx` (pausado)
-- **Evidencia de prueba:** `RiesgoTest`, `DemoProcesarRiesgosCommandTest` (no re-ejecutados Fase 5)
-- **Brechas / pendientes:** No RF/SVM/XGBoost; UI procesar ausente; RN-02 bloqueo semáforo no confirmado
-- **Observaciones para versión futura:** Sustituir prototipo determinístico por pipeline ML real (fuera V1)
+- **Evidencia de prueba:** `RiesgoTest`, `DemoProcesarRiesgosCommandTest`
+- **Brechas / pendientes:** No ML real entrenado; UI procesar ausente; RF-04 y RF-19 planificados; operación con datos parciales por definir
+- **Observaciones para versión futura:** RF-18 vincula evolución a ML real; no afirmar reentrenamiento implementado
 
 ---
 
@@ -369,68 +374,68 @@ Estados derivados de [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.
 
 ---
 
-### RF-10 — Decisión de derivación por el directivo
+### RF-10 — Escalamiento directivo de casos críticos
 
-- **Estado V1:** Pendiente
-- **Descripción actualizada:** Sin rutas API ni UI. RF-11 y cierre RF-13 completo dependen parcialmente de este flujo.
+- **Estado V1:** **Planificado / Se implementará**
+- **Descripción actualizada:** El directivo **no** es actor inicial de toda alerta. Solo interviene cuando el caso llega a nivel **crítico/extremo**. Escalamiento posible por: riesgo alto crítico, reincidencia, falta de respuesta, reporte conductual grave, alerta no resuelta. El directivo puede revisar, validar gravedad, disponer atención institucional o derivar a psicología/tutoría (RF-11). Sin rutas API ni UI en V1.
 - **Actor(es):** Directivo
 - **Prioridad:** Alta
 - **Evidencia de implementación:** —
 - **Evidencia de prueba:** —
-- **Brechas / pendientes:** Implementación completa RF-10
-- **Observaciones para versión futura:** Backlog prioritario para cierre alertas DRS
+- **Brechas / pendientes:** Implementación completa RF-10; integración con RF-13 estados escalada/derivada
+- **Observaciones para versión futura:** Prioritario para cierre de ciclo alertas en casos críticos
 
 ---
 
-### RF-11 — Atención psicológica preventiva con perfil integrado
+### RF-11 — Atención psicológica/tutorial con perfil integral
 
-- **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** Psicólogo accede a **Alertas** e intervenciones con permisos dedicados. **No** existe perfil estudiante integrado ni flujo derivación (RF-10).
+- **Estado V1:** Implementado parcialmente — **planificado perfil integral**
+- **Descripción actualizada:** **Estado actual:** Psicólogo accede a **Alertas** e intervenciones con permisos dedicados. **Alcance planificado:** el psicólogo/tutor podrá ver el **perfil completo del estudiante** en modo lectura: datos generales, notas, asistencia, historial de riesgo, alertas, intervenciones, reportes conductuales. **No** puede editar notas ni modificar configuración académica. **Sí** puede registrar intervenciones psicológicas/tutoriales y seguimiento. Puede recibir casos derivados o escalados según RF-10.
 - **Actor(es):** Psicólogo / Tutor
 - **Prioridad:** Media
 - **Evidencia de implementación:** Permisos psicólogo, `AlertasPanel`
 - **Evidencia de prueba:** `AlertaIntervencionTest` (parcial)
-- **Brechas / pendientes:** RF-10; perfil integrado REQ-11.x
-- **Observaciones para versión futura:** Módulo psicología con vista 360° estudiante
+- **Brechas / pendientes:** RF-10; perfil integral lectura académica; reportes conductuales RF-04
+- **Observaciones para versión futura:** Módulo psicología con vista 360° estudiante en lectura
 
 ---
 
 ### RF-12 — Comunicación formal y trazable con la familia
 
-- **Estado V1:** Pendiente
-- **Descripción actualizada:** Tabla `comunicaciones_familiares` en migraciones; **sin API** ni UI.
-- **Actor(es):** Docente, Directivo
-- **Prioridad:** Media
-- **Evidencia de implementación:** Esquema BD únicamente
+- **Estado V1:** **Eliminado del alcance / No se implementará**
+- **Descripción actualizada:** La comunicación con familias se gestionará **fuera de SIDERAE-Blenkir**. No habrá API, pantalla ni trazabilidad interna para comunicación familiar en este alcance. Tabla `comunicaciones_familiares` en migraciones es esquema histórico; **no** es requisito vigente ni dependencia de RF-13.
+- **Actor(es):** — (no aplica en alcance vigente)
+- **Prioridad:** — (eliminado)
+- **Evidencia de implementación:** Esquema BD histórico únicamente
 - **Evidencia de prueba:** —
-- **Brechas / pendientes:** RF-12 completo; prerrequisito cierre RF-13 según DRS v1
-- **Observaciones para versión futura:** —
+- **Brechas / pendientes:** N/A — fuera de alcance
+- **Observaciones para versión futura:** No planificar salvo cambio de alcance institucional
 
 ---
 
 ### RF-13 — Registro de acción tomada y cierre de alerta
 
 - **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** Cierre vía `POST /api/alertas/{id}/cerrar` tras intervención confirmada en tests. DRS v1 admite cierre también por derivación o comunicación familiar — **no implementados**.
+- **Descripción actualizada:** El cierre de alerta será **únicamente por intervención registrada**. **No** habrá cierre por comunicación familiar (RF-12 eliminado). **No** habrá cierre automático sin acción. Si existe derivación/escalamiento (RF-10), la alerta **no** se cierra solo por derivar; se cierra cuando se registre intervención y resultado. Estados sugeridos: pendiente, en atención, escalada/derivada, cerrada. Implementado parcialmente: cierre vía `POST /api/alertas/{id}/cerrar` tras intervención en tests.
 - **Actor(es):** Docente, Directivo, Psicólogo
 - **Prioridad:** Alta
 - **Evidencia de implementación:** Rutas alertas, `AlertasPanel`
 - **Evidencia de prueba:** `AlertaIntervencionTest`
-- **Brechas / pendientes:** RF-10, RF-12 como vías de cierre; RN-04 completa
-- **Observaciones para versión futura:** Ampliar reglas cierre alineadas a RN-04/REQ-13.1
+- **Brechas / pendientes:** RF-10 escalamiento; estados intermedios completos; RN-04 ampliada
+- **Observaciones para versión futura:** Ampliar reglas cierre alineadas a RN-04 sin vía familiar
 
 ---
 
-### RF-14 — Panel de visualización (dashboard) de riesgo
+### RF-14 — Dashboard académico e institucional
 
 - **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** Dashboard con KPIs de riesgo y filtros básicos (`GET /api/dashboard`). **No** equivale a REQ-14.1–14.5 completos: sin mapa multi-sede directivo, export PNG, % alertas activas/cerradas.
-- **Actor(es):** Docente, Directivo
+- **Descripción actualizada:** Dashboard **general académico-institucional** (el riesgo es una sección, no todo el dashboard). Debe mostrar indicadores de: estudiantes, notas/resumen académico, asistencia, alertas, riesgo académico, reportes conductuales (cuando RF-04 exista), avance curricular por periodo. **Estado actual:** KPIs de riesgo y filtros básicos (`GET /api/dashboard`). Sede **Chilca**; sin multi-sede V1. **No** equivale a vista multi-sede directivo, export PNG ni % alertas REQ-14.5 completos.
+- **Actor(es):** Docente, Directivo, Coordinador académico
 - **Prioridad:** Alta
 - **Evidencia de implementación:** `DashboardController`, `DashboardPanel`
 - **Evidencia de prueba:** `DashboardTest`
-- **Brechas / pendientes:** Multi-sede fuera V1; REQ-14.4 PNG; REQ-14.5 % alertas
-- **Observaciones para versión futura:** Dashboard por sede cuando multi-sede esté activo
+- **Brechas / pendientes:** Indicadores académicos ampliados; reportes conductuales; multi-sede fuera V1
+- **Observaciones para versión futura:** Evolucionar dashboard hacia visión académica-institucional integral
 
 ---
 
@@ -447,68 +452,242 @@ Estados derivados de [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.
 
 ---
 
-### RF-16 — Exportación de reportes en PDF
+### RF-16 — Generación de reportes de riesgo académico
 
-- **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** Export PDF del **dashboard** vía `GET /api/dashboard/export` (DomPDF). **Excel por aula** (`GET /excel-aula`) genera `.xlsx` — **distinto** de PDF REQ-16 (reporte riesgo individual/aula). No confundir formatos.
-- **Actor(es):** Docente, Directivo
+- **Estado V1:** Implementado parcialmente — **planificado zona de reportes**
+- **Descripción actualizada:** Zona específica de **reportes de riesgo** para informar riesgos académicos. Reportes posibles: por estudiante, aula/sección, grado, periodo/bimestre. Deben incluir según disponibilidad: riesgo actual, historial de riesgo, notas, asistencia, alertas, intervenciones, reportes conductuales. **Estado actual:** export PDF del **dashboard** vía `GET /api/dashboard/export` (DomPDF) — antecedente parcial, **no** cumplimiento completo. Excel por aula (`GET /excel-aula`) es export curricular, distinto de reportes de riesgo.
+- **Actor(es):** Docente, Directivo, Coordinador académico
 - **Prioridad:** Media
-- **Evidencia de implementación:** `DashboardController` export, `PlantillaRegistroAuxiliarExcelService` (Excel)
-- **Evidencia de prueba:** `DashboardTest`, `ExcelAulaTest`, `ActivityLogTest` (registro export)
-- **Brechas / pendientes:** PDF individual/aula REQ-16.x; logo institucional completo
-- **Observaciones para versión futura:** Ver [`aula-notas-excel.md`](../aula-notas-excel.md) §11
+- **Evidencia de implementación:** `DashboardController` export PDF; `PlantillaRegistroAuxiliarExcelService` (Excel curricular)
+- **Evidencia de prueba:** `DashboardTest`, `ExcelAulaTest`, `ActivityLogTest`
+- **Brechas / pendientes:** Zona reportes de riesgo; reportes por estudiante/aula/grado/periodo
+- **Observaciones para versión futura:** Ver [`aula-notas-excel.md`](../aula-notas-excel.md) §11 — no confundir Excel curricular con reportes de riesgo
 
 ---
 
 ### RF-17 — Registro de auditoría de acciones
 
 - **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** `spatie/laravel-activitylog` registra acciones en controladores críticos (estudiantes, riesgo, alertas, export PDF, curricular parcial). **Sin UI** de consulta de logs.
-- **Actor(es):** Sistema
+- **Descripción actualizada:** `spatie/laravel-activitylog` registra acciones en controladores críticos. **No** existe porque «ISO lo exige directamente»; se mantiene porque aporta trazabilidad, control de acciones y evidencia para **alineación progresiva** con ISO/IEC 27000 e ISO 9001. **Sin certificación ISO** ni auditoría externa. **Sin UI** de consulta de logs.
+- **Actor(es):** Sistema, Administrador (consulta planificada)
 - **Prioridad:** Alta
 - **Evidencia de implementación:** Activitylog en controladores; tabla `activity_log`
 - **Evidencia de prueba:** `ActivityLogTest` (parcial)
-- **Brechas / pendientes:** Cobertura REQ-17.x; retención 5 años no verificada operativamente; RN-07 completa
-- **Observaciones para versión futura:** UI auditoría admin; extender logging
+- **Brechas / pendientes:** Cobertura ampliada; UI auditoría admin; retención operativa no verificada
+- **Observaciones para versión futura:** UI auditoría admin; extender logging como evidencia parcial de calidad
 
 ---
 
 ### RF-18 — Reentrenamiento del modelo ML
 
-- **Estado V1:** Pendiente
-- **Descripción actualizada:** Sin endpoints en Laravel ni Flask para reentrenamiento. RN-06 no aplicable en V1. Prototipo ML determinístico no entrenable.
+- **Estado V1:** **Planificado / Se implementará cuando exista dataset suficiente**
+- **Descripción actualizada:** RF-18 se mantiene como requisito planificado para la evolución hacia un **modelo ML real**. No forma parte del estado implementado actual hasta contar con dataset histórico y pipeline de entrenamiento. Depende de: dataset histórico, variable objetivo definida, entrenamiento, métricas, versión de modelo, activación de modelo, trazabilidad del reentrenamiento. Vinculado a ML real, **no** al modelo determinístico actual.
 - **Actor(es):** Administrador
 - **Prioridad:** Media
 - **Evidencia de implementación:** —
 - **Evidencia de prueba:** —
-- **Brechas / pendientes:** RF-18 completo; métricas accuracy/precision/recall/F1
-- **Observaciones para versión futura:** Fuera alcance V1; requiere pipeline ML real
+- **Brechas / pendientes:** Pipeline ML real completo; endpoints Laravel/Flask; métricas accuracy/precision/recall/F1
+- **Observaciones para versión futura:** No afirmar implementado; requiere evolución desde RF-06 determinístico
 
 ---
 
 ### RF-19 — Semáforo de completitud de datos
 
-- **Estado V1:** Pendiente
-- **Descripción actualizada:** Sin componente UI ni lógica explícita de semáforo verde/amarillo/rojo. Bloqueo de procesamiento ML por datos faltantes (REQ-19.3) **no confirmado**.
-- **Actor(es):** Docente, Administrador
+- **Estado V1:** **Planificado / Se implementará**
+- **Descripción actualizada:** Indica si existen datos suficientes para calcular o interpretar el riesgo. Estados sugeridos: **verde** (datos suficientes), **amarillo** (datos parciales; riesgo calculable con advertencia), **rojo** (datos insuficientes; no se recomienda calcular o interpretar riesgo). Revisa: notas, asistencia, reportes conductuales, historial de riesgo, intervenciones cuando aplique. **No** es exigencia directa ISO, pero apoya calidad de datos, confiabilidad y trazabilidad (alineación progresiva). Sin componente UI ni lógica explícita en V1.
+- **Actor(es):** Docente, Administrador, Coordinador académico
 - **Prioridad:** Media
 - **Evidencia de implementación:** —
 - **Evidencia de prueba:** —
-- **Brechas / pendientes:** RF-19 completo; RN-02/RNF-10 bloqueo
-- **Observaciones para versión futura:** Dependiente de RF-03, RF-04, RF-05 UI
+- **Brechas / pendientes:** RF-19 completo; integración con RF-06 operación con datos parciales
+- **Observaciones para versión futura:** Dependiente de RF-04 reportes conductuales para completitud plena
 
 ---
 
 ### RF-20 — Historial de riesgo por estudiante
 
-- **Estado V1:** Implementado parcialmente
-- **Descripción actualizada:** Persistencia en tabla `indices_riesgo`. Perfil riesgo **UI pausado** — sin timeline ni export PDF de historial.
-- **Actor(es):** Docente, Directivo
+- **Estado V1:** Implementado parcialmente — **planificado historial evolutivo**
+- **Descripción actualizada:** **No** significa solo guardar el último índice. Debe mostrar **evolución por periodo/bimestre** y permitir ver si el estudiante mejora, empeora o se mantiene. Relaciona: índice de riesgo, nivel de riesgo, notas, asistencia, reportes conductuales, alertas, intervenciones. Puede alimentar reportes RF-16. **Estado actual:** persistencia en tabla `indices_riesgo`; perfil riesgo **UI pausado** — sin timeline ni export.
+- **Actor(es):** Docente, Directivo, Psicólogo / Tutor (lectura)
 - **Prioridad:** Media
 - **Evidencia de implementación:** Migración `indices_riesgo`, `ResumenAcademicoTest`, `ActivoUniqueKeyHistorialTest`
 - **Evidencia de prueba:** `RiesgoTest` (persistencia)
-- **Brechas / pendientes:** Timeline UI; export PDF historial REQ-20
-- **Observaciones para versión futura:** Reactivar `EstudiantePerfilRiesgo.jsx`
+- **Brechas / pendientes:** Timeline evolutivo UI; correlación con RF-04 y RF-16
+- **Observaciones para versión futura:** Reactivar `EstudiantePerfilRiesgo.jsx` con vista evolutiva
+
+---
+
+### 8.21 Requerimientos funcionales nuevos del módulo curricular y académico
+
+Los requisitos RF-21 a RF-35 formalizan el módulo curricular que antes estaba implícito en RF-01. **No** renumeran RF-01 a RF-20. Estados derivados de código y [`matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md).
+
+| RF | Nombre | Estado V1 |
+|----|--------|-----------|
+| RF-21 | Gestión de periodos académicos | Confirmado / implementado |
+| RF-22 | Gestión de malla curricular | Confirmado / implementado |
+| RF-23 | Gestión de competencias y capacidades | Confirmado / implementado |
+| RF-24 | Gestión de criterios o temas semanales | Confirmado / implementado |
+| RF-25 | Gestión de componentes de calificación | Confirmado / implementado |
+| RF-26 | Configuración bimestral | Confirmado / implementado |
+| RF-27 | Gestión de secciones y aulas | Confirmado / implementado |
+| RF-28 | Asignación docente por aula y curso | Confirmado / implementado |
+| RF-29 | Registro de notas semanales curriculares | Confirmado / implementado |
+| RF-30 | Consulta institucional de notas | Confirmado / parcial según rol |
+| RF-31 | Registro de asistencia curricular diaria | Confirmado / implementado |
+| RF-32 | Plantilla Excel curricular: descarga e importación | Confirmado / implementado |
+| RF-33 | Excel por aula: descarga multi-hoja | Confirmado / implementado |
+| RF-34 | Evaluación bimestral | Confirmado / implementado |
+| RF-35 | Resumen académico curricular del estudiante | Confirmado / parcial según UI |
+
+#### RF-21 — Gestión de periodos académicos
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** CRUD de periodos académicos (año escolar, bimestres activos).
+- **Actor(es):** Administrador, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/periodos-academicos/*`, `PeriodosAcademicosPanel`
+- **Evidencia de prueba:** `PeriodoAcademicoTest`, `CurricularApiTest`
+- **Observaciones:** Base temporal para notas, asistencia y evaluación bimestral.
+
+#### RF-22 — Gestión de malla curricular
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Administración de malla, áreas, cursos y orden curricular por nivel/grado.
+- **Actor(es):** Administrador, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/malla/*`, `MallaCurricularPanel`
+- **Evidencia de prueba:** `MallaCurricularTest`
+- **Observaciones:** Sustituye dependencia implícita de SIAGIE para estructura curricular.
+
+#### RF-23 — Gestión de competencias y capacidades
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Catálogo de competencias y capacidades asociadas a cursos de la malla.
+- **Actor(es):** Administrador, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/competencias/*`, `/api/curricular/capacidades/*`
+- **Evidencia de prueba:** Tests curriculares en `Feature/Curricular/`
+- **Observaciones:** Alimenta registro de notas semanales por competencia.
+
+#### RF-24 — Gestión de criterios o temas semanales
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Definición de criterios/temas semanales por curso y periodo.
+- **Actor(es):** Docente, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/criterios-semanales/*`, `CriteriosSemanalesPanel`
+- **Evidencia de prueba:** Tests curriculares
+- **Observaciones:** Vinculado a RF-29 y plantilla Excel RF-32.
+
+#### RF-25 — Gestión de componentes de calificación
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Componentes de evaluación (capacidades, pesos) por curso/bimestre.
+- **Actor(es):** Administrador, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/componentes-calificacion/*`, `ComponentesCalificacionPanel`
+- **Evidencia de prueba:** Tests curriculares
+- **Observaciones:** Base para evaluación bimestral RF-34.
+
+#### RF-26 — Configuración bimestral
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Configuración de bimestres activos, fechas y parámetros de evaluación.
+- **Actor(es):** Administrador, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/configuracion-bimestral/*`, `ConfiguracionBimestralPanel`
+- **Evidencia de prueba:** Tests curriculares
+- **Observaciones:** Condiciona RF-29, RF-31, RF-34.
+
+#### RF-27 — Gestión de secciones y aulas
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Creación y administración de secciones/aulas por periodo y nivel.
+- **Actor(es):** Administrador, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/secciones-aulas/*`, `SeccionesAulasPanel`
+- **Evidencia de prueba:** `SeccionAulaTest`
+- **Observaciones:** Requerido para Excel por aula RF-33.
+
+#### RF-28 — Asignación docente por aula y curso
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Asignación de docentes a aula–curso–periodo para registro de notas y asistencia.
+- **Actor(es):** Administrador, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/asignaciones-docente/*`, `AsignacionDocentePanel`
+- **Evidencia de prueba:** `AsignacionDocenteTest`
+- **Observaciones:** Restringe registro docente en RF-29 y RF-31.
+
+#### RF-29 — Registro de notas semanales curriculares
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Registro semanal de notas por competencia/capacidad en UI y bulk API.
+- **Actor(es):** Docente
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/notas-semanales/*`, `RegistroNotasSemanalesPanel`
+- **Evidencia de prueba:** `NotasSemanalesTest`, `NotasSemanalesBulkTest`
+- **Observaciones:** Insumo principal de RF-06 y RF-01.
+
+#### RF-30 — Consulta institucional de notas
+
+- **Estado V1:** Confirmado / parcial según rol
+- **Descripción:** Consulta de notas por rol (docente asignado, coordinador, directivo lectura, admin).
+- **Actor(es):** Docente, Coordinador académico, Directivo, Administrador
+- **Prioridad:** Alta
+- **Evidencia de implementación:** Endpoints GET curriculares, paneles según permisos
+- **Evidencia de prueba:** Tests 403 por rol en curricular
+- **Observaciones:** Directivo accede por excepción UI en notas semanales.
+
+#### RF-31 — Registro de asistencia curricular diaria
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Registro diario de asistencia por aula/curso/fecha en flujo curricular.
+- **Actor(es):** Docente
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `/api/curricular/asistencias-diarias/*`, `AsistenciaPanel`
+- **Evidencia de prueba:** `AsistenciaDiariaTest`
+- **Observaciones:** Insumo de RF-06 y RF-19.
+
+#### RF-32 — Plantilla Excel curricular: descarga e importación
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Plantilla Excel **propia del sistema** por curso/asignación: descarga vacía o con datos, importación con validación. **Sustituye SIAGIE** en alcance actual.
+- **Actor(es):** Docente, Coordinador académico
+- **Prioridad:** Alta
+- **Evidencia de implementación:** `GET/POST plantilla-excel` / `importar-excel`, `PlantillaRegistroAuxiliarExcelService`
+- **Evidencia de prueba:** `PlantillaRegistroAuxiliarExcelTest`
+- **Observaciones:** Ver [`aula-notas-excel.md`](../aula-notas-excel.md).
+
+#### RF-33 — Excel por aula: descarga multi-hoja
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Descarga Excel multi-hoja por aula (hoja ESTUDIANTES + una hoja por curso activo). **Solo descarga**; sin importación aula en V1.
+- **Actor(es):** Administrador, Coordinador académico (permiso `descargar_excel_aula`)
+- **Prioridad:** Media
+- **Evidencia de implementación:** `GET /api/curricular/excel-aula`, `ExcelPorAulaPanel`
+- **Evidencia de prueba:** `ExcelAulaTest`
+- **Observaciones:** Registro auxiliar institucional; distinto de SIAGIE.
+
+#### RF-34 — Evaluación bimestral
+
+- **Estado V1:** Confirmado / implementado
+- **Descripción:** Cálculo y registro de evaluación bimestral a partir de notas semanales y componentes.
+- **Actor(es):** Docente, Sistema
+- **Prioridad:** Alta
+- **Evidencia de implementación:** Endpoints evaluación bimestral curricular
+- **Evidencia de prueba:** Tests curriculares de bimestre
+- **Observaciones:** Alimenta resumen académico RF-35.
+
+#### RF-35 — Resumen académico curricular del estudiante
+
+- **Estado V1:** Confirmado / parcial según UI
+- **Descripción:** Vista consolidada de desempeño académico del estudiante por periodo/bimestre.
+- **Actor(es):** Docente, Coordinador académico, Directivo (lectura)
+- **Prioridad:** Media
+- **Evidencia de implementación:** `ResumenAcademicoTest`, endpoints resumen
+- **Evidencia de prueba:** `ResumenAcademicoTest`
+- **Observaciones:** Base para RF-14 dashboard académico e insumo de RF-06.
 
 ---
 
@@ -580,7 +759,7 @@ Basado en DRS v1 (RNF-01–RNF-10), [`docs/calidad/matriz-iso-25010.md`](../cali
 | Aspecto | Descripción | Evidencia | Estado | Brecha |
 |---------|-------------|---------|--------|--------|
 | Chrome / Firefox | Navegadores modernos | Desarrollo Vite | Evidencia parcial | Sin matriz compatibilidad ejecutada |
-| Integridad datos (RNF-10) | Validación pre-ML | Validaciones API parciales | Evidencia parcial | RF-19 semáforo pendiente |
+| Integridad datos (RNF-10) | Validación pre-ML | Validaciones API parciales | Evidencia parcial | RF-19 semáforo **planificado** |
 
 ---
 
@@ -591,18 +770,19 @@ Transcripción/resumen DRS v1 con **estado V1** ([`contexto-drs-requerimientos.m
 | ID | Regla | Estado V1 |
 |----|-------|-----------|
 | **RN-01** | Umbrales Alto ≥ 0,70; Medio 0,40–0,69; Bajo &lt; 0,40; configurables por admin | Umbrales en código **confirmados**; configuración admin **pendiente** |
-| **RN-02** | Completitud mínima (asistencia, notas bimestrales, VSE) para ML; semáforo bloquea | **Parcial** — VSE API sí, UI no; semáforo RF-19 pendiente |
+| **RN-02** | Completitud mínima (asistencia, notas, reportes conductuales) para ML; semáforo RF-19 | **Parcial** — notas/asistencia confirmadas; reportes conductuales RF-04 planificados; semáforo RF-19 planificado; **VSE retiradas del flujo** |
 | **RN-03** | Alerta si índice ≥ Alto **o** ascenso Bajo→Medio dos bimestres | Umbral Alto **confirmado**; segundo disparador **pendiente verificar** |
-| **RN-04** | Cierre alerta con intervención **o** derivación; activity_log | Intervención/cierre **confirmado**; derivación **pendiente** |
+| **RN-04** | Cierre alerta **solo** con intervención registrada; activity_log | Intervención/cierre **confirmado**; escalamiento RF-10 **planificado**; **sin** cierre por comunicación familiar |
 | **RN-05** | Segregación acceso por rol; backend valida Spatie | **Confirmado** |
-| **RN-06** | Reentrenamiento ML inicio año escolar; solo admin | **Pendiente** (RF-18) |
-| **RN-07** | Trazabilidad acciones en activity_log; no eliminar logs | **Parcial** (RF-17) |
-| **RN-08** | Import .xlsx/.csv con validación y mensajes | Plantilla curricular **confirmada**; SIAGIE **pendiente** |
+| **RN-06** | Reentrenamiento ML inicio año escolar; solo admin | **Planificado** (RF-18) — requiere ML real y dataset |
+| **RN-07** | Trazabilidad acciones en activity_log; no eliminar logs | **Parcial** (RF-17) — apoya alineación progresiva, no certificación ISO |
+| **RN-08** | Import .xlsx/.csv con validación y mensajes | Plantilla curricular **confirmada**; SIAGIE **fuera del alcance actual** |
 
 **Reglas operativas V1 adicionales:**
 
 - Sede operativa **Chilca**; campo `sede` conservado; **no** multi-sede activa.
-- Excel aula = **descarga**; import curricular = **plantilla por curso** — no SIAGIE.
+- Excel aula = **descarga**; import curricular = **plantilla por curso** — **no SIAGIE**.
+- RF vigentes **RF-01 a RF-35**; RF-03, RF-05 (flujo riesgo), RF-12 **retirados** del alcance vigente.
 - Riesgo académico **no sustituye** juicio pedagógico (prototipo académico).
 - ML V1 = **determinístico**; no ensemble DRS v1.
 - **No eliminar estudiantes** (política README).
@@ -619,7 +799,7 @@ Transcripción/resumen DRS v1 con **estado V1** ([`contexto-drs-requerimientos.m
 | MySQL | SQL | Confirmado | Puerto host 3307 |
 | ML Flask `/predict` | HTTP interno | Confirmado | Determinístico; puerto 5000 |
 | Archivos Excel curriculares | Upload/download | Confirmado | Plantilla import + Excel aula export |
-| SIAGIE automático | Import institucional | **Pendiente** | RF-01 brecha |
+| SIAGIE automático | Import institucional | **Fuera del alcance actual** | RF-01 — plantillas propias en su lugar |
 | Servicios externos (email prod, etc.) | — | No confirmado | Breeze email en dev |
 | WebSockets dashboard | — | Fuera V1 | Recarga manual/polling según DRS v1 |
 
@@ -641,12 +821,12 @@ Descripción basada en migraciones y modelos detectados — **sin diagrama ER fo
 | **asignaciones_docente** | Docente–aula–curso | Confirmado |
 | **notas_semanales** | Registro semanal por competencia | Confirmado |
 | **asistencias_diarias / curriculares** | Asistencia por fecha | Confirmado |
-| **variables_socioeconomicas** | VSE por estudiante | API confirmada; UI pausada |
+| **variables_socioeconomicas** | VSE por estudiante | API legacy; **retiradas del flujo de riesgo** |
 | **indices_riesgo** | Historial scores ML | Confirmado |
 | **alertas** | Alertas tempranas | Confirmado |
 | **intervenciones** | Acciones docentes sobre alertas | Confirmado |
-| **reportes_conductuales** | Esquema BD | Pendiente API |
-| **comunicaciones_familiares** | Esquema BD | Pendiente API |
+| **reportes_conductuales** | Esquema BD | RF-04 **planificado** |
+| **comunicaciones_familiares** | Esquema BD histórico | **Fuera del alcance** (RF-12 eliminado) |
 | **activity_log** | Auditoría Spatie | Parcial |
 
 ---
@@ -658,7 +838,7 @@ Consolidado de [`docs/seguridad-roles-permisos.md`](../seguridad-roles-permisos.
 | Elemento | Detalle V1 |
 |----------|------------|
 | Autenticación | Laravel Sanctum + Breeze; CSRF cookie SPA |
-| Autorización | Spatie Permission — **5 roles**, **23 permisos** |
+| Autorización | Spatie Permission — **5 roles**, **23 permisos implementados** (+ 8 sugeridos/planificados — ver [`seguridad-roles-permisos.md`](../seguridad-roles-permisos.md) §16) |
 | Middleware | `auth:sanctum` + `permission:*` en `api.php` |
 | Pruebas seguridad | 401/403 en subset Feature tests — **parciales** |
 | Registro público | `POST /register` guest — **brecha producción**; OK prototipo local |
@@ -708,13 +888,16 @@ Referencia académica **sin certificación** ([`docs/calidad/alineacion-iso.md`]
 | Limitación | Detalle |
 |------------|---------|
 | Sede única operativa | **Chilca** — Auquimarca histórico/local en BD |
-| SIAGIE | **Pendiente** — no confundir con plantilla Excel |
-| ML | **Determinístico** — sin RF/SVM/XGBoost |
-| Reentrenamiento | **Pendiente** — RF-18 |
+| SIAGIE | **Fuera del alcance actual** — plantillas Excel propias |
+| Fast Test | **Retirado del alcance vigente** |
+| VSE en riesgo | **Retiradas del flujo funcional** |
+| Comunicación familiar | **Eliminada del alcance** |
+| ML | **Determinístico** — sin RF/SVM/XGBoost entrenado |
+| Reentrenamiento | **Planificado** — RF-18; no implementado |
 | Cypress | **Ausente** |
 | Suite PHPUnit | OOM @ **128M**; Excel @ **512M** |
 | Seed oficial | **Pendiente** — conteos locales no oficiales |
-| VSE | UI **pausada** |
+| VSE | **Retiradas del flujo de riesgo**; API legacy puede existir |
 | UI riesgo | Perfil **pausado**; sin botón procesar |
 | Activity log | **Parcial** |
 | Register guest | **Brecha** pre-producción |
@@ -732,9 +915,9 @@ Basado en [`docs/calidad/no-conformidades-y-mejora.md`](../calidad/no-conformida
 | ID | Brecha | RF/RNF | Prioridad | Acción recomendada |
 |----|--------|--------|-----------|-------------------|
 | NC-01 | DRS v1 PDF vs código | Todos | Alta | **Este documento v2** + revisión humana |
-| NC-02 | SIAGIE pendiente | RF-01 | Alta | Backlog; documentar diferencia Excel |
-| NC-03 | ML determinístico vs ensemble | RF-06, RF-18 | Alta | DRS futuro; pipeline ML real |
-| NC-04 | Reentrenamiento ML | RF-18 | Media | Post-V1 |
+| NC-02 | SIAGIE **fuera del alcance actual** | RF-01 | Alta | Decisión documentada; plantillas propias RF-32/RF-33 | Documentación | Documentada v2.1 |
+| NC-03 | ML **determinístico** vs ensemble DRS v1 | RF-06, RF-18 | Alta | RF-06 parcial; RF-18 planificado ML real | Equipo ML / doc | Documentada v2.1 |
+| NC-04 | RF-18 reentrenamiento ML **planificado** | RF-18 | Media | Implementar cuando exista dataset histórico | Equipo ML | Planificada |
 | NC-05 | Sin Cypress | RNF-04/05 | Media | Smoke manual; Cypress opcional |
 | NC-06 | Suite OOM 128M | RF-01, RF-16 | Media | `memory_limit=512M` en CI |
 | NC-07 | Seed oficial | RF-01 | Media | Entorno referencia documentado |
@@ -742,8 +925,11 @@ Basado en [`docs/calidad/no-conformidades-y-mejora.md`](../calidad/no-conformida
 | NC-09 | Register público | RF-15 | Alta (prod) | Deshabilitar pre-producción |
 | NC-10 | Multi-sede no activa | RF-14 | Media | Documentado — Chilca V1 |
 | NC-11 | UI riesgo pausada | RF-06, RF-20 | Media | Reactivar UI o comando técnico |
-| NC-12 | VSE pausada | RF-05 | Media | Reactivar pestaña |
-| NC-13 | RF-10, RF-12, RF-19 | RF-10–13, RF-19 | Alta | Backlog explícito |
+| NC-12 | **VSE retiradas** del flujo de riesgo | RF-05 | Media | Documentado v2.1; no insumo obligatorio RF-06 | Producto | Documentada v2.1 |
+| NC-13 | RF-04, RF-10, RF-19 **planificados**; RF-03/RF-12 **retirados** | RF-04–13, RF-19 | Alta | Backlog explícito en DRS v2.1 §2.3 | Documentación | Documentada v2.1 |
+| NC-16 | RF-16 reportes de riesgo **planificados** | RF-16 | Media | Zona reportes por estudiante/aula/grado | Backend + doc | Abierta |
+| NC-17 | RF-20 historial evolutivo **planificado** | RF-20 | Media | Timeline por periodo/bimestre | Frontend | Abierta |
+| NC-18 | RF-21–RF-35 curriculares documentados | RF-21–35 | Media | Matriz RF–Sprint–Test actualizada | Documentación | Documentada v2.1 |
 | NC-14 | 401/403 incompletos | RF-15 | Media | Ampliar Feature tests |
 | NC-15 | Sin auditoría ISO | RNF | No aplica V1 | Declarar en sustentación |
 
@@ -762,8 +948,9 @@ Criterios **honestos** para cierre académico del prototipo (no producción):
 7. **Dashboard** muestra KPIs subset RF-14; export PDF dashboard disponible.
 8. **Riesgo académico** procesable vía API/comando; ML determinístico documentado.
 9. **Pruebas documentadas** con limitaciones conocidas (OOM, sin Cypress, BD no seed oficial).
-10. **Documentación consolidada** Fases 1–7 incluyendo este DRS v2, matrices ISO progresivas y registro NC.
-11. **No se exige** certificación ISO, SIAGIE, ensemble ML, multi-sede ni suite PHPUnit 100% verde @ 128M.
+10. **Documentación consolidada** Fases 1–9 incluyendo este DRS v2.1, matrices ISO progresivas y registro NC.
+11. **No se exige** certificación ISO, SIAGIE, Fast Test, VSE en riesgo, comunicación familiar, ensemble ML, multi-sede ni suite PHPUnit 100% verde @ 128M.
+12. **RF vigentes RF-01 a RF-35**; módulo curricular RF-21–RF-35 confirmado en código según matriz.
 
 ---
 
@@ -785,4 +972,4 @@ Enlaces a documentación de soporte — **no se reproduce el contenido completo*
 
 ---
 
-*Documento generado en Fase 7 del plan de actualización documental SIDERAE-Blenkir. Fecha de referencia técnica: 2026-06-09.*
+*Documento actualizado en Fase 9 — reestructuración RF V2.1. Fecha de referencia técnica: 2026-06-09.*

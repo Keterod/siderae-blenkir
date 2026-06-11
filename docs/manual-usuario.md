@@ -119,11 +119,11 @@ Resumen basado en [`docs/seguridad-roles-permisos.md`](seguridad-roles-permisos.
 
 | Rol | Qué puede hacer en V1 (menú visible) | Qué no tiene o no debe usar | Observaciones |
 |-----|--------------------------------------|-----------------------------|---------------|
-| **Administrador** | Todos los módulos del menú: dashboard, estudiantes, curricular completo, alertas, usuarios, Excel por aula | — | Acceso total a los 23 permisos del prototipo |
+| **Administrador** | Todos los módulos del menú: dashboard académico-institucional, estudiantes, curricular completo (RF-21–RF-35), alertas, usuarios, Excel por aula | — | Acceso total a los **23 permisos implementados** (+ 8 sugeridos/planificados — ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) §16) |
 | **Docente** | Dashboard, estudiantes, malla (consulta), notas semanales, asistencia, alertas e intervenciones | Configuración curricular avanzada, usuarios, Excel por aula, procesar riesgo desde pantalla | Puede registrar notas y asistencia de sus aulas asignadas |
 | **Coordinador académico** | Dashboard, estudiantes, configuración curricular, asignaciones, notas (**consulta institucional**), asistencia, Excel por aula, alertas (solo lectura de intervención) | Usuarios; registrar intervenciones/cierre de alertas | Puede **procesar riesgo** vía sistema backend; **no hay botón visible** en perfil de estudiante (§15) |
-| **Psicólogo / tutor** | Alertas (ver e intervenir), asistencia (**consulta**) | Dashboard, estudiantes, notas, configuración curricular | Perfil orientado a seguimiento de alertas |
-| **Directivo** | Dashboard, alertas e intervenciones, malla (consulta), notas (**solo lectura institucional**), asistencia (consulta) | Estudiantes, configuración, usuarios, Excel por aula | Ve «Notas semanales» sin permiso de registro — solo visualización |
+| **Psicólogo / tutor** | Alertas (ver e intervenir), asistencia (**consulta**) | Dashboard, estudiantes, notas, configuración curricular | **Planificado RF-11:** perfil integral del estudiante en **modo lectura** (notas, asistencia, riesgo, conductuales) — hoy solo alertas |
+| **Directivo** | Dashboard, alertas e intervenciones, malla (consulta), notas (**solo lectura institucional**), asistencia (consulta) | Estudiantes, configuración, usuarios, Excel por aula; **no** es actor inicial de todas las alertas | **Planificado RF-10:** intervención solo en casos **críticos/extremos** escalados |
 
 ---
 
@@ -142,7 +142,7 @@ Módulos visibles: **todos** los del menú lateral.
 
 ### 7.2 Consultar Dashboard
 
-- **Objetivo:** Ver indicadores de estudiantes, riesgo y alertas de la sede Chilca.
+- **Objetivo:** Ver indicadores académicos e institucionales (estudiantes, riesgo, alertas, subset académico) de la sede Chilca.
 - **Navegación:** Menú → **Dashboard**.
 - **Pasos:** Ajuste filtros (nivel, grado, sección, riesgo) si lo desea → aplique → revise tarjetas y barras.
 - **Resultado esperado:** Resumen numérico y gráficos simples según filtros.
@@ -151,7 +151,7 @@ Módulos visibles: **todos** los del menú lateral.
 
 ### 7.3 Exportar reporte PDF del Dashboard
 
-- **Objetivo:** Descargar un PDF con el resumen del dashboard.
+- **Objetivo:** Descargar un PDF con el resumen del dashboard (antecedente parcial; zona de **reportes de riesgo** RF-16 planificada).
 - **Navegación:** **Dashboard** → botón **Exportar PDF**.
 - **Pasos:** Configure filtros → **Exportar PDF** → espere la descarga.
 - **Resultado esperado:** Archivo PDF en su equipo.
@@ -497,7 +497,9 @@ Después, docentes pueden operar **Notas semanales** y **Asistencia**.
 
 Detalle técnico y diferencia con plantilla/import curricular: [`docs/aula-notas-excel.md`](aula-notas-excel.md) §11.
 
-**Plantilla de registro auxiliar** (import/export de notas por curso): disponible desde la barra de **Notas semanales** para roles con permiso de registro — no confundir con «Excel por aula» ni con importación SIAGIE.
+**Plantilla de registro auxiliar** (import/export de notas por curso): disponible desde la barra de **Notas semanales** para roles con permiso de registro — sustituye SIAGIE en alcance actual; no confundir con «Excel por aula».
+
+**Fuera del sistema en V1:** comunicación formal con familias (RF-12), Fast Test (RF-03), variables socioeconómicas en el flujo de riesgo (RF-05).
 
 ---
 

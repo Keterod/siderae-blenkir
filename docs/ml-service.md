@@ -61,9 +61,9 @@ Calcula índice y nivel de riesgo.
 |-------|------|-------------|
 | `promedio_notas` | number | Promedio académico (escala ~0–20) |
 | `porcentaje_asistencia` | number | 0–100 |
-| `reportes_conductuales` | number/int | Conteo |
-| `fast_test_puntaje` | number | Puntaje Fast Test; 0 si ausente |
-| `nivel_socioeconomico` | string | `bajo`, `medio`, `alto` |
+| `reportes_conductuales` | number/int | Conteo (RF-04 planificado) |
+| `fast_test_puntaje` | number | **Retirado del alcance** — puede enviarse 0; no insumo vigente |
+| `nivel_socioeconomico` | string | **Retirado del flujo de riesgo** — legacy en payload |
 | `acceso_internet` | bool/int/string | Penalización si no hay acceso |
 | `distancia_colegio` | number | km aproximados |
 
@@ -101,11 +101,13 @@ Umbrales **no** configurables por administrador en código actual (DRS RN-01 par
 
 **No implementado en código:**
 
-- Random Forest, SVM, XGBoost (DRS RF-06 REQ-06.2)
-- Entrenamiento offline / datasets
-- Reentrenamiento (RF-18)
+- Random Forest, SVM, XGBoost entrenados (referencia histórica DRS v1)
+- Entrenamiento offline / datasets históricos
+- Reentrenamiento (RF-18) — **planificado** cuando exista dataset suficiente
 - Métricas accuracy/precision/recall/F1
 - Persistencia de modelos `.pkl` / MLOps
+
+**Evolución planificada (v2.1):** el servicio deberá admitir datos académicos, asistencia, reportes conductuales y variables institucionales disponibles. Las **variables socioeconómicas ya no son insumo obligatorio** del flujo de riesgo vigente. Si faltan variables, Laravel/RF-19 deberán operar con datos parciales y advertencias de completitud.
 
 ---
 

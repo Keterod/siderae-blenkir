@@ -1,12 +1,12 @@
 # Índice de documentación — SIDERAE-Blenkir
 
-Paquete documental consolidado (Fases 1–8). Fecha de referencia: **2026-06-09**.
+Paquete documental consolidado (Fases 1–9). Fecha de referencia: **2026-06-09**.
 
 **Formato de entrega:** todo el paquete formal está en **Markdown (`.md`)** en el repositorio. Es la fuente vigente para revisión humana, sustentación interna y defensa académica. **No se requiere conversión inmediata** a PDF o Word; la maquetación formal (PDF/Word) queda como **etapa posterior opcional**, tras revisión humana del contenido.
 
 Entrada a `docs/`: [`README.md`](README.md).
 
-**Prototipo V1:** sede operativa **Chilca** · ML **determinístico** · **sin** certificación ISO · **sin** SIAGIE · **sin** Cypress.
+**Prototipo V1:** sede operativa **Chilca** · ML **determinístico** · **sin** certificación ISO · **sin** SIAGIE · **sin** Fast Test · **sin** VSE en flujo de riesgo · **sin** comunicación familiar en sistema · **sin** Cypress · RF vigentes **RF-01 a RF-35**.
 
 Índice maestro para jurado, tribunal y trazabilidad del proyecto.
 
@@ -16,7 +16,7 @@ Entrada a `docs/`: [`README.md`](README.md).
 
 | Documento | Ruta | Notas |
 |-----------|------|-------|
-| **DRS v2 (vigente — estado V1 real)** | [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) | Fuente formal vigente en Markdown |
+| **DRS v2.1 (vigente — estado V1 real)** | [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) | Versión documental **2.1** en mismo archivo Markdown |
 | DRS v1 (histórico) | `DRS_SIDERAE_Blenkir_v1.pdf` | **Externo al repositorio** — no modificado |
 | Resumen DRS v1 (IA) | [`arquitectura/contexto-drs-requerimientos.md`](arquitectura/contexto-drs-requerimientos.md) | Transcripción RF/RN/RNF; **histórico** — usar DRS v2 |
 
@@ -120,16 +120,22 @@ Entrada a `docs/`: [`README.md`](README.md).
 | **Auquimarca histórico/local** | Registros en BD auditada; **no** operación multi-sede V1 |
 | **Sin certificación ISO** | Solo alineación progresiva / referencia académica |
 | **Sin auditoría externa** | No pentest ni organismo certificador |
-| **Sin SIAGIE** | Importación institucional global **pendiente**; plantilla Excel curricular **sí** |
-| **ML determinístico** | Sin Random Forest / SVM / XGBoost entrenados; sin reentrenamiento (RF-18) |
+| **Sin SIAGIE** | **Fuera del alcance actual** — plantillas Excel propias RF-32/RF-33 |
+| **Sin Fast Test** | RF-03 **retirado del alcance vigente** |
+| **Sin VSE en riesgo** | RF-05 **retirado del flujo funcional** |
+| **Sin comunicación familiar** | RF-12 **eliminado del alcance** |
+| **ML determinístico** | Sin ensemble entrenado; RF-18 reentrenamiento **planificado**, no implementado |
+| **RF-19 semáforo** | **Planificado** — no implementado |
+| **Permisos RBAC** | **23 implementados** en `PermissionsSeeder`; **8 sugeridos/planificados** (RF-04/10/11/16/18/19) — no en seeder |
+| **RF-21–RF-35** | Módulo curricular oficial documentado |
 | **Sin Cypress** | No hay suite E2E automatizada en el repositorio |
 | **Pruebas memoria** | Suite PHPUnit completa OOM @ **128M**; `ExcelAulaTest` OK @ **512M** |
 | **Seed oficial pendiente** | Conteos BD Fase 1 = entorno local auditado, no referencia única |
 | **Activity log parcial** | RF-17 incompleto vs DRS v1 |
 | **Register público** | `POST /register` guest — brecha pre-producción |
-| **DRS v1 PDF** | Histórico; usar **DRS v2 Markdown** para estado V1 |
+| **DRS v1 PDF** | Histórico; usar **DRS v2.1 Markdown** para estado V1 |
 | **Formato entrega** | Paquete en **Markdown**; PDF/Word = etapa posterior opcional |
 
 ---
 
-*Índice actualizado — cierre documental Markdown (2026-06-09).*
+*Índice actualizado — Fase 9 reestructuración RF V2.1 (2026-06-09).*

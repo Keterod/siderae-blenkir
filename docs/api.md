@@ -106,9 +106,9 @@ Permiso: `registrar_datos_academicos`
 | GET | `/api/estudiantes/{estudiante}/variables-socioeconomicas` |
 | POST | `/api/estudiantes/{estudiante}/variables-socioeconomicas` |
 
-**RF-05:** API confirmada; UI pestaña VSE pausada.
+**RF-05:** API legacy confirmada; **retirada del flujo funcional de riesgo** (v2.1); UI pausada.
 
-**Import SIAGIE:** pendiente — no confundir con import Excel curricular (§9).
+**Import SIAGIE:** **fuera del alcance actual** — no confundir con import Excel curricular RF-32 (§10).
 
 ---
 
@@ -201,7 +201,7 @@ Permiso: `gestionar_asignaciones_docente` — `/docentes`, `/asignaciones-docent
 
 Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`aula-notas-excel.md`](aula-notas-excel.md).
 
-**No confundir** con importación **SIAGIE** (RF-01 DRS) — **pendiente**.
+**No confundir** con importación **SIAGIE** — **fuera del alcance actual** (RF-32 sustituye en alcance vigente).
 
 ### 10.10 Evaluación bimestral
 
@@ -228,14 +228,18 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 
 ---
 
-## 11. Endpoints no expuestos (pendientes)
+## 11. Endpoints no expuestos (planificados o fuera de alcance)
 
-Tablas/migraciones existen; **sin rutas** en `api.php`:
-
-- Reportes conductuales (RF-04)
-- Derivación directivo (RF-10)
-- Comunicación familiar (RF-12)
-- Reentrenamiento ML (RF-18)
+| RF | Estado | Notas |
+|----|--------|-------|
+| RF-04 Reportes conductuales | **Planificado** | Migración sin rutas |
+| RF-10 Escalamiento directivo | **Planificado** | Sin rutas |
+| RF-12 Comunicación familiar | **Eliminado del alcance** | Esquema BD histórico |
+| RF-18 Reentrenamiento ML | **Planificado** | Sin endpoints |
+| RF-19 Semáforo completitud | **Planificado** | Sin rutas |
+| RF-16 Reportes de riesgo (zona dedicada) | **Planificado** | PDF dashboard = parcial |
+| RF-03 Fast Test | **Retirado del alcance** | — |
+| SIAGIE import global | **Fuera del alcance** | Plantilla RF-32 en su lugar |
 
 ---
 

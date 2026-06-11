@@ -29,27 +29,27 @@ Este documento explica cómo opera en V1 el registro académico **curricular** d
 | Auquimarca en BD local | **Histórico/local** — no operación multi-sede V1 |
 | Selector multi-sede | **No visible** en UI V1 |
 | Módulo curricular | **Confirmado** — menú lateral en [`App.jsx`](../frontend/src/App.jsx) |
-| Importación SIAGIE (DRS RF-01) | **Pendiente / no confirmada** |
+| Importación SIAGIE (DRS RF-01) | **Fuera del alcance actual** — plantillas propias RF-32/RF-33 |
 | Certificación ISO | **No aplica** |
 
 ---
 
 ## 3. Relación con RF-01 y DRS
 
-El **RF-01** del DRS (*Carga e importación de datos académicos*) incluye carga manual e importación masiva institucional (p. ej. SIAGIE `.xlsx/.csv`).
+El **RF-01** cubre carga manual e importación mediante **plantillas Excel propias** (RF-32). **SIAGIE no se implementará** en este alcance. El módulo curricular oficial está en **RF-21 a RF-35**.
 
-**En V1 el prototipo cubre parcialmente RF-01 mediante:**
+**En V1 el prototipo cubre RF-01 y RF-21–RF-35 mediante:**
 
-| Mecanismo | Qué es | Equivalencia RF-01 |
-|-----------|--------|-------------------|
-| Registro manual notas semanales | UI + `POST …/bulk` | Carga académica parcial — **confirmado** |
-| Plantilla registro auxiliar Excel | Descarga + **importación curricular** por curso/asignación | Import Excel **curricular** — **confirmado**; **no** es SIAGIE |
-| Excel por aula | Descarga multi-hoja del aula | Registro auxiliar / export — **confirmado**; **solo descarga** |
-| Asistencia curricular | UI + bulk API | Relacionado RF-02 — **confirmado** |
+| Mecanismo | Qué es | RF relacionado |
+|-----------|--------|----------------|
+| Registro manual notas semanales | UI + `POST …/bulk` | RF-01, RF-29 — **confirmado** |
+| Plantilla registro auxiliar Excel | Descarga + **importación curricular** por curso/asignación | RF-32 — **confirmado**; **no** es SIAGIE |
+| Excel por aula | Descarga multi-hoja del aula | RF-33 — **confirmado**; **solo descarga** |
+| Asistencia curricular | UI + bulk API | RF-02, RF-31 — **confirmado** |
 | Legacy notas/asistencias lote | API sin menú | Parcial — fuera flujo visible V1 |
-| Importación SIAGIE global | — | **Pendiente** — sin ruta ni `ImportarDatosTest` |
+| Importación SIAGIE global | — | **Fuera del alcance actual** |
 
-**No** llamar «importación SIAGIE» a la plantilla curricular ni al Excel por aula. Este documento servirá como fuente al **actualizar el DRS** separando alcance formal de estado V1.
+**No** llamar «importación SIAGIE» a la plantilla curricular ni al Excel por aula.
 
 ---
 
@@ -303,7 +303,7 @@ Referencia: [`docs/pruebas/informe-pruebas.md`](pruebas/informe-pruebas.md), [`d
 
 | Tema | Estado |
 |------|--------|
-| Importación **SIAGIE** | Pendiente / no confirmada |
+| Importación **SIAGIE** | **Fuera del alcance actual** |
 | Excel por aula — import | **No existe** |
 | Import plantilla curso | Confirmado — **no** equivale a SIAGIE |
 | Cypress / E2E | No existe |
@@ -313,7 +313,7 @@ Referencia: [`docs/pruebas/informe-pruebas.md`](pruebas/informe-pruebas.md), [`d
 | Multi-sede operativa | Fuera V1 |
 | Pesos C/L/T en menú | Ocultos (`visible: false`) |
 | Legacy materias/notas lote | API sí; menú no |
-| Variables socioeconómicas | API sí; pestaña perfil pausada |
+| Variables socioeconómicas | API legacy; **retiradas del flujo de riesgo** (RF-05 v2.1) |
 
 ---
 
@@ -321,12 +321,12 @@ Referencia: [`docs/pruebas/informe-pruebas.md`](pruebas/informe-pruebas.md), [`d
 
 Al actualizar el DRS:
 
-1. **RF-01:** marcar **implementado parcialmente** — curricular + plantilla Excel + bulk; **SIAGIE pendiente**.
-2. **RF-02:** vincular a **asistencia curricular** (`/asistencias-diarias/*`), no solo legacy lote.
-3. **RF-16:** distinguir PDF dashboard (DomPDF) de **Excel por aula** (Maatwebsite/PhpSpreadsheet) — son entregables distintos.
-4. **RF-20:** historial de notas vía `notas_semanales` / resumen académico — parcial; UI riesgo pausada.
-5. Nombrar explícitamente: **«Importación plantilla registro auxiliar curricular»** vs **«Importación SIAGIE institucional»**.
-6. Documentar sede única **Chilca** en operación V1; multi-sede como expansión futura.
+1. **RF-01:** implementado parcialmente — curricular RF-21–RF-35 + plantilla Excel RF-32; **SIAGIE fuera del alcance**.
+2. **RF-02 / RF-31:** vincular a **asistencia curricular** (`/asistencias-diarias/*`).
+3. **RF-16:** distinguir PDF dashboard (parcial) de zona **reportes de riesgo** planificada y de **Excel por aula** RF-33.
+4. **RF-20:** historial evolutivo por periodo — planificado; persistencia parcial.
+5. Nombrar: **«Plantilla curricular propia»** vs **«SIAGIE fuera del alcance actual»**.
+6. Documentar sede única **Chilca** en operación V1.
 
 ---
 

@@ -10,7 +10,7 @@ Documentación ampliada: [`docs/README.md`](docs/README.md) · [`docs/INDICE_DOC
 
 SIDERAE-Blenkir es un sistema web para gestión académica institucional y detección temprana de riesgo académico/deserción. **V1** opera como prototipo local con Docker: frontend React, API Laravel, MySQL y un microservicio Flask para cálculo de riesgo.
 
-El alcance formal del proyecto se documenta en [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](docs/drs/DRS_SIDERAE_Blenkir_v2.md) (v2, estado V1 real). El PDF histórico (`DRS_SIDERAE_Blenkir_v1.pdf`) **no está en este repositorio** (fuente formal externa). Resumen operativo: [`docs/arquitectura/contexto-drs-requerimientos.md`](docs/arquitectura/contexto-drs-requerimientos.md).
+El alcance formal del proyecto se documenta en [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](docs/drs/DRS_SIDERAE_Blenkir_v2.md) (versión documental **2.1**, RF-01 a RF-35). El PDF histórico (`DRS_SIDERAE_Blenkir_v1.pdf`) **no está en este repositorio**.
 
 **Decisión operativa V1:** sede única **Chilca** en UI y consultas por defecto ([`AGENTS.md`](AGENTS.md)). El campo `sede` se conserva en BD/API para compatibilidad futura.
 
@@ -25,9 +25,9 @@ Resumen basado en [`docs/limitaciones.md`](docs/limitaciones.md). Detalle comple
 | Área | Evidencia |
 |------|-----------|
 | Autenticación Sanctum + `/api/me` | `backend/routes/auth.php`, `frontend/src/context/AuthContext.jsx` |
-| Roles/permisos (5 roles, 23 permisos) | `backend/database/seeders/PermissionsSeeder.php` |
+| Roles/permisos (5 roles, **23 permisos** en `PermissionsSeeder`) | `backend/database/seeders/PermissionsSeeder.php` — ver también 8 permisos **sugeridos/planificados** en [`docs/seguridad-roles-permisos.md`](docs/seguridad-roles-permisos.md) §16 |
 | Estudiantes, usuarios (RF-15) | `backend/routes/api.php`, `frontend/src/App.jsx` |
-| Módulo curricular (malla, notas, bimestre, Excel, asistencia) | `/api/curricular/*`, paneles en `App.jsx` |
+| Módulo curricular **RF-21–RF-35** | `/api/curricular/*`, paneles en `App.jsx` |
 | Import Excel **plantilla curricular** | `POST /api/curricular/notas-semanales/importar-excel` |
 | Riesgo académico (Laravel → Flask) | `MlRiskService.php`, `ml-service/main.py` |
 | Alertas, intervenciones, cierre | `AlertaController`, `AlertasPanel` |
@@ -38,16 +38,22 @@ Resumen basado en [`docs/limitaciones.md`](docs/limitaciones.md). Detalle comple
 
 | Área | Nota |
 |------|------|
-| RF-01 carga de datos | Manual + Excel curricular sí; **importación SIAGIE pendiente** |
-| RF-05 variables socioeconómicas | API sí; **UI pausada** (pestaña no expuesta) |
-| RF-14 / RF-16 dashboard y PDF | Subset operativo; no equivale al DRS completo |
-| RF-17 auditoría | `activity_log` parcial en controladores |
-| RF-20 historial de riesgo | Persistencia sí; timeline/export PDF no confirmados |
-| Legacy materias/notas lote | API sí; **sin menú** en UI (flujo operativo = curricular) |
+| RF-01 carga de datos | Manual + Excel curricular RF-32; **SIAGIE fuera del alcance** |
+| RF-14 / RF-16 dashboard y reportes | Subset operativo; zona reportes riesgo **planificada** |
+| RF-17 auditoría | `activity_log` parcial — apoya alineación ISO progresiva |
+| RF-20 historial de riesgo | Persistencia sí; historial evolutivo UI **planificado** |
 
-### Pendiente / no confirmado
+### Retirado del alcance vigente (v2.1)
 
-Derivación (RF-10), comunicación familia (RF-12), reportes conductuales (RF-04), reentrenamiento ML (RF-18), semáforo completitud (RF-19), Cypress/E2E, modelos RF/SVM/XGBoost entrenados, despliegue productivo, certificación ISO.
+SIAGIE, Fast Test (RF-03), variables socioeconómicas en flujo de riesgo (RF-05), comunicación familiar (RF-12).
+
+### Planificado (por implementar en código)
+
+Reportes conductuales (RF-04), escalamiento directivo crítico (RF-10), perfil integral psicólogo (RF-11), reentrenamiento ML (RF-18), semáforo completitud (RF-19), reportes de riesgo (RF-16), historial evolutivo (RF-20).
+
+### Otros pendientes
+
+Cypress/E2E, modelos ML entrenados, despliegue productivo, certificación ISO.
 
 ---
 

@@ -127,7 +127,8 @@ Decisión sede Chilca: [`../AGENTS.md`](../AGENTS.md), `sedeOperativa.js`. V1 no
 Integración Laravel → Flask documentada en [`ml-service.md`](ml-service.md).
 
 - **Confirmado:** `POST /predict`, prototipo determinístico.
-- **Pendiente:** RF/SVM/XGBoost, reentrenamiento (RF-18).
+- **Planificado:** ML real y reentrenamiento (RF-18) cuando exista dataset; **no** RF/SVM/XGBoost entrenados en V1.
+- **Variables socioeconómicas:** retiradas del flujo de riesgo vigente (v2.1).
 
 Servicio: [`MlRiskService.php`](../backend/app/Services/MlRiskService.php).
 
@@ -198,16 +199,17 @@ docker compose exec app-backend php artisan migrate:status
 
 ---
 
-## 13. Alcance vs DRS (resumen)
+## 13. Alcance vs DRS (resumen — v2.1)
 
 | Área | Estado |
 |------|--------|
-| Auth, RBAC, estudiantes, curricular, Excel plantilla, riesgo, alertas | Confirmado / parcial |
-| SIAGIE, derivación, comunicación familia, conductuales | Pendiente |
-| Dashboard/PDF | Parcial |
-| ML ensemble, reentrenamiento, semáforo | Pendiente |
+| Auth, RBAC, estudiantes, curricular **RF-21–RF-35**, Excel plantilla/aula, riesgo, alertas | Confirmado / parcial |
+| SIAGIE, Fast Test, VSE en riesgo, comunicación familiar | **Fuera del alcance vigente** |
+| Reportes conductuales, escalamiento directivo, semáforo, reportes riesgo, historial evolutivo | **Planificado** |
+| Dashboard académico-institucional | Parcial (riesgo subset hoy) |
+| ML ensemble, reentrenamiento RF-18 | **Planificado** — no implementado |
 
-Detalle: [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md), [`limitaciones.md`](limitaciones.md).
+RF vigentes: **RF-01 a RF-35**. Detalle: [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) v2.1, [`limitaciones.md`](limitaciones.md).
 
 ---
 
