@@ -81,7 +81,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-01 | Carga e importación de datos académicos | 3B, 7.6B, 8.5B | Implementado parcialmente | `/api/curricular/notas-semanales/*`, `importar-excel`, `GET /excel-aula`, legacy API | Notas/asistencia curricular; plantilla Excel propia (import); Excel aula (solo descarga) | `DatosAcademicosTest`, `PlantillaRegistroAuxiliarExcelTest`, `CurricularApiTest`, `NotasSemanales*`, `ExcelAulaTest` | Parcial — `ExcelAulaTest` 8 passed @ 512M | **SIAGIE fuera del alcance actual**; ver RF-21–RF-35 y [`aula-notas-excel.md`](aula-notas-excel.md) |
 | RF-02 | Registro digital de asistencia semanal | 3B, 8.5B | Confirmado en código (curricular) | `/api/curricular/asistencias-diarias/*` | Menú **Asistencia** | `AsistenciaDiariaTest` | No ejecutado Fase 5 | Ver RF-31 |
 | RF-03 | Importación resultados Fast Test | — | **Retirado del alcance** | — | No aplica | — | — | Institución no utiliza Fast Test; referencia histórica DRS v1 |
-| RF-04 | Registro reportes conductuales | — | **Planificado** | Migración `reportes_conductuales`; sin API | No visible | — | — | Parte del flujo de riesgo; por implementar |
+| RF-04 | Registro reportes conductuales | — | **Implementado parcialmente** | Migración + modelo; permisos RF-04 en seeder (Fase 2B); **sin API** | No visible | — | — | Fase 2B RBAC; API/UI/tests pendientes 2C–2E |
 | RF-05 | Integración variables socioeconómicas | 3B | **Retirado del flujo de riesgo** | API legacy `/variables-socioeconomicas` | UI pausada | `DatosAcademicosTest` (API legacy) | Parcial | No insumo obligatorio de RF-06 |
 | RF-06 | Procesamiento multivariable e índice de riesgo | 4, 8.5B | Implementado parcialmente | `POST …/procesar-riesgo`, `MlRiskService` | Perfil riesgo **en pausa** | `RiesgoTest`, `DemoProcesarRiesgosCommandTest` | Parcial | ML **determinístico**; operación con datos parciales + RF-19 planificado |
 | RF-07 | Evaluación automática nivel de riesgo | 4, 5 | Confirmado en código (parcial DRS) | Umbrales en servicio riesgo | Dashboard KPIs riesgo | `RiesgoTest` | No re-ejecutado Fase 5 | REQ configurables admin: pendiente |
@@ -232,7 +232,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 | Plan de pruebas / Sprint 9 | RF-01 | Importación **SIAGIE** | **Fuera del alcance** | Decisión alcance v2.1; plantilla RF-32 |
 | Sprint 8 / seguridad | RF-15 | 401 en **todas** rutas `/api/curricular/*` | **Parcial** | Ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) §12 |
 | DRS RF-03 | RF-03 | `FastTestImportTest` | **Retirado del alcance** | Referencia histórica DRS v1 |
-| DRS RF-04 | RF-04 | Tests reportes conductuales | **Planificado** | Solo migración |
+| DRS RF-04 | RF-04 | Tests reportes conductuales | **Planificado** | Migración + permisos seeder; sin API |
 | DRS RF-10 | RF-10 | Tests escalamiento directivo | **Planificado** | — |
 | DRS RF-12 | RF-12 | Tests comunicación familiar | **Eliminado del alcance** | — |
 | DRS RF-18 | RF-18 | Tests reentrenamiento ML | **Planificado** | Requiere ML real |

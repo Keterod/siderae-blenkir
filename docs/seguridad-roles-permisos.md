@@ -1,6 +1,6 @@
 # Seguridad, roles y permisos — SIDERAE-Blenkir
 
-Documento vigente (Fase 3 documental). Fecha de verificación en código: **2026-06-09**.
+Documento vigente (Fase 3 documental; actualización Fase 2B RF-04). Fecha de verificación en código: **2026-06-10**.
 
 **Fuentes primarias:** [`backend/routes/api.php`](../backend/routes/api.php), [`backend/routes/auth.php`](../backend/routes/auth.php), [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php), [`backend/database/seeders/RolesSeeder.php`](../backend/database/seeders/RolesSeeder.php), [`frontend/src/App.jsx`](../frontend/src/App.jsx), [`frontend/src/context/AuthContext.jsx`](../frontend/src/context/AuthContext.jsx), [`backend/composer.json`](../backend/composer.json).
 
@@ -74,7 +74,7 @@ Fuente: [`RolesSeeder.php`](../backend/database/seeders/RolesSeeder.php) + asign
 
 | Rol | Fuente | Descripción funcional | Estado |
 |-----|--------|----------------------|--------|
-| `administrador` | Seeder | Acceso total a permisos definidos (23) | Confirmado |
+| `administrador` | Seeder | Acceso total a permisos definidos (25) | Confirmado |
 | `docente` | Seeder | Estudiantes, datos académicos legacy, alertas/intervenciones, malla lectura, notas/asistencia curricular | Confirmado |
 | `coordinador_academico` | Seeder | Configuración curricular, riesgo, asignaciones, calendario, Excel aula | Confirmado |
 | `psicologo_tutor` | Seeder | Alertas, intervenciones, lectura académica/asistencia | Confirmado |
@@ -86,9 +86,9 @@ Usuarios demo: [`DemoUsersSeeder.php`](../backend/database/seeders/DemoUsersSeed
 
 ## 6. Permisos confirmados
 
-Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **23 permisos implementados actualmente**, `guard_name` = `web`.
+Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **25 permisos implementados actualmente**, `guard_name` = `web` (8 legacy + 15 curriculares + 2 conductuales RF-04).
 
-> **Permisos adicionales sugeridos/planificados:** 8 permisos para RF-04, RF-10, RF-11, RF-16, RF-18 y RF-19 documentados en §16 — **no** están en `PermissionsSeeder` ni en rutas API.
+> **Permisos adicionales sugeridos/planificados:** 6 permisos para RF-10, RF-11, RF-16, RF-18 y RF-19 documentados en §16 — **no** están en `PermissionsSeeder` ni en rutas API. Los permisos RF-04 (`ver_reportes_conductuales`, `registrar_reportes_conductuales`) **sí** están en seeder desde Fase 2B; **aún no** tienen rutas API ni UI.
 
 ### Legacy (8)
 
@@ -123,6 +123,13 @@ Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.
 | `gestionar_secciones_aulas` | Catálogo secciones/aulas | Secciones / Aulas | Confirmado |
 | `descargar_excel_aula` | Descarga Excel aula | Excel por aula | Confirmado |
 
+### Conductuales RF-04 (2)
+
+| Permiso | Uso funcional | Módulo / rutas | Estado |
+|---------|---------------|----------------|--------|
+| `ver_reportes_conductuales` | Consulta reportes conductuales por estudiante | **Sin ruta API aún** (Fase 2C) | Confirmado en seeder |
+| `registrar_reportes_conductuales` | Registro/anulación reportes conductuales | **Sin ruta API aún** (Fase 2C) | Confirmado en seeder |
+
 ---
 
 ## 7. Matriz rol–permiso
@@ -131,11 +138,11 @@ Fuente: `$rolePermissionMap` en [`PermissionsSeeder.php`](../backend/database/se
 
 | Rol | Cantidad permisos | Observación |
 |-----|-------------------|-------------|
-| `administrador` | **23** (todos) | Confirmado |
-| `docente` | **11** | Con `ver_dashboard`; sin usuarios, materias CRUD, `procesar_riesgo`, config curricular avanzada | Confirmado |
-| `coordinador_academico` | **19** | Sin gestionar_usuarios, gestionar_materias, registrar_intervencion | Confirmado |
-| `psicologo_tutor` | **4** | Solo alertas + lectura académica | Confirmado |
-| `directivo` | **7** | Lectura dashboard/alertas/malla/notas/asistencia + intervención | Confirmado |
+| `administrador` | **25** (todos) | Confirmado |
+| `docente` | **13** | Con `ver_dashboard`; incluye RF-04 ver + registrar | Confirmado |
+| `coordinador_academico` | **21** | Sin gestionar_usuarios, gestionar_materias, registrar_intervencion; incluye RF-04 | Confirmado |
+| `psicologo_tutor` | **6** | Alertas + lectura académica + RF-04 ver + registrar | Confirmado |
+| `directivo` | **8** | Lectura dashboard/alertas/malla/notas/asistencia + intervención + **solo ver** RF-04 | Confirmado |
 
 Detalle exacto por rol: ejecutar seed y consultar `model_has_permissions` o revisar array en seeder (líneas 48–97).
 
@@ -168,6 +175,7 @@ Leyenda control: **Sí** = middleware/permiso confirmado; **Parcial** = UI disti
 | Config. bimestral | Config/resultados | `/api/curricular/evaluacion-bimestral/*` | GET/POST | `configurar_evaluacion_bimestral` / `ver_notas_academicas` | coord / lectores | Sí | Sí | Confirmado |
 | Malla / criterios / competencias / secciones / asignación / calendario | CRUD según módulo | `/api/curricular/*` | varios | permisos `gestionar_*` / `ver_*` | Según §7 | Sí | Sí | Confirmado |
 | Usuarios | Gestión | `/api/usuarios*` | GET/POST/PATCH | `gestionar_usuarios` | admin | Sí | Sí | Confirmado |
+| Reportes conductuales | Ver / registrar | *(pendiente Fase 2C)* | — | `ver_reportes_conductuales` / `registrar_reportes_conductuales` | admin, docente, coord, psicólogo (ver+reg); directivo (solo ver) | **Pendiente** | **Pendiente** | Permisos en seeder; sin API/UI |
 | Materias legacy | Catálogo | `/api/materias*` | varios | `gestionar_materias` / `registrar_datos_academicos` | admin / docente+coord lectura | Sí | **No menú** | API sí |
 
 \* Docente tiene `ver_dashboard` en seed — confirmado en seeder.
@@ -310,14 +318,19 @@ Los siguientes permisos **no existen** aún en código; se documentan como objet
 
 | Permiso sugerido | RF | Estado |
 |------------------|-----|--------|
-| `ver_reportes_conductuales` | RF-04 | Planificado |
-| `registrar_reportes_conductuales` | RF-04 | Planificado |
 | `ver_perfil_integral_estudiante` | RF-11 | Planificado |
 | `escalar_alerta_directivo` | RF-10 | Planificado |
 | `ver_reportes_riesgo` | RF-16 | Planificado |
 | `generar_reportes_riesgo` | RF-16 | Planificado |
 | `ver_semaforo_completitud` | RF-19 | Planificado |
 | `gestionar_reentrenamiento_ml` | RF-18 | Planificado |
+
+### Permisos RF-04 implementados en seeder (Fase 2B — sin API/UI aún)
+
+| Permiso | RF | Estado |
+|---------|-----|--------|
+| `ver_reportes_conductuales` | RF-04 | **Implementado** en `PermissionsSeeder`; rutas API pendientes Fase 2C |
+| `registrar_reportes_conductuales` | RF-04 | **Implementado** en seeder; **no** asignado a `directivo` |
 
 ---
 
@@ -333,4 +346,4 @@ Documentación técnica del repo cita **Laravel ^13** / PHP 8.3 — **confirmado
 
 ---
 
-*Documento generado en Fase 3 del plan de actualización documental SIDERAE-Blenkir.*
+*Documento generado en Fase 3 del plan de actualización documental SIDERAE-Blenkir. Actualizado Fase 2B RF-04 (permisos base) — 2026-06-10.*

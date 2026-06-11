@@ -161,7 +161,7 @@ Cada ítem incluye evidencia por ruta.
 
 | Tema | Estado | Notas |
 |------|--------|-------|
-| **RF-04** — Reportes conductuales | **Planificado** | Migración sin API |
+| **RF-04** — Reportes conductuales | **Implementado parcialmente** | Migración + modelo + permisos seeder (Fase 2B); **sin API/UI**; pruebas funcionales pendientes |
 | **RF-10** — Escalamiento directivo crítico | **Planificado** | Solo casos críticos/extremos |
 | **RF-11** — Perfil integral psicólogo (lectura) | **Planificado** | Alertas operativas hoy |
 | **RF-16** — Zona reportes de riesgo | **Planificado** | PDF dashboard = parcial |
@@ -262,7 +262,7 @@ Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
-- Implementar en código RF planificados: RF-04, RF-10, RF-16, RF-18, RF-19, RF-20 (historial evolutivo UI).
+- Implementar en código RF planificados: ~~RF-04~~ (base RBAC Fase 2B; API/UI pendientes), RF-10, RF-16, RF-18, RF-19, RF-20 (historial evolutivo UI).
 
 **Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 

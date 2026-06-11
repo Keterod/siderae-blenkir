@@ -39,7 +39,12 @@ class PermissionsSeeder extends Seeder
             'descargar_excel_aula',
         ];
 
-        $permissions = array_merge($legacyPermissions, $curricularPermissions);
+        $conductualPermissions = [
+            'ver_reportes_conductuales',
+            'registrar_reportes_conductuales',
+        ];
+
+        $permissions = array_merge($legacyPermissions, $curricularPermissions, $conductualPermissions);
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
@@ -58,6 +63,8 @@ class PermissionsSeeder extends Seeder
                 'ver_notas_academicas',
                 'registrar_asistencia_curricular',
                 'ver_asistencia_curricular',
+                'ver_reportes_conductuales',
+                'registrar_reportes_conductuales',
             ],
             'coordinador_academico' => [
                 'ver_dashboard',
@@ -79,12 +86,16 @@ class PermissionsSeeder extends Seeder
                 'gestionar_competencias_capacidades',
                 'gestionar_secciones_aulas',
                 'descargar_excel_aula',
+                'ver_reportes_conductuales',
+                'registrar_reportes_conductuales',
             ],
             'psicologo_tutor' => [
                 'ver_alertas',
                 'registrar_intervencion',
                 'ver_notas_academicas',
                 'ver_asistencia_curricular',
+                'ver_reportes_conductuales',
+                'registrar_reportes_conductuales',
             ],
             'directivo' => [
                 'ver_dashboard',
@@ -93,6 +104,7 @@ class PermissionsSeeder extends Seeder
                 'ver_malla_curricular',
                 'ver_notas_academicas',
                 'ver_asistencia_curricular',
+                'ver_reportes_conductuales',
             ],
         ];
 
