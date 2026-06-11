@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\IntervencionController;
 use App\Http\Controllers\Api\NotaBatchController;
 use App\Http\Controllers\Api\NotaController;
 use App\Http\Controllers\Api\ProcesarRiesgoController;
+use App\Http\Controllers\Api\ReporteConductualController;
 use App\Http\Controllers\Api\Curricular\AsignacionDocenteController;
 use App\Http\Controllers\Api\Curricular\AnioEscolarController;
 use App\Http\Controllers\Api\Curricular\AsistenciaDiariaController;
@@ -112,6 +113,15 @@ Route::middleware(['auth:sanctum', 'permission:registrar_datos_academicos'])
 
 Route::middleware(['auth:sanctum', 'permission:procesar_riesgo'])
     ->post('estudiantes/{estudiante}/procesar-riesgo', [ProcesarRiesgoController::class, 'store']);
+
+Route::middleware(['auth:sanctum', 'permission:ver_reportes_conductuales'])
+    ->get('estudiantes/{estudiante}/reportes-conductuales', [ReporteConductualController::class, 'index']);
+
+Route::middleware(['auth:sanctum', 'permission:registrar_reportes_conductuales'])
+    ->post('estudiantes/{estudiante}/reportes-conductuales', [ReporteConductualController::class, 'store']);
+
+Route::middleware(['auth:sanctum', 'permission:registrar_reportes_conductuales'])
+    ->patch('reportes-conductuales/{reporteConductual}/anular', [ReporteConductualController::class, 'anular']);
 
 Route::middleware(['auth:sanctum', 'permission:ver_alertas'])
     ->group(function (): void {

@@ -81,7 +81,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-01 | Carga e importación de datos académicos | 3B, 7.6B, 8.5B | Implementado parcialmente | `/api/curricular/notas-semanales/*`, `importar-excel`, `GET /excel-aula`, legacy API | Notas/asistencia curricular; plantilla Excel propia (import); Excel aula (solo descarga) | `DatosAcademicosTest`, `PlantillaRegistroAuxiliarExcelTest`, `CurricularApiTest`, `NotasSemanales*`, `ExcelAulaTest` | Parcial — `ExcelAulaTest` 8 passed @ 512M | **SIAGIE fuera del alcance actual**; ver RF-21–RF-35 y [`aula-notas-excel.md`](aula-notas-excel.md) |
 | RF-02 | Registro digital de asistencia semanal | 3B, 8.5B | Confirmado en código (curricular) | `/api/curricular/asistencias-diarias/*` | Menú **Asistencia** | `AsistenciaDiariaTest` | No ejecutado Fase 5 | Ver RF-31 |
 | RF-03 | Importación resultados Fast Test | — | **Retirado del alcance** | — | No aplica | — | — | Institución no utiliza Fast Test; referencia histórica DRS v1 |
-| RF-04 | Registro reportes conductuales | — | **Implementado parcialmente** | Migración + modelo; permisos RF-04 en seeder (Fase 2B); **sin API** | No visible | — | — | Fase 2B RBAC; API/UI/tests pendientes 2C–2E |
+| RF-04 | Registro reportes conductuales | AI-DLC 2B–2E | **Implementado V1 mínimo** | API + permisos + `EstudiantePerfilReportesConductuales.jsx` | Perfil estudiante → **Reportes conductuales** | `ReporteConductualTest` | **8 passed**, 26 assert. (2E) | Fases 2B–2E completadas; smoke UI navegador pendiente; sin módulo global |
 | RF-05 | Integración variables socioeconómicas | 3B | **Retirado del flujo de riesgo** | API legacy `/variables-socioeconomicas` | UI pausada | `DatosAcademicosTest` (API legacy) | Parcial | No insumo obligatorio de RF-06 |
 | RF-06 | Procesamiento multivariable e índice de riesgo | 4, 8.5B | Implementado parcialmente | `POST …/procesar-riesgo`, `MlRiskService` | Perfil riesgo **en pausa** | `RiesgoTest`, `DemoProcesarRiesgosCommandTest` | Parcial | ML **determinístico**; operación con datos parciales + RF-19 planificado |
 | RF-07 | Evaluación automática nivel de riesgo | 4, 5 | Confirmado en código (parcial DRS) | Umbrales en servicio riesgo | Dashboard KPIs riesgo | `RiesgoTest` | No re-ejecutado Fase 5 | REQ configurables admin: pendiente |
@@ -232,7 +232,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 | Plan de pruebas / Sprint 9 | RF-01 | Importación **SIAGIE** | **Fuera del alcance** | Decisión alcance v2.1; plantilla RF-32 |
 | Sprint 8 / seguridad | RF-15 | 401 en **todas** rutas `/api/curricular/*` | **Parcial** | Ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) §12 |
 | DRS RF-03 | RF-03 | `FastTestImportTest` | **Retirado del alcance** | Referencia histórica DRS v1 |
-| DRS RF-04 | RF-04 | Tests reportes conductuales | **Planificado** | Migración + permisos seeder; sin API |
+| DRS RF-04 | RF-04 | Tests reportes conductuales | **Cerrado V1 mínimo** | `ReporteConductualTest.php` 8 passed; UI perfil; Fase 2E |
 | DRS RF-10 | RF-10 | Tests escalamiento directivo | **Planificado** | — |
 | DRS RF-12 | RF-12 | Tests comunicación familiar | **Eliminado del alcance** | — |
 | DRS RF-18 | RF-18 | Tests reentrenamiento ML | **Planificado** | Requiere ML real |
@@ -247,13 +247,13 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 |--------|-------------|---------|---------------|-----------|
 | DRS PDF fuera del repo | Todos | Tribunal no contrasta desde repo | Mantener `contexto-drs-requerimientos.md` actualizado | Media |
 | Brecha SIAGIE vs plantilla curricular | RF-01, RF-32 | Confusión documental | SIAGIE **fuera de alcance**; plantillas propias | Alta |
-| RF-04, RF-10, RF-16, RF-19, RF-20 planificados | RF-04–20 | Flujo riesgo incompleto | Backlog DRS v2.1 | Alta |
+| RF-10, RF-16, RF-19, RF-20 planificados; ~~RF-04~~ V1 mínimo | RF-10–20 | Flujo riesgo incompleto (RF-04 cerrado perfil) | Backlog DRS v2.1 | Alta |
 | RF-10–12 alcance | RF-10–13 | Cierre alerta vs DRS v1 | RF-12 eliminado; RF-10 planificado | Alta |
 | Excel aula solo descarga; import solo plantilla curso | RF-01, RF-16 | Usuario espera import aula | Documentar en manual y DRS | Media |
 | Cypress ausente | Varios UI | Sin E2E automatizado | Smoke manual por rol ([`manual-usuario.md`](manual-usuario.md)) | Media |
 | Suite OOM 128M | RF-01, RF-16 | CI/local falla antes de terminar | `memory_limit=512M` o ajuste php.ini tests | Alta |
 | RF-06–07 UI pausada | RF-06, RF-07, RF-20 | Usuario no procesa riesgo desde perfil | Alinear UI o documentar comando técnico | Media |
-| RF-10–12 sin API | RF-10–13 | Escalamiento/cierre incompleto | RF-04/10/19 planificados; RF-12 eliminado | Alta |
+| RF-10–12 sin API | RF-10–13 | Escalamiento/cierre incompleto | RF-10/19 planificados; RF-04 V1 mínimo; RF-12 eliminado | Alta |
 | Activity log parcial | RF-17 | Trazabilidad incompleta | Extender logging + tests | Media |
 | Seed oficial no definido | RF-01 | Conteos demo inconsistentes | Entorno referencia `migrate:fresh --seed` | Media |
 | 401/403 incompletos | RF-15 | Riesgo seguridad no medido | Ampliar Feature tests | Media |
@@ -265,7 +265,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 El DRS v2.1 consolidado está en [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md). Esta matriz cubre **RF-01 a RF-35**.
 
 2. Marcar como **retirado / fuera de alcance**: SIAGIE, Fast Test (RF-03), VSE en riesgo (RF-05), comunicación familiar (RF-12).
-3. Marcar como **planificado**: RF-04, RF-10, RF-16 (zona reportes), RF-18, RF-19, RF-20 (historial evolutivo), RF-11 (perfil integral).
+3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-19, RF-20 (historial evolutivo), RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E).
 4. **Consolidar** RF parciales (RF-14 dashboard académico-institucional; RF-16 PDF dashboard parcial).
 5. RF-21–RF-35: módulo curricular confirmado en código según §5.1.
 

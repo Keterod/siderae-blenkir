@@ -52,7 +52,7 @@ Basado en [`docs/pruebas/hallazgos-fase1-documentacion.md`](hallazgos-fase1-docu
 
 ## 4. Comandos ejecutados conocidos
 
-Solo comandos registrados en Fase 1 (2026-06-09). **No re-ejecutados en Fase 5.**
+Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10).
 
 | Comando | Fecha / fase | Resultado | Observación |
 |---------|--------------|-----------|-------------|
@@ -64,6 +64,8 @@ Solo comandos registrados en Fase 1 (2026-06-09). **No re-ejecutados en Fase 5.*
 | `php artisan tinker --execute="User::count()"` | Fase 1 | **8** usuarios | Solo lectura |
 | `php artisan tinker --execute="NotaSemanal::count()"` | Fase 1 | **15** | Solo lectura |
 | `php artisan tinker --execute="AsistenciaDiaria / SeccionAula"` | Fase 1 | **35** / **69** | Solo lectura |
+| `docker compose exec app-backend php artisan test --filter=ReporteConductualTest` | Fase 2E RF-04 | Exit 0 — **8 passed**, **26 assertions** | ~15.5 s |
+| `docker compose exec app-frontend npm run build` | Fase 2E RF-04 | Exit 0 — Vite build | ~7.7 s, 108 módulos |
 
 ---
 
@@ -75,7 +77,8 @@ Solo comandos registrados en Fase 1 (2026-06-09). **No re-ejecutados en Fase 5.*
 | `ExcelAulaTest` aislado | **Ejecutado (Fase 1)** | 8 passed @ 512M | Fase 1 | No implica suite global verde |
 | Tests previos a OOM | **Parcial** | ~277 passed (conteo salida) | Fase 1 | No inventariados uno a uno en informe |
 | Cypress / E2E | **No confirmado** | No ejecutado | Sin carpeta `cypress/` | Sprint 9 lo planea; no implementado |
-| Pruebas manuales por rol | **Recomendadas** | No registradas en Fase 1 | [`manual-usuario.md`](../manual-usuario.md) | Pendiente campaña manual |
+| Pruebas manuales por rol | **Recomendadas** | RF-04 smoke **pendiente navegador** | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | API/build verdes Fase 2E |
+| `ReporteConductualTest` aislado | **Ejecutado (Fase 2E)** | 8 passed, 26 assertions | Fase 2E | RF-04 cierre |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
 
 ---
@@ -98,11 +101,12 @@ Solo comandos registrados en Fase 1 (2026-06-09). **No re-ejecutados en Fase 5.*
 - `Feature/DatosAcademicosTest.php`
 - `Feature/MateriaTest.php`
 
-### Dashboard, riesgo, alertas, auditoría
+### Dashboard, riesgo, alertas, auditoría, conductuales
 
 - `Feature/DashboardTest.php`
 - `Feature/RiesgoTest.php`
 - `Feature/AlertaIntervencionTest.php`
+- `Feature/ReporteConductualTest.php` — **8 passed** Fase 2E
 - `Feature/DemoProcesarRiesgosCommandTest.php`
 - `Feature/ActivityLogTest.php`
 
@@ -254,7 +258,7 @@ Distribución roles (Fase 1): 2 administrador, 3 docente, 1 coordinador, 1 psic�
 | D-07 | Recuperación contraseña UI pendiente | Baja | `LoginForm.jsx` |
 | D-08 | `POST /register` público | Alta (producción) | `RegistrationTest.php` |
 | D-09 | Conteos demo README vs BD desalineados históricamente | Baja | Fase 1, README actualizado parcialmente |
-| D-10 | RF-10–12, RF-18–19 sin tests | Media | Matriz §8 |
+| D-10 | RF-10–12, RF-18–19 sin tests; ~~RF-04~~ con `ReporteConductualTest` | Media | Matriz §8; Fase 2E |
 
 ---
 
@@ -280,8 +284,21 @@ Filtros útiles (documentados en README):
 ```bash
 docker compose exec app-backend php artisan test --filter=Curricular
 docker compose exec app-backend php artisan test --filter=Riesgo
-docker compose exec app-backend php artisan test --filter=GestionUsuarios
+docker compose exec app-backend php artisan test --filter=ReporteConductualTest
 ```
+
+---
+
+## 14. RF-04 — Reportes conductuales (Fase 2E)
+
+| Evidencia | Archivo / comando | Resultado 2026-06-10 |
+|-----------|-------------------|----------------------|
+| Tests Feature | `ReporteConductualTest.php` | **8 passed**, 26 assertions |
+| Build frontend | `npm run build` en `app-frontend` | Exit 0 |
+| Smoke manual UI | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | **No ejecutado en navegador**; casos API cubiertos por PHPUnit |
+| Cierre documental | Matriz, limitaciones, NC-16, plan AI-DLC | Fase 2E completada |
+
+Estado funcional: **Implementado V1 mínimo** (perfil estudiante Chilca; sin módulo global).
 
 ---
 

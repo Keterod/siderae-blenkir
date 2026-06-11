@@ -176,6 +176,7 @@ class RiesgoAcademicoService
 
         $reportesCount = ReporteConductual::query()
             ->where('estudiante_id', $estudiante->id)
+            ->activos()
             ->count();
 
         /** @var VariableSocioeconomica $vars */

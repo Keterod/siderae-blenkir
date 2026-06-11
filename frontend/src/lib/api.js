@@ -299,6 +299,23 @@ export function postProcesarRiesgo(estudianteId, datos = {}) {
   });
 }
 
+export function getReportesConductuales(estudianteId) {
+  return request(`/api/estudiantes/${estudianteId}/reportes-conductuales`);
+}
+
+export function postReporteConductual(estudianteId, datos) {
+  return request(`/api/estudiantes/${estudianteId}/reportes-conductuales`, {
+    method: 'POST',
+    body: datos,
+  });
+}
+
+export function patchAnularReporteConductual(reporteId) {
+  return request(`/api/reportes-conductuales/${reporteId}/anular`, {
+    method: 'PATCH',
+  });
+}
+
 export function getAlertas() {
   return request('/api/alertas');
 }

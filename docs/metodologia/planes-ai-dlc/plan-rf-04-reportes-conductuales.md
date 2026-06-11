@@ -46,30 +46,30 @@ Verificación en documentación y código (solo lectura, 2026-06-10):
 | -------- | ----------------- | --------- |
 | **Matriz RF–Sprint–Test** | **Planificado** — migración sin API; sin UI; sin prueba automatizada | [`docs/matriz-rf-sprint-test.md`](../../matriz-rf-sprint-test.md) fila RF-04; §5.3 tests planificados |
 | **Limitaciones** | **Planificado** — migración sin API | [`docs/limitaciones.md`](../../limitaciones.md) §4 |
-| **API catálogo** | **Planificado** — migración sin rutas | [`docs/api.md`](../../api.md) §11 |
-| **Seguridad / permisos** | Permisos RF-04 **implementados en seeder** (Fase 2B); **sin** rutas API | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) §6, §16 |
-| **Migración BD** | **Existe** — tabla `reportes_conductuales` | [`backend/database/migrations/2026_04_23_024257_create_reportes_conductuales_table.php`](../../../backend/database/migrations/2026_04_23_024257_create_reportes_conductuales_table.php) |
-| **Modelo Eloquent** | **Existe** — `ReporteConductual` | [`backend/app/Models/ReporteConductual.php`](../../../backend/app/Models/ReporteConductual.php) |
-| **Relación Estudiante** | **Existe** — `hasMany reportesConductuales` | [`backend/app/Models/Estudiante.php`](../../../backend/app/Models/Estudiante.php) L54–57 |
-| **Rutas API** | **No existen** | [`backend/routes/api.php`](../../../backend/routes/api.php) — sin coincidencias `conductual` |
-| **Controller** | **No existe** | Sin `ReporteConductualController` en `backend/app/Http/Controllers/` |
-| **UI React** | **No existe** | Sin referencias `conductual` en `frontend/src/` |
-| **Tests PHPUnit** | **No existen** | Sin `ReporteConductualTest`; fichas automatizadas **planifican** `ReporteConductualTest` (no implementado) |
-| **Uso en riesgo (lectura)** | **Parcial** — conteo de reportes en payload ML vía `RiesgoAcademicoService` | [`backend/app/Services/RiesgoAcademicoService.php`](../../../backend/app/Services/RiesgoAcademicoService.php) L177–179, L194 |
-| **Flask / ML** | Campo `reportes_conductuales` en contrato; **sin cambio** requerido en Fase RF-04 | [`ml-service/main.py`](../../../ml-service/main.py); [`docs/ml-service.md`](../../ml-service.md) |
+| **API catálogo** | **Parcial** — §9 `api.md` (Fase 2C) | [`docs/api.md`](../../api.md) |
+| **Seguridad / permisos** | Implementados seeder + rutas API | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) |
+| **Migración BD** | **Existe** + columna `estado` (2026_06_10) | Migraciones `reportes_conductuales` |
+| **Modelo Eloquent** | **Existe** — scopes, relaciones | [`ReporteConductual.php`](../../../backend/app/Models/ReporteConductual.php) |
+| **Relación Estudiante** | **Existe** | [`Estudiante.php`](../../../backend/app/Models/Estudiante.php) |
+| **Rutas API** | **Existen** (3 endpoints) | [`api.php`](../../../backend/routes/api.php) |
+| **Controller** | **Existe** | `ReporteConductualController.php` |
+| **UI React** | **Existe** — perfil estudiante | `EstudiantePerfilReportesConductuales.jsx` (Fase 2D) |
+| **Tests PHPUnit** | **Existen** | `ReporteConductualTest.php` (8 casos) |
+| **Uso en riesgo** | Conteo **solo activos** | `RiesgoAcademicoService` (ajuste mínimo Fase 2C) |
+| **Flask / ML** | **Sin modificar** | Contrato determinístico vigente |
 | **NC registradas** | RF-04 en backlog abierto | [`docs/calidad/no-conformidades-y-mejora.md`](../../calidad/no-conformidades-y-mejora.md) NC-13, NC-16 |
 
 ### Brechas esquema vs DRS
 
 | Campo DRS | Columna migración actual | Observación |
 | --------- | ------------------------ | ----------- |
-| estado | **Ausente** | Anulación lógica requerirá migración complementaria o convención acordada en Fase 2C |
+| estado | `estado` enum `activo\|anulado` | **Implementado** Fase 2C |
 | tipo | `tipo_conducta` | Alineado (nombre distinto) |
 | gravedad | `nivel_gravedad` enum `leve\|moderado\|grave` | Alineado |
 | acción | `accion_inmediata` nullable | Extra respecto al listado mínimo DRS; conservar |
-| usuario registrador | `registrado_por` FK `users` | Alineado; modelo **sin** relación `registradoPor()` aún |
+| usuario registrador | `registrado_por` FK `users` | Relación `registradoPor()` implementada |
 
-**Conclusión de estado:** RF-04 **no está implementado** como funcionalidad usable. Solo hay **preparación de datos** (migración, modelo, conteo en servicio de riesgo).
+**Conclusión de estado (post Fase 2E):** RF-04 **Implementado V1 mínimo** — backend + frontend perfil + tests; smoke UI navegador pendiente; brechas documentadas.
 
 ---
 
@@ -311,9 +311,9 @@ Cierre RF-04 (Fase 2E) cuando se cumpla **todo** lo verificable:
 | Fase | Contenido | Entregables | Estado |
 | ---- | --------- | ----------- | ------ |
 | **Fase 2B** | Permisos y base RBAC RF-04 | Seeder: 2 permisos + asignación roles; `seguridad-roles-permisos.md` | **Completada** (2026-06-10) |
-| **Fase 2C** | Backend API RF-04 | Migración `estado` si aplica; Controller, FormRequests, rutas, modelo ampliado; **sin** frontend | Pendiente |
-| **Fase 2D** | Frontend RF-04 | Componente perfil, `api.js`, visibilidad permisos | Pendiente |
-| **Fase 2E** | Pruebas, documentación y cierre | `ReporteConductualTest`, smoke manual, matriz, limitaciones, NC, actualización de este plan | Pendiente |
+| **Fase 2C** | Backend API RF-04 | Migración `estado`; Controller, FormRequests, rutas, tests Feature | **Completada** (2026-06-10) |
+| **Fase 2D** | Frontend RF-04 | Componente perfil, `api.js`, visibilidad permisos | **Completada** (2026-06-10) |
+| **Fase 2E** | Pruebas, documentación y cierre | `ReporteConductualTest`, smoke manual, matriz, limitaciones, NC, actualización de este plan | **Completada** (2026-06-10) |
 
 **Orden:** 2B → 2C → 2D → 2E (permisos antes de rutas; backend antes de UI).
 
@@ -341,18 +341,31 @@ Fuentes: DRS v2.1 RF-04, AGENTS.md (Chilca), .cursorrules
 
 ## 17. Conclusión
 
-**Fase 2B completada (2026-06-10):** permisos `ver_reportes_conductuales` y `registrar_reportes_conductuales` en `PermissionsSeeder` con asignación por rol según §9. Documentación de seguridad, matriz y limitaciones actualizadas. **Sin** rutas API, controller, UI ni tests funcionales RF-04.
+**Fases 2B–2E completadas (2026-06-10):** permisos RBAC, API backend, UI perfil estudiante, pruebas PHPUnit RF-04 (8 passed), build frontend verde, documentación de cierre. **Sin** Flask modificado. **Sin** menú global RF-04.
 
-**RF-04 permanece en avance parcial:** base RBAC + esquema BD + modelo; funcionalidad usable pendiente de **Fases 2C–2E**.
+**Estado final RF-04:** **Implementado V1 mínimo** — ver sección **Cierre Fase 2E** abajo.
 
 Decisiones cerradas en 2B:
 
 1. **Docente** con `registrar_reportes_conductuales` (DRS v2.1).
 2. **Listado por grado/sección** — sigue opcional; MVP perfil en 2D.
-3. **Anulación** — mecanismo `estado` pendiente Fase 2C; **directivo** solo lectura (todos los reportes en MVP).
-
-**Próxima fase recomendada:** **Fase 2C — Backend API RF-04**.
+3. **Anulación** — mecanismo `estado` implementado (2C); **directivo** solo lectura en backend; en UI V1 no accede al perfil (sin menú Estudiantes).
 
 ---
 
-*Plan AI-DLC Fase 2A — 2026-06-10. Fase 2B permisos RBAC — 2026-06-10.*
+## Cierre Fase 2E
+
+| Área | Resultado |
+|------|-----------|
+| **Backend** | API RF-04 operativa; `ReporteConductualTest`: **8 passed**, 26 assertions (~15.5 s) — 2026-06-10 |
+| **Frontend** | Bloque perfil + `api.js`; `npm run build` exitoso (~7.7 s) |
+| **Pruebas** | PHPUnit RF-04 verde; smoke UI navegador **no ejecutado** (ficha [`smoke-rf04-reportes-conductuales.md`](../../pruebas/smoke-rf04-reportes-conductuales.md)) |
+| **Documentación** | Matriz, limitaciones, api, manual, seguridad, NC, informe-pruebas, este plan |
+| **Brechas restantes** | Sin módulo global/grado-sección; sin PDF RF-16; sin alertas RF-10; directivo sin UI Estudiantes; smoke browser pendiente; integración avanzada riesgo/semáforo RF-19/historial RF-20 |
+| **Estado final RF-04** | **Implementado V1 mínimo** |
+
+**Próxima fase recomendada (post RF-04):** **Fase 3A — Plan AI-DLC RF-19 Semáforo de completitud** (prioridad DRS para calidad de datos de riesgo).
+
+---
+
+*Plan AI-DLC Fase 2A — 2026-06-10. Fase 2B permisos RBAC — 2026-06-10. Fase 2C backend API — 2026-06-10. Fase 2D frontend perfil — 2026-06-10. Fase 2E cierre — 2026-06-10.*

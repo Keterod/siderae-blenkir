@@ -77,6 +77,15 @@ Cada ítem incluye evidencia por ruta.
 - UI: [`frontend/src/components/alertas/AlertasPanel.jsx`](../frontend/src/components/alertas/AlertasPanel.jsx).
 - Tests: [`backend/tests/Feature/AlertaIntervencionTest.php`](../backend/tests/Feature/AlertaIntervencionTest.php).
 
+### RF-04 — Reportes conductuales — **Implementado V1 mínimo**
+
+- API: `GET/POST /api/estudiantes/{id}/reportes-conductuales`, `PATCH /api/reportes-conductuales/{id}/anular` — [`ReporteConductualController.php`](../backend/app/Http/Controllers/Api/ReporteConductualController.php).
+- Permisos: `ver_reportes_conductuales`, `registrar_reportes_conductuales` — [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php).
+- UI: bloque en perfil — [`EstudiantePerfilReportesConductuales.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilReportesConductuales.jsx).
+- Tests: [`ReporteConductualTest.php`](../backend/tests/Feature/ReporteConductualTest.php) — **8 passed** (Fase 2E, 2026-06-10).
+- Smoke UI: [`smoke-rf04-reportes-conductuales.md`](pruebas/smoke-rf04-reportes-conductuales.md) — **pendiente ejecución humana en navegador**.
+- **Brechas V1:** sin módulo global por grado/sección; sin PDF RF-16; sin alertas automáticas RF-10; directivo solo lectura backend y **sin menú Estudiantes** en UI habitual; no es comunicación familiar (RF-12 eliminado).
+
 ### Dashboard — **Confirmado en código** (alcance funcional parcial frente al DRF RF-14; ver §4)
 
 - API: `GET /api/dashboard`, `GET /api/dashboard/export` — [`backend/routes/api.php`](../backend/routes/api.php) (L66–70).
@@ -161,7 +170,6 @@ Cada ítem incluye evidencia por ruta.
 
 | Tema | Estado | Notas |
 |------|--------|-------|
-| **RF-04** — Reportes conductuales | **Implementado parcialmente** | Migración + modelo + permisos seeder (Fase 2B); **sin API/UI**; pruebas funcionales pendientes |
 | **RF-10** — Escalamiento directivo crítico | **Planificado** | Solo casos críticos/extremos |
 | **RF-11** — Perfil integral psicólogo (lectura) | **Planificado** | Alertas operativas hoy |
 | **RF-16** — Zona reportes de riesgo | **Planificado** | PDF dashboard = parcial |
@@ -262,7 +270,7 @@ Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
-- Implementar en código RF planificados: ~~RF-04~~ (base RBAC Fase 2B; API/UI pendientes), RF-10, RF-16, RF-18, RF-19, RF-20 (historial evolutivo UI).
+- Implementar en código RF planificados: ~~RF-04~~ (**V1 mínimo cerrado Fase 2E** — ver §3); RF-10, RF-16, RF-18, RF-19, RF-20 (historial evolutivo UI).
 
 **Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 

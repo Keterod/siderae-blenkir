@@ -165,9 +165,10 @@ Módulos visibles: **todos** los del menú lateral.
 - **Pasos (listar):** Use búsqueda y filtros (nivel, grado, sección, año) → **Buscar** → pulse un estudiante para ver perfil.
 - **Pasos (crear):** **Nuevo estudiante** → complete formulario → **Guardar estudiante**.
 - **Pasos (editar):** En perfil → **Editar estudiante** → modifique → **Guardar cambios**.
-- **Resultado esperado:** Listado paginado; ficha con datos generales, bloque de riesgo (informativo) y resumen curricular si aplica.
+- **Pasos (reportes conductuales):** En perfil → bloque **Reportes conductuales** → consulte listado; con permiso de registro use **Registrar reporte** o **Anular** (confirmación previa).
+- **Resultado esperado:** Listado paginado; ficha con datos generales, bloque de riesgo (informativo), reportes conductuales (si aplica) y resumen curricular si aplica.
 - **Errores comunes:** Campos obligatorios resaltados; «No se pudo guardar el estudiante.» — revise validaciones.
-- *Permiso:* `gestionar_estudiantes`.
+- *Permiso:* `gestionar_estudiantes` (listado y ficha); reportes conductuales: `ver_reportes_conductuales` / `registrar_reportes_conductuales`.
 
 ### 7.5 Gestionar usuarios
 
@@ -277,6 +278,18 @@ Módulos visibles: **todos** los del menú lateral.
 - **Resultado esperado:** Alerta actualizada; intervenciones en historial.
 - *Permisos:* `ver_alertas`, `registrar_intervencion`.
 
+### 7.18 Reportes conductuales (perfil de estudiante)
+
+- **Objetivo:** Consultar y, si corresponde, registrar o anular incidencias conductuales del estudiante en la sede Chilca.
+- **Navegación:** Menú → **Estudiantes** → abra perfil → bloque **Reportes conductuales** (no hay menú global ni selector de sede).
+- **Pasos (consultar):** Revise la tabla (fecha, tipo, gravedad, descripción, acción inmediata, registrado por).
+- **Pasos (registrar):** **Registrar reporte** → complete fecha, tipo, gravedad (leve/moderado/grave), descripción y acción inmediata opcional → **Guardar reporte**.
+- **Pasos (anular):** **Anular** en la fila → confirme en el diálogo; el reporte deja de listarse (anulación lógica en servidor).
+- **Resultado esperado:** Solo reportes **activos** visibles; mensaje de vacío si no hay registros.
+- **Errores comunes:** «Sin permiso para esta acción» (403); validaciones de campos obligatorios (422); «No se pudo cargar…» ante fallo de red.
+- **Importante:** No sustituye **comunicación formal con familia** (RF-12 eliminado del alcance); es registro institucional interno.
+- *Permisos:* `ver_reportes_conductuales` (listado); `registrar_reportes_conductuales` (crear y anular). **Directivo:** solo lectura en backend, pero en V1 **no tiene menú Estudiantes** — no accede al bloque desde UI habitual.
+
 ---
 
 ## 8. Manual por rol: Docente
@@ -296,6 +309,9 @@ Igual que §7.1. Tras login, suele abrirse **Dashboard** o **Notas semanales** s
 Igual que §7.2–7.3 si tiene `ver_dashboard` (confirmado en seed para docente).
 
 ### 8.3 Estudiantes y perfil
+
+- Como §7.4 y §7.18 — puede **consultar, registrar y anular** reportes conductuales en el perfil.
+- *Permisos:* `gestionar_estudiantes`, `ver_reportes_conductuales`, `registrar_reportes_conductuales`.
 
 - **Objetivo:** Consultar y, si corresponde, actualizar datos de estudiantes; ver resumen académico en perfil.
 - **Navegación:** **Estudiantes**.
@@ -345,7 +361,7 @@ Como §7.2–7.3.
 
 ### 9.2 Estudiantes
 
-Como §7.4 (gestión completa de estudiantes).
+Como §7.4 y §7.18 (gestión de padrón + reportes conductuales en perfil).
 
 ### 9.3 Configuración curricular
 
@@ -541,6 +557,7 @@ Detalle técnico y diferencia con plantilla/import curricular: [`docs/aula-notas
 | Sede única Chilca | Sin selector de sede; multi-sede no operativa |
 | Auquimarca en BD local | Dato histórico de desarrollo; no uso normal V1 |
 | Variables socioeconómicas | API existe; **pestaña no visible** en perfil de estudiante |
+| Reportes conductuales | Solo en **perfil de estudiante**; sin menú global ni listado por grado/sección; cierre RF-04 Fase 2E pendiente |
 | Riesgo en perfil de estudiante | Mensaje de **pausa/rediseño**; sin botón «Procesar riesgo» en UI |
 | Procesar riesgo manual | Permiso backend para admin/coordinador; **sin acción de pantalla** habitual |
 | Módulos legacy | Materias, notas masivas y asistencia masiva **sin menú** — fuera del flujo V1 |

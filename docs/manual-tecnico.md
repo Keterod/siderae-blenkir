@@ -204,8 +204,9 @@ docker compose exec app-backend php artisan migrate:status
 | Área | Estado |
 |------|--------|
 | Auth, RBAC, estudiantes, curricular **RF-21–RF-35**, Excel plantilla/aula, riesgo, alertas | Confirmado / parcial |
+| **RF-04** reportes conductuales (perfil estudiante) | **Implementado V1 mínimo** — Fases 2B–2E |
 | SIAGIE, Fast Test, VSE en riesgo, comunicación familiar | **Fuera del alcance vigente** |
-| Reportes conductuales, escalamiento directivo, semáforo, reportes riesgo, historial evolutivo | **Planificado** |
+| Escalamiento directivo, semáforo, reportes riesgo RF-16, historial evolutivo | **Planificado** |
 | Dashboard académico-institucional | Parcial (riesgo subset hoy) |
 | ML ensemble, reentrenamiento RF-18 | **Planificado** — no implementado |
 

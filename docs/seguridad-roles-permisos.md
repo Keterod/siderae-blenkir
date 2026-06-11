@@ -88,7 +88,7 @@ Usuarios demo: [`DemoUsersSeeder.php`](../backend/database/seeders/DemoUsersSeed
 
 Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **25 permisos implementados actualmente**, `guard_name` = `web` (8 legacy + 15 curriculares + 2 conductuales RF-04).
 
-> **Permisos adicionales sugeridos/planificados:** 6 permisos para RF-10, RF-11, RF-16, RF-18 y RF-19 documentados en §16 — **no** están en `PermissionsSeeder` ni en rutas API. Los permisos RF-04 (`ver_reportes_conductuales`, `registrar_reportes_conductuales`) **sí** están en seeder desde Fase 2B; **aún no** tienen rutas API ni UI.
+> **Permisos adicionales sugeridos/planificados:** 6 permisos para RF-10, RF-11, RF-16, RF-18 y RF-19 documentados en §16 — **no** están en `PermissionsSeeder`. Los permisos RF-04 **sí** están en seeder (Fase 2B), **rutas API** (Fase 2C) y **UI perfil** (Fase 2D); cierre pruebas Fase 2E (2026-06-10).
 
 ### Legacy (8)
 
@@ -127,8 +127,8 @@ Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.
 
 | Permiso | Uso funcional | Módulo / rutas | Estado |
 |---------|---------------|----------------|--------|
-| `ver_reportes_conductuales` | Consulta reportes conductuales por estudiante | **Sin ruta API aún** (Fase 2C) | Confirmado en seeder |
-| `registrar_reportes_conductuales` | Registro/anulación reportes conductuales | **Sin ruta API aún** (Fase 2C) | Confirmado en seeder |
+| `ver_reportes_conductuales` | Consulta reportes conductuales por estudiante | `GET /api/estudiantes/{id}/reportes-conductuales` | Confirmado |
+| `registrar_reportes_conductuales` | Registro/anulación reportes conductuales | `POST …/reportes-conductuales`, `PATCH /api/reportes-conductuales/{id}/anular` | Confirmado |
 
 ---
 
@@ -175,7 +175,7 @@ Leyenda control: **Sí** = middleware/permiso confirmado; **Parcial** = UI disti
 | Config. bimestral | Config/resultados | `/api/curricular/evaluacion-bimestral/*` | GET/POST | `configurar_evaluacion_bimestral` / `ver_notas_academicas` | coord / lectores | Sí | Sí | Confirmado |
 | Malla / criterios / competencias / secciones / asignación / calendario | CRUD según módulo | `/api/curricular/*` | varios | permisos `gestionar_*` / `ver_*` | Según §7 | Sí | Sí | Confirmado |
 | Usuarios | Gestión | `/api/usuarios*` | GET/POST/PATCH | `gestionar_usuarios` | admin | Sí | Sí | Confirmado |
-| Reportes conductuales | Ver / registrar | *(pendiente Fase 2C)* | — | `ver_reportes_conductuales` / `registrar_reportes_conductuales` | admin, docente, coord, psicólogo (ver+reg); directivo (solo ver) | **Pendiente** | **Pendiente** | Permisos en seeder; sin API/UI |
+| Reportes conductuales | Ver / registrar | `GET/POST …/reportes-conductuales`, `PATCH …/anular` | GET/POST/PATCH | `ver_reportes_conductuales` / `registrar_reportes_conductuales` | admin, docente, coord, psicólogo (ver+reg); directivo (solo ver backend) | Sí | **Sí** (perfil) | V1 mínimo Fase 2E; directivo sin menú Estudiantes |
 | Materias legacy | Catálogo | `/api/materias*` | varios | `gestionar_materias` / `registrar_datos_academicos` | admin / docente+coord lectura | Sí | **No menú** | API sí |
 
 \* Docente tiene `ver_dashboard` en seed — confirmado en seeder.
@@ -197,6 +197,9 @@ Leyenda control: **Sí** = middleware/permiso confirmado; **Parcial** = UI disti
 | `GET /api/usuarios` | sanctum | `gestionar_usuarios` | Pendiente | Sí | `GestionUsuariosTest.php` |
 | `GET /api/curricular/mallas` | sanctum | `ver_malla_curricular` | Sí | Sí | `CurricularApiTest.php` |
 | `GET /api/curricular/excel-aula` | sanctum | `descargar_excel_aula` | Pendiente | Sí | `ExcelAulaTest.php` |
+| `GET /api/estudiantes/{id}/reportes-conductuales` | sanctum | `ver_reportes_conductuales` | Sí | Sí | `ReporteConductualTest.php` |
+| `POST /api/estudiantes/{id}/reportes-conductuales` | sanctum | `registrar_reportes_conductuales` | Sí | Sí | `ReporteConductualTest.php` |
+| `PATCH /api/reportes-conductuales/{id}/anular` | sanctum | `registrar_reportes_conductuales` | Sí | Sí | `ReporteConductualTest.php` |
 | `POST /register` | guest | — | N/A | N/A | `RegistrationTest.php` (público) |
 | `GET /api/health` | ninguno | — | N/A | N/A | Pendiente de verificar |
 
@@ -325,12 +328,12 @@ Los siguientes permisos **no existen** aún en código; se documentan como objet
 | `ver_semaforo_completitud` | RF-19 | Planificado |
 | `gestionar_reentrenamiento_ml` | RF-18 | Planificado |
 
-### Permisos RF-04 implementados en seeder (Fase 2B — sin API/UI aún)
+### Permisos RF-04 implementados en seeder (Fase 2B — API + UI V1 mínimo)
 
 | Permiso | RF | Estado |
 |---------|-----|--------|
-| `ver_reportes_conductuales` | RF-04 | **Implementado** en `PermissionsSeeder`; rutas API pendientes Fase 2C |
-| `registrar_reportes_conductuales` | RF-04 | **Implementado** en seeder; **no** asignado a `directivo` |
+| `ver_reportes_conductuales` | RF-04 | **Implementado** — seeder + API GET + UI perfil |
+| `registrar_reportes_conductuales` | RF-04 | **Implementado** — seeder + API POST/PATCH anular + UI; **no** asignado a `directivo` |
 
 ---
 
@@ -346,4 +349,4 @@ Documentación técnica del repo cita **Laravel ^13** / PHP 8.3 — **confirmado
 
 ---
 
-*Documento generado en Fase 3 del plan de actualización documental SIDERAE-Blenkir. Actualizado Fase 2B RF-04 (permisos base) — 2026-06-10.*
+*Documento generado en Fase 3 del plan de actualización documental SIDERAE-Blenkir. Actualizado Fases 2B–2E RF-04 — 2026-06-10.*

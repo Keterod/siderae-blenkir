@@ -122,7 +122,23 @@ Orquesta llamada a Flask — ver [`ml-service.md`](ml-service.md).
 
 ---
 
-## 9. Alertas e intervenciones (RF-08/09/13)
+## 9. Reportes conductuales (RF-04 — V1 mínimo)
+
+Solo estudiantes con `sede = chilca` (V1 operativa). Listado devuelve reportes con `estado = activo`. Anulación lógica (`estado = anulado`); **sin** DELETE físico. UI en **perfil estudiante** (`EstudiantePerfilReportesConductuales.jsx`); **sin** menú global ni listado por grado/sección.
+
+| Método | Ruta | Permiso | Descripción |
+|--------|------|---------|-------------|
+| GET | `/api/estudiantes/{estudiante}/reportes-conductuales` | `ver_reportes_conductuales` | Lista activos, orden fecha desc |
+| POST | `/api/estudiantes/{estudiante}/reportes-conductuales` | `registrar_reportes_conductuales` | Crea reporte; `registrado_por` = usuario sesión |
+| PATCH | `/api/reportes-conductuales/{reporteConductual}/anular` | `registrar_reportes_conductuales` | Anula lógicamente |
+
+**Body POST (JSON):** `fecha`, `tipo_conducta`, `nivel_gravedad` (`leve`|`moderado`|`grave`), `descripcion`, `accion_inmediata` (opcional).
+
+Tests: [`ReporteConductualTest.php`](../backend/tests/Feature/ReporteConductualTest.php) — **8 passed** (Fase 2E, 2026-06-10). Smoke UI: [`smoke-rf04-reportes-conductuales.md`](pruebas/smoke-rf04-reportes-conductuales.md).
+
+---
+
+## 10. Alertas e intervenciones (RF-08/09/13)
 
 | Método | Ruta | Permiso |
 |--------|------|---------|
@@ -133,7 +149,7 @@ Orquesta llamada a Flask — ver [`ml-service.md`](ml-service.md).
 
 ---
 
-## 10. Módulo curricular (`/api/curricular/*`)
+## 11. Módulo curricular (`/api/curricular/*`)
 
 Todas requieren `auth:sanctum` + permiso indicado. Prefijo base: `/api/curricular`.
 
@@ -228,11 +244,10 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 
 ---
 
-## 11. Endpoints no expuestos (planificados o fuera de alcance)
+## 12. Endpoints no expuestos (planificados o fuera de alcance)
 
 | RF | Estado | Notas |
 |----|--------|-------|
-| RF-04 Reportes conductuales | **Planificado** | Migración sin rutas |
 | RF-10 Escalamiento directivo | **Planificado** | Sin rutas |
 | RF-12 Comunicación familiar | **Eliminado del alcance** | Esquema BD histórico |
 | RF-18 Reentrenamiento ML | **Planificado** | Sin endpoints |
@@ -243,7 +258,7 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 
 ---
 
-## 12. Permisos Spatie (referencia)
+## 13. Permisos Spatie (referencia)
 
 Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php):
 
@@ -251,9 +266,11 @@ Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSe
 
 **Curricular (15):** `ver_malla_curricular`, `gestionar_malla_curricular`, `gestionar_temas_semanales`, `configurar_pesos_evaluacion`, `gestionar_componentes_calificacion`, `gestionar_asignaciones_docente`, `registrar_notas_semanales`, `ver_notas_academicas`, `configurar_evaluacion_bimestral`, `registrar_asistencia_curricular`, `ver_asistencia_curricular`, `gestionar_calendario_academico`, `gestionar_competencias_capacidades`, `gestionar_secciones_aulas`, `descargar_excel_aula`.
 
+**Conductuales RF-04 (2):** `ver_reportes_conductuales`, `registrar_reportes_conductuales`.
+
 ---
 
-## 13. Documentos relacionados
+## 14. Documentos relacionados
 
 - [`manual-tecnico.md`](manual-tecnico.md)
 - [`aula-notas-excel.md`](aula-notas-excel.md)
@@ -263,4 +280,4 @@ Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSe
 
 ---
 
-*Fase 2 documental — 2026-06-09. Fuente de verdad: rutas en repositorio; regenerar catálogo si cambia `api.php`.*
+*Fase 2 documental — 2026-06-09. RF-04 API+UI V1 mínimo — Fases 2B–2E (2026-06-10).*
