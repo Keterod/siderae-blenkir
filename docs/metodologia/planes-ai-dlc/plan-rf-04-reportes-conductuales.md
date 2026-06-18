@@ -15,7 +15,7 @@ Objetivos del plan:
 
 - Fijar alcance honesto V1 a partir del **DRS v2.1** y evidencia en repositorio.
 - Definir impactos futuros en backend, frontend, permisos, pruebas y documentación.
-- Proponer **fases 2B–2E** para implementación controlada con **validación humana obligatoria**.
+- Proponer **fases 2B–2F** para implementación controlada con **validación humana obligatoria**.
 
 **No implementa RF-04.** No crea rutas, controllers, UI, permisos en seeder ni modifica Flask.
 
@@ -108,7 +108,7 @@ Queda **explícitamente excluido** de la implementación RF-04 (fases 2B–2E):
 - **Modificación de Flask** — contrato actual ya acepta conteo `reportes_conductuales`.
 - **Modificación de `RiesgoAcademicoService`** — salvo bug crítico aprobado; el conteo existente se mantiene.
 - **Borrado físico** de reportes — prohibido; solo anulación lógica.
-- **Cypress / E2E** — ausente en repo; no planificar como existente.
+- **Cypress / E2E** — Fase 2F agrega smoke mínimo RF-04; no planificar como suite E2E completa.
 - **Certificación ISO** — solo alineación progresiva documental.
 
 ---
@@ -239,7 +239,7 @@ Propuestas para Fase 2E. **Ninguna ejecutada en Fase 2A.**
 
 Ejecución recomendada: `php artisan test --filter=ReporteConductualTest` con `memory_limit=512M` si suite completa OOM @ 128M (NC-06).
 
-### Frontend / manual (sin Cypress)
+### Frontend / manual + Cypress mínimo RF-04
 
 | Tipo | Prueba | Objetivo | Prioridad |
 | ---- | ------ | -------- | --------- |
@@ -249,6 +249,7 @@ Ejecución recomendada: `php artisan test --filter=ReporteConductualTest` con `m
 | Manual | Directivo solo ve acciones lectura | RBAC UI | Alta |
 | Manual | Usuario sin permiso no ve formulario ni botones | UI + API 403 | Alta |
 | Manual | Anular reporte — desaparece de lista activa | Anulación lógica | Media |
+| Cypress RF-04 | Login, abrir perfil, ver bloque, registrar, validar y anular reporte | Smoke navegador RF-04 | Media |
 
 Actualizar fichas manuales/automatizadas **obsoletas** que asumen docente **no** puede registrar (contradicen DRS v2.1) en Fase 2E.
 
@@ -314,6 +315,7 @@ Cierre RF-04 (Fase 2E) cuando se cumpla **todo** lo verificable:
 | **Fase 2C** | Backend API RF-04 | Migración `estado`; Controller, FormRequests, rutas, tests Feature | **Completada** (2026-06-10) |
 | **Fase 2D** | Frontend RF-04 | Componente perfil, `api.js`, visibilidad permisos | **Completada** (2026-06-10) |
 | **Fase 2E** | Pruebas, documentación y cierre | `ReporteConductualTest`, smoke manual, matriz, limitaciones, NC, actualización de este plan | **Completada** (2026-06-10) |
+| **Fase 2F** | Cypress E2E mínimo RF-04 | Config Cypress frontend, spec RF-04, documentación de ejecución | **Completada/configurada** (2026-06-17); Cypress verificado, spec detenido por falta de `CYPRESS_E2E_EMAIL` |
 
 **Orden:** 2B → 2C → 2D → 2E (permisos antes de rutas; backend antes de UI).
 
@@ -341,7 +343,7 @@ Fuentes: DRS v2.1 RF-04, AGENTS.md (Chilca), .cursorrules
 
 ## 17. Conclusión
 
-**Fases 2B–2E completadas (2026-06-10):** permisos RBAC, API backend, UI perfil estudiante, pruebas PHPUnit RF-04 (8 passed), build frontend verde, documentación de cierre. **Sin** Flask modificado. **Sin** menú global RF-04.
+**Fases 2B–2F completadas/configuradas:** permisos RBAC, API backend, UI perfil estudiante, pruebas PHPUnit RF-04 (8 passed), build frontend verde en 2E, documentación de cierre y Cypress mínimo RF-04 en 2F. **Sin** Flask modificado. **Sin** menú global RF-04.
 
 **Estado final RF-04:** **Implementado V1 mínimo** — ver sección **Cierre Fase 2E** abajo.
 
@@ -359,13 +361,13 @@ Decisiones cerradas en 2B:
 |------|-----------|
 | **Backend** | API RF-04 operativa; `ReporteConductualTest`: **8 passed**, 26 assertions (~15.5 s) — 2026-06-10 |
 | **Frontend** | Bloque perfil + `api.js`; `npm run build` exitoso (~7.7 s) |
-| **Pruebas** | PHPUnit RF-04 verde; smoke UI navegador **no ejecutado** (ficha [`smoke-rf04-reportes-conductuales.md`](../../pruebas/smoke-rf04-reportes-conductuales.md)) |
+| **Pruebas** | PHPUnit RF-04 verde; Cypress mínimo RF-04 configurado y verificado, spec detenido por falta de `CYPRESS_E2E_EMAIL` (ficha [`cypress-rf04.md`](../../pruebas/cypress-rf04.md)); smoke UI navegador manual **no ejecutado** (ficha [`smoke-rf04-reportes-conductuales.md`](../../pruebas/smoke-rf04-reportes-conductuales.md)) |
 | **Documentación** | Matriz, limitaciones, api, manual, seguridad, NC, informe-pruebas, este plan |
-| **Brechas restantes** | Sin módulo global/grado-sección; sin PDF RF-16; sin alertas RF-10; directivo sin UI Estudiantes; smoke browser pendiente; integración avanzada riesgo/semáforo RF-19/historial RF-20 |
+| **Brechas restantes** | Sin módulo global/grado-sección; sin PDF RF-16; sin alertas RF-10; directivo sin UI Estudiantes; Cypress RF-04 pendiente de ejecución funcional con variables E2E; integración avanzada riesgo/semáforo RF-19/historial RF-20 |
 | **Estado final RF-04** | **Implementado V1 mínimo** |
 
 **Próxima fase recomendada (post RF-04):** **Fase 3A — Plan AI-DLC RF-19 Semáforo de completitud** (prioridad DRS para calidad de datos de riesgo).
 
 ---
 
-*Plan AI-DLC Fase 2A — 2026-06-10. Fase 2B permisos RBAC — 2026-06-10. Fase 2C backend API — 2026-06-10. Fase 2D frontend perfil — 2026-06-10. Fase 2E cierre — 2026-06-10.*
+*Plan AI-DLC Fase 2A — 2026-06-10. Fase 2B permisos RBAC — 2026-06-10. Fase 2C backend API — 2026-06-10. Fase 2D frontend perfil — 2026-06-10. Fase 2E cierre — 2026-06-10. Fase 2F Cypress RF-04 — 2026-06-17.*

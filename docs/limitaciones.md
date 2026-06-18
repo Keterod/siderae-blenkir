@@ -83,6 +83,7 @@ Cada ítem incluye evidencia por ruta.
 - Permisos: `ver_reportes_conductuales`, `registrar_reportes_conductuales` — [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php).
 - UI: bloque en perfil — [`EstudiantePerfilReportesConductuales.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilReportesConductuales.jsx).
 - Tests: [`ReporteConductualTest.php`](../backend/tests/Feature/ReporteConductualTest.php) — **8 passed** (Fase 2E, 2026-06-10).
+- Cypress mínimo: [`cypress-rf04.md`](pruebas/cypress-rf04.md), `frontend/cypress/e2e/rf04-reportes-conductuales.cy.js` — configurado Fase 2F; Cypress verificado, spec detenido por falta de `CYPRESS_E2E_EMAIL`.
 - Smoke UI: [`smoke-rf04-reportes-conductuales.md`](pruebas/smoke-rf04-reportes-conductuales.md) — **pendiente ejecución humana en navegador**.
 - **Brechas V1:** sin módulo global por grado/sección; sin PDF RF-16; sin alertas automáticas RF-10; directivo solo lectura backend y **sin menú Estudiantes** en UI habitual; no es comunicación familiar (RF-12 eliminado).
 
@@ -181,7 +182,7 @@ Cada ítem incluye evidencia por ruta.
 
 | Tema | Estado | Notas |
 |------|--------|-------|
-| **Cypress / E2E** | No confirmado | Sin carpeta `cypress/` |
+| **Cypress / E2E** | Parcial | Cypress mínimo RF-04 configurado; sin suite E2E global |
 | **Random Forest / SVM / XGBoost** | No implementado | ML determinístico en V1 |
 | **Certificación ISO** | No aplica | Alineación progresiva únicamente |
 | **Despliegue productivo** | Pendiente | Solo Docker local |
@@ -231,7 +232,7 @@ Cada ítem incluye evidencia por ruta.
 |---------|--------|
 | PHPUnit / Feature Tests | **Existen** — ~49 archivos en [`backend/tests/`](../backend/tests/) |
 | Ejecución suite completa (Fase 1) | **Parcial** — ver [`docs/pruebas/hallazgos-fase1-documentacion.md`](pruebas/hallazgos-fase1-documentacion.md): fallo por memoria en `ExcelAulaTest` con límite 128M; misma clase pasa con 512M |
-| Cypress | **No confirmado** — sin carpeta `cypress/` en el repositorio |
+| Cypress | **Parcial** — smoke RF-04 configurado; ejecución funcional pendiente con variables E2E |
 | Fichas automatizadas | [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) referencia `ImportarDatosTest` **inexistente** |
 | Informe de ejecución | [`docs/pruebas/informe-pruebas.md`](pruebas/informe-pruebas.md) — consolidado Fase 5 |
 | Matriz RF–Sprint–Test | [`docs/matriz-rf-sprint-test.md`](matriz-rf-sprint-test.md) |
@@ -270,7 +271,7 @@ Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
-- Implementar en código RF planificados: ~~RF-04~~ (**V1 mínimo cerrado Fase 2E** — ver §3); RF-10, RF-16, RF-18, RF-19, RF-20 (historial evolutivo UI).
+- Implementar en código RF planificados: ~~RF-04~~ (**V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F** — ver §3); RF-10, RF-16, RF-18, RF-19, RF-20 (historial evolutivo UI).
 
 **Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 

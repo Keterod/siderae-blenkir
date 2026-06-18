@@ -62,7 +62,7 @@ Sirve para trazabilidad académica y como insumo para actualizar el DRS separand
 - **BD auditada Fase 1:** conteos **no** equivalen a seed oficial limpio (`migrate:fresh --seed` no ejecutado en Fase 1).
 - **Suite PHPUnit completa:** falló por **OOM** con `memory_limit=128M` en `ExcelAulaTest` (Fase 1).
 - **`ExcelAulaTest` aislado:** **8 passed**, 32 assertions con `memory_limit=512M` (Fase 1).
-- **Cypress:** **no existe** en el repositorio.
+- **Cypress:** existe configuración mínima para smoke RF-04; no existe suite E2E completa del sistema.
 - **SIAGIE:** **fuera del alcance actual** — plantillas Excel propias (RF-32).
 - **Fast Test (RF-03):** **retirado del alcance vigente**.
 - **VSE (RF-05):** **retiradas del flujo de riesgo**; API legacy puede existir.
@@ -81,7 +81,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-01 | Carga e importación de datos académicos | 3B, 7.6B, 8.5B | Implementado parcialmente | `/api/curricular/notas-semanales/*`, `importar-excel`, `GET /excel-aula`, legacy API | Notas/asistencia curricular; plantilla Excel propia (import); Excel aula (solo descarga) | `DatosAcademicosTest`, `PlantillaRegistroAuxiliarExcelTest`, `CurricularApiTest`, `NotasSemanales*`, `ExcelAulaTest` | Parcial — `ExcelAulaTest` 8 passed @ 512M | **SIAGIE fuera del alcance actual**; ver RF-21–RF-35 y [`aula-notas-excel.md`](aula-notas-excel.md) |
 | RF-02 | Registro digital de asistencia semanal | 3B, 8.5B | Confirmado en código (curricular) | `/api/curricular/asistencias-diarias/*` | Menú **Asistencia** | `AsistenciaDiariaTest` | No ejecutado Fase 5 | Ver RF-31 |
 | RF-03 | Importación resultados Fast Test | — | **Retirado del alcance** | — | No aplica | — | — | Institución no utiliza Fast Test; referencia histórica DRS v1 |
-| RF-04 | Registro reportes conductuales | AI-DLC 2B–2E | **Implementado V1 mínimo** | API + permisos + `EstudiantePerfilReportesConductuales.jsx` | Perfil estudiante → **Reportes conductuales** | `ReporteConductualTest` | **8 passed**, 26 assert. (2E) | Fases 2B–2E completadas; smoke UI navegador pendiente; sin módulo global |
+| RF-04 | Registro reportes conductuales | AI-DLC 2B–2F | **Implementado V1 mínimo** | API + permisos + `EstudiantePerfilReportesConductuales.jsx` | Perfil estudiante → **Reportes conductuales** | `ReporteConductualTest`; Cypress smoke RF-04 | PHPUnit: **8 passed**, 26 assert. (2E); Cypress verificado, spec detenido por falta de `CYPRESS_E2E_EMAIL` (2F) | Fases 2B–2F; Cypress mínimo RF-04 configurado; sin módulo global |
 | RF-05 | Integración variables socioeconómicas | 3B | **Retirado del flujo de riesgo** | API legacy `/variables-socioeconomicas` | UI pausada | `DatosAcademicosTest` (API legacy) | Parcial | No insumo obligatorio de RF-06 |
 | RF-06 | Procesamiento multivariable e índice de riesgo | 4, 8.5B | Implementado parcialmente | `POST …/procesar-riesgo`, `MlRiskService` | Perfil riesgo **en pausa** | `RiesgoTest`, `DemoProcesarRiesgosCommandTest` | Parcial | ML **determinístico**; operación con datos parciales + RF-19 planificado |
 | RF-07 | Evaluación automática nivel de riesgo | 4, 5 | Confirmado en código (parcial DRS) | Umbrales en servicio riesgo | Dashboard KPIs riesgo | `RiesgoTest` | No re-ejecutado Fase 5 | REQ configurables admin: pendiente |
@@ -143,7 +143,7 @@ Incluye sub-sprints documentados en `sprints/` vinculados al sprint principal. E
 | **8.5A** | Backend curricular + seeders | `/api/curricular/*`, migraciones | Rutas L128–282 | `CurricularSeedersTest`, `CurricularApiTest` | Confirmado en código | — |
 | **8.5B** | API/UI curricular + asignación | Notas, asistencia, malla UI | Paneles `curricular/*` | `AsistenciaDiariaTest`, `AsignacionDocenteValidacionesTest`, `NotasSemanales*` | Confirmado en código | — |
 | **8.5C** | Evaluación bimestral | Config bimestral, CE | `EvaluacionBimestral*` | `EvaluacionBimestralApiTest`, `EvaluacionBimestralTest` | Confirmado en código | — |
-| **9** | Pruebas integrales + regresión | Campaña pytest + Cypress planeado | — | Ejecución Fase 1 documentada | Implementado parcialmente | **Cypress planeado/no encontrado**; suite OOM 128M |
+| **9** | Pruebas integrales + regresión | Campaña pytest + Cypress planeado | Cypress mínimo RF-04 en `frontend/cypress/` | Ejecución Fase 1 documentada; RF-04 Cypress pendiente | Implementado parcialmente | No hay suite Cypress global; suite PHPUnit OOM 128M |
 | **10** | Documentación + cierre calidad | Manuales, matriz RF, informe | `docs/*` Fases 1–5 | Informe consolidado Fase 5 | En progreso | ISO solo referencia; sin certificación |
 
 ---
@@ -228,7 +228,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 | Caso / documento | RF | Archivo esperado | Estado | Observación |
 |------------------|-----|------------------|--------|-------------|
 | [`Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) | RF-01 | `ImportarDatosTest` | **Planeado/no encontrado** | Usar `PlantillaRegistroAuxiliarExcelTest`, `DatosAcademicosTest` |
-| [`sprint 9.md`](../sprints/sprint%209.md) | Varios | Suite **Cypress** | **Planeado/no encontrado** | Sin carpeta `cypress/` |
+| [`sprint 9.md`](../sprints/sprint%209.md) | Varios | Suite **Cypress** | **Parcial** | Existe Cypress mínimo RF-04; suite global planeada/no encontrada |
 | Plan de pruebas / Sprint 9 | RF-01 | Importación **SIAGIE** | **Fuera del alcance** | Decisión alcance v2.1; plantilla RF-32 |
 | Sprint 8 / seguridad | RF-15 | 401 en **todas** rutas `/api/curricular/*` | **Parcial** | Ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) §12 |
 | DRS RF-03 | RF-03 | `FastTestImportTest` | **Retirado del alcance** | Referencia histórica DRS v1 |
@@ -250,7 +250,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 | RF-10, RF-16, RF-19, RF-20 planificados; ~~RF-04~~ V1 mínimo | RF-10–20 | Flujo riesgo incompleto (RF-04 cerrado perfil) | Backlog DRS v2.1 | Alta |
 | RF-10–12 alcance | RF-10–13 | Cierre alerta vs DRS v1 | RF-12 eliminado; RF-10 planificado | Alta |
 | Excel aula solo descarga; import solo plantilla curso | RF-01, RF-16 | Usuario espera import aula | Documentar en manual y DRS | Media |
-| Cypress ausente | Varios UI | Sin E2E automatizado | Smoke manual por rol ([`manual-usuario.md`](manual-usuario.md)) | Media |
+| Cypress limitado a RF-04 | Varios UI | Sin E2E automatizado global | Ejecutar smoke RF-04 y mantener smoke manual por rol ([`manual-usuario.md`](manual-usuario.md)) | Media |
 | Suite OOM 128M | RF-01, RF-16 | CI/local falla antes de terminar | `memory_limit=512M` o ajuste php.ini tests | Alta |
 | RF-06–07 UI pausada | RF-06, RF-07, RF-20 | Usuario no procesa riesgo desde perfil | Alinear UI o documentar comando técnico | Media |
 | RF-10–12 sin API | RF-10–13 | Escalamiento/cierre incompleto | RF-10/19 planificados; RF-04 V1 mínimo; RF-12 eliminado | Alta |

@@ -14,7 +14,7 @@ Este informe consolida:
 
 - Qué pruebas **existen** en el repositorio (PHPUnit Feature/Unit),
 - Qué se **ejecutó** en la auditoría Fase 1 y con qué resultado,
-- Limitaciones de entorno (memoria PHP, ausencia Cypress, BD no seed limpio),
+- Limitaciones de entorno (memoria PHP, Cypress mínimo solo RF-04, BD no seed limpio),
 - Brechas para defensa académica honesta del prototipo V1.
 
 No sustituye al Plan de Pruebas formal ni constituye auditoría externa.
@@ -25,7 +25,7 @@ No sustituye al Plan de Pruebas formal ni constituye auditoría externa.
 
 | Incluido | Excluido |
 |----------|----------|
-| Backend **PHPUnit / Feature / Unit** en `backend/tests/` | **Cypress** / E2E automatizado (no existe en repo) |
+| Backend **PHPUnit / Feature / Unit** en `backend/tests/` | Suite Cypress completa del sistema |
 | Comandos documentados en Fase 1 | Certificación **ISO** |
 | Pruebas manuales **recomendadas** (sin ejecutar en Fase 5) | Auditoría externa o pentest |
 | Conteos BD local auditada (solo lectura) | Afirmación de «suite aprobada» global |
@@ -76,7 +76,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | PHPUnit suite completa | **Parcial / incompleta** | Fallo técnico OOM antes de fin | Fase 1 salida consola | `memory_limit=128M` insuficiente para Excel |
 | `ExcelAulaTest` aislado | **Ejecutado (Fase 1)** | 8 passed @ 512M | Fase 1 | No implica suite global verde |
 | Tests previos a OOM | **Parcial** | ~277 passed (conteo salida) | Fase 1 | No inventariados uno a uno en informe |
-| Cypress / E2E | **No confirmado** | No ejecutado | Sin carpeta `cypress/` | Sprint 9 lo planea; no implementado |
+| Cypress / E2E RF-04 | **Configurado mínimo** | Ejecutado; no completó por falta de `CYPRESS_E2E_EMAIL` | `frontend/cypress/e2e/rf04-reportes-conductuales.cy.js` | Solo smoke RF-04; no suite global |
 | Pruebas manuales por rol | **Recomendadas** | RF-04 smoke **pendiente navegador** | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | API/build verdes Fase 2E |
 | `ReporteConductualTest` aislado | **Ejecutado (Fase 2E)** | 8 passed, 26 assertions | Fase 2E | RF-04 cierre |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
@@ -210,12 +210,12 @@ Documentación funcional del módulo: [`docs/aula-notas-excel.md`](../aula-notas
 
 | Aspecto | Estado |
 |---------|--------|
-| **Cypress** | **No existe** — sin carpeta `cypress/`, sin dependencia en `frontend/package.json` |
+| **Cypress** | **Configurado mínimo para RF-04** — `frontend/cypress.config.js` y spec `rf04-reportes-conductuales.cy.js` |
 | Jest / Vitest UI | **No confirmado** como suite de aceptación |
-| E2E automatizado | **No confirmado** |
+| E2E automatizado | **Parcial** — solo smoke RF-04 |
 | Pruebas manuales recomendadas | Flujos por rol en [`docs/manual-usuario.md`](../manual-usuario.md): login, dashboard, estudiantes, notas (lectura/registro según rol), asistencia, alertas, export PDF |
 
-Sprint 9 planea Cypress; estado actual = **planeado/no encontrado**.
+Sprint 9 planea E2E más amplio; estado actual = **Cypress mínimo RF-04 configurado**, no suite completa del sistema. Ver [`cypress-rf04.md`](cypress-rf04.md).
 
 ---
 
@@ -251,7 +251,7 @@ Distribución roles (Fase 1): 2 administrador, 3 docente, 1 coordinador, 1 psic�
 |----|-------------|-----------|-----------|
 | D-01 | OOM en suite completa @ 128M | Media (infra) | Fase 1 |
 | D-02 | `ImportarDatosTest` referenciado en fichas pero **inexistente** | Baja (doc) | [`Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) |
-| D-03 | Cypress inexistente | Media (cobertura UI) | Repo |
+| D-03 | Cypress solo cubre smoke RF-04 | Media (cobertura UI) | `frontend/cypress/` |
 | D-04 | 401/403 no exhaustivos | Media | `seguridad-roles-permisos.md` |
 | D-05 | Activity log parcial | Media | `ActivityLogTest.php` |
 | D-06 | Botón procesar riesgo ausente en UI perfil | Media (trazabilidad RF-06) | `EstudiantePerfilRiesgo.jsx`, manual usuario |
@@ -269,7 +269,7 @@ Distribución roles (Fase 1): 2 administrador, 3 docente, 1 coordinador, 1 psic�
 3. **Corregir fichas** que citan `ImportarDatosTest`; enlazar tests reales.
 4. **Completar pruebas 401** en rutas curriculares pendientes.
 5. **Smoke manual por rol** siguiendo [`manual-usuario.md`](../manual-usuario.md) con registro escrito.
-6. **Cypress:** implementar solo si el equipo lo decide; no es requisito V1 actual.
+6. **Cypress:** ejecutar y registrar `npm run cy:run` para RF-04; mantener explícito que no es suite E2E global.
 7. **Completar pruebas de seguridad** y activity log si RF-17 exige cierre formal.
 8. Usar este informe + [`matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.md) como entrada para **DRS actualizado**.
 
@@ -295,6 +295,7 @@ docker compose exec app-backend php artisan test --filter=ReporteConductualTest
 |-----------|-------------------|----------------------|
 | Tests Feature | `ReporteConductualTest.php` | **8 passed**, 26 assertions |
 | Build frontend | `npm run build` en `app-frontend` | Exit 0 |
+| Cypress RF-04 | [`cypress-rf04.md`](cypress-rf04.md) / `npm run cy:run` | Cypress verificado; spec detenido por falta de `CYPRESS_E2E_EMAIL` |
 | Smoke manual UI | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | **No ejecutado en navegador**; casos API cubiertos por PHPUnit |
 | Cierre documental | Matriz, limitaciones, NC-16, plan AI-DLC | Fase 2E completada |
 
@@ -310,7 +311,7 @@ Sin embargo:
 
 - La **suite completa no finalizó** en Fase 1 por límite de memoria PHP (128M).
 - **`ExcelAulaTest` pasó aisladamente** con 512M (8 tests).
-- **No hay Cypress** ni E2E automatizado confirmado.
+- Cypress existe solo como smoke mínimo RF-04; no hay suite E2E completa confirmada.
 - Varios **RF del DRS** permanecen **pendientes o parciales** (SIAGIE, derivación, comunicación familia, semáforo, reentrenamiento ML, UI riesgo).
 - La BD auditada refleja **entorno local** con datos históricos (incl. Auquimarca), **no** un seed oficial único.
 

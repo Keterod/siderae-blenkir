@@ -27,7 +27,7 @@ Describir stack, servicios, configuración, flujos técnicos y pruebas **confirm
 | Auditoría | Spatie Activitylog | `ActivityLogTest.php` |
 | Infra | Docker Compose (4 servicios) | `docker-compose.yml` |
 
-**No confirmado:** Cypress/E2E, despliegue productivo, certificación ISO.
+**No confirmado:** suite E2E completa, despliegue productivo, certificación ISO. Cypress existe solo como smoke mínimo RF-04.
 
 ---
 
@@ -175,7 +175,23 @@ docker compose exec app-frontend npm run build
 
 ### Cypress
 
-**No confirmado** — sin carpeta `cypress/` en el repositorio.
+Configuración mínima para RF-04:
+
+```bash
+cd frontend
+npm run cy:open
+npm run cy:run
+```
+
+Variables requeridas:
+
+```bash
+CYPRESS_E2E_EMAIL=
+CYPRESS_E2E_PASSWORD=
+CYPRESS_E2E_STUDENT_TEXT=
+```
+
+`CYPRESS_E2E_STUDENT_TEXT` es opcional. Alcance: solo smoke E2E RF-04 reportes conductuales; no es suite Cypress completa del sistema. Detalle: [`pruebas/cypress-rf04.md`](pruebas/cypress-rf04.md).
 
 ---
 
