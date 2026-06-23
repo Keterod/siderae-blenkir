@@ -83,7 +83,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-03 | Importación resultados Fast Test | — | **Retirado del alcance** | — | No aplica | — | — | Institución no utiliza Fast Test; referencia histórica DRS v1 |
 | RF-04 | Registro reportes conductuales | AI-DLC 2B–2F | **Implementado V1 mínimo** | API + permisos + `EstudiantePerfilReportesConductuales.jsx` | Perfil estudiante → **Reportes conductuales** | `ReporteConductualTest`; Cypress smoke RF-04 | PHPUnit: **8 passed**, 26 assert. (2E); Cypress verificado, spec detenido por falta de `CYPRESS_E2E_EMAIL` (2F) | Fases 2B–2F; Cypress mínimo RF-04 configurado; sin módulo global |
 | RF-05 | Integración variables socioeconómicas | 3B | **Retirado del flujo de riesgo** | API legacy `/variables-socioeconomicas` | UI pausada | `DatosAcademicosTest` (API legacy) | Parcial | No insumo obligatorio de RF-06 |
-| RF-06 | Procesamiento multivariable e índice de riesgo | 4, 8.5B | Implementado parcialmente | `POST …/procesar-riesgo`, `MlRiskService` | Perfil riesgo **en pausa** | `RiesgoTest`, `DemoProcesarRiesgosCommandTest` | Parcial | ML **determinístico**; operación con datos parciales + RF-19 planificado |
+| RF-06 | Procesamiento multivariable e índice de riesgo | 4, 8.5B | Implementado parcialmente | `POST …/procesar-riesgo`, `MlRiskService` | Perfil riesgo **en pausa** | `RiesgoTest`, `DemoProcesarRiesgosCommandTest` | Parcial | ML **determinístico**; operación con datos parciales; RF-19 backend implementado |
 | RF-07 | Evaluación automática nivel de riesgo | 4, 5 | Confirmado en código (parcial DRS) | Umbrales en servicio riesgo | Dashboard KPIs riesgo | `RiesgoTest` | No re-ejecutado Fase 5 | REQ configurables admin: pendiente |
 | RF-08 | Emisión alertas tempranas | 5 | Confirmado en código | `/api/alertas` | **Alertas** | `RiesgoTest`, `AlertaIntervencionTest` | No re-ejecutado Fase 5 | — |
 | RF-09 | Intervención preventiva docente | 5 | Confirmado en código | `POST /api/alertas/{id}/intervenciones` | Alertas → detalle | `AlertaIntervencionTest` | No re-ejecutado Fase 5 | — |
@@ -96,7 +96,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-16 | Generación reportes de riesgo académico | 6B | Implementado parcialmente | `GET /api/dashboard/export` (PDF parcial) | Botón export dashboard | `DashboardTest`, `ActivityLogTest` | No re-ejecutado Fase 5 | Zona reportes riesgo **planificada**; PDF dashboard = antecedente parcial |
 | RF-17 | Log auditoría / trazabilidad | 7.5A, 8 | Implementado parcialmente | `activity_log` | Sin UI consulta | `ActivityLogTest` | No re-ejecutado Fase 5 | Apoya alineación ISO progresiva; sin certificación |
 | RF-18 | Reentrenamiento modelo ML | — | **Planificado** | Sin endpoint ML/Laravel | No visible | — | — | ML real cuando exista dataset; no implementado |
-| RF-19 | Semáforo completitud datos | AI-DLC 3B | **Parcial / en avance** | Permiso `ver_semaforo_completitud` en `PermissionsSeeder.php` | No visible | — | — | Base RBAC implementada Fase 3B; backend (endpoint + lógica), UI y tests pendientes |
+| RF-19 | Semáforo completitud datos | AI-DLC 3B–3C | **Implementado parcialmente (backend)** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, `CompletitudDatosService` | No visible | `SemaforoCompletitudTest.php` | **11 passed**, 55 assertions (2026-06-23) | Backend V1 listo Fase 3C; UI perfil estudiante pendiente Fase 3D |
 | RF-20 | Historial riesgo evolutivo | 4, 6A | Implementado parcialmente | Tabla `indices_riesgo` | Perfil riesgo **pausado** | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` | — | **Planificado:** evolución por periodo/bimestre |
 
 ### 5.1 Módulo curricular — RF-21 a RF-35
@@ -143,6 +143,9 @@ Incluye sub-sprints documentados en `sprints/` vinculados al sprint principal. E
 | **8.5A** | Backend curricular + seeders | `/api/curricular/*`, migraciones | Rutas L128–282 | `CurricularSeedersTest`, `CurricularApiTest` | Confirmado en código | — |
 | **8.5B** | API/UI curricular + asignación | Notas, asistencia, malla UI | Paneles `curricular/*` | `AsistenciaDiariaTest`, `AsignacionDocenteValidacionesTest`, `NotasSemanales*` | Confirmado en código | — |
 | **8.5C** | Evaluación bimestral | Config bimestral, CE | `EvaluacionBimestral*` | `EvaluacionBimestralApiTest`, `EvaluacionBimestralTest` | Confirmado en código | — |
+| **AI-DLC 3B** | RF-19 permisos base | `ver_semaforo_completitud` en `PermissionsSeeder.php` | Seeder actualizado | — | Completado | Asignado a `administrador`, `docente`, `coordinador_academico` |
+| **AI-DLC 3C** | RF-19 backend semáforo | Endpoint + servicio + tests | `CompletitudDatosService`, `SemaforoCompletitudController`, ruta API | `SemaforoCompletitudTest` — 11 passed | Completado | Sin Flask; no recalcula riesgo; sede Chilca |
+| **AI-DLC 3D** | RF-19 frontend semáforo | Componente perfil estudiante | — | — | Pendiente | UI bloque de semáforo junto a riesgo |
 | **9** | Pruebas integrales + regresión | Campaña pytest + Cypress planeado | Cypress infraestructura 2H en `frontend/cypress/` | Ejecución Fase 1 documentada; Cypress 2H ejecutado parcialmente sin credenciales | Implementado parcialmente | No hay suite Cypress global; suite PHPUnit OOM 128M |
 | **10** | Documentación + cierre calidad | Manuales, matriz RF, informe | `docs/*` Fases 1–5 | Informe consolidado Fase 5 | En progreso | ISO solo referencia; sin certificación |
 
@@ -170,13 +173,15 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 | `Feature/DatosAcademicosTest.php` | RF-01, RF-05 | Legacy notas/asist/VSE | Detectado | API legacy |
 | `Feature/MateriaTest.php` | RF-01 | Materias legacy | Detectado | Sin menú V1 |
 
-### Dashboard, riesgo, alertas
+### Dashboard, riesgo, alertas, completitud
 
 | Archivo test | RF | Módulo | Estado | Observación |
 |--------------|-----|--------|--------|-------------|
 | `Feature/DashboardTest.php` | RF-14, RF-16 | Dashboard | Detectado | Export PDF |
 | `Feature/RiesgoTest.php` | RF-06, RF-07, RF-08, RF-20 | Riesgo | Detectado | — |
 | `Feature/AlertaIntervencionTest.php` | RF-08, RF-09, RF-13 | Alertas | Detectado | — |
+| `Feature/ReporteConductualTest.php` | RF-04 | Conductuales | Detectado | **8 passed**, 26 assertions (Fase 2E) |
+| `Feature/SemaforoCompletitudTest.php` | RF-19 | Completitud datos | Detectado | **11 passed**, 55 assertions (Fase 3C) |
 | `Feature/DemoProcesarRiesgosCommandTest.php` | RF-06 | Comando batch | Detectado | Operación técnica, no UI |
 | `Feature/ActivityLogTest.php` | RF-17 | Auditoría | Detectado | Parcial |
 
@@ -236,7 +241,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 | DRS RF-10 | RF-10 | Tests escalamiento directivo | **Planificado** | — |
 | DRS RF-12 | RF-12 | Tests comunicación familiar | **Eliminado del alcance** | — |
 | DRS RF-18 | RF-18 | Tests reentrenamiento ML | **Planificado** | Requiere ML real |
-| DRS RF-19 | RF-19 | Tests semáforo completitud | **Planificado** | — |
+| DRS RF-19 | RF-19 | Tests semáforo completitud | **Backend cerrado V1** | `SemaforoCompletitudTest.php` 11 passed; UI pendiente |
 | RNF-05 Jest frontend | — | Tests Jest/React | **No confirmado** | Sin suite frontend detectada |
 
 ---
@@ -247,7 +252,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 |--------|-------------|---------|---------------|-----------|
 | DRS PDF fuera del repo | Todos | Tribunal no contrasta desde repo | Mantener `contexto-drs-requerimientos.md` actualizado | Media |
 | Brecha SIAGIE vs plantilla curricular | RF-01, RF-32 | Confusión documental | SIAGIE **fuera de alcance**; plantillas propias | Alta |
-| RF-10, RF-16, RF-19, RF-20 planificados; ~~RF-04~~ V1 mínimo | RF-10–20 | Flujo riesgo incompleto (RF-04 cerrado perfil) | Backlog DRS v2.1 | Alta |
+| RF-10, RF-16, RF-20 planificados; RF-04 V1 mínimo; RF-19 backend listo | RF-10–20 | Flujo riesgo incompleto (RF-04 cerrado perfil; RF-19 backend cerrado) | Backlog DRS v2.1 | Alta |
 | RF-10–12 alcance | RF-10–13 | Cierre alerta vs DRS v1 | RF-12 eliminado; RF-10 planificado | Alta |
 | Excel aula solo descarga; import solo plantilla curso | RF-01, RF-16 | Usuario espera import aula | Documentar en manual y DRS | Media |
 | Cypress limitado a RF-04 | Varios UI | Sin E2E automatizado global | Ejecutar smoke RF-04 y mantener smoke manual por rol ([`manual-usuario.md`](manual-usuario.md)) | Media |
@@ -265,7 +270,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 El DRS v2.1 consolidado está en [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md). Esta matriz cubre **RF-01 a RF-35**.
 
 2. Marcar como **retirado / fuera de alcance**: SIAGIE, Fast Test (RF-03), VSE en riesgo (RF-05), comunicación familiar (RF-12).
-3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-20 (historial evolutivo), RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E). **RF-19:** parcial / en avance — base RBAC implementada Fase 3B; backend, UI y tests pendientes.
+3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-20 (historial evolutivo), RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E). **RF-19:** backend implementado (Fase 3C); UI perfil estudiante pendiente (Fase 3D).
 4. **Consolidar** RF parciales (RF-14 dashboard académico-institucional; RF-16 PDF dashboard parcial).
 5. RF-21–RF-35: módulo curricular confirmado en código según §5.1.
 

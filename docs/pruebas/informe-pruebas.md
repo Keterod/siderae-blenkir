@@ -66,6 +66,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `php artisan tinker --execute="AsistenciaDiaria / SeccionAula"` | Fase 1 | **35** / **69** | Solo lectura |
 | `docker compose exec app-backend php artisan test --filter=ReporteConductualTest` | Fase 2E RF-04 | Exit 0 — **8 passed**, **26 assertions** | ~15.5 s |
 | `docker compose exec app-frontend npm run build` | Fase 2E RF-04 | Exit 0 — Vite build | ~7.7 s, 108 módulos |
+| `docker compose exec app-backend php artisan test --filter=SemaforoCompletitudTest` | Fase 3C RF-19 | Exit 0 — **11 passed**, **55 assertions** | ~19.4 s |
 
 ---
 
@@ -81,6 +82,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | Cypress / E2E RF-04 | **Configurado mínimo** | Ejecutado; no completó por falta de `CYPRESS_E2E_EMAIL` | `frontend/cypress/e2e/rf04-reportes-conductuales.cy.js` | Solo smoke RF-04; no suite global |
 | Pruebas manuales por rol | **Recomendadas** | RF-04 smoke **pendiente navegador** | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | API/build verdes Fase 2E |
 | `ReporteConductualTest` aislado | **Ejecutado (Fase 2E)** | 8 passed, 26 assertions | Fase 2E | RF-04 cierre |
+| `SemaforoCompletitudTest` aislado | **Ejecutado (Fase 3C)** | 11 passed, 55 assertions | Fase 3C | RF-19 backend |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
 
 ---
@@ -109,6 +111,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 - `Feature/RiesgoTest.php`
 - `Feature/AlertaIntervencionTest.php`
 - `Feature/ReporteConductualTest.php` — **8 passed** Fase 2E
+- `Feature/SemaforoCompletitudTest.php` — **11 passed** Fase 3C
 - `Feature/DemoProcesarRiesgosCommandTest.php`
 - `Feature/ActivityLogTest.php`
 
@@ -260,7 +263,7 @@ Distribución roles (Fase 1): 2 administrador, 3 docente, 1 coordinador, 1 psic�
 | D-07 | Recuperación contraseña UI pendiente | Baja | `LoginForm.jsx` |
 | D-08 | `POST /register` público | Alta (producción) | `RegistrationTest.php` |
 | D-09 | Conteos demo README vs BD desalineados históricamente | Baja | Fase 1, README actualizado parcialmente |
-| D-10 | RF-10–12, RF-18–19 sin tests; ~~RF-04~~ con `ReporteConductualTest` | Media | Matriz §8; Fase 2E |
+| D-10 | RF-10–12, RF-18, RF-20 sin tests; RF-04 con `ReporteConductualTest`; RF-19 con `SemaforoCompletitudTest` | Media | Matriz §8; Fases 2E, 3C |
 
 ---
 
@@ -305,7 +308,21 @@ Estado funcional: **Implementado V1 mínimo** (perfil estudiante Chilca; sin mó
 
 ---
 
-## 13. Conclusión
+## 13. RF-19 — Semáforo de completitud de datos (Fase 3C)
+
+| Evidencia | Archivo / comando | Resultado 2026-06-23 |
+|-----------|-------------------|----------------------|
+| Tests Feature | `SemaforoCompletitudTest.php` | **11 passed**, 55 assertions |
+| Servicio | `backend/app/Services/CompletitudDatosService.php` | Cálculo determinístico; sin Flask |
+| Endpoint | `GET /api/estudiantes/{estudiante}/semaforo-completitud` | Protegido por Sanctum + `ver_semaforo_completitud` |
+| Sede V1 | `SemaforoCompletitudController.php` | Solo Chilca; Auquimarca rechazada 403 |
+| Frontend | Componente en perfil estudiante | **Pendiente Fase 3D** |
+
+Estado funcional: **Backend V1 cerrado; UI pendiente**.
+
+---
+
+## 14. Conclusión
 
 SIDERAE-Blenkir V1 dispone de una **biblioteca considerable de pruebas backend PHPUnit** (auth, estudiantes, dashboard, riesgo, alertas, módulo curricular, Excel, seeders y servicios unitarios), con evidencia de **401/403** en módulos principales.
 

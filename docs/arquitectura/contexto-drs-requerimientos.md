@@ -54,7 +54,7 @@ Origen de **nombre, actor y prioridad**: **Tabla «7. Requerimientos Funcionales
 | RF-16 | Exportación de reportes en PDF | Docente / Directivo | Media | **Implementado parcialmente** — export PDF dashboard; Excel aula `.xlsx` distinto |
 | RF-17 | Registro de auditoría de acciones | Sistema | Alta | **Implementado parcialmente** — activitylog parcial |
 | RF-18 | Reentrenamiento del modelo ML | Administrador | Media | **Pendiente** |
-| RF-19 | Semáforo de completitud de datos | Docente / Administrador | Media | **Pendiente** |
+| RF-19 | Semáforo de completitud de datos | Docente / Administrador | Media | **Backend implementado V1** (Fase 3C); UI perfil estudiante **pendiente** |
 | RF-20 | Historial de riesgo por estudiante | Docente / Directivo | Media | **Implementado parcialmente** — persistencia; UI/timeline **pausada** |
 
 ---
@@ -66,7 +66,7 @@ Transcripción resumida de la **Sección 8. Reglas de Negocio** del DRS (sin sus
 | ID | Regla | Resumen operativo |
 |----|-------|---------------------|
 | **RN-01** | Umbrales de riesgo | Clasificación: **Alto ≥ 0,70**; **Medio 0,40–0,69**; **Bajo < 0,40**. Umbrales **configurables por el administrador**. |
-| **RN-02** | Completitud mínima para procesamiento ML | Perfil debe tener completas como mínimo **asistencia**, **notas bimestrales** y **datos socioeconómicos** para procesar. El semáforo (RF-19) **bloquea** si faltan variables críticas. |
+| **RN-02** | Completitud mínima para procesamiento ML | V1: **asistencia** y **notas** como mínimo para semáforo verde; **VSE retiradas del flujo** (RF-05). El semáforo RF-19 es **informativo** en V1; no bloquea el procesamiento ML. |
 | **RN-03** | Generación de alertas | Alerta automática si el índice supera umbral **Alto (≥ 0,70)** **o** si el estudiante **asciende de Bajo a Medio en dos bimestres consecutivos**. |
 | **RN-04** | Cierre de alerta | Cierre solo si existe al menos **intervención (RF-09)** o **derivación (RF-10)**. Registro en **activity_log** (fecha, usuario, acción). *Nota:* el detalle **RF-13 REQ-13.1** también admite **comunicación familiar (RF-12)** como prerrequisito — al implementar, cruzar **RF-13** completo en PDF. |
 | **RN-05** | Segregación de acceso por rol | Ningún usuario accede a módulos fuera de su rol. **Backend Laravel** valida con **Spatie Permission** **antes** de procesar cada solicitud, **independiente** del frontend. |
@@ -93,7 +93,7 @@ Resumen de la **Sección 10** del DRS (RNF-01 a RNF-10), **sin** desarrollar mar
 | RNF-07 | Trazabilidad y auditoría | Acciones relevantes en **activity_log** (usuario, fecha/hora, dato afectado); **ISO 9001** referida en descripción formal. |
 | RNF-08 | Compatibilidad de navegadores | Últimas versiones **Chrome** y **Firefox**; sin IE ni Edge Legacy. |
 | RNF-09 | Portabilidad del entorno | Despliegue reproducible con **Docker**: `docker-compose up -d` sin configuración manual adicional (según DRS). |
-| RNF-10 | Integridad de datos | Validar integridad referencial antes de ML; datos críticos faltantes **bloqueados** y comunicados vía semáforo (RF-19). |
+| RNF-10 | Integridad de datos | Validar integridad referencial antes de ML; datos críticos faltantes **comunicados** vía semáforo RF-19 (informativo en V1). |
 
 **Interfaces:** el DRS indica comunicación **frontend ↔ Laravel** JSON REST; **Laravel ↔ Flask** HTTP interna Docker; actualizaciones de dashboard:** sin WebSockets en v1.0** — recarga manual o **polling configurable**.
 
@@ -171,13 +171,15 @@ Resumen de la **Sección 10** del DRS (RNF-01 a RNF-10), **sin** desarrollar mar
 - Bloquear **Procesar ML** si hay críticas faltantes (notas, asistencia) (**REQ-19.3**).
 - Actualización automática al cargar nueva información (**REQ-19.4**).
 
-### Contraste implementación
+### Contraste implementación (V1 actualizado)
 
 | Dimensión | Clasificación |
 |-----------|---------------|
 | RF-19 | **Definido en DRS** |
-| UI semáforo + bloqueo ML según REQ-19 | **Pendiente de desarrollo** (`resumen-arquitectura`) |
-| Evidencia en código actual | **Pendiente de verificar** antes de declarar cualquier nivel |
+| Backend endpoint `GET /api/estudiantes/{id}/semaforo-completitud` | **Implementado** Fase 3C |
+| Servicio `CompletitudDatosService` + tests 11 passed | **Implementado** Fase 3C |
+| UI semáforo en perfil estudiante | **Pendiente de desarrollo** |
+| Bloqueo ML según REQ-19.3 | **No aplica V1** — semáforo informativo |
 
 ---
 

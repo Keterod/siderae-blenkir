@@ -107,7 +107,7 @@ Recomendaciones:
 | RF-11 perfil integral psicólogo | Planificado / parcial por alertas | Fuera de Cypress por ahora | No marcar como implementado |
 | RF-16 zona reportes dedicada | Planificado | Fuera de Cypress por ahora | PDF dashboard es antecedente parcial |
 | RF-18 ML real / reentrenamiento | Planificado | Fuera de Cypress | No validar ML interno con Cypress |
-| RF-19 semáforo completitud | Planificado | Fuera de Cypress por ahora | Pendiente de implementación |
+| RF-19 semáforo completitud | Backend implementado V1 | Fuera de Cypress hasta UI Fase 3D | Backend probado (`SemaforoCompletitudTest` 11 passed); E2E UI pendiente |
 | RF-20 historial evolutivo | Planificado / persistencia parcial | Fuera de Cypress por ahora | No hay timeline completo |
 | SIAGIE | Fuera del alcance vigente | No aplica | Plantillas propias RF-32/RF-33 |
 | Fast Test | Retirado del alcance | No aplica | No crear spec |

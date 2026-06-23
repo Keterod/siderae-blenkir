@@ -138,7 +138,21 @@ Tests: [`ReporteConductualTest.php`](../backend/tests/Feature/ReporteConductualT
 
 ---
 
-## 10. Alertas e intervenciones (RF-08/09/13)
+## 10. Semáforo de completitud de datos (RF-19 — backend V1)
+
+Solo estudiantes con `sede = chilca` (V1 operativa). El endpoint es **informativo**: no recalcula riesgo, no llama a Flask y no bloquea el perfil. Devuelve `verde`, `amarillo` o `rojo` según la presencia de notas curriculares, asistencia curricular, reportes conductuales activos (RF-04) e índice de riesgo existente.
+
+| Método | Ruta | Permiso | Descripción |
+|--------|------|---------|-------------|
+| GET | `/api/estudiantes/{estudiante}/semaforo-completitud` | `ver_semaforo_completitud` | Semáforo por estudiante; query `anio_escolar` (default año del estudiante), `bimestre` (opcional) |
+
+**Respuesta 200:** `estudiante_id`, `anio_escolar`, `bimestre`, `color`, `etiqueta`, `mensaje`, `razones[]`.
+
+Tests: [`SemaforoCompletitudTest.php`](../backend/tests/Feature/SemaforoCompletitudTest.php) — **11 passed**, 55 assertions (Fase 3C, 2026-06-23). UI: **pendiente** (Fase 3D).
+
+---
+
+## 11. Alertas e intervenciones (RF-08/09/13)
 
 | Método | Ruta | Permiso |
 |--------|------|---------|
@@ -149,11 +163,11 @@ Tests: [`ReporteConductualTest.php`](../backend/tests/Feature/ReporteConductualT
 
 ---
 
-## 11. Módulo curricular (`/api/curricular/*`)
+## 12. Módulo curricular (`/api/curricular/*`)
 
 Todas requieren `auth:sanctum` + permiso indicado. Prefijo base: `/api/curricular`.
 
-### 10.1 Catálogo y calendario
+### 12.1 Catálogo y calendario
 
 | Método | Ruta | Permiso |
 |--------|------|---------|
@@ -162,7 +176,7 @@ Todas requieren `auth:sanctum` + permiso indicado. Prefijo base: `/api/curricula
 | GET/POST/PATCH | `/anios-escolares/*` | `gestionar_calendario_academico` |
 | PATCH/POST | `/periodos-academicos/{id}/*` | `gestionar_calendario_academico` |
 
-### 10.2 Malla, áreas, temas
+### 12.2 Malla, áreas, temas
 
 | Método | Ruta | Permiso lectura | Permiso escritura |
 |--------|------|-----------------|-------------------|
@@ -173,30 +187,30 @@ Todas requieren `auth:sanctum` + permiso indicado. Prefijo base: `/api/curricula
 | POST/PATCH | `/mallas/cargar-plantilla`, `/mallas/{id}/cursos/*` | — | `gestionar_malla_curricular` |
 | POST/PATCH | `/temas`, `/temas/{id}/*` | — | `gestionar_temas_semanales` |
 
-### 10.3 Competencias y capacidades
+### 12.3 Competencias y capacidades
 
 Permiso: `gestionar_competencias_capacidades` — CRUD bajo `/areas/{area}/competencias`, `/competencias/{id}/*`, `/capacidades/{id}/*`.
 
-### 10.4 Pesos C/L/T (legacy resolver)
+### 12.4 Pesos C/L/T (legacy resolver)
 
 Permiso: `configurar_pesos_evaluacion` — `/pesos`, `/pesos/resolver`, etc.
 
-### 10.5 Componentes de calificación
+### 12.5 Componentes de calificación
 
 Permiso: `gestionar_componentes_calificacion` — `/componentes-calificacion/*`.
 
-### 10.6 Secciones y aulas
+### 12.6 Secciones y aulas
 
 | Permiso | Rutas |
 |---------|-------|
 | Lectura (varios) | GET `/secciones-aulas` |
 | `gestionar_secciones_aulas` | POST/PATCH `/secciones-aulas/*` |
 
-### 10.7 Asignación docente
+### 12.7 Asignación docente
 
 Permiso: `gestionar_asignaciones_docente` — `/docentes`, `/asignaciones-docente/*`, bulk, desactivar.
 
-### 10.8 Notas semanales e import Excel
+### 12.8 Notas semanales e import Excel
 
 | Método | Ruta | Permiso | Notas |
 |--------|------|---------|-------|
@@ -207,7 +221,7 @@ Permiso: `gestionar_asignaciones_docente` — `/docentes`, `/asignaciones-docent
 | POST | `/notas-semanales/bulk` | `registrar_notas_semanales` | |
 | POST | `/notas-semanales/importar-excel` | `registrar_notas_semanales` | **Import curricular confirmado** |
 
-### 10.9 Excel por aula y plantilla registro auxiliar
+### 12.9 Excel por aula y plantilla registro auxiliar
 
 | Método | Ruta | Permiso | Descarga | Import | Notas |
 |--------|------|---------|----------|--------|-------|
@@ -219,7 +233,7 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 
 **No confundir** con importación **SIAGIE** — **fuera del alcance actual** (RF-32 sustituye en alcance vigente).
 
-### 10.10 Evaluación bimestral
+### 12.10 Evaluación bimestral
 
 | Permiso | Rutas |
 |---------|-------|
@@ -228,7 +242,7 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 | `registrar_notas_semanales` / `ver_notas_academicas` | GET `/evaluacion-bimestral/formulario` |
 | `registrar_notas_semanales` | POST `/evaluacion-bimestral/bulk` |
 
-### 10.11 Asistencia diaria curricular
+### 12.11 Asistencia diaria curricular
 
 | Método | Ruta | Permiso |
 |--------|------|---------|
@@ -236,7 +250,7 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 | GET | `/asistencias-diarias/resumen` | idem |
 | POST | `/asistencias-diarias/bulk` | `registrar_asistencia_curricular` |
 
-### 10.12 Resumen académico estudiante
+### 12.12 Resumen académico estudiante
 
 | Método | Ruta | Permiso |
 |--------|------|---------|
@@ -244,21 +258,21 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 
 ---
 
-## 12. Endpoints no expuestos (planificados o fuera de alcance)
+## 13. Endpoints no expuestos (planificados o fuera de alcance)
 
 | RF | Estado | Notas |
 |----|--------|-------|
 | RF-10 Escalamiento directivo | **Planificado** | Sin rutas |
 | RF-12 Comunicación familiar | **Eliminado del alcance** | Esquema BD histórico |
 | RF-18 Reentrenamiento ML | **Planificado** | Sin endpoints |
-| RF-19 Semáforo completitud | **Planificado** | Sin rutas |
+| RF-19 Semáforo completitud | **Backend implementado; UI pendiente** | `GET /api/estudiantes/{estudiante}/semaforo-completitud` |
 | RF-16 Reportes de riesgo (zona dedicada) | **Planificado** | PDF dashboard = parcial |
 | RF-03 Fast Test | **Retirado del alcance** | — |
 | SIAGIE import global | **Fuera del alcance** | Plantilla RF-32 en su lugar |
 
 ---
 
-## 13. Permisos Spatie (referencia)
+## 14. Permisos Spatie (referencia)
 
 Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php):
 
@@ -270,7 +284,7 @@ Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSe
 
 ---
 
-## 14. Documentos relacionados
+## 15. Documentos relacionados
 
 - [`manual-tecnico.md`](manual-tecnico.md)
 - [`aula-notas-excel.md`](aula-notas-excel.md)
@@ -280,4 +294,4 @@ Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSe
 
 ---
 
-*Fase 2 documental — 2026-06-09. RF-04 API+UI V1 mínimo — Fases 2B–2E (2026-06-10).*
+*Fase 2 documental — 2026-06-09. RF-04 API+UI V1 mínimo — Fases 2B–2E (2026-06-10). RF-19 backend — Fase 3C (2026-06-23).*

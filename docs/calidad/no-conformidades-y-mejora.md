@@ -39,11 +39,11 @@ Centralizar brechas conocidas con fuente, impacto, prioridad y acción recomenda
 | NC-10 | Multi-sede **no activa** V1 vs posible DRS | [`AGENTS.md`](../../AGENTS.md), conteos Auquimarca Fase 1 | Interpretación alcance sedes | Media | DRS: Chilca operativa; Auquimarca histórico | Documentación | Documentada |
 | NC-11 | UI riesgo **en pausa**; sin botón procesar riesgo | [`manual-usuario.md`](../manual-usuario.md), `EstudiantePerfilRiesgo.jsx` | RF-06/20 parcial en UX | Media | Alinear UI o documentar comando técnico | Frontend + doc | Abierta |
 | NC-12 | **VSE retiradas** del flujo de riesgo (RF-05) | DRS v2.1 | No insumo obligatorio RF-06 | Media | Documentado v2.1 | Producto | Documentada v2.1 |
-| NC-13 | RF-10, RF-19 **planificados**; RF-04 **V1 mínimo** (Fase 2E); RF-03/RF-12 **retirados** | DRS v2.1 §2.3 | RF-10/19 sin API; RF-04 cerrado perfil | Alta (RF-10/19) / Media (RF-04 brechas) | Backlog RF-10/19; brechas RF-04 documentadas | Documentación | RF-04 matizado v2.1 |
+| NC-13 | RF-10 **planificado**; RF-04 **V1 mínimo** (Fase 2E); RF-03/RF-12 **retirados**; RF-19 backend cerrado (Fase 3C) | DRS v2.1 §2.3 | RF-10 sin API; RF-04 cerrado perfil; RF-19 backend listo | Alta (RF-10) / Media (RF-04 brechas, RF-19 UI) | Backlog RF-10; RF-19 UI pendiente; brechas RF-04 documentadas | Documentación | RF-04 matizado v2.1; RF-19 backend cerrado |
 | NC-16 | ~~RF-04 reportes conductuales por implementar~~ | DRS v2.1 | Flujo registro conductual | Alta | API + UI + tests | Backend + Frontend | **Cerrada V1 mínimo** (Fase 2E) — smoke UI navegador pendiente |
 | NC-17 | RF-10 escalamiento directivo crítico | DRS v2.1 | Solo casos extremos | Alta | API + UI + permisos | Backend | Abierta |
 | NC-18 | RF-16 reportes de riesgo | DRS v2.1 | PDF dashboard parcial | Media | Zona reportes dedicada | Backend + doc | Abierta |
-| NC-19 | RF-19 semáforo completitud | DRS v2.1 | Calidad datos riesgo | Media | UI + lógica | Backend | Abierta |
+| NC-19 | RF-19 semáforo completitud | DRS v2.1 | Calidad datos riesgo | Media | Backend completado Fase 3C; UI Fase 3D | Backend / Frontend | **Parcialmente cerrada** — backend + tests listos; UI pendiente |
 | NC-20 | RF-20 historial evolutivo | DRS v2.1 | Timeline por periodo | Media | UI perfil riesgo | Frontend | Abierta |
 | NC-21 | RF-21–RF-35 documentados | DRS v2.1 §8.21 | Trazabilidad curricular | Media | Matriz actualizada | Documentación | Documentada v2.1 |
 | NC-14 | Pruebas **401/403** no exhaustivas | [`seguridad-roles-permisos.md`](../seguridad-roles-permisos.md) §12 | Riesgo seguridad no medido total | Media | Ampliar Feature tests | Backend | Abierta |

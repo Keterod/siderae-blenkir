@@ -82,7 +82,7 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 | RF-01 Carga/importacion de datos academicos | Si | Parcial | Implementado parcialmente | Carga manual + import **plantilla Excel curricular** confirmada; **importacion SIAGIE pendiente** |
 | RF-02 Registro de asistencia | Si | Si | Confirmado en codigo | Asistencia legacy API + **asistencia curricular diaria** en UI |
 | RF-03 Importacion Fast Test | Si | No | Pendiente | Sin flujo import Fast Test confirmado |
-| RF-04 Reportes conductuales | Si | No | Pendiente | Migracion/modelo; **sin rutas API** |
+| RF-04 Reportes conductuales | Si | Si | Confirmado en codigo | API + UI perfil estudiante V1 minimo; **8 passed** Fase 2E |
 | RF-05 Variables socioeconomicas | Si | Parcial | Implementado parcialmente | API confirmada; **UI pausada** (pestaña no expuesta en perfil) |
 | RF-06 Calculo de indice de riesgo | Si | Parcial | Implementado parcialmente | Laravel → Flask **deterministico**; **UI riesgo pausada**; sin RF/SVM/XGBoost |
 | RF-07 Clasificacion de nivel de riesgo | Si | Si | Confirmado en codigo | Clasificacion Alto/Medio/Bajo en backend |
@@ -97,12 +97,12 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 | RF-16 Exportacion PDF | Si | Parcial | Implementado parcialmente | `GET /api/dashboard/export` + vista `pdf/dashboard.blade.php` confirmados; otros reportes PDF del DRS no confirmados |
 | RF-17 Auditoria | Si | Parcial | Implementado parcialmente | `activity_log` + registros manuales `activity()` en controladores API (Sprint 7.5A); consulta UI de logs y cobertura total REQ-17.x **pendiente de verificar** |
 | RF-18 Reentrenamiento ML | Si | No | Pendiente de desarrollo | No se detectan endpoints/flujo de reentrenamiento |
-| RF-19 Semaforo de completitud | Si | No | Pendiente de desarrollo | No se observa semaforo visual ni logica explicita de estados verde/amarillo/rojo |
+| RF-19 Semaforo de completitud | Si | Parcial | Backend implementado V1 | `CompletitudDatosService`, endpoint API y tests (`SemaforoCompletitudTest` 11 passed); UI perfil estudiante pendiente |
 | RF-20 Historial de riesgo | Si | Parcial | Implementado parcialmente | Persistencia historica en `indices_riesgo`; visualizacion historica en UI no confirmada completa |
 
 ## Limites actuales del prototipo
 - El ML actual es un prototipo deterministico en `ml-service/main.py`; no se confirma ejecucion real de Random Forest, SVM y XGBoost en codigo actual (DRS RF-06 REQ-06.2).
-- Capacidades DRS pendientes: RF-03, RF-10–RF-12, RF-18, RF-19, import SIAGIE, Cypress/E2E, despliegue productivo.
+- Capacidades DRS pendientes: RF-03, RF-10–RF-12, RF-18, import SIAGIE, Cypress/E2E, despliegue productivo. **RF-19 backend implementado; UI pendiente.**
 - Conteos demo **varian** segun historial BD local; ver `docs/pruebas/hallazgos-fase1-documentacion.md` (no usar como constantes universales). **Nota:** conteos Fase 1 con sede Auquimarca pertenecen al entorno local auditado; no implican operacion multi-sede en V1 (sede operativa Chilca).
 - Suite PHPUnit completa puede fallar por `memory_limit` 128M en tests Excel; `ExcelAulaTest` paso con 512M (Fase 1).
 - Documentacion consolidada Fases 1–8: ver [`docs/INDICE_DOCUMENTACION.md`](../INDICE_DOCUMENTACION.md).

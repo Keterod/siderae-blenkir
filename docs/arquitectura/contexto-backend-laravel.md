@@ -182,8 +182,11 @@ Ver [`docs/ml-service.md`](../ml-service.md).
 | RF-15 | **Confirmado** — incl. API usuarios |
 | RF-14/16 | **Parcial** — dashboard + PDF dashboard |
 | RF-17 | **Parcial** — activitylog |
-| RF-04, RF-10–12, RF-18, RF-19 | **Pendiente** |
+| RF-04 | **Confirmado** — V1 mínimo perfil estudiante |
+| RF-10–12, RF-18 | **Pendiente** |
+| RF-19 | **Backend implementado** — `CompletitudDatosService`, endpoint y tests; UI pendiente |
 
 ---
 
-*Actualizado: Fase 2 documental (2026-06-09).*
+*Actualizado: Fase 2 documental (2026-06-09). RF-19 backend actualizado Fase 3C (2026-06-23).*
+

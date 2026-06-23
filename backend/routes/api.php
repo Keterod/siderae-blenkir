@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\NotaBatchController;
 use App\Http\Controllers\Api\NotaController;
 use App\Http\Controllers\Api\ProcesarRiesgoController;
 use App\Http\Controllers\Api\ReporteConductualController;
+use App\Http\Controllers\Api\SemaforoCompletitudController;
 use App\Http\Controllers\Api\Curricular\AsignacionDocenteController;
 use App\Http\Controllers\Api\Curricular\AnioEscolarController;
 use App\Http\Controllers\Api\Curricular\AsistenciaDiariaController;
@@ -122,6 +123,9 @@ Route::middleware(['auth:sanctum', 'permission:registrar_reportes_conductuales']
 
 Route::middleware(['auth:sanctum', 'permission:registrar_reportes_conductuales'])
     ->patch('reportes-conductuales/{reporteConductual}/anular', [ReporteConductualController::class, 'anular']);
+
+Route::middleware(['auth:sanctum', 'permission:ver_semaforo_completitud'])
+    ->get('estudiantes/{estudiante}/semaforo-completitud', [SemaforoCompletitudController::class, 'show']);
 
 Route::middleware(['auth:sanctum', 'permission:ver_alertas'])
     ->group(function (): void {

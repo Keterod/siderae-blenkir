@@ -140,8 +140,8 @@ La metodología **no reemplaza** el DRS v2.1. **AI-DLC** guía el proceso de des
 | **Sin VSE en riesgo** | RF-05 **retirado del flujo funcional** |
 | **Sin comunicación familiar** | RF-12 **eliminado del alcance** |
 | **ML determinístico** | Sin ensemble entrenado; RF-18 reentrenamiento **planificado**, no implementado |
-| **RF-19 semáforo** | **Planificado** — no implementado |
-| **Permisos RBAC** | **23 implementados** en `PermissionsSeeder`; **8 sugeridos/planificados** (RF-04/10/11/16/18/19) — no en seeder |
+| **RF-19 semáforo** | **Backend implementado V1** (Fase 3C); UI perfil estudiante pendiente |
+| **Permisos RBAC** | **24 implementados** en `PermissionsSeeder`; **7 sugeridos/planificados** (RF-10/11/16/18/20) — no en seeder |
 | **RF-21–RF-35** | Módulo curricular oficial documentado |
 | **Sin Cypress** | No hay suite E2E automatizada en el repositorio |
 | **Pruebas memoria** | Suite PHPUnit completa OOM @ **128M**; `ExcelAulaTest` OK @ **512M** |
@@ -153,4 +153,4 @@ La metodología **no reemplaza** el DRS v2.1. **AI-DLC** guía el proceso de des
 
 ---
 
-*Índice actualizado — Fase 9 reestructuración RF V2.1 (2026-06-09); metodología AI-DLC Fase 1B (2026-06-10).*
+*Índice actualizado — Fase 9 reestructuración RF V2.1 (2026-06-09); metodología AI-DLC Fase 1B (2026-06-10). RF-19 backend actualizado Fase 3C (2026-06-23).*
