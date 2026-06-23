@@ -96,7 +96,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-16 | Generación reportes de riesgo académico | 6B | Implementado parcialmente | `GET /api/dashboard/export` (PDF parcial) | Botón export dashboard | `DashboardTest`, `ActivityLogTest` | No re-ejecutado Fase 5 | Zona reportes riesgo **planificada**; PDF dashboard = antecedente parcial |
 | RF-17 | Log auditoría / trazabilidad | 7.5A, 8 | Implementado parcialmente | `activity_log` | Sin UI consulta | `ActivityLogTest` | No re-ejecutado Fase 5 | Apoya alineación ISO progresiva; sin certificación |
 | RF-18 | Reentrenamiento modelo ML | — | **Planificado** | Sin endpoint ML/Laravel | No visible | — | — | ML real cuando exista dataset; no implementado |
-| RF-19 | Semáforo completitud datos | — | **Planificado** | Sin componente UI/lógica | No visible | — | — | Verde/amarillo/rojo; apoya RF-06 con datos parciales |
+| RF-19 | Semáforo completitud datos | AI-DLC 3B | **Parcial / en avance** | Permiso `ver_semaforo_completitud` en `PermissionsSeeder.php` | No visible | — | — | Base RBAC implementada Fase 3B; backend (endpoint + lógica), UI y tests pendientes |
 | RF-20 | Historial riesgo evolutivo | 4, 6A | Implementado parcialmente | Tabla `indices_riesgo` | Perfil riesgo **pausado** | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` | — | **Planificado:** evolución por periodo/bimestre |
 
 ### 5.1 Módulo curricular — RF-21 a RF-35
@@ -265,7 +265,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 El DRS v2.1 consolidado está en [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md). Esta matriz cubre **RF-01 a RF-35**.
 
 2. Marcar como **retirado / fuera de alcance**: SIAGIE, Fast Test (RF-03), VSE en riesgo (RF-05), comunicación familiar (RF-12).
-3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-19, RF-20 (historial evolutivo), RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E).
+3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-20 (historial evolutivo), RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E). **RF-19:** parcial / en avance — base RBAC implementada Fase 3B; backend, UI y tests pendientes.
 4. **Consolidar** RF parciales (RF-14 dashboard académico-institucional; RF-16 PDF dashboard parcial).
 5. RF-21–RF-35: módulo curricular confirmado en código según §5.1.
 

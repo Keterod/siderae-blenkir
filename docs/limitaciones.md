@@ -37,7 +37,7 @@ Cada ítem incluye evidencia por ruta.
 
 ### Roles y permisos (backend) — **Confirmado en código**
 
-- 5 roles y 23 permisos en [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php).
+- 5 roles y 26 permisos en [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) (incluye base RBAC RF-19 `ver_semaforo_completitud`).
 - Middleware `auth:sanctum` + `permission:*` en [`backend/routes/api.php`](../backend/routes/api.php).
 - Visibilidad de menú por permiso en [`frontend/src/App.jsx`](../frontend/src/App.jsx) (`moduloPermitido`).
 
@@ -167,6 +167,12 @@ Cada ítem incluye evidencia por ruta.
 | **RF-12** — Comunicación familiar | **Eliminado** | Gestión fuera del sistema |
 | **Importación SIAGIE (RF-01)** | **Fuera del alcance** | Plantillas Excel propias RF-32/RF-33 |
 
+### Parcial / en avance
+
+| Tema | Estado | Notas |
+|------|--------|-------|
+| **RF-19** — Semáforo completitud | **Parcial / en avance** | Base RBAC implementada Fase 3B (`ver_semaforo_completitud` en seeder para `administrador`, `docente`, `coordinador_academico`). Pendientes: lógica, endpoint, UI y tests. |
+
 ### Planificado (DRS v2.1 — por implementar en código)
 
 | Tema | Estado | Notas |
@@ -175,7 +181,6 @@ Cada ítem incluye evidencia por ruta.
 | **RF-11** — Perfil integral psicólogo (lectura) | **Planificado** | Alertas operativas hoy |
 | **RF-16** — Zona reportes de riesgo | **Planificado** | PDF dashboard = parcial |
 | **RF-18** — Reentrenamiento ML | **Planificado** | Requiere dataset histórico; no implementado |
-| **RF-19** — Semáforo completitud | **Planificado** | Sin UI/lógica en V1 |
 | **RF-20** — Historial evolutivo | **Planificado** | Persistencia sí; timeline UI no |
 
 ### Otros pendientes técnicos
@@ -271,7 +276,7 @@ Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
-- Implementar en código RF planificados: ~~RF-04~~ (**V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F** — ver §3); RF-10, RF-16, RF-18, RF-19, RF-20 (historial evolutivo UI).
+- Implementar en código RF planificados: ~~RF-04~~ (**V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F** — ver §3); RF-10, RF-16, RF-18, RF-20 (historial evolutivo UI). **RF-19** base RBAC implementada Fase 3B; lógica, endpoint, UI y tests pendientes.
 
 **Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 

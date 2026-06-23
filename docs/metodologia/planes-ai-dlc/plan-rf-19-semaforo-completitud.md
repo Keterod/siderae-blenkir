@@ -1,6 +1,6 @@
 # Plan AI-DLC — RF-19 Semáforo de completitud de datos
 
-**Fase:** 3A — Planificación previa a implementación (sin código)  
+**Fase:** 3A — Planificación previa a implementación (sin código) · **3B — Permisos y base RBAC RF-19 completada**  
 **Fecha:** 2026-06-23  
 **Metodología:** AI-DLC · perfiles en [`docs/metodologia/agentes-ai-dlc-siderae.md`](../agentes-ai-dlc-siderae.md)  
 **Guía operativa:** [`docs/metodologia/ai-dlc-aplicado-siderae.md`](../ai-dlc-aplicado-siderae.md)
@@ -43,7 +43,7 @@ Resumen según DRS v2.1 §RF-19:
 | `docs/limitaciones.md` | Planificado; sin UI/lógica | [`docs/limitaciones.md`](../../limitaciones.md) §5 |
 | `docs/api.md` | Planificado; sin rutas | [`docs/api.md`](../../api.md) §12 |
 | `docs/seguridad-roles-permisos.md` | `ver_semaforo_completitud` sugerido/planificado | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) §16 |
-| `PermissionsSeeder.php` | `ver_semaforo_completitud` **no existe** | [`backend/database/seeders/PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) |
+| `PermissionsSeeder.php` | `ver_semaforo_completitud` **implementado Fase 3B** | [`backend/database/seeders/PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) |
 | Endpoint RF-19 | No existe | [`backend/routes/api.php`](../../../backend/routes/api.php) |
 | UI RF-19 | No existe; perfil riesgo en pausa | `frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx` |
 | Tests RF-19 | No existen | — |
@@ -170,11 +170,11 @@ Queda explícitamente excluido de RF-19 V1:
 
 | Permiso | Existe en seeder | Roles sugeridos V1 | Uso |
 | ------- | ---------------- | ------------------ | --- |
-| `ver_semaforo_completitud` | **No** | `administrador`, `docente`, `coordinador_academico` | Consultar semáforo por estudiante |
+| `ver_semaforo_completitud` | **Sí** (Fase 3B) | `administrador`, `docente`, `coordinador_academico` | Consultar semáforo por estudiante |
 
 **Middleware futuro:** `auth:sanctum` + `permission:ver_semaforo_completitud`.
 
-No se modifica el seeder en esta fase 3A.
+Seeder actualizado en Fase 3B. `psicologo_tutor` y `directivo` **no** reciben el permiso en V1; se evaluarán con RF-11/RF-10/RF-14.
 
 ---
 
@@ -226,7 +226,7 @@ No se modifica el seeder en esta fase 3A.
 | [`docs/api.md`](../../api.md) | Fase 3C | Nuevo endpoint |
 | [`docs/manual-usuario.md`](../../manual-usuario.md) | Fase 3D–3E | Flujo por rol |
 | [`docs/manual-tecnico.md`](../../manual-tecnico.md) | Fase 3E | Servicio y pruebas |
-| [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) | Fase 3B | Permiso implementado |
+| [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) | Fase 3B ✅ | Permiso implementado |
 | [`docs/matriz-rf-sprint-test.md`](../../matriz-rf-sprint-test.md) | Fase 3E | Estado RF-19 |
 | [`docs/limitaciones.md`](../../limitaciones.md) | Fase 3E | Mover a confirmado/parcial |
 | [`docs/calidad/no-conformidades-y-mejora.md`](../../calidad/no-conformidades-y-mejora.md) | Fase 3E | Cerrar/matizar NC-19 |
@@ -270,7 +270,7 @@ No se modifica el seeder en esta fase 3A.
 
 | Fase | Contenido | Entregables | Estado |
 | ---- | --------- | ----------- | ------ |
-| **Fase 3B** | Permisos y base RBAC RF-19 | `ver_semaforo_completitud` en seeder; asignación de roles; `seguridad-roles-permisos.md` actualizado | Pendiente |
+| **Fase 3B** | Permisos y base RBAC RF-19 | `ver_semaforo_completitud` en seeder; asignación de roles; `seguridad-roles-permisos.md` actualizado | **Completada** (2026-06-23) |
 | **Fase 3C** | Backend semáforo RF-19 | `CompletitudDatosService`; endpoint; tests iniciales | Pendiente |
 | **Fase 3D** | Frontend semáforo en perfil estudiante | Componente; `api.js`; visibilidad por permiso | Pendiente |
 | **Fase 3E** | Pruebas, documentación y cierre RF-19 | Tests completos; smoke manual; docs actualizados; NC-19 matizada | Pendiente |
@@ -281,19 +281,21 @@ Orden: 3B → 3C → 3D → 3E.
 
 ## 16. Prompt futuro recomendado
 
-Borrador para **Fase 3B** (no ejecutar en 3A):
+Borrador para **Fase 3C** (no ejecutar en 3B):
 
 ```text
-Contexto: SIDERAE-Blenkir V1 Chilca. RF-19 planificado.
+Contexto: SIDERAE-Blenkir V1 Chilca. RF-19 base RBAC lista.
 Plan: docs/metodologia/planes-ai-dlc/plan-rf-19-semaforo-completitud.md
 
-Tarea Fase 3B únicamente:
-1. Agregar permiso ver_semaforo_completitud a PermissionsSeeder.php
-2. Asignar roles: administrador, docente, coordinador_academico
-3. Actualizar docs/seguridad-roles-permisos.md §16
-4. NO crear rutas, controllers, UI, migraciones ni tests
-5. NO tocar Flask, Docker, RiesgoAcademicoService ni Cypress
-6. Revisión humana del diff antes de cerrar
+Tarea Fase 3C únicamente:
+1. Crear CompletitudDatosService con método evaluar(Estudiante, anio, bimestre)
+2. Crear endpoint GET /api/estudiantes/{estudiante}/semaforo-completitud
+3. Proteger con auth:sanctum + permission:ver_semaforo_completitud
+4. Criterios: notas curriculares, asistencia curricular, reportes conductuales activos, índice riesgo complementario
+5. No tocar RiesgoAcademicoService ni Flask
+6. No recalcular riesgo automáticamente
+7. Tests Feature iniciales: 401, 403, verde/amarillo/rojo, Chilca
+8. Revisión humana del diff antes de cerrar
 
 Fuentes: DRS v2.1 RF-19, AGENTS.md, .cursorrules
 ```
@@ -302,11 +304,11 @@ Fuentes: DRS v2.1 RF-19, AGENTS.md, .cursorrules
 
 ## 17. Conclusión
 
-RF-19 está listo para implementación controlada como **semáforo V1 mínimo por estudiante**. No hay dependencias bloqueantes: notas curriculares, asistencia curricular y reportes conductuales RF-04 ya existen.
+RF-19 tiene **base RBAC implementada** (Fase 3B). El permiso `ver_semaforo_completitud` está en el seeder asignado a `administrador`, `docente` y `coordinador_academico`. Aún **no hay API, UI ni tests**; esos componentes corresponden a las fases 3C–3E.
 
 **Brecha técnica documentada:** `RiesgoAcademicoService::validarDatosMinimos()` sigue exigiendo variables socioeconómicas, lo cual es inconsistente con DRS v2.1. Esta corrección no forma parte de RF-19 y deberá tratarse como corrección aprobada de RF-06 si el equipo lo decide.
 
-**Próxima fase recomendada:** **Fase 3B — permisos y base RBAC RF-19**, sin ejecutar todavía.
+**Próxima fase recomendada:** **Fase 3C — Backend semáforo RF-19**, sin ejecutar todavía.
 
 ---
 
