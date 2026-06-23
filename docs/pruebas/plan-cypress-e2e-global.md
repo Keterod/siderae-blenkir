@@ -23,11 +23,12 @@ Fase 2F introdujo Cypress como base mínima para RF-04. No existe todavía una s
 | Scripts npm | Configurados | `npm run cy:open` y `npm run cy:run` |
 | Configuración | Configurada | `frontend/cypress.config.js` con `baseUrl` por `CYPRESS_BASE_URL` o `http://localhost:5173` |
 | Support file | Configurado | `frontend/cypress/support/e2e.js` |
-| Comandos reutilizables | Parcial | `cy.loginAsE2EUser()` y `cy.openRf04StudentProfile()` en `frontend/cypress/support/commands.js` |
+| Comandos reutilizables | Configurados base | `visitApp`, `getByTestId`, `requireE2ECredentials`, `loginAsE2EUser`, `logout`, `openModule`, `openRf04StudentProfile` |
 | Spec RF-04 | Creado | `frontend/cypress/e2e/rf04-reportes-conductuales.cy.js` |
+| Specs auth/logout | Creados | `auth-login.cy.js` y `logout.cy.js` en Fase 2H |
 | Variables requeridas | Definidas | `CYPRESS_E2E_EMAIL`, `CYPRESS_E2E_PASSWORD`, `CYPRESS_E2E_STUDENT_TEXT` opcional |
-| Resultado de ejecución | Parcial | Cypress 15.17.0 verificado; spec detenido por falta de `CYPRESS_E2E_EMAIL` |
-| Alcance actual | Mínimo RF-04 | No cubre login global, dashboard, curricular ni RBAC completo |
+| Resultado de ejecución | Parcial | Fase 2H: `npm run cy:run` detectó 3 specs; 2 tests auth públicos passed; login/logout/RF-04 pendientes por falta de credenciales E2E |
+| Alcance actual | Infraestructura auth/logout + RF-04 | No cubre dashboard, curricular ni RBAC completo |
 | Limitación principal | Datos/credenciales E2E | Falta usuario E2E documentado con variables de entorno definidas en ejecución |
 
 ## 3. Principios de cobertura E2E
@@ -52,6 +53,15 @@ Variables mínimas:
 CYPRESS_E2E_EMAIL=
 CYPRESS_E2E_PASSWORD=
 CYPRESS_E2E_STUDENT_TEXT=
+```
+
+Variables opcionales futuras para RBAC:
+
+```bash
+CYPRESS_E2E_NO_PERMISSION_EMAIL=
+CYPRESS_E2E_NO_PERMISSION_PASSWORD=
+CYPRESS_E2E_DIRECTIVO_EMAIL=
+CYPRESS_E2E_DIRECTIVO_PASSWORD=
 ```
 
 Recomendaciones:
@@ -108,7 +118,7 @@ Recomendaciones:
 
 | Spec Cypress | Funcionalidad | Flujo cubierto | Usuario requerido | Estado |
 | ------------ | ------------- | -------------- | ----------------- | ------ |
-| `auth-login.cy.js` | Autenticación | Login correcto, error credenciales, sesión inicial | Usuario E2E válido | Propuesto |
+| `auth-login.cy.js` | Autenticación | Login correcto, error credenciales, sesión inicial | Usuario E2E válido | Creado en 2H; ejecución pendiente de credenciales |
 | `navigation-rbac.cy.js` | Menú / permisos visibles | Módulos permitidos, módulos restringidos, sin selector sede | Usuario amplio y usuario limitado | Propuesto |
 | `dashboard.cy.js` | Dashboard | Carga de KPIs, filtros mínimos, export visible si aplica | Usuario con `ver_dashboard` | Propuesto |
 | `estudiantes.cy.js` | Estudiantes | Listado, búsqueda, abrir perfil | Usuario con `gestionar_estudiantes` | Propuesto |
@@ -125,7 +135,7 @@ Recomendaciones:
 | `asistencia-curricular.cy.js` | Asistencia curricular | Carga, filtros y registro/lectura controlada | Docente o coordinador | Propuesto |
 | `excel-aula.cy.js` | Excel aula | Verificar acceso y descarga iniciada | Usuario con `descargar_excel_aula` | Propuesto |
 | `calendario-academico.cy.js` | Calendario académico | Carga periodos y filtros | Usuario con gestión calendario | Propuesto |
-| `logout.cy.js` | Cierre sesión | Logout y retorno a login | Usuario E2E válido | Propuesto |
+| `logout.cy.js` | Cierre sesión | Logout y retorno a login | Usuario E2E válido | Creado en 2H; ejecución pendiente de credenciales |
 
 ## 7. Flujos mínimos por spec
 
@@ -253,12 +263,16 @@ Recomendaciones:
 
 ### Fase 2H — Infraestructura Cypress global
 
-- Mejorar comandos de login.
-- Agregar helpers de navegación por `data-testid`.
-- Definir patrón para usuarios E2E y variables.
-- Revisar selectores estables de header/sidebar sin modificar comportamiento.
-- Crear specs `auth-login.cy.js` y `logout.cy.js`.
-- Documentar resultado real de ejecución.
+Estado: **configurada**. `npm run cy:run` fue ejecutado sin credenciales E2E: 2 tests públicos de login pasaron; los flujos que requieren usuario E2E quedaron pendientes por `CYPRESS_E2E_EMAIL` / `CYPRESS_E2E_PASSWORD`.
+
+Actualización Fase 2H.1: se corrigieron helpers de sesión y fallback de selector de navegación, pero la ejecución con credenciales temporales sigue sin verde por fallas de sesión/layout y una corrida aislada de auth quedó bloqueada antes de iniciar tests. No se guardaron credenciales.
+
+- Mejorar comandos de login. **Hecho**
+- Agregar helpers de navegación por `data-testid`. **Hecho**
+- Definir patrón para usuarios E2E y variables. **Hecho**
+- Revisar selectores estables de header/sidebar sin modificar comportamiento. **Hecho**
+- Crear specs `auth-login.cy.js` y `logout.cy.js`. **Hecho**
+- Documentar resultado real de ejecución. **Registrado parcialmente; pendiente corrida con credenciales**
 
 ### Fase 2I — Smoke institucional base
 
@@ -378,4 +392,4 @@ El plan queda aceptado si:
 
 ## 14. Conclusión
 
-El proyecto está listo para pasar a **Fase 2H — Infraestructura Cypress global**, siempre que antes de ejecutar la suite se definan credenciales E2E por variables de entorno y un estudiante Chilca estable. La base RF-04 sirve como punto de partida, pero Cypress global permanece **planificado** hasta que se implementen los specs propuestos y se registren ejecuciones reales.
+Con Fase 2H, el proyecto cuenta con infraestructura Cypress reutilizable para auth/logout, navegación base y RF-04. El siguiente paso recomendado es **Fase 2I — Smoke institucional base**, siempre que antes de ejecutar los specs se definan credenciales E2E por variables de entorno y un estudiante Chilca estable. Cypress global permanece **en construcción** hasta que se implementen los specs de módulos y se registren ejecuciones reales.

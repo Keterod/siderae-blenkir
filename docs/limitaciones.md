@@ -182,7 +182,7 @@ Cada ítem incluye evidencia por ruta.
 
 | Tema | Estado | Notas |
 |------|--------|-------|
-| **Cypress / E2E** | Parcial | Cypress mínimo RF-04 configurado; sin suite E2E global |
+| **Cypress / E2E** | Parcial | Infraestructura auth/logout + smoke RF-04 configurada; sin suite E2E global |
 | **Random Forest / SVM / XGBoost** | No implementado | ML determinístico en V1 |
 | **Certificación ISO** | No aplica | Alineación progresiva únicamente |
 | **Despliegue productivo** | Pendiente | Solo Docker local |
@@ -232,7 +232,7 @@ Cada ítem incluye evidencia por ruta.
 |---------|--------|
 | PHPUnit / Feature Tests | **Existen** — ~49 archivos en [`backend/tests/`](../backend/tests/) |
 | Ejecución suite completa (Fase 1) | **Parcial** — ver [`docs/pruebas/hallazgos-fase1-documentacion.md`](pruebas/hallazgos-fase1-documentacion.md): fallo por memoria en `ExcelAulaTest` con límite 128M; misma clase pasa con 512M |
-| Cypress | **Parcial** — smoke RF-04 configurado; ejecución funcional pendiente con variables E2E |
+| Cypress | **Parcial** — infraestructura auth/logout y smoke RF-04 configurados; Fase 2H.1 ejecutada con credenciales temporales, pendiente por fallas de sesión/layout |
 | Fichas automatizadas | [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) referencia `ImportarDatosTest` **inexistente** |
 | Informe de ejecución | [`docs/pruebas/informe-pruebas.md`](pruebas/informe-pruebas.md) — consolidado Fase 5 |
 | Matriz RF–Sprint–Test | [`docs/matriz-rf-sprint-test.md`](matriz-rf-sprint-test.md) |

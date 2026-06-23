@@ -62,7 +62,7 @@ Sirve para trazabilidad académica y como insumo para actualizar el DRS separand
 - **BD auditada Fase 1:** conteos **no** equivalen a seed oficial limpio (`migrate:fresh --seed` no ejecutado en Fase 1).
 - **Suite PHPUnit completa:** falló por **OOM** con `memory_limit=128M` en `ExcelAulaTest` (Fase 1).
 - **`ExcelAulaTest` aislado:** **8 passed**, 32 assertions con `memory_limit=512M` (Fase 1).
-- **Cypress:** existe configuración mínima para smoke RF-04; no existe suite E2E completa del sistema.
+- **Cypress:** existe infraestructura global parcial (auth/logout + smoke RF-04); no existe suite E2E completa del sistema.
 - **SIAGIE:** **fuera del alcance actual** — plantillas Excel propias (RF-32).
 - **Fast Test (RF-03):** **retirado del alcance vigente**.
 - **VSE (RF-05):** **retiradas del flujo de riesgo**; API legacy puede existir.
@@ -92,7 +92,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-12 | Comunicación formal con familia | — | **Eliminado del alcance** | Esquema BD histórico | No aplica | — | — | Gestión fuera del sistema |
 | RF-13 | Registro acción y cierre alerta | 5 | Implementado parcialmente | `POST …/cerrar` | Alertas | `AlertaIntervencionTest` | No re-ejecutado Fase 5 | Cierre **solo por intervención**; sin comunicación familiar |
 | RF-14 | Dashboard académico e institucional | 6A, 6B, 7A | Implementado parcialmente | `GET /api/dashboard` | **Dashboard** (riesgo subset) | `DashboardTest` | No re-ejecutado Fase 5 | Riesgo es sección; ampliar indicadores académicos |
-| RF-15 | Gestión usuarios y control acceso | 2, 8 | Confirmado en código | `/api/usuarios`, Spatie (**23 permisos** en seeder) | **Usuarios** (admin) | `GestionUsuariosTest`, `AuthenticationTest` | Parcial 401 | [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) |
+| RF-15 | Gestión usuarios y control acceso | 2, 8 | Confirmado en código | `/api/usuarios`, Spatie (**23 permisos** en seeder) | **Usuarios** (admin) | `GestionUsuariosTest`, `AuthenticationTest`; Cypress auth/logout | Parcial 401; Cypress 2H: 2 auth tests passed, login/logout E2E pendiente por credenciales | [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) |
 | RF-16 | Generación reportes de riesgo académico | 6B | Implementado parcialmente | `GET /api/dashboard/export` (PDF parcial) | Botón export dashboard | `DashboardTest`, `ActivityLogTest` | No re-ejecutado Fase 5 | Zona reportes riesgo **planificada**; PDF dashboard = antecedente parcial |
 | RF-17 | Log auditoría / trazabilidad | 7.5A, 8 | Implementado parcialmente | `activity_log` | Sin UI consulta | `ActivityLogTest` | No re-ejecutado Fase 5 | Apoya alineación ISO progresiva; sin certificación |
 | RF-18 | Reentrenamiento modelo ML | — | **Planificado** | Sin endpoint ML/Laravel | No visible | — | — | ML real cuando exista dataset; no implementado |
@@ -143,7 +143,7 @@ Incluye sub-sprints documentados en `sprints/` vinculados al sprint principal. E
 | **8.5A** | Backend curricular + seeders | `/api/curricular/*`, migraciones | Rutas L128–282 | `CurricularSeedersTest`, `CurricularApiTest` | Confirmado en código | — |
 | **8.5B** | API/UI curricular + asignación | Notas, asistencia, malla UI | Paneles `curricular/*` | `AsistenciaDiariaTest`, `AsignacionDocenteValidacionesTest`, `NotasSemanales*` | Confirmado en código | — |
 | **8.5C** | Evaluación bimestral | Config bimestral, CE | `EvaluacionBimestral*` | `EvaluacionBimestralApiTest`, `EvaluacionBimestralTest` | Confirmado en código | — |
-| **9** | Pruebas integrales + regresión | Campaña pytest + Cypress planeado | Cypress mínimo RF-04 en `frontend/cypress/` | Ejecución Fase 1 documentada; RF-04 Cypress pendiente | Implementado parcialmente | No hay suite Cypress global; suite PHPUnit OOM 128M |
+| **9** | Pruebas integrales + regresión | Campaña pytest + Cypress planeado | Cypress infraestructura 2H en `frontend/cypress/` | Ejecución Fase 1 documentada; Cypress 2H ejecutado parcialmente sin credenciales | Implementado parcialmente | No hay suite Cypress global; suite PHPUnit OOM 128M |
 | **10** | Documentación + cierre calidad | Manuales, matriz RF, informe | `docs/*` Fases 1–5 | Informe consolidado Fase 5 | En progreso | ISO solo referencia; sin certificación |
 
 ---

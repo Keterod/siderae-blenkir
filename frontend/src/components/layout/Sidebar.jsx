@@ -28,6 +28,7 @@ export default function Sidebar({
         } ${collapsed ? 'w-[min(288px,90vw)] md:w-[4.25rem]' : 'w-[min(288px,90vw)] md:w-64'}`}
         aria-label="Navegación principal"
         data-collapsed={collapsed ? 'true' : 'false'}
+        data-testid="main-sidebar"
       >
         <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-3 py-3">
           <div className={`min-w-0 overflow-hidden transition-opacity ${collapsed ? 'md:w-0 md:opacity-0' : ''}`}>

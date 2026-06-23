@@ -175,7 +175,7 @@ docker compose exec app-frontend npm run build
 
 ### Cypress
 
-Configuración mínima para RF-04:
+Configuración Cypress E2E:
 
 ```bash
 cd frontend
@@ -191,7 +191,18 @@ CYPRESS_E2E_PASSWORD=
 CYPRESS_E2E_STUDENT_TEXT=
 ```
 
-`CYPRESS_E2E_STUDENT_TEXT` es opcional. Alcance: solo smoke E2E RF-04 reportes conductuales; no es suite Cypress completa del sistema. Detalle: [`pruebas/cypress-rf04.md`](pruebas/cypress-rf04.md).
+Variables opcionales futuras para RBAC:
+
+```bash
+CYPRESS_E2E_NO_PERMISSION_EMAIL=
+CYPRESS_E2E_NO_PERMISSION_PASSWORD=
+CYPRESS_E2E_DIRECTIVO_EMAIL=
+CYPRESS_E2E_DIRECTIVO_PASSWORD=
+```
+
+`CYPRESS_E2E_STUDENT_TEXT` es opcional. Fase 2H agrega infraestructura global de auth/logout (`auth-login.cy.js`, `logout.cy.js`) y comandos reutilizables; RF-04 usa esos helpers. Cypress global todavía está en construcción y no cubre todos los módulos. Detalle: [`pruebas/cypress-rf04.md`](pruebas/cypress-rf04.md), [`pruebas/plan-cypress-e2e-global.md`](pruebas/plan-cypress-e2e-global.md).
+
+Estado 2H.1: build frontend correcto; Cypress auth/logout/RF-04 ejecutado con credenciales temporales locales, pero sigue pendiente por fallas de sesión/layout. No registrar credenciales en archivos.
 
 ---
 

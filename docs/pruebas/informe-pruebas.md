@@ -76,6 +76,8 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | PHPUnit suite completa | **Parcial / incompleta** | Fallo técnico OOM antes de fin | Fase 1 salida consola | `memory_limit=128M` insuficiente para Excel |
 | `ExcelAulaTest` aislado | **Ejecutado (Fase 1)** | 8 passed @ 512M | Fase 1 | No implica suite global verde |
 | Tests previos a OOM | **Parcial** | ~277 passed (conteo salida) | Fase 1 | No inventariados uno a uno en informe |
+| Cypress auth/logout | **Infraestructura configurada** | `auth-login`: 2 passed, 2 fallan por falta de `CYPRESS_E2E_EMAIL`; `logout`: 2 fallan por falta de credenciales | `auth-login.cy.js`, `logout.cy.js` | No implica suite global completa |
+| Cypress auth/logout 2H.1 | **Ejecutado con fallas** | Build OK; Cypress con credenciales temporales falla por sesión/layout; corrida auth aislada bloqueada | `commands.js`, `auth-login.cy.js`, `logout.cy.js` | Pendiente estabilizar sesión local/Sanctum |
 | Cypress / E2E RF-04 | **Configurado mínimo** | Ejecutado; no completó por falta de `CYPRESS_E2E_EMAIL` | `frontend/cypress/e2e/rf04-reportes-conductuales.cy.js` | Solo smoke RF-04; no suite global |
 | Pruebas manuales por rol | **Recomendadas** | RF-04 smoke **pendiente navegador** | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | API/build verdes Fase 2E |
 | `ReporteConductualTest` aislado | **Ejecutado (Fase 2E)** | 8 passed, 26 assertions | Fase 2E | RF-04 cierre |
@@ -210,12 +212,12 @@ Documentación funcional del módulo: [`docs/aula-notas-excel.md`](../aula-notas
 
 | Aspecto | Estado |
 |---------|--------|
-| **Cypress** | **Configurado mínimo para RF-04** — `frontend/cypress.config.js` y spec `rf04-reportes-conductuales.cy.js` |
+| **Cypress** | **Infraestructura global parcial** — config, comandos comunes, `auth-login.cy.js`, `logout.cy.js` y spec RF-04 |
 | Jest / Vitest UI | **No confirmado** como suite de aceptación |
-| E2E automatizado | **Parcial** — solo smoke RF-04 |
+| E2E automatizado | **Parcial** — auth/logout + smoke RF-04; no cubre todos los módulos |
 | Pruebas manuales recomendadas | Flujos por rol en [`docs/manual-usuario.md`](../manual-usuario.md): login, dashboard, estudiantes, notas (lectura/registro según rol), asistencia, alertas, export PDF |
 
-Sprint 9 planea E2E más amplio; estado actual = **Cypress mínimo RF-04 configurado**, no suite completa del sistema. Ver [`cypress-rf04.md`](cypress-rf04.md).
+Sprint 9 planea E2E más amplio; estado actual = **infraestructura Cypress global parcial (Fase 2H)**, no suite completa del sistema. Ver [`cypress-rf04.md`](cypress-rf04.md) y [`plan-cypress-e2e-global.md`](plan-cypress-e2e-global.md).
 
 ---
 
