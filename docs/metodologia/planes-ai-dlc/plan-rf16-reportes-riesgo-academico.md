@@ -6,18 +6,18 @@ RF-16 permitirá consultar reportes de riesgo académico usando datos ya existen
 
 ## 2. Estado actual
 
-| Elemento | Estado | Evidencia |
-|----------|--------|-----------|
-| Endpoint de reportes riesgo | **No existe** | Solo `GET /api/dashboard/export` (PDF parcial, DomPDF) — `backend/routes/api.php:71` |
-| Permiso `ver_reportes_riesgo` | **Planificado** | Listado en `docs/seguridad-roles-permisos.md` como permiso sugerido, no implementado |
-| Permiso `generar_reportes_riesgo` | **Planificado** | Listado en `docs/seguridad-roles-permisos.md` como permiso sugerido, no implementado |
-| Controller de reportes riesgo | **No existe** | Solo `DashboardController` con método `export()` que usa `ver_dashboard` |
-| UI de reportes riesgo | **No existe** | No hay ruta ni componente en `App.jsx` para reportes. Solo botón "Exportar PDF" en `DashboardPanel.jsx` |
-| Tests de reportes riesgo | **No existen** | `DashboardTest` cubre export PDF; no hay test para reportes de riesgo dedicados |
-| `indices_riesgo` | **Poblado** | Tabla con registros de riesgo procesados vía API o comando `demo:procesar-riesgos` (RF-06, RF-20) |
-| Historial riesgo (RF-20) | **Implementado V1** | `GET /api/estudiantes/{estudiante}/historial-riesgo`, permiso `ver_historial_riesgo` |
-| Semáforo completitud (RF-19) | **Implementado V1** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, permiso `ver_semaforo_completitud` |
-| Cálculo de riesgo (RF-06) | **Implementado V1** | Backend completo, 61 tests, Flask validado. UI en pausa (sin botón procesar) |
+| Elemento                          | Estado                            | Evidencia                                                                                               |
+| --------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Endpoint de reportes riesgo       | **No existe**                     | Solo `GET /api/dashboard/export` (PDF parcial, DomPDF) — `backend/routes/api.php:71`                    |
+| Permiso `ver_reportes_riesgo`     | **Base RBAC implementada RF-16B** | Permiso creado en `PermissionsSeeder.php` y asignado a administrador, coordinador_academico, directivo  |
+| Permiso `generar_reportes_riesgo` | **Planificado**                   | Listado en `docs/seguridad-roles-permisos.md` como permiso sugerido, no implementado                    |
+| Controller de reportes riesgo     | **No existe**                     | Solo `DashboardController` con método `export()` que usa `ver_dashboard`                                |
+| UI de reportes riesgo             | **No existe**                     | No hay ruta ni componente en `App.jsx` para reportes. Solo botón "Exportar PDF" en `DashboardPanel.jsx` |
+| Tests de reportes riesgo          | **No existen**                    | `DashboardTest` cubre export PDF; no hay test para reportes de riesgo dedicados                         |
+| `indices_riesgo`                  | **Poblado**                       | Tabla con registros de riesgo procesados vía API o comando `demo:procesar-riesgos` (RF-06, RF-20)       |
+| Historial riesgo (RF-20)          | **Implementado V1**               | `GET /api/estudiantes/{estudiante}/historial-riesgo`, permiso `ver_historial_riesgo`                    |
+| Semáforo completitud (RF-19)      | **Implementado V1**               | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, permiso `ver_semaforo_completitud`            |
+| Cálculo de riesgo (RF-06)         | **Implementado V1**               | Backend completo, 61 tests, Flask validado. UI en pausa (sin botón procesar)                            |
 
 ## 3. Alcance V1 propuesto
 
@@ -36,22 +36,23 @@ RF-16 permitirá consultar reportes de riesgo académico usando datos ya existen
 
 ## 4. Permiso sugerido
 
-| Permiso | Nivel | Propósito |
-|---------|-------|-----------|
+| Permiso               | Nivel     | Propósito                                            |
+| --------------------- | --------- | ---------------------------------------------------- |
 | `ver_reportes_riesgo` | Operación | Consultar el listado de reportes de riesgo académico |
 
-No implementar permiso todavía.
+Permiso ya implementado en RF-16B.
 
-**Roles sugeridos V1:**
+**Roles V1:**
 
-| Rol | ¿Acceso? | Justificación |
-|-----|----------|---------------|
-| administrador | Sí | Acceso total del sistema |
-| coordinador_academico | Sí | Supervisión académica global |
-| directivo | Sí | Visión institucional (DRS lo justifica) |
-| docente | Sí, limitado a su alcance | Solo estudiantes de su aula. El DRS lista a Docente como actor de RF-16. En V1 puede aplicar sin restricción de aula o postergarse si el sistema aún no filtra por asignación docente |
+| Rol                   | ¿Acceso? | Justificación                           |
+| --------------------- | -------- | --------------------------------------- |
+| administrador         | Sí       | Acceso total del sistema                |
+| coordinador_academico | Sí       | Supervisión académica global            |
+| directivo             | Sí       | Visión institucional (DRS lo justifica) |
 
 Psicólogo/tutor: **No** en V1 (su alcance son alertas e intervenciones, no reportes globales de riesgo).
+
+RF-16 permitirá consultar reportes de riesgo académico usando datos ya existentes en `indices_riesgo`, sin recalcular riesgo, sin llamar Flask y sin generar PDF en V1. El reporte se presenta como listado paginable y filtrable para usuarios autorizados de gestión académica e institucional.
 
 ## 5. Impacto backend futuro
 
@@ -62,6 +63,7 @@ GET /api/reportes/riesgo-academico
 ```
 
 **Filtros query string:**
+
 - `anio_escolar` (string)
 - `grado` (string)
 - `seccion` (string)
@@ -70,6 +72,7 @@ GET /api/reportes/riesgo-academico
 - `page` / `per_page` (paginación)
 
 **Debe:**
+
 - Usar `auth:sanctum`.
 - Usar permiso `ver_reportes_riesgo`.
 - Consultar `IndiceRiesgo` con join a `estudiantes` para datos básicos (nombres, grado, sección).
@@ -95,16 +98,18 @@ Route::middleware(['auth:sanctum', 'permission:ver_reportes_riesgo'])
 ## 6. Impacto frontend futuro
 
 **Componente/vista propuesto:**
+
 - Nombre: `ReporteRiesgoAcademicoPanel.jsx`
 - Ubicación: `frontend/src/components/reportes/` (nueva carpeta) o junto a dashboard si se agrupa por módulo.
 
 **Debe incluir:**
+
 - Filtros simples (año escolar, grado, sección, nivel riesgo, bimestre) con valores obtenidos desde los datos existentes.
 - Tabla de resultados con columnas: Estudiante, Grado, Sección, Índice, Nivel, Bimestre, Fecha.
 - Paginación.
 - Botón/acciones por fila:
-  - Ver perfil del estudiante (navegar a `estudiante.show` con pestaña de riesgo).
-  - Opcional V1: tooltip o columna adicional con indicador resumido de completitud RF-19 e historial RF-20.
+    - Ver perfil del estudiante (navegar a `estudiante.show` con pestaña de riesgo).
+    - Opcional V1: tooltip o columna adicional con indicador resumido de completitud RF-19 e historial RF-20.
 - Estado vacío ("No se encontraron registros de riesgo con los filtros seleccionados").
 - Error aislado (mostrar mensaje amigable si la API falla, sin pantalla en blanco).
 - Estado de carga (spinner o skeleton).
@@ -113,6 +118,7 @@ Route::middleware(['auth:sanctum', 'permission:ver_reportes_riesgo'])
 - **Sin gráficos complejos** (solo tabla).
 
 **API helper propuesto en `frontend/src/lib/api.js`:**
+
 ```js
 getReportesRiesgo(filtros = {}) {
   return this.get('/reportes/riesgo-academico', filtros);
@@ -123,34 +129,34 @@ getReportesRiesgo(filtros = {}) {
 
 ### Backend
 
-| Prueba | Descripción |
-|--------|-------------|
-| 401 sin sesión | Llamar endpoint sin token → 401 |
-| 403 sin permiso | Llamar con token pero sin permiso `ver_reportes_riesgo` → 403 |
-| 200 con permiso | Usuario con permiso consulta → 200 + lista paginada |
-| Filtro año escolar | `?anio_escolar=2025` → solo resultados de ese año |
-| Filtro grado | `?grado=3` → solo estudiantes de 3er grado |
-| Filtro sección | `?seccion=A` → solo sección A |
-| Filtro nivel riesgo | `?nivel=Alto` → solo riesgo alto |
-| Filtro bimestre | `?bimestre=I` → solo bimestre I |
-| Filtros combinados | Múltiples filtros simultáneos |
-| Solo Chilca | Registros de Auquimarca no aparecen |
-| No recalcula riesgo | Verificar que no se invoca Flask ni `RiesgoAcademicoService` |
-| Paginación | `?page=2&per_page=5` → página 2 con 5 registros |
-| Orden descendente | Resultados ordenados por `created_at` DESC |
-| Sin registros | No hay índices de riesgo → lista vacía |
+| Prueba              | Descripción                                                   |
+| ------------------- | ------------------------------------------------------------- |
+| 401 sin sesión      | Llamar endpoint sin token → 401                               |
+| 403 sin permiso     | Llamar con token pero sin permiso `ver_reportes_riesgo` → 403 |
+| 200 con permiso     | Usuario con permiso consulta → 200 + lista paginada           |
+| Filtro año escolar  | `?anio_escolar=2025` → solo resultados de ese año             |
+| Filtro grado        | `?grado=3` → solo estudiantes de 3er grado                    |
+| Filtro sección      | `?seccion=A` → solo sección A                                 |
+| Filtro nivel riesgo | `?nivel=Alto` → solo riesgo alto                              |
+| Filtro bimestre     | `?bimestre=I` → solo bimestre I                               |
+| Filtros combinados  | Múltiples filtros simultáneos                                 |
+| Solo Chilca         | Registros de Auquimarca no aparecen                           |
+| No recalcula riesgo | Verificar que no se invoca Flask ni `RiesgoAcademicoService`  |
+| Paginación          | `?page=2&per_page=5` → página 2 con 5 registros               |
+| Orden descendente   | Resultados ordenados por `created_at` DESC                    |
+| Sin registros       | No hay índices de riesgo → lista vacía                        |
 
 ### Frontend
 
-| Prueba | Descripción |
-|--------|-------------|
-| Build OK | `npm run build` sin errores |
-| Filtros renderizan | Todos los filtros aparecen en la vista |
-| Tabla muestra datos | Datos de API se renderizan correctamente |
-| Paginación funcional | Navegar entre páginas |
-| Estado vacío | Sin datos → mensaje "No se encontraron registros" |
-| Estado error | Error 500 → mensaje amigable |
-| Sin selector sede | No aparece combobox de sede |
+| Prueba               | Descripción                                       |
+| -------------------- | ------------------------------------------------- |
+| Build OK             | `npm run build` sin errores                       |
+| Filtros renderizan   | Todos los filtros aparecen en la vista            |
+| Tabla muestra datos  | Datos de API se renderizan correctamente          |
+| Paginación funcional | Navegar entre páginas                             |
+| Estado vacío         | Sin datos → mensaje "No se encontraron registros" |
+| Estado error         | Error 500 → mensaje amigable                      |
+| Sin selector sede    | No aparece combobox de sede                       |
 
 ## 8. Fuera del alcance RF-16 V1
 
@@ -175,12 +181,12 @@ getReportesRiesgo(filtros = {}) {
 
 ## 9. Fases futuras
 
-| Fase | Nombre | Descripción |
-|------|--------|-------------|
-| RF-16B | Permiso y base RBAC | Crear permiso `ver_reportes_riesgo`, asignarlo a roles (admin, coord. académico, directivo, docente). Actualizar seeder de permisos |
-| RF-16C | Backend reportes de riesgo | Crear `ReporteRiesgoAcademicoController`, endpoint `GET /api/reportes/riesgo-academico`, ruta, validación de filtros, paginación, sede Chilca |
-| RF-16D | Frontend vista de reportes | Crear `ReporteRiesgoAcademicoPanel.jsx`, registrar en `App.jsx` como nuevo módulo, agregar `getReportesRiesgo` a `api.js`, filtros, tabla, paginación, estados |
-| RF-16E | Pruebas, documentación y cierre | Tests backend (11+), build frontend, smoke manual, documentar en api.md, manual-usuario.md, matriz, informe-pruebas |
+| Fase   | Nombre                          | Descripción                                                                                                                                                    | Estado         |
+| ------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| RF-16B | Permiso y base RBAC             | Crear permiso `ver_reportes_riesgo`, asignarlo a roles (admin, coord. académico, directivo). Actualizar seeder de permisos                                     | **Completada** |
+| RF-16C | Backend reportes de riesgo      | Crear `ReporteRiesgoAcademicoController`, endpoint `GET /api/reportes/riesgo-academico`, ruta, validación de filtros, paginación, sede Chilca                  | Pendiente      |
+| RF-16D | Frontend vista de reportes      | Crear `ReporteRiesgoAcademicoPanel.jsx`, registrar en `App.jsx` como nuevo módulo, agregar `getReportesRiesgo` a `api.js`, filtros, tabla, paginación, estados | Pendiente      |
+| RF-16E | Pruebas, documentación y cierre | Tests backend (11+), build frontend, smoke manual, documentar en api.md, manual-usuario.md, matriz, informe-pruebas                                            | Pendiente      |
 
 ## 10. Conclusión
 
@@ -196,7 +202,7 @@ RF-16 está **listo para implementación controlada**. El alcance V1 es mínimo:
 
 ### Estado encontrado
 
-RF-16 está en estado **"Implementado parcialmente"** en la matriz. Solo existe el export PDF del dashboard (`GET /api/dashboard/export`) como antecedente parcial. No hay endpoint dedicado, permiso implementado, controller, UI ni tests para reportes de riesgo. Los permisos `ver_reportes_riesgo` y `generar_reportes_riesgo` ya están documentados como planificados en `seguridad-roles-permisos.md`.
+RF-16 está en estado **"Parcial / en avance"** en la matriz. Solo existe el export PDF del dashboard (`GET /api/dashboard/export`) como antecedente parcial. No hay endpoint dedicado, controller, UI ni tests para reportes de riesgo; el permiso `ver_reportes_riesgo` ya fue implementado en RF-16B. El permiso `generar_reportes_riesgo` sigue documentado como planificado.
 
 ### Alcance V1 propuesto
 
@@ -209,16 +215,16 @@ RF-16 está en estado **"Implementado parcialmente"** en la matriz. Solo existe 
 
 ### Permiso sugerido
 
-`ver_reportes_riesgo` para roles: administrador, coordinador_academico, directivo, docente (alcance completo o limitado a su aula según decisión V1).
+`ver_reportes_riesgo` para roles: administrador, coordinador_academico, directivo.
 
 ### Fases futuras
 
-| Fase | Qué incluye |
-|------|-------------|
-| RF-16B | Permiso `ver_reportes_riesgo` + asignación a roles + seeder |
+| Fase   | Qué incluye                                                                 |
+| ------ | --------------------------------------------------------------------------- |
+| RF-16B | Permiso `ver_reportes_riesgo` + asignación a roles + seeder                 |
 | RF-16C | `ReporteRiesgoAcademicoController` + endpoint + ruta + filtros + paginación |
-| RF-16D | `ReporteRiesgoAcademicoPanel.jsx` + registro en App.jsx + api.js |
-| RF-16E | Tests (11+ backend + frontend build) + documentación + cierre |
+| RF-16D | `ReporteRiesgoAcademicoPanel.jsx` + registro en App.jsx + api.js            |
+| RF-16E | Tests (11+ backend + frontend build) + documentación + cierre               |
 
 ### Validaciones
 
@@ -231,4 +237,6 @@ RF-16 está en estado **"Implementado parcialmente"** en la matriz. Solo existe 
 
 ### Próxima fase recomendada
 
-**RF-16B — Permiso `ver_reportes_riesgo` y base RBAC.**
+**RF-16C — Backend reportes de riesgo académico.**
+
+> **Nota:** `generar_reportes_riesgo` queda planificado para fases futuras (PDF/exportación fuera de V1).

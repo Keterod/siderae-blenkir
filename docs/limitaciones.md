@@ -134,11 +134,12 @@ Cada ítem incluye evidencia por ruta.
 - **No** es insumo obligatorio del cálculo de riesgo (RF-06) en alcance vigente v2.1.
 - UI pausada en perfil estudiante.
 
-### RF-14 / RF-16 — Dashboard académico-institucional y reportes de riesgo — **Implementado parcialmente**
+### RF-14 / RF-16 — Dashboard académico-institucional y reportes de riesgo — **Implementado parcialmente / en avance**
 
 - Dashboard con filtros y KPIs (subset académico/riesgo): confirmado (`DashboardPanel`, `DashboardTest`).
 - Export PDF del dashboard vía DomPDF: confirmado — **antecedente parcial** de RF-16, no zona completa de reportes de riesgo.
-- **Planificado:** RF-16 zona reportes por estudiante/aula/grado/periodo; RF-14 indicadores académicos ampliados.
+- **RF-16B completada:** permiso `ver_reportes_riesgo` implementado en seeder y asignado a administrador, coordinador_academico, directivo.
+- **Pendiente RF-16C/D/E:** endpoint API, controller, UI frontend, pruebas y cierre. PDF/exportación (`generar_reportes_riesgo`) queda fuera de V1.
 
 ### RF-17 — Auditoría (`activity_log`) — **Implementado parcialmente**
 
