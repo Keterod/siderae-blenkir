@@ -96,7 +96,7 @@ Módulos y componentes del sistema SIDERAE-Blenkir a probar (alcance **planifica
 - El docente ve el perfil completo del estudiante en riesgo y registra la intervención. *(Alertas RF-09 confirmadas; UI riesgo en perfil **pausada** — RF-06 parcial.)*
 - El directivo revisa el mapa de riesgo de todas las sedes y registra la derivación. *(Multi-sede y RF-10 **pendientes**; V1 opera sede **Chilca**.)*
 - El administrador gestiona usuarios con roles y permisos diferenciados. *(RF-15 confirmado en V1.)*
-- El sistema valida automáticamente la integridad de los datos antes de procesarlos. *(Parcial; RF-19 semáforo **backend implementado V1** — UI pendiente.)*
+- El sistema valida automáticamente la integridad de los datos antes de procesarlos. *(Parcial; RF-19 semáforo **implementado V1** — backend + UI + build OK; smoke manual pendiente.)*
 - El directivo recibe un reporte mensual automático de calidad basado en ISO 25010. *(Referencia académica; **sin certificación ISO**.)*
 - El administrador reentrena el modelo ML y visualiza las nuevas métricas. *(RF-18 **pendiente**; ML determinístico V1.)*
 
@@ -108,7 +108,7 @@ Se ejecutan tras cada corrección de defecto. Componentes afectados indirectamen
 - Laravel Notifications/Alertas (RF-08) ante cambios en umbrales o respuesta ML.
 - Dashboard en React (RF-14) ante modificaciones en la API y modelos.
 - `spatie/activitylog` (RF-17) ante cualquier cambio en acciones de usuario.
-- Semáforo de completitud (RF-19) ante cambios en la ingesta de datos. *(Backend implementado V1 con `SemaforoCompletitudTest` 11 passed; UI React pendiente.)*
+- Semáforo de completitud (RF-19) ante cambios en la ingesta de datos. *(Implementado V1; `SemaforoCompletitudTest` 11 passed; UI React build OK; smoke manual pendiente.)*
 
 ### 5.4 Funcionalidades a no probar
 

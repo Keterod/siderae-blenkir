@@ -20,7 +20,7 @@
 | 02/04/2026 | 1.0 | Equipo SIDERAE-Blenkir (Colegio Blenkir) | DRS formal original — alcance institucional completo | `DRS_SIDERAE_Blenkir_v1.pdf` (externo al repo) |
 | 2026-06-09 | 2.0 | Equipo documentación SIDERAE-Blenkir (Diego Carhuamaca Vasquez, Ernesto Chuchon Sotelo) | Actualización documental V1 real: RF/RNF con estado honesto, brechas, trazabilidad a código y pruebas | Fases 1–6 + ISO + matriz RF–Sprint–Test + informe de pruebas + limitaciones |
 | 2026-06-09 | 2.1 | Equipo documentación SIDERAE-Blenkir | Reestructuración de alcance: retiro Fast Test / SIAGIE / VSE / comunicación familiar del alcance vigente; ajuste RF-10/RF-11/RF-13/RF-14/RF-16/RF-18/RF-19/RF-20; incorporación RF-21–RF-35 del módulo curricular como RF oficiales | Fase 9 documental |
-| 2026-06-23 | 2.2 | Equipo documentación SIDERAE-Blenkir | RF-04 cerrado V1 mínimo; RF-19 backend implementado (`CompletitudDatosService`, endpoint API, tests 11 passed); UI RF-19 pendiente | Fase 3C AI-DLC RF-19 |
+| 2026-06-23 | 2.2 | Equipo documentación SIDERAE-Blenkir | RF-04 cerrado V1 mínimo; RF-19 implementado V1 (`CompletitudDatosService`, endpoint API, tests 11 passed, UI perfil estudiante, build frontend OK); smoke manual pendiente | Fases 3C–3E AI-DLC RF-19 |
 
 ---
 
@@ -92,7 +92,7 @@ SIDERAE-Blenkir V1 es un sistema web desacoplado (React + Laravel + MySQL + Flas
 | RF-10 Escalamiento directivo crítico | **Planificado** — solo casos críticos/extremos |
 | RF-12 Comunicación familiar | **Eliminado del alcance** — gestión fuera del sistema |
 | RF-18 Reentrenamiento ML | **Planificado** — requiere dataset histórico; no implementado |
-| RF-19 Semáforo completitud | **Backend implementado V1** — API + servicio + tests; UI perfil estudiante pendiente |
+| RF-19 Semáforo completitud | **Implementado V1** — API + servicio + tests + UI perfil estudiante; smoke manual navegador pendiente |
 | RF-20 Historial evolutivo (UI/timeline) | **Planificado** — persistencia `indices_riesgo` confirmada |
 | Cypress / E2E | **No confirmado** — no existe en repo |
 | Despliegue productivo | **Pendiente** — solo Docker local |
@@ -331,7 +331,7 @@ Estados derivados de [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.
 - **Prioridad:** Alta
 - **Evidencia de implementación:** `RiesgoAcademicoService`, `ml-service/main.py`, `EstudiantePerfilRiesgo.jsx` (pausado)
 - **Evidencia de prueba:** `RiesgoTest`, `DemoProcesarRiesgosCommandTest`
-- **Brechas / pendientes:** No ML real entrenado; UI procesar ausente; RF-04 implementado V1 mínimo; RF-19 backend implementado; operación con datos parciales por definir
+- **Brechas / pendientes:** No ML real entrenado; UI procesar ausente; RF-04 implementado V1 mínimo; RF-19 implementado V1; operación con datos parciales por definir
 - **Observaciones para versión futura:** RF-18 vincula evolución a ML real; no afirmar reentrenamiento implementado
 
 ---
@@ -495,12 +495,12 @@ Estados derivados de [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.
 ### RF-19 — Semáforo de completitud de datos
 
 - **Estado V1:** **Backend implementado; UI pendiente**
-- **Descripción actualizada:** Indica si existen datos suficientes para interpretar el riesgo académico. Estados V1: **verde** (notas curriculares **y** asistencia curricular presentes), **amarillo** (al menos uno entre notas, asistencia, reportes conductuales activos o índice de riesgo del periodo), **rojo** (sin ninguno de los anteriores). Insumos V1: notas curriculares (`NotaSemanal` / `EvalBimResultado`), asistencia curricular (`AsistenciaDiaria`), reportes conductuales activos (RF-04) e índice de riesgo (`IndiceRiesgo`) como dato complementario. El semáforo es **informativo** en V1: no bloquea el procesamiento ML, no recalcula riesgo y no llama a Flask. UI en perfil estudiante pendiente Fase 3D.
+- **Descripción actualizada:** Indica si existen datos suficientes para interpretar el riesgo académico. Estados V1: **verde** (notas curriculares **y** asistencia curricular presentes), **amarillo** (al menos uno entre notas, asistencia, reportes conductuales activos o índice de riesgo del periodo), **rojo** (sin ninguno de los anteriores). Insumos V1: notas curriculares (`NotaSemanal` / `EvalBimResultado`), asistencia curricular (`AsistenciaDiaria`), reportes conductuales activos (RF-04) e índice de riesgo (`IndiceRiesgo`) como dato complementario. El semáforo es **informativo** en V1: no bloquea el procesamiento ML, no recalcula riesgo y no llama a Flask. UI en perfil estudiante implementada Fase 3D.
 - **Actor(es):** Docente, Administrador, Coordinador académico
 - **Prioridad:** Media
-- **Evidencia de implementación:** `CompletitudDatosService`, `SemaforoCompletitudController`, `GET /api/estudiantes/{estudiante}/semaforo-completitud`, permiso `ver_semaforo_completitud`
-- **Evidencia de prueba:** `SemaforoCompletitudTest` — 11 passed, 55 assertions (Fase 3C, 2026-06-23)
-- **Brechas / pendientes:** UI perfil estudiante (Fase 3D); integración con RF-06 operación con datos parciales
+- **Evidencia de implementación:** `CompletitudDatosService`, `SemaforoCompletitudController`, `GET /api/estudiantes/{estudiante}/semaforo-completitud`, permiso `ver_semaforo_completitud`, `EstudiantePerfilSemaforoCompletitud.jsx`
+- **Evidencia de prueba:** `SemaforoCompletitudTest` — 11 passed, 55 assertions (Fase 3C/E, 2026-06-23); build frontend OK (Fase 3D/E)
+- **Brechas / pendientes:** Smoke manual navegador pendiente; integración con RF-06 operación con datos parciales
 - **Observaciones para versión futura:** Dependiente de RF-04 reportes conductuales para completitud plena; posible historial evolutivo con RF-20
 
 ---
@@ -760,7 +760,7 @@ Basado en DRS v1 (RNF-01–RNF-10), [`docs/calidad/matriz-iso-25010.md`](../cali
 | Aspecto | Descripción | Evidencia | Estado | Brecha |
 |---------|-------------|---------|--------|--------|
 | Chrome / Firefox | Navegadores modernos | Desarrollo Vite | Evidencia parcial | Sin matriz compatibilidad ejecutada |
-| Integridad datos (RNF-10) | Validación pre-ML | Validaciones API parciales; semáforo RF-19 backend implementado | Evidencia parcial | UI semáforo pendiente |
+| Integridad datos (RNF-10) | Validación pre-ML | Validaciones API parciales; semáforo RF-19 implementado V1 | Evidencia parcial | Smoke manual navegador pendiente |
 
 ---
 
@@ -771,7 +771,7 @@ Transcripción/resumen DRS v1 con **estado V1** ([`contexto-drs-requerimientos.m
 | ID | Regla | Estado V1 |
 |----|-------|-----------|
 | **RN-01** | Umbrales Alto ≥ 0,70; Medio 0,40–0,69; Bajo &lt; 0,40; configurables por admin | Umbrales en código **confirmados**; configuración admin **pendiente** |
-| **RN-02** | Completitud mínima (asistencia, notas, reportes conductuales) para interpretar riesgo; semáforo RF-19 | **Parcial** — notas/asistencia confirmadas; reportes conductuales RF-04 implementados V1 mínimo; semáforo RF-19 backend implementado (UI pendiente); **VSE retiradas del flujo** |
+| **RN-02** | Completitud mínima (asistencia, notas, reportes conductuales) para interpretar riesgo; semáforo RF-19 | **Parcial** — notas/asistencia confirmadas; reportes conductuales RF-04 implementados V1 mínimo; semáforo RF-19 implementado V1; **VSE retiradas del flujo** |
 | **RN-03** | Alerta si índice ≥ Alto **o** ascenso Bajo→Medio dos bimestres | Umbral Alto **confirmado**; segundo disparador **pendiente verificar** |
 | **RN-04** | Cierre alerta **solo** con intervención registrada; activity_log | Intervención/cierre **confirmado**; escalamiento RF-10 **planificado**; **sin** cierre por comunicación familiar |
 | **RN-05** | Segregación acceso por rol; backend valida Spatie | **Confirmado** |
@@ -927,7 +927,7 @@ Basado en [`docs/calidad/no-conformidades-y-mejora.md`](../calidad/no-conformida
 | NC-10 | Multi-sede no activa | RF-14 | Media | Documentado — Chilca V1 |
 | NC-11 | UI riesgo pausada | RF-06, RF-20 | Media | Reactivar UI o comando técnico |
 | NC-12 | **VSE retiradas** del flujo de riesgo | RF-05 | Media | Documentado v2.1; no insumo obligatorio RF-06 | Producto | Documentada v2.1 |
-| NC-13 | RF-04 **implementado V1 mínimo**; RF-10 **planificado**; RF-19 **backend implementado**; RF-03/RF-12 **retirados** | RF-04–13, RF-19 | Alta (RF-10) / Media (RF-04/RF-19 UI) | Backlog explícito RF-10; RF-19 UI Fase 3D | Documentación | Documentada v2.1; RF-04 cerrado V1 mínimo; RF-19 backend cerrado |
+| NC-13 | RF-04 **implementado V1 mínimo**; RF-10 **planificado**; RF-19 **implementado V1**; RF-03/RF-12 **retirados** | RF-04–13, RF-19 | Alta (RF-10) / Media (RF-04) | Backlog explícito RF-10 | Documentación | Documentada v2.1; RF-04 cerrado V1 mínimo; RF-19 cerrado V1 |
 | NC-16 | RF-16 reportes de riesgo **planificados** | RF-16 | Media | Zona reportes por estudiante/aula/grado | Backend + doc | Abierta |
 | NC-17 | RF-20 historial evolutivo **planificado** | RF-20 | Media | Timeline por periodo/bimestre | Frontend | Abierta |
 | NC-18 | RF-21–RF-35 curriculares documentados | RF-21–35 | Media | Matriz RF–Sprint–Test actualizada | Documentación | Documentada v2.1 |
@@ -948,7 +948,7 @@ Criterios **honestos** para cierre académico del prototipo (no producción):
 6. **Alertas e intervenciones** operativas según matriz RF (tests detectados).
 7. **Dashboard** muestra KPIs subset RF-14; export PDF dashboard disponible.
 8. **Riesgo académico** procesable vía API/comando; ML determinístico documentado.
-9. **RF-19 semáforo backend** operativo: endpoint protegido, tests `SemaforoCompletitudTest` pasan; UI en perfil estudiante pendiente (Fase 3D).
+9. **RF-19 semáforo V1** operativo: endpoint protegido, tests `SemaforoCompletitudTest` pasan; UI en perfil estudiante implementada y build frontend verde.
 9. **Pruebas documentadas** con limitaciones conocidas (OOM, sin Cypress, BD no seed oficial).
 10. **Documentación consolidada** Fases 1–9 incluyendo este DRS v2.1, matrices ISO progresivas y registro NC.
 11. **No se exige** certificación ISO, SIAGIE, Fast Test, VSE en riesgo, comunicación familiar, ensemble ML, multi-sede ni suite PHPUnit 100% verde @ 128M.

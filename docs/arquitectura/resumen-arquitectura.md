@@ -97,12 +97,12 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 | RF-16 Exportacion PDF | Si | Parcial | Implementado parcialmente | `GET /api/dashboard/export` + vista `pdf/dashboard.blade.php` confirmados; otros reportes PDF del DRS no confirmados |
 | RF-17 Auditoria | Si | Parcial | Implementado parcialmente | `activity_log` + registros manuales `activity()` en controladores API (Sprint 7.5A); consulta UI de logs y cobertura total REQ-17.x **pendiente de verificar** |
 | RF-18 Reentrenamiento ML | Si | No | Pendiente de desarrollo | No se detectan endpoints/flujo de reentrenamiento |
-| RF-19 Semaforo de completitud | Si | Parcial | Backend implementado V1 | `CompletitudDatosService`, endpoint API y tests (`SemaforoCompletitudTest` 11 passed); UI perfil estudiante pendiente |
+| RF-19 Semaforo de completitud | Si | Si | Confirmado en codigo V1 | `CompletitudDatosService`, endpoint API, tests (`SemaforoCompletitudTest` 11 passed) y UI perfil estudiante (`EstudiantePerfilSemaforoCompletitud.jsx`) |
 | RF-20 Historial de riesgo | Si | Parcial | Implementado parcialmente | Persistencia historica en `indices_riesgo`; visualizacion historica en UI no confirmada completa |
 
 ## Limites actuales del prototipo
 - El ML actual es un prototipo deterministico en `ml-service/main.py`; no se confirma ejecucion real de Random Forest, SVM y XGBoost en codigo actual (DRS RF-06 REQ-06.2).
-- Capacidades DRS pendientes: RF-03, RF-10–RF-12, RF-18, import SIAGIE, Cypress/E2E, despliegue productivo. **RF-19 backend implementado; UI pendiente.**
+- Capacidades DRS pendientes: RF-03, RF-10–RF-12, RF-18, import SIAGIE, Cypress/E2E, despliegue productivo. **RF-19 implementado V1; smoke manual navegador pendiente.**
 - Conteos demo **varian** segun historial BD local; ver `docs/pruebas/hallazgos-fase1-documentacion.md` (no usar como constantes universales). **Nota:** conteos Fase 1 con sede Auquimarca pertenecen al entorno local auditado; no implican operacion multi-sede en V1 (sede operativa Chilca).
 - Suite PHPUnit completa puede fallar por `memory_limit` 128M en tests Excel; `ExcelAulaTest` paso con 512M (Fase 1).
 - Documentacion consolidada Fases 1–8: ver [`docs/INDICE_DOCUMENTACION.md`](../INDICE_DOCUMENTACION.md).
@@ -119,5 +119,5 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 - `docs/ml-service.md`
 - `docs/api.md`
 
-*Ultima actualizacion documental: saneamiento post-Fase 8 (2026-06-09).*
+*Ultima actualizacion documental: saneamiento post-Fase 8 (2026-06-09). RF-19 cerrado V1 Fase 3E — 2026-06-23.*
 

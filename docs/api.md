@@ -148,7 +148,7 @@ Solo estudiantes con `sede = chilca` (V1 operativa). El endpoint es **informativ
 
 **Respuesta 200:** `estudiante_id`, `anio_escolar`, `bimestre`, `color`, `etiqueta`, `mensaje`, `razones[]`.
 
-Tests: [`SemaforoCompletitudTest.php`](../backend/tests/Feature/SemaforoCompletitudTest.php) — **11 passed**, 55 assertions (Fase 3C, 2026-06-23). UI: **pendiente** (Fase 3D).
+Tests: [`SemaforoCompletitudTest.php`](../backend/tests/Feature/SemaforoCompletitudTest.php) — **11 passed**, 55 assertions (Fase 3C/E, 2026-06-23). UI: [`EstudiantePerfilSemaforoCompletitud.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilSemaforoCompletitud.jsx) integrado en perfil estudiante (Fase 3D).
 
 ---
 
@@ -265,7 +265,7 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 | RF-10 Escalamiento directivo | **Planificado** | Sin rutas |
 | RF-12 Comunicación familiar | **Eliminado del alcance** | Esquema BD histórico |
 | RF-18 Reentrenamiento ML | **Planificado** | Sin endpoints |
-| RF-19 Semáforo completitud | **Backend implementado; UI pendiente** | `GET /api/estudiantes/{estudiante}/semaforo-completitud` |
+| RF-19 Semáforo completitud | **Implementado V1** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`; UI en perfil estudiante |
 | RF-16 Reportes de riesgo (zona dedicada) | **Planificado** | PDF dashboard = parcial |
 | RF-03 Fast Test | **Retirado del alcance** | — |
 | SIAGIE import global | **Fuera del alcance** | Plantilla RF-32 en su lugar |
@@ -294,4 +294,4 @@ Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSe
 
 ---
 
-*Fase 2 documental — 2026-06-09. RF-04 API+UI V1 mínimo — Fases 2B–2E (2026-06-10). RF-19 backend — Fase 3C (2026-06-23).*
+*Fase 2 documental — 2026-06-09. RF-04 API+UI V1 mínimo — Fases 2B–2E (2026-06-10). RF-19 implementado V1 — Fases 3B–3E (2026-06-23).*

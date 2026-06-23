@@ -88,7 +88,7 @@ Usuarios demo: [`DemoUsersSeeder.php`](../backend/database/seeders/DemoUsersSeed
 
 Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **26 permisos implementados actualmente**, `guard_name` = `web` (8 legacy + 15 curriculares + 2 conductuales RF-04 + 1 semáforo RF-19 base).
 
-> **Permisos adicionales sugeridos/planificados:** 5 permisos para RF-10, RF-11, RF-16 y RF-18 documentados en §16 — **no** están en `PermissionsSeeder`. Los permisos RF-04 **sí** están en seeder (Fase 2B), **rutas API** (Fase 2C) y **UI perfil** (Fase 2D); cierre pruebas Fase 2E (2026-06-10). El permiso RF-19 `ver_semaforo_completitud` **sí** está en seeder (Fase 3B, 2026-06-23); la **API backend** fue implementada en Fase 3C (`CompletitudDatosService`, `SemaforoCompletitudController`, `SemaforoCompletitudTest` 11 passed); la **UI en perfil estudiante** permanece pendiente (Fase 3D).
+> **Permisos adicionales sugeridos/planificados:** 5 permisos para RF-10, RF-11, RF-16 y RF-18 documentados en §16 — **no** están en `PermissionsSeeder`. Los permisos RF-04 **sí** están en seeder (Fase 2B), **rutas API** (Fase 2C) y **UI perfil** (Fase 2D); cierre pruebas Fase 2E (2026-06-10). El permiso RF-19 `ver_semaforo_completitud` **sí** está en seeder (Fase 3B, 2026-06-23); la **API backend** fue implementada en Fase 3C (`CompletitudDatosService`, `SemaforoCompletitudController`, `SemaforoCompletitudTest` 11 passed); la **UI en perfil estudiante** fue implementada en Fase 3D (`EstudiantePerfilSemaforoCompletitud.jsx`, build frontend OK).
 
 ### Legacy (8)
 
@@ -134,7 +134,7 @@ Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.
 
 | Permiso | Uso funcional | Módulo / rutas | Estado |
 |---------|---------------|----------------|--------|
-| `ver_semaforo_completitud` | Consultar semáforo de completitud de datos por estudiante | `GET /api/estudiantes/{id}/semaforo-completitud` | API implementada Fase 3C; **UI pendiente** |
+| `ver_semaforo_completitud` | Consultar semáforo de completitud de datos por estudiante | `GET /api/estudiantes/{id}/semaforo-completitud` | Implementado V1 — API + UI perfil estudiante |
 
 ---
 
@@ -340,11 +340,11 @@ Los siguientes permisos **no existen** aún en código; se documentan como objet
 | `ver_reportes_conductuales` | RF-04 | **Implementado** — seeder + API GET + UI perfil |
 | `registrar_reportes_conductuales` | RF-04 | **Implementado** — seeder + API POST/PATCH anular + UI; **no** asignado a `directivo` |
 
-### Permisos RF-19 implementados en seeder (Fase 3B — API backend Fase 3C; UI pendiente)
+### Permisos RF-19 implementados en seeder (Fase 3B — API backend Fase 3C; UI Fase 3D; cierre Fase 3E)
 
 | Permiso | RF | Estado |
 |---------|-----|--------|
-| `ver_semaforo_completitud` | RF-19 | **Implementado** — seeder + asignación roles + endpoint `GET /api/estudiantes/{id}/semaforo-completitud` + tests (`SemaforoCompletitudTest` 11 passed); **UI perfil estudiante pendiente** |
+| `ver_semaforo_completitud` | RF-19 | **Implementado V1** — seeder + asignación roles + endpoint + tests 11 passed + UI perfil estudiante + build frontend OK |
 
 ---
 
@@ -360,4 +360,4 @@ Documentación técnica del repo cita **Laravel ^13** / PHP 8.3 — **confirmado
 
 ---
 
-*Documento generado en Fase 3 del plan de actualización documental SIDERAE-Blenkir. Actualizado Fases 2B–2E RF-04 — 2026-06-10. Actualizado Fases 3B–3C RF-19 — 2026-06-23.*
+*Documento generado en Fase 3 del plan de actualización documental SIDERAE-Blenkir. Actualizado Fases 2B–2E RF-04 — 2026-06-10. Actualizado Fases 3B–3E RF-19 — 2026-06-23.*

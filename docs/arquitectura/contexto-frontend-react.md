@@ -125,7 +125,7 @@ El frontend **no** llama a `:5000` (Flask); riesgo vía backend.
 | RF-16 | **Parcial** — export PDF dashboard; Excel aula `.xlsx` |
 | RF-15 | **Confirmado** — panel usuarios |
 | RF-17 | **N/A UI** — activity log solo backend |
-| RF-19 | **Pendiente** — backend listo Fase 3C; componente UI en perfil estudiante no creado |
+| RF-19 | **Implementado V1** — `EstudiantePerfilSemaforoCompletitud.jsx` en perfil estudiante; render condicional por permiso; build OK |
 | RF-20 | **Parcial** — persistencia backend; perfil riesgo pausado |
 
 ---
@@ -138,4 +138,4 @@ El frontend **no** llama a `:5000` (Flask); riesgo vía backend.
 
 ---
 
-*Actualizado: saneamiento post-Fase 8 (2026-06-09). Alineado a DRS v2. RF-19 backend actualizado Fase 3C (2026-06-23).*
+*Actualizado: saneamiento post-Fase 8 (2026-06-09). Alineado a DRS v2. RF-19 cerrado V1 Fase 3E (2026-06-23).*

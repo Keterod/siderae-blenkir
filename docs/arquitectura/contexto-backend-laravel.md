@@ -184,9 +184,9 @@ Ver [`docs/ml-service.md`](../ml-service.md).
 | RF-17 | **Parcial** — activitylog |
 | RF-04 | **Confirmado** — V1 mínimo perfil estudiante |
 | RF-10–12, RF-18 | **Pendiente** |
-| RF-19 | **Backend implementado** — `CompletitudDatosService`, endpoint y tests; UI pendiente |
+| RF-19 | **Implementado V1** — `CompletitudDatosService`, endpoint, tests y UI perfil estudiante |
 
 ---
 
-*Actualizado: Fase 2 documental (2026-06-09). RF-19 backend actualizado Fase 3C (2026-06-23).*
+*Actualizado: Fase 2 documental (2026-06-09). RF-19 cerrado V1 Fase 3E (2026-06-23).*
 

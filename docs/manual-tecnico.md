@@ -232,7 +232,7 @@ docker compose exec app-backend php artisan migrate:status
 |------|--------|
 | Auth, RBAC, estudiantes, curricular **RF-21–RF-35**, Excel plantilla/aula, riesgo, alertas | Confirmado / parcial |
 | **RF-04** reportes conductuales (perfil estudiante) | **Implementado V1 mínimo** — Fases 2B–2E |
-| **RF-19** semáforo de completitud (perfil estudiante) | **Implementado V1** — Fases 3B–3D; backend + UI |
+| **RF-19** semáforo de completitud (perfil estudiante) | **Implementado V1** — Fases 3B–3E; backend + UI + tests + build verde |
 | SIAGIE, Fast Test, VSE en riesgo, comunicación familiar | **Fuera del alcance vigente** |
 | Escalamiento directivo, reportes riesgo RF-16, historial evolutivo | **Planificado** |
 | Dashboard académico-institucional | Parcial (riesgo subset hoy) |
@@ -256,4 +256,4 @@ Documentación vigente: [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenki
 
 ---
 
-*Fase 2 documental — 2026-06-09. RF-19 frontend actualizado Fase 3D — 2026-06-23.*
+*Fase 2 documental — 2026-06-09. RF-19 cerrado V1 Fases 3B–3E — 2026-06-23.*

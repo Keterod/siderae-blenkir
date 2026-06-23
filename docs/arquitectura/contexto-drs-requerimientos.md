@@ -54,7 +54,7 @@ Origen de **nombre, actor y prioridad**: **Tabla «7. Requerimientos Funcionales
 | RF-16 | Exportación de reportes en PDF | Docente / Directivo | Media | **Implementado parcialmente** — export PDF dashboard; Excel aula `.xlsx` distinto |
 | RF-17 | Registro de auditoría de acciones | Sistema | Alta | **Implementado parcialmente** — activitylog parcial |
 | RF-18 | Reentrenamiento del modelo ML | Administrador | Media | **Pendiente** |
-| RF-19 | Semáforo de completitud de datos | Docente / Administrador | Media | **Backend implementado V1** (Fase 3C); UI perfil estudiante **pendiente** |
+| RF-19 | Semáforo de completitud de datos | Docente / Administrador | Media | **Implementado V1** (Fases 3B–3E); smoke manual navegador pendiente |
 | RF-20 | Historial de riesgo por estudiante | Docente / Directivo | Media | **Implementado parcialmente** — persistencia; UI/timeline **pausada** |
 
 ---
@@ -178,7 +178,7 @@ Resumen de la **Sección 10** del DRS (RNF-01 a RNF-10), **sin** desarrollar mar
 | RF-19 | **Definido en DRS** |
 | Backend endpoint `GET /api/estudiantes/{id}/semaforo-completitud` | **Implementado** Fase 3C |
 | Servicio `CompletitudDatosService` + tests 11 passed | **Implementado** Fase 3C |
-| UI semáforo en perfil estudiante | **Pendiente de desarrollo** |
+| UI semáforo en perfil estudiante | **Implementado** Fase 3D |
 | Bloqueo ML según REQ-19.3 | **No aplica V1** — semáforo informativo |
 
 ---

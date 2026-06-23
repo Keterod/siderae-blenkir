@@ -300,7 +300,7 @@ Módulos visibles: **todos** los del menú lateral.
   - **Rojo:** no hay datos suficientes; no se recomienda interpretar el riesgo académico con la información actual.
 - **Resultado esperado:** Se muestra color, etiqueta, mensaje corto y lista de insumos presentes/ausentes.
 - **Errores comunes:** «Sin permiso para ver el semáforo» (403); «No se pudo cargar» ante fallo de red. El error se muestra aislado y no rompe el resto del perfil.
-- **Importante:** El semáforo **no es el nivel de riesgo** (bajo/medio/alto); solo indica la completitud de los datos. No bloquea el procesamiento de riesgo. No aparece selector de sede.
+- **Importante:** El semáforo **no es el nivel de riesgo** (bajo/medio/alto); solo indica la completitud de los datos. No bloquea el procesamiento de riesgo. No aparece selector de sede. V1: solo sede Chilca.
 - *Permiso:* `ver_semaforo_completitud` (asignado en V1 a administrador, docente y coordinador académico).
 
 ---
@@ -618,4 +618,4 @@ Detalle técnico y diferencia con plantilla/import curricular: [`docs/aula-notas
 
 ---
 
-*Documento generado en Fase 4 del plan de actualización documental SIDERAE-Blenkir.*
+*Documento generado en Fase 4 del plan de actualización documental SIDERAE-Blenkir. RF-19 cerrado V1 Fase 3E — 2026-06-23.*

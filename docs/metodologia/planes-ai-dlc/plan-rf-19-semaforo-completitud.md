@@ -231,9 +231,9 @@ Seeder actualizado en Fase 3B. `psicologo_tutor` y `directivo` **no** reciben el
 | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) | Fase 3B ✅ | Permiso implementado |
 | [`docs/matriz-rf-sprint-test.md`](../../matriz-rf-sprint-test.md) | Fase 3D ✅ | Estado RF-19 actualizado |
 | [`docs/limitaciones.md`](../../limitaciones.md) | Fase 3D ✅ | Backend y frontend RF-19 documentados |
-| [`docs/calidad/no-conformidades-y-mejora.md`](../../calidad/no-conformidades-y-mejora.md) | Fase 3E | Cerrar/matizar NC-19 |
-| [`docs/pruebas/informe-pruebas.md`](../../pruebas/informe-pruebas.md) | Fase 3D ✅ | Resultados tests + build frontend |
-| Este plan | Fase 3D ✅ | Fases 3B–3D marcadas completadas |
+| [`docs/calidad/no-conformidades-y-mejora.md`](../../calidad/no-conformidades-y-mejora.md) | Fase 3E ✅ | NC-19 cerrada V1 |
+| [`docs/pruebas/informe-pruebas.md`](../../pruebas/informe-pruebas.md) | Fase 3E ✅ | Resultados tests + build frontend |
+| Este plan | Fase 3E ✅ | Fases 3B–3E marcadas completadas |
 
 ---
 
@@ -275,7 +275,7 @@ Seeder actualizado en Fase 3B. `psicologo_tutor` y `directivo` **no** reciben el
 | **Fase 3B** | Permisos y base RBAC RF-19 | `ver_semaforo_completitud` en seeder; asignación de roles; `seguridad-roles-permisos.md` actualizado | **Completada** (2026-06-23) |
 | **Fase 3C** | Backend semáforo RF-19 | `CompletitudDatosService`; endpoint; `SemaforoCompletitudController`; tests iniciales | **Completada** (2026-06-23) |
 | **Fase 3D** | Frontend semáforo en perfil estudiante | `EstudiantePerfilSemaforoCompletitud.jsx`; `getSemaforoCompletitud()` en `api.js`; visibilidad por permiso; build frontend OK | **Completada** (2026-06-23) |
-| **Fase 3E** | Pruebas finales, smoke manual y cierre RF-19 | Smoke manual UI; docs actualizados; NC-19 matizada; posible Cypress/Playwright | Pendiente |
+| **Fase 3E** | Pruebas finales, smoke manual y cierre RF-19 | `PermissionsSeeder` resembrado; `SemaforoCompletitudTest` 11 passed; build frontend OK; docs actualizados; NC-19 cerrada V1; smoke manual navegador no ejecutado | **Completada** (2026-06-23) |
 
 Orden: 3B → 3C → 3D → 3E.
 
@@ -306,12 +306,14 @@ Fuentes: DRS v2.1 RF-19, AGENTS.md, .cursorrules
 
 ## 17. Conclusión
 
-RF-19 tiene **backend y frontend V1 implementados** (Fases 3B–3D). El permiso `ver_semaforo_completitud` está en el seeder asignado a `administrador`, `docente` y `coordinador_academico`; el servicio `CompletitudDatosService`, el endpoint `GET /api/estudiantes/{estudiante}/semaforo-completitud`, los tests `SemaforoCompletitudTest` (11 passed, 55 assertions) y el componente `EstudiantePerfilSemaforoCompletitud.jsx` están en el repositorio. El build frontend fue exitoso. El cierre documental final, smoke manual UI y posibles pruebas E2E corresponden a la **Fase 3E**.
+RF-19 está **implementado y cerrado V1** (Fases 3B–3E). El permiso `ver_semaforo_completitud` está en el seeder asignado a `administrador`, `docente` y `coordinador_academico`; el servicio `CompletitudDatosService`, el endpoint `GET /api/estudiantes/{estudiante}/semaforo-completitud`, los tests `SemaforoCompletitudTest` (11 passed, 55 assertions), el componente `EstudiantePerfilSemaforoCompletitud.jsx` y la documentación de cierre están en el repositorio. El `PermissionsSeeder` fue resembrado, los tests backend pasaron y el build frontend fue exitoso.
+
+**Pendientes menores honestos:** smoke manual en navegador no ejecutado; pruebas E2E globales (Cypress) no ejecutadas.
 
 **Brecha técnica documentada:** `RiesgoAcademicoService::validarDatosMinimos()` sigue exigiendo variables socioeconómicas, lo cual es inconsistente con DRS v2.1. Esta corrección no forma parte de RF-19 y deberá tratarse como corrección aprobada de RF-06 si el equipo lo decide.
 
-**Próxima fase recomendada:** **Fase 3E — pruebas, documentación y cierre RF-19**.
+**Próxima fase recomendada:** **Commit de cierre RF-19** y continuar con backlog vigente (RF-10, RF-16, RF-18, RF-20) según prioridad.
 
 ---
 
-*Plan AI-DLC — Fases 3A–3D completadas; 3E pendiente — 2026-06-23.*
+*Plan AI-DLC — Fases 3A–3E completadas — 2026-06-23.*

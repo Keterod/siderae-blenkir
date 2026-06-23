@@ -66,8 +66,9 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `php artisan tinker --execute="AsistenciaDiaria / SeccionAula"` | Fase 1 | **35** / **69** | Solo lectura |
 | `docker compose exec app-backend php artisan test --filter=ReporteConductualTest` | Fase 2E RF-04 | Exit 0 — **8 passed**, **26 assertions** | ~15.5 s |
 | `docker compose exec app-frontend npm run build` | Fase 2E RF-04 | Exit 0 — Vite build | ~7.7 s, 108 módulos |
-| `docker compose exec app-backend php artisan test --filter=SemaforoCompletitudTest` | Fase 3C RF-19 | Exit 0 — **11 passed**, **55 assertions** | ~19.4 s |
-| `docker compose exec app-frontend npm run build` | Fase 3D RF-19 | Exit 0 — Vite build | ~7.8 s, 109 módulos |
+| `docker compose exec app-backend php artisan db:seed --class=PermissionsSeeder` | Fase 3E RF-19 | Exit 0 — seed OK | — |
+| `docker compose exec app-backend php artisan test --filter=SemaforoCompletitudTest` | Fase 3C/E RF-19 | Exit 0 — **11 passed**, **55 assertions** | ~14.2 s |
+| `docker compose exec app-frontend npm run build` | Fase 3D/E RF-19 | Exit 0 — Vite build | ~5.7 s, 109 módulos |
 
 ---
 
@@ -319,7 +320,7 @@ Estado funcional: **Implementado V1 mínimo** (perfil estudiante Chilca; sin mó
 | Sede V1 | `SemaforoCompletitudController.php` | Solo Chilca; Auquimarca rechazada 403 |
 | Frontend | Componente en perfil estudiante | **Implementado Fase 3D** |
 
-Estado funcional: **Backend y frontend V1 implementados; cierre/pruebas finales pendientes**.
+Estado funcional: **Implementado V1**. Validaciones backend (11 passed, 55 assertions) y build frontend verdes. Smoke manual en navegador no ejecutado. Cypress global no ejecutado.
 
 ---
 
@@ -339,4 +340,4 @@ El conjunto es **evidencia académica válida para prototipo V1** si se presenta
 
 ---
 
-*Documento generado en Fase 5 del plan de actualización documental SIDERAE-Blenkir.*
+*Documento generado en Fase 5 del plan de actualización documental SIDERAE-Blenkir. RF-19 cerrado V1 Fase 3E — 2026-06-23.*
