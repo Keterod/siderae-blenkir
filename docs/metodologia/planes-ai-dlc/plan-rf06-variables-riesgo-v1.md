@@ -233,7 +233,19 @@ El plan define variables oficiales coherentes con el alcance V1: notas y asisten
 7. ✅ Flask validado con 5 escenarios: bajo, medio, alto, sin reportes, backward compatibility.
 8. ✅ Documentación actualizada (api, limitaciones, manual-tecnico, matriz, informe-pruebas).
 
-**Próximo:** RF-06E — cierre, smoke manual y documentación final.
+## Apéndice: RF-06E ejecutado — Cierre riesgo académico V1 (2026-06-23)
+
+**RF-06E completado.** Cierre y documentación final del riesgo académico V1:
+
+1. ✅ Validaciones backend ejecutadas: `RiesgoTest` 38 passed, `SemaforoCompletitudTest` 11 passed, `HistorialRiesgoTest` 12 passed. **Total 61 tests, 210 assertions**.
+2. ✅ Flask `/predict` validado con 5 escenarios: bajo (0.07), medio (0.45), alto (0.85), sin reportes (0.31), backward compat (0.10).
+3. ✅ Git status limpio — RF-06C/RF-06D/RF-06E commits confirmados en rama.
+4. ✅ Smoke manual: **No aplicable** — UI de procesamiento de riesgo en pausa (sin botón en perfil estudiante). Backend RF-06 funcional vía API o comando técnico.
+5. ✅ Documentación final actualizada: `matriz-rf-sprint-test.md`, `limitaciones.md`, `manual-usuario.md`, `manual-tecnico.md`, `no-conformidades-y-mejora.md` (NC-11 matizada, NC-12 cerrada), `informe-pruebas.md`, `plan-rf06-variables-riesgo-v1.md`.
+
+**Estado final RF-06:** Implementado V1 corregido y enriquecido — backend completo, UI en pausa documentada.
+
+**Próximo:** Commit de cierre RF-06.
 
 ---
 

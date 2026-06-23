@@ -127,10 +127,11 @@ Decisión sede Chilca: [`../AGENTS.md`](../AGENTS.md), `sedeOperativa.js`. V1 no
 
 Integración Laravel → Flask documentada en [`ml-service.md`](ml-service.md).
 
-- **Confirmado:** `POST /predict`, prototipo determinístico.
+- **Confirmado:** `POST /predict`, prototipo determinístico RF-06D/E.
 - **Planificado:** ML real y reentrenamiento (RF-18) cuando exista dataset; **no** RF/SVM/XGBoost entrenados en V1.
-- **Variables socioeconómicas:** retiradas del flujo de riesgo vigente (v2.1, RF-06C).
-- **RF-06D:** Payload enriquecido: detalle académico (nota_minima, cursos_en_riesgo, cursos_desaprobados), detalle asistencia (inasistencias, inasistencias_recientes), detalle conductual (reportes_graves, gravedad_maxima, reportes_recientes, reincidencia). Pesos globales: académico 55%, asistencia 30%, conductual 15%. Sin VSE ni Fast Test.
+- **Variables socioeconómicas y Fast Test:** retirados del flujo de riesgo (RF-06C/E).
+- **RF-06E:** Payload enriquecido: detalle académico (nota_minima, cursos_en_riesgo, cursos_desaprobados), detalle asistencia (inasistencias, inasistencias_recientes), detalle conductual (reportes_graves, gravedad_maxima, reportes_recientes, reincidencia). Pesos globales: académico 55%, asistencia 30%, conductual 15%. Sin VSE ni Fast Test. Cálculo determinístico y explicable.
+- **Pruebas RF-06E:** `RiesgoTest` 38 passed + `SemaforoCompletitudTest` 11 + `HistorialRiesgoTest` 12 = 61 tests, 210 assertions. Flask validado 5 escenarios (bajo/medio/alto/sin reportes/backward compat).
 
 Servicio: [`MlRiskService.php`](../backend/app/Services/MlRiskService.php).
 

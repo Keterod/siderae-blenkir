@@ -64,13 +64,13 @@ Cada ítem incluye evidencia por ruta.
 - Servicio: [`backend/app/Services/Curricular/PlantillaRegistroAuxiliarExcelService.php`](../backend/app/Services/Curricular/PlantillaRegistroAuxiliarExcelService.php).
 - Excel por aula: `GET /api/curricular/excel-aula` — tests [`backend/tests/Feature/Curricular/ExcelAulaTest.php`](../backend/tests/Feature/Curricular/ExcelAulaTest.php), [`backend/tests/Feature/Curricular/PlantillaRegistroAuxiliarExcelTest.php`](../backend/tests/Feature/Curricular/PlantillaRegistroAuxiliarExcelTest.php).
 
-### Riesgo académico — **RF-06C: VSE/Fast Test retirados del flujo de riesgo**
+### Riesgo académico — **RF-06E: Implementado V1 corregido y enriquecido**
 
 - Endpoint: `POST /api/estudiantes/{estudiante}/procesar-riesgo` — [`backend/routes/api.php`](../backend/routes/api.php) (L113–114).
 - Orquestación Laravel → Flask: [`backend/app/Services/MlRiskService.php`](../backend/app/Services/MlRiskService.php), [`backend/app/Services/RiesgoAcademicoService.php`](../backend/app/Services/RiesgoAcademicoService.php).
-- UI en perfil: [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx).
-- Tests: [`backend/tests/Feature/RiesgoTest.php`](../backend/tests/Feature/RiesgoTest.php) — **20 passed** (RF-06C, 2026-06-23).
-- **RF-06D:** Payload enriquecido con detalle académico (nota_minima, cursos_en_riesgo, cursos_desaprobados), asistencia (inasistencias, inasistencias_recientes) y conductual (reportes_graves, gravedad_maxima, reportes_recientes, reincidencia). Pesos globales: académico 55%, asistencia 30%, conductual 15%. VSE/Fast Test retirados.
+- UI en perfil: [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx) — **en pausa** (sin botón procesar en UI).
+- Tests: [`backend/tests/Feature/RiesgoTest.php`](../backend/tests/Feature/RiesgoTest.php) — **38 passed** (RF-06D/E, 2026-06-23). Total 61 tests con SemaforoCompletitudTest (11) + HistorialRiesgoTest (12) = 210 assertions.
+- **RF-06E:** Payload enriquecido (nota_minima, cursos_en_riesgo, cursos_desaprobados, inasistencias, inasistencias_recientes, reportes_graves, gravedad_maxima, reportes_recientes, reincidencia). Pesos globales 55/30/15. Sin VSE ni Fast Test. Flask determinístico validado 5 escenarios. Cálculo explicable sin ML real. UI de procesamiento en pausa — backend funcional vía API/comando.
 
 ### Alertas, intervenciones y cierre — **Confirmado en código**
 

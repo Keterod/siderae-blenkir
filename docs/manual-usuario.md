@@ -513,11 +513,13 @@ Después, docentes pueden operar **Notas semanales** y **Asistencia**.
 
 ### 12.3 Flujo de riesgo académico
 
-1. El sistema dispone de **notas, asistencia y evaluación curricular** como insumo.
-2. El **cálculo de riesgo** se procesa mediante un **servicio configurado** (Laravel invoca microservicio ML en prototipo).
-3. En V1, la sección **Riesgo académico** del perfil de estudiante muestra **aviso de actualización pendiente** — no es el flujo operativo principal para usuarios.
-4. Cuando exista índice de riesgo y reglas institucionales, puede generarse una **alerta** consultable en **Alertas**.
-5. Procesamiento masivo post-importación es responsabilidad del **equipo técnico** (comando de consola), no del usuario de aula.
+1. El sistema dispone de **notas curriculares, asistencia curricular y reportes conductuales** como insumos para calcular el riesgo.
+2. El **cálculo de riesgo** se procesa mediante un **servicio determinístico** (Laravel + Flask, prototipo académico). **No es ML real entrenado**.
+3. **No requiere variables socioeconómicas.** **No requiere Fast Test.**
+4. Los **reportes conductuales** (conducta) son opcionales: si no existen, el componente conductual del riesgo es neutro.
+5. El cálculo usa tres dimensiones con pesos fijos: **académico 55%**, **asistencia 30%**, **conductual 15%**.
+6. En V1, la sección **Riesgo académico** del perfil de estudiante muestra **aviso de actualización pendiente** — no es el flujo operativo principal para usuarios. No hay botón «Procesar riesgo» en la pantalla.
+7. Procesamiento masivo post-importación es responsabilidad del **equipo técnico** (comando de consola `demo:procesar-riesgos`), no del usuario de aula.
 
 ### 12.4 Flujo de alertas e intervención
 
@@ -579,12 +581,13 @@ Detalle técnico y diferencia con plantilla/import curricular: [`docs/aula-notas
 |------------|---------|
 | Sede única Chilca | Sin selector de sede; multi-sede no operativa |
 | Auquimarca en BD local | Dato histórico de desarrollo; no uso normal V1 |
-| Variables socioeconómicas | API existe; **pestaña no visible** en perfil de estudiante |
+| Variables socioeconómicas | API existe; **pestaña no visible** en perfil de estudiante. **No son insumo del riesgo académico V1** |
+| Fast Test | **Retirado del alcance** — no es insumo del riesgo académico V1 |
 | Reportes conductuales | Solo en **perfil de estudiante**; sin menú global ni listado por grado/sección |
 | Semáforo de completitud | En **perfil de estudiante**; indica completitud de datos, **no** nivel de riesgo |
 | Historial de riesgo | En **perfil de estudiante**; muestra evolución del índice de riesgo por periodo, **sin** recalcular |
-| Riesgo en perfil de estudiante | Mensaje de **pausa/rediseño**; sin botón «Procesar riesgo» en UI |
-| Procesar riesgo manual | Permiso backend para admin/coordinador; **sin acción de pantalla** habitual |
+| Riesgo en perfil de estudiante | Mensaje de **pausa/rediseño**; sin botón «Procesar riesgo» en UI. Backend RF-06 validado (61 tests). Procesar disponible vía API o comando técnico |
+| Procesar riesgo manual | Permiso backend para admin/coordinador; **sin acción de pantalla** habitual. Sin requerir VSE ni Fast Test |
 | Módulos legacy | Materias, notas masivas y asistencia masiva **sin menú** — fuera del flujo V1 |
 | Pesos C/L/T | Módulo **oculto** en menú (transición curricular) |
 | Recuperación de contraseña | Enlace visual **pendiente de desarrollo** |
