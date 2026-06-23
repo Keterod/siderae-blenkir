@@ -106,7 +106,7 @@ Permiso: `registrar_datos_academicos`
 | GET | `/api/estudiantes/{estudiante}/variables-socioeconomicas` |
 | POST | `/api/estudiantes/{estudiante}/variables-socioeconomicas` |
 
-**RF-05:** API legacy confirmada; **retirada del flujo funcional de riesgo** (v2.1); UI pausada.
+**RF-05:** API legacy confirmada; **retirada del flujo funcional de riesgo** (v2.1, RF-06C); UI pausada.
 
 **Import SIAGIE:** **fuera del alcance actual** — no confundir con import Excel curricular RF-32 (§10).
 
@@ -119,6 +119,8 @@ Permiso: `registrar_datos_academicos`
 | POST | `/api/estudiantes/{estudiante}/procesar-riesgo` | `procesar_riesgo` |
 
 Orquesta llamada a Flask — ver [`ml-service.md`](ml-service.md).
+
+**RF-06C:** Variables socioeconómicas y Fast Test retirados del requisito mínimo. Datos obligatorios: notas curriculares y asistencia curricular. Reportes conductuales: opcionales. Pesos RF-06C: notas 55%, asistencia 30%, reportes 15%.
 
 ---
 

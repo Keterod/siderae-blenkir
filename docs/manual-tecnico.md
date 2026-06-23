@@ -129,7 +129,8 @@ Integración Laravel → Flask documentada en [`ml-service.md`](ml-service.md).
 
 - **Confirmado:** `POST /predict`, prototipo determinístico.
 - **Planificado:** ML real y reentrenamiento (RF-18) cuando exista dataset; **no** RF/SVM/XGBoost entrenados en V1.
-- **Variables socioeconómicas:** retiradas del flujo de riesgo vigente (v2.1).
+- **Variables socioeconómicas:** retiradas del flujo de riesgo vigente (v2.1, RF-06C).
+- **RF-06C:** Fast Test retirado; datos mínimos: notas curriculares + asistencia; reportes conductuales opcionales. Pesos: notas 55%, asistencia 30%, reportes 15%.
 
 Servicio: [`MlRiskService.php`](../backend/app/Services/MlRiskService.php).
 

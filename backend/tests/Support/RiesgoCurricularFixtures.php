@@ -206,7 +206,6 @@ trait RiesgoCurricularFixtures
 
         $this->crearEvalBimResultadoRiesgo($estudiante, $nivelLogroBimestral);
         $this->crearAsistenciasDiariasRiesgo($estudiante, $user);
-        $this->crearVariableSocioeconomicaRiesgo($estudiante);
 
         return [$estudiante, $user];
     }

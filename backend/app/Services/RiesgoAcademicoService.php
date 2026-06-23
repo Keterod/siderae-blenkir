@@ -10,7 +10,6 @@ use App\Models\Alerta;
 use App\Models\Estudiante;
 use App\Models\IndiceRiesgo;
 use App\Models\ReporteConductual;
-use App\Models\VariableSocioeconomica;
 use App\Services\Curricular\AsistenciaDiariaResumenService;
 use App\Services\Curricular\CatalogoNivelGrado;
 use App\Services\Curricular\EquivalenciaGradoService;
@@ -48,12 +47,7 @@ class RiesgoAcademicoService
             ->where('anio_escolar', $anio)
             ->exists();
 
-        $tieneVariables = VariableSocioeconomica::query()
-            ->where('estudiante_id', $estudiante->id)
-            ->where('anio_escolar', $anio)
-            ->exists();
-
-        if ($tieneAcademicos && $tieneAsistencias && $tieneVariables) {
+        if ($tieneAcademicos && $tieneAsistencias) {
             return ['ok' => true];
         }
 
@@ -68,12 +62,6 @@ class RiesgoAcademicoService
         if (! $tieneAsistencias) {
             $mensajes['asistencias_curriculares'] = [
                 'Se requiere al menos un registro de asistencia curricular diaria para el año escolar del estudiante.',
-            ];
-        }
-
-        if (! $tieneVariables) {
-            $mensajes['variables_socioeconomicas'] = [
-                'Se requieren variables socioeconómicas para el año escolar del estudiante.',
             ];
         }
 
@@ -127,13 +115,21 @@ class RiesgoAcademicoService
                 $modelosScores = $respuestaMl['modelos_scores'];
             }
 
+            $variablesUtilizadas = [
+                'notas' => true,
+                'asistencia' => true,
+                'reportes_conductuales' => $payload['reportes_conductuales'] > 0,
+                'variables_socioeconomicas' => false,
+                'fast_test' => false,
+            ];
+
             $registro = IndiceRiesgo::create([
                 'estudiante_id' => $estudiante->id,
                 'indice' => $indice,
                 'nivel' => $nivel,
                 'anio_escolar' => $anio,
                 'bimestre' => $bimestre,
-                'variables_utilizadas' => $payload,
+                'variables_utilizadas' => $variablesUtilizadas,
                 'modelos_scores' => $modelosScores,
             ]);
 
@@ -179,24 +175,10 @@ class RiesgoAcademicoService
             ->activos()
             ->count();
 
-        /** @var VariableSocioeconomica $vars */
-        $vars = VariableSocioeconomica::query()
-            ->where('estudiante_id', $estudiante->id)
-            ->where('anio_escolar', $anio)
-            ->firstOrFail();
-
-        $distancia = $vars->distancia_colegio_km !== null
-            ? (float) $vars->distancia_colegio_km
-            : 0.0;
-
         return [
             'promedio_notas' => round($promedioNotas, 4),
             'porcentaje_asistencia' => round($porcentajeAsistencia, 4),
             'reportes_conductuales' => $reportesCount,
-            'fast_test_puntaje' => 0,
-            'nivel_socioeconomico' => $vars->nivel_socioeconomico,
-            'acceso_internet' => (bool) $vars->acceso_internet,
-            'distancia_colegio' => $distancia,
         ];
     }
 

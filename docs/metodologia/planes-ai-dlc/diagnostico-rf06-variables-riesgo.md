@@ -241,4 +241,20 @@ Con una intervención mínima en `RiesgoAcademicoService`, `ml-service/main.py` 
 
 ---
 
+## Apéndice: estado post RF-06C (2026-06-23)
+
+Las brechas identificadas en este diagnóstico fueron corregidas en **RF-06C**:
+
+| Brecha | Estado RF-06C |
+| ------ | -------------- |
+| BR-06-01 — `validarDatosMinimos()` exige VSE | **Corregido:** ya no verifica VSE |
+| BR-06-02 — `firstOrFail()` de VSE en `construirPayload()` | **Corregido:** eliminado; payload solo incluye `promedio_notas`, `porcentaje_asistencia`, `reportes_conductuales` |
+| BR-06-05 — Fast Test en payload y Flask | **Corregido:** retirado del payload y de la fórmula Flask |
+| BR-06-08 — Tests asumen VSE obligatoria | **Corregido:** `RiesgoTest` actualizado (20 tests), `RiesgoCurricularFixtures` sin VSE en datos mínimos |
+| BR-06-09 — Flask pondera VSE | **Corregido:** Flask RF-06C usa pesos notas 55%, asistencia 30%, conducta 15%; VSE/Fast Test ignorados |
+
+Pendiente para **RF-06D**: BR-06-03 (cálculo académico simple) y BR-06-04 (conducta solo conteo).
+
+---
+
 *Documento generado en Fase RF-06A — diagnóstico sin modificación de código.*

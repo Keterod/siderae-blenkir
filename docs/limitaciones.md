@@ -64,12 +64,13 @@ Cada ítem incluye evidencia por ruta.
 - Servicio: [`backend/app/Services/Curricular/PlantillaRegistroAuxiliarExcelService.php`](../backend/app/Services/Curricular/PlantillaRegistroAuxiliarExcelService.php).
 - Excel por aula: `GET /api/curricular/excel-aula` — tests [`backend/tests/Feature/Curricular/ExcelAulaTest.php`](../backend/tests/Feature/Curricular/ExcelAulaTest.php), [`backend/tests/Feature/Curricular/PlantillaRegistroAuxiliarExcelTest.php`](../backend/tests/Feature/Curricular/PlantillaRegistroAuxiliarExcelTest.php).
 
-### Riesgo académico — **Confirmado en código** (modelo ML simplificado; ver §5)
+### Riesgo académico — **RF-06C: VSE/Fast Test retirados del flujo de riesgo**
 
 - Endpoint: `POST /api/estudiantes/{estudiante}/procesar-riesgo` — [`backend/routes/api.php`](../backend/routes/api.php) (L113–114).
 - Orquestación Laravel → Flask: [`backend/app/Services/MlRiskService.php`](../backend/app/Services/MlRiskService.php), [`backend/app/Services/RiesgoAcademicoService.php`](../backend/app/Services/RiesgoAcademicoService.php).
 - UI en perfil: [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx).
-- Tests: [`backend/tests/Feature/RiesgoTest.php`](../backend/tests/Feature/RiesgoTest.php).
+- Tests: [`backend/tests/Feature/RiesgoTest.php`](../backend/tests/Feature/RiesgoTest.php) — **20 passed** (RF-06C, 2026-06-23).
+- **RF-06C:** VSE y Fast Test retirados como requisito. Mínimos: notas curriculares + asistencia. Reportes conductuales: opcional. Pesos temporales: notas 55%, asistencia 30%, reportes 15%.
 
 ### Alertas, intervenciones y cierre — **Confirmado en código**
 

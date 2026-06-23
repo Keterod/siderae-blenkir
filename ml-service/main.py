@@ -10,19 +10,6 @@ def _float(value, default=0.0):
         return float(default)
 
 
-def _nivel_socioeconomico_factor(valor):
-    if valor is None:
-        return 0.55
-    s = str(valor).lower().strip()
-    if s == "bajo":
-        return 1.0
-    if s == "medio":
-        return 0.55
-    if s == "alto":
-        return 0.15
-    return 0.55
-
-
 @app.route("/")
 def root():
     return jsonify({"status": "ok", "service": "SIDERAE-ML"})
@@ -31,43 +18,24 @@ def root():
 @app.route("/predict", methods=["POST"])
 def predict():
     """
-    Prototipo determinístico: combina señales en un índice 0..1 sin entrenar modelos.
+    Prototipo determinístico RF-06C: combina señales académicas, asistencia y conductuales
+    sin variables socioeconómicas ni Fast Test.
+    Pesos RF-06C: notas 55%, asistencia 30%, reportes conductuales 15%.
     """
     data = request.get_json(silent=True) or {}
 
     promedio = _float(data.get("promedio_notas"), 10.0)
     pct_asist = _float(data.get("porcentaje_asistencia"), 50.0)
     reportes = int(_float(data.get("reportes_conductuales"), 0.0))
-    fast = _float(data.get("fast_test_puntaje"), 0.0)
-
-    socio = _nivel_socioeconomico_factor(data.get("nivel_socioeconomico"))
-
-    raw_internet = data.get("acceso_internet")
-    if raw_internet in (True, 1, "1", "true", "True"):
-        internet_penalty = 0.0
-    else:
-        internet_penalty = 0.12
-
-    distancia = _float(data.get("distancia_colegio"), 0.0)
 
     nota_riesgo = max(0.0, min(1.0, (20.0 - promedio) / 20.0))
     asis_riesgo = max(0.0, min(1.0, (100.0 - pct_asist) / 100.0))
     rep_riesgo = max(0.0, min(1.0, reportes / 5.0))
-    dist_riesgo = max(0.0, min(1.0, distancia / 20.0))
-
-    if fast > 0:
-        fast_riesgo = max(0.0, min(1.0, (20.0 - fast) / 20.0))
-    else:
-        fast_riesgo = 0.05
 
     indice = (
-        nota_riesgo * 0.28
-        + asis_riesgo * 0.24
-        + rep_riesgo * 0.14
-        + socio * 0.14
-        + dist_riesgo * 0.09
-        + fast_riesgo * 0.06
-        + internet_penalty
+        nota_riesgo * 0.55
+        + asis_riesgo * 0.30
+        + rep_riesgo * 0.15
     )
     indice = round(max(0.0, min(1.0, indice)), 4)
 

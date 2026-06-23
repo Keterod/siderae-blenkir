@@ -207,4 +207,19 @@ El plan define variables oficiales coherentes con el alcance V1: notas y asisten
 
 ---
 
+## Apéndice: RF-06C ejecutado (2026-06-23)
+
+**RF-06C completado.** Todos los cambios del plan §7 se implementaron:
+
+1. ✅ VSE retirado de `validarDatosMinimos()` — solo notas + asistencia como mínimos.
+2. ✅ `firstOrFail()` de VSE eliminado de `construirPayload()`; payload reducido a `promedio_notas`, `porcentaje_asistencia`, `reportes_conductuales`.
+3. ✅ Fast Test retirado del payload.
+4. ✅ Flask recalibrado con pesos RF-06C: notas 55%, asistencia 30%, reportes 15%.
+5. ✅ Tests actualizados: `RiesgoTest` 20 passed; `RiesgoCurricularFixtures` sin VSE en datos mínimos.
+6. ✅ Documentación actualizada (api, limitaciones, manual-tecnico, matriz, NC-12 cerrada, informe-pruebas).
+
+**Próximo:** RF-06D — mejorar cálculo académico/asistencia/conductual.
+
+---
+
 *Plan AI-DLC Fase RF-06B — 2026-06-23.*
