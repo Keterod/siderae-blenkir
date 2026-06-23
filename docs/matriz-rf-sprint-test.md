@@ -96,7 +96,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-16 | Generación reportes de riesgo académico | 6B | Implementado parcialmente | `GET /api/dashboard/export` (PDF parcial) | Botón export dashboard | `DashboardTest`, `ActivityLogTest` | No re-ejecutado Fase 5 | Zona reportes riesgo **planificada**; PDF dashboard = antecedente parcial |
 | RF-17 | Log auditoría / trazabilidad | 7.5A, 8 | Implementado parcialmente | `activity_log` | Sin UI consulta | `ActivityLogTest` | No re-ejecutado Fase 5 | Apoya alineación ISO progresiva; sin certificación |
 | RF-18 | Reentrenamiento modelo ML | — | **Planificado** | Sin endpoint ML/Laravel | No visible | — | — | ML real cuando exista dataset; no implementado |
-| RF-19 | Semáforo completitud datos | AI-DLC 3B–3E | **Implementado V1** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, `CompletitudDatosService`, `EstudiantePerfilSemaforoCompletitud.jsx` | Perfil estudiante → **Completitud de datos** | `SemaforoCompletitudTest.php` | **11 passed**, 55 assertions (2026-06-23) | Backend Fase 3C; UI Fase 3D; build OK; smoke manual navegador pendiente; Cypress no ejecutado |
+| RF-19 | Semáforo completitud datos | AI-DLC 3B–3E | **Implementado V1** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, `CompletitudDatosService`, `EstudiantePerfilSemaforoCompletitud.jsx` | Perfil estudiante → **Completitud de datos** | `SemaforoCompletitudTest.php` | **11 passed**, 55 assertions (2026-06-23) | Backend Fase 3C; UI Fase 3D; build OK; **smoke manual navegador aprobado**; Cypress no ejecutado |
 | RF-20 | Historial riesgo evolutivo | 4, 6A | Implementado parcialmente | Tabla `indices_riesgo` | Perfil riesgo **pausado** | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` | — | **Planificado:** evolución por periodo/bimestre |
 
 ### 5.1 Módulo curricular — RF-21 a RF-35
@@ -146,7 +146,7 @@ Incluye sub-sprints documentados en `sprints/` vinculados al sprint principal. E
 | **AI-DLC 3B** | RF-19 permisos base | `ver_semaforo_completitud` en `PermissionsSeeder.php` | Seeder actualizado | — | Completado | Asignado a `administrador`, `docente`, `coordinador_academico` |
 | **AI-DLC 3C** | RF-19 backend semáforo | Endpoint + servicio + tests | `CompletitudDatosService`, `SemaforoCompletitudController`, ruta API | `SemaforoCompletitudTest` — 11 passed | Completado | Sin Flask; no recalcula riesgo; sede Chilca |
 | **AI-DLC 3D** | RF-19 frontend semáforo | Componente perfil estudiante | `EstudiantePerfilSemaforoCompletitud.jsx`, `api.js` | Build frontend OK | Completado | UI bloque junto a riesgo; permiso `ver_semaforo_completitud` |
-| **AI-DLC 3E** | RF-19 cierre V1 | Validaciones + documentación | Tests backend + build frontend + docs | `SemaforoCompletitudTest` 11 passed; build OK | Completado | Smoke manual navegador pendiente; Cypress no ejecutado |
+| **AI-DLC 3E** | RF-19 cierre V1 | Validaciones + documentación + smoke manual | Tests backend + build frontend + docs + smoke | `SemaforoCompletitudTest` 11 passed; build OK; smoke manual aprobado | Completado | Cypress no ejecutado |
 | **9** | Pruebas integrales + regresión | Campaña pytest + Cypress planeado | Cypress infraestructura 2H en `frontend/cypress/` | Ejecución Fase 1 documentada; Cypress 2H ejecutado parcialmente sin credenciales | Implementado parcialmente | No hay suite Cypress global; suite PHPUnit OOM 128M |
 | **10** | Documentación + cierre calidad | Manuales, matriz RF, informe | `docs/*` Fases 1–5 | Informe consolidado Fase 5 | En progreso | ISO solo referencia; sin certificación |
 
@@ -242,7 +242,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 | DRS RF-10 | RF-10 | Tests escalamiento directivo | **Planificado** | — |
 | DRS RF-12 | RF-12 | Tests comunicación familiar | **Eliminado del alcance** | — |
 | DRS RF-18 | RF-18 | Tests reentrenamiento ML | **Planificado** | Requiere ML real |
-| DRS RF-19 | RF-19 | Tests semáforo completitud | **Cerrado V1** | `SemaforoCompletitudTest.php` 11 passed; UI en perfil estudiante build OK; smoke manual pendiente |
+| DRS RF-19 | RF-19 | Tests semáforo completitud | **Cerrado V1** | `SemaforoCompletitudTest.php` 11 passed; UI en perfil estudiante build OK; smoke manual aprobado |
 | RNF-05 Jest frontend | — | Tests Jest/React | **No confirmado** | Sin suite frontend detectada |
 
 ---

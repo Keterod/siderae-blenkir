@@ -85,6 +85,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | Pruebas manuales por rol | **Recomendadas** | RF-04 smoke **pendiente navegador** | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | API/build verdes Fase 2E |
 | `ReporteConductualTest` aislado | **Ejecutado (Fase 2E)** | 8 passed, 26 assertions | Fase 2E | RF-04 cierre |
 | `SemaforoCompletitudTest` aislado | **Ejecutado (Fase 3C)** | 11 passed, 55 assertions | Fase 3C | RF-19 backend |
+| Smoke manual RF-19 navegador | **Ejecutado** | Bloque visible, estado amarillo, razones correctas, sin selector sede, perfil estable | Registro manual | RF-19 UI |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
 
 ---
@@ -319,8 +320,9 @@ Estado funcional: **Implementado V1 mínimo** (perfil estudiante Chilca; sin mó
 | Endpoint | `GET /api/estudiantes/{estudiante}/semaforo-completitud` | Protegido por Sanctum + `ver_semaforo_completitud` |
 | Sede V1 | `SemaforoCompletitudController.php` | Solo Chilca; Auquimarca rechazada 403 |
 | Frontend | Componente en perfil estudiante | **Implementado Fase 3D** |
+| Smoke manual navegador | Perfil estudiante Chilca | **Aprobado** — bloque visible, estado amarillo, mensaje y razones correctas, sin selector de sede, perfil estable |
 
-Estado funcional: **Implementado V1**. Validaciones backend (11 passed, 55 assertions) y build frontend verdes. Smoke manual en navegador no ejecutado. Cypress global no ejecutado.
+Estado funcional: **Implementado V1 con smoke manual aprobado**. Cypress global no ejecutado.
 
 ---
 

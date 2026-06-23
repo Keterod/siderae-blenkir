@@ -275,7 +275,7 @@ Seeder actualizado en Fase 3B. `psicologo_tutor` y `directivo` **no** reciben el
 | **Fase 3B** | Permisos y base RBAC RF-19 | `ver_semaforo_completitud` en seeder; asignación de roles; `seguridad-roles-permisos.md` actualizado | **Completada** (2026-06-23) |
 | **Fase 3C** | Backend semáforo RF-19 | `CompletitudDatosService`; endpoint; `SemaforoCompletitudController`; tests iniciales | **Completada** (2026-06-23) |
 | **Fase 3D** | Frontend semáforo en perfil estudiante | `EstudiantePerfilSemaforoCompletitud.jsx`; `getSemaforoCompletitud()` en `api.js`; visibilidad por permiso; build frontend OK | **Completada** (2026-06-23) |
-| **Fase 3E** | Pruebas finales, smoke manual y cierre RF-19 | `PermissionsSeeder` resembrado; `SemaforoCompletitudTest` 11 passed; build frontend OK; docs actualizados; NC-19 cerrada V1; smoke manual navegador no ejecutado | **Completada** (2026-06-23) |
+| **Fase 3E** | Pruebas finales, smoke manual y cierre RF-19 | `PermissionsSeeder` resembrado; `SemaforoCompletitudTest` 11 passed; build frontend OK; docs actualizados; NC-19 cerrada V1; smoke manual navegador aprobado | **Completada** (2026-06-23) |
 
 Orden: 3B → 3C → 3D → 3E.
 
@@ -306,9 +306,9 @@ Fuentes: DRS v2.1 RF-19, AGENTS.md, .cursorrules
 
 ## 17. Conclusión
 
-RF-19 está **implementado y cerrado V1** (Fases 3B–3E). El permiso `ver_semaforo_completitud` está en el seeder asignado a `administrador`, `docente` y `coordinador_academico`; el servicio `CompletitudDatosService`, el endpoint `GET /api/estudiantes/{estudiante}/semaforo-completitud`, los tests `SemaforoCompletitudTest` (11 passed, 55 assertions), el componente `EstudiantePerfilSemaforoCompletitud.jsx` y la documentación de cierre están en el repositorio. El `PermissionsSeeder` fue resembrado, los tests backend pasaron y el build frontend fue exitoso.
+RF-19 está **implementado y cerrado V1** (Fases 3B–3E). El permiso `ver_semaforo_completitud` está en el seeder asignado a `administrador`, `docente` y `coordinador_academico`; el servicio `CompletitudDatosService`, el endpoint `GET /api/estudiantes/{estudiante}/semaforo-completitud`, los tests `SemaforoCompletitudTest` (11 passed, 55 assertions), el componente `EstudiantePerfilSemaforoCompletitud.jsx` y la documentación de cierre están en el repositorio. El `PermissionsSeeder` fue resembrado, los tests backend pasaron, el build frontend fue exitoso y el **smoke manual en navegador fue aprobado**.
 
-**Pendientes menores honestos:** smoke manual en navegador no ejecutado; pruebas E2E globales (Cypress) no ejecutadas.
+**Pendientes menores honestos:** pruebas E2E globales (Cypress) no ejecutadas.
 
 **Brecha técnica documentada:** `RiesgoAcademicoService::validarDatosMinimos()` sigue exigiendo variables socioeconómicas, lo cual es inconsistente con DRS v2.1. Esta corrección no forma parte de RF-19 y deberá tratarse como corrección aprobada de RF-06 si el equipo lo decide.
 
