@@ -97,7 +97,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-17 | Log auditoría / trazabilidad | 7.5A, 8 | Implementado parcialmente | `activity_log` | Sin UI consulta | `ActivityLogTest` | No re-ejecutado Fase 5 | Apoya alineación ISO progresiva; sin certificación |
 | RF-18 | Reentrenamiento modelo ML | — | **Planificado** | Sin endpoint ML/Laravel | No visible | — | — | ML real cuando exista dataset; no implementado |
 | RF-19 | Semáforo completitud datos | AI-DLC 3B–3E | **Implementado V1** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, `CompletitudDatosService`, `EstudiantePerfilSemaforoCompletitud.jsx` | Perfil estudiante → **Completitud de datos** | `SemaforoCompletitudTest.php` | **11 passed**, 55 assertions (2026-06-23) | Backend Fase 3C; UI Fase 3D; build OK; **smoke manual navegador aprobado**; Cypress no ejecutado |
-| RF-20 | Historial riesgo evolutivo | 4, 6A | **Parcial / en avance** | Tabla `indices_riesgo`; permiso `ver_historial_riesgo` en `PermissionsSeeder.php` | Perfil riesgo **pausado** | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` | — | Fase 4B: base RBAC implementada. Pendiente: endpoint, UI, tests y smoke manual |
+| RF-20 | Historial riesgo evolutivo | 4, 6A | **Parcial / en avance** | Tabla `indices_riesgo`; permiso `ver_historial_riesgo`; endpoint `GET /api/estudiantes/{estudiante}/historial-riesgo` | Perfil riesgo **pausado** | `HistorialRiesgoTest.php` | Ver Fase 4C | Fase 4C: backend implementado; pendiente UI, tests manuales y cierre |
 
 ### 5.1 Módulo curricular — RF-21 a RF-35
 
@@ -148,6 +148,7 @@ Incluye sub-sprints documentados en `sprints/` vinculados al sprint principal. E
 | **AI-DLC 3D** | RF-19 frontend semáforo | Componente perfil estudiante | `EstudiantePerfilSemaforoCompletitud.jsx`, `api.js` | Build frontend OK | Completado | UI bloque junto a riesgo; permiso `ver_semaforo_completitud` |
 | **AI-DLC 3E** | RF-19 cierre V1 | Validaciones + documentación + smoke manual | Tests backend + build frontend + docs + smoke | `SemaforoCompletitudTest` 11 passed; build OK; smoke manual aprobado | Completado | Cypress no ejecutado |
 | **AI-DLC 4B** | RF-20 permisos base | `ver_historial_riesgo` en `PermissionsSeeder.php`; documentación seguridad | Seeder actualizado; docs actualizados | — | Completado | Asignado a `administrador`, `docente`, `coordinador_academico`; sin API ni UI aún |
+| **AI-DLC 4C** | RF-20 backend historial | Endpoint + controller + tests | `HistorialRiesgoController`, ruta API | `HistorialRiesgoTest.php` | Completado | Sin Flask; no recalcula riesgo; sede Chilca; filtros `anio_escolar` y `bimestre` |
 | **9** | Pruebas integrales + regresión | Campaña pytest + Cypress planeado | Cypress infraestructura 2H en `frontend/cypress/` | Ejecución Fase 1 documentada; Cypress 2H ejecutado parcialmente sin credenciales | Implementado parcialmente | No hay suite Cypress global; suite PHPUnit OOM 128M |
 | **10** | Documentación + cierre calidad | Manuales, matriz RF, informe | `docs/*` Fases 1–5 | Informe consolidado Fase 5 | En progreso | ISO solo referencia; sin certificación |
 
@@ -272,7 +273,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 El DRS v2.1 consolidado está en [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md). Esta matriz cubre **RF-01 a RF-35**.
 
 2. Marcar como **retirado / fuera de alcance**: SIAGIE, Fast Test (RF-03), VSE en riesgo (RF-05), comunicación familiar (RF-12).
-3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E). **RF-19:** implementado V1 (Fases 3B–3E); smoke manual navegador pendiente; Cypress no ejecutado. **RF-20:** parcial / en avance (Fase 4B base RBAC); pendiente endpoint, UI, tests y smoke manual.
+3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E). **RF-19:** implementado V1 (Fases 3B–3E); smoke manual navegador pendiente; Cypress no ejecutado. **RF-20:** parcial / en avance (Fase 4B RBAC + Fase 4C backend); pendiente UI, smoke manual y cierre.
 4. **Consolidar** RF parciales (RF-14 dashboard académico-institucional; RF-16 PDF dashboard parcial).
 5. RF-21–RF-35: módulo curricular confirmado en código según §5.1.
 

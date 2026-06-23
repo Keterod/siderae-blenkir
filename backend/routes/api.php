@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AsistenciaBatchController;
 use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EstudianteController;
+use App\Http\Controllers\Api\HistorialRiesgoController;
 use App\Http\Controllers\Api\MateriaController;
 use App\Http\Controllers\Api\IntervencionController;
 use App\Http\Controllers\Api\NotaBatchController;
@@ -126,6 +127,9 @@ Route::middleware(['auth:sanctum', 'permission:registrar_reportes_conductuales']
 
 Route::middleware(['auth:sanctum', 'permission:ver_semaforo_completitud'])
     ->get('estudiantes/{estudiante}/semaforo-completitud', [SemaforoCompletitudController::class, 'show']);
+
+Route::middleware(['auth:sanctum', 'permission:ver_historial_riesgo'])
+    ->get('estudiantes/{estudiante}/historial-riesgo', [HistorialRiesgoController::class, 'index']);
 
 Route::middleware(['auth:sanctum', 'permission:ver_alertas'])
     ->group(function (): void {

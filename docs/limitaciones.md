@@ -149,9 +149,10 @@ Cada ítem incluye evidencia por ruta.
 ### RF-20 — Historial de riesgo — **Parcial / en avance**
 
 - Persistencia en `indices_riesgo`: migración [`backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php`](../backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php).
-- Base RBAC implementada (Fase 4B): permiso `ver_historial_riesgo` en [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php), asignado a `administrador`, `docente` y `coordinador_academico`.
+- Base RBAC implementada (Fase 4B): permiso `ver_historial_riesgo` en [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php).
+- Backend (Fase 4C): endpoint `GET /api/estudiantes/{estudiante}/historial-riesgo`, [`HistorialRiesgoController.php`](../backend/app/Http/Controllers/Api/HistorialRiesgoController.php), tests [`HistorialRiesgoTest.php`](../backend/tests/Feature/HistorialRiesgoTest.php).
 - Visualización del último índice en perfil: `EstudiantePerfilRiesgo`.
-- **Pendientes:** endpoint de historial completo, UI de línea de tiempo/tabla, tests automatizados y smoke manual.
+- **Pendientes:** UI de línea de tiempo/tabla en perfil estudiante, smoke manual y cierre RF-20.
 
 ### Registro académico legacy (materias, lotes) — **Implementado parcialmente**
 
@@ -287,7 +288,7 @@ Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
-- Implementar en código RF planificados: RF-04 (V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F — ver §3); RF-10, RF-16, RF-18. **RF-19** implementado V1 (backend + frontend + smoke manual aprobado). **RF-20** parcial / en avance (Fase 4B base RBAC; pendiente endpoint, UI, tests y smoke manual).
+- Implementar en código RF planificados: RF-04 (V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F — ver §3); RF-10, RF-16, RF-18. **RF-19** implementado V1 (backend + frontend + smoke manual aprobado). **RF-20** parcial / en avance (Fase 4B RBAC + Fase 4C backend; pendiente UI, smoke manual y cierre).
 
 **Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 

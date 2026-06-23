@@ -69,6 +69,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `docker compose exec app-backend php artisan db:seed --class=PermissionsSeeder` | Fase 3E RF-19 | Exit 0 — seed OK | — |
 | `docker compose exec app-backend php artisan test --filter=SemaforoCompletitudTest` | Fase 3C/E RF-19 | Exit 0 — **11 passed**, **55 assertions** | ~14.2 s |
 | `docker compose exec app-frontend npm run build` | Fase 3D/E RF-19 | Exit 0 — Vite build | ~5.7 s, 109 módulos |
+| `docker compose exec app-backend php artisan test --filter=HistorialRiesgoTest` | Fase 4C RF-20 | Exit 0 — **12 passed**, **30 assertions** | ~17.4 s |
 
 ---
 
@@ -85,6 +86,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | Pruebas manuales por rol | **Recomendadas** | RF-04 smoke **pendiente navegador** | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | API/build verdes Fase 2E |
 | `ReporteConductualTest` aislado | **Ejecutado (Fase 2E)** | 8 passed, 26 assertions | Fase 2E | RF-04 cierre |
 | `SemaforoCompletitudTest` aislado | **Ejecutado (Fase 3C)** | 11 passed, 55 assertions | Fase 3C | RF-19 backend |
+| `HistorialRiesgoTest` aislado | **Ejecutado (Fase 4C)** | 12 passed, 30 assertions | Fase 4C | RF-20 backend |
 | Smoke manual RF-19 navegador | **Ejecutado** | Bloque visible, estado amarillo, razones correctas, sin selector sede, perfil estable | Registro manual | RF-19 UI |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
 
@@ -115,6 +117,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 - `Feature/AlertaIntervencionTest.php`
 - `Feature/ReporteConductualTest.php` — **8 passed** Fase 2E
 - `Feature/SemaforoCompletitudTest.php` — **11 passed** Fase 3C
+- `Feature/HistorialRiesgoTest.php` — **RF-20 backend**
 - `Feature/DemoProcesarRiesgosCommandTest.php`
 - `Feature/ActivityLogTest.php`
 

@@ -27,11 +27,12 @@ RF-20 **no recalcula el riesgo** ni llama a Flask. Solo consulta y presenta los 
 | Modelo `IndiceRiesgo` | Existe con campos `indice`, `nivel`, `anio_escolar`, `bimestre`, `variables_utilizadas`, `modelos_scores` | [`backend/app/Models/IndiceRiesgo.php`](../../../backend/app/Models/IndiceRiesgo.php) |
 | Tabla `indices_riesgo` | Migración existente | [`backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php`](../../../backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php) |
 | Procesamiento de riesgo | Backend `POST /api/estudiantes/{id}/procesar-riesgo` crea registros | [`backend/routes/api.php`](../../../backend/routes/api.php), [`RiesgoAcademicoService`](../../../backend/app/Services/RiesgoAcademicoService.php) |
+| Backend RF-20 | **Implementado** — endpoint + controller + tests | [`HistorialRiesgoController.php`](../../../backend/app/Http/Controllers/Api/HistorialRiesgoController.php), [`HistorialRiesgoTest.php`](../../../backend/tests/Feature/HistorialRiesgoTest.php) |
 | UI perfil estudiante | `EstudiantePerfilRiesgo.jsx` pausado; sin timeline | [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../../../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx) |
-| Tests relacionados | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` (persistencia) | [`backend/tests/`](../../../backend/tests/) |
+| Tests relacionados | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` (persistencia); `HistorialRiesgoTest` (RF-20) | [`backend/tests/`](../../../backend/tests/) |
 | Permiso específico | **Implementado** — `ver_historial_riesgo` asignado a `administrador`, `docente` y `coordinador_academico` | [`PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) |
 
-**Resumen:** RF-20 está **parcialmente cubierto por persistencia histórica en `indices_riesgo`; base RBAC implementada Fase 4B. Aún sin endpoint, UI ni tests dedicados**.
+**Resumen:** RF-20 está **parcialmente implementado: persistencia en `indices_riesgo`, base RBAC (Fase 4B) y backend (Fase 4C) listos. Aún sin UI frontend ni smoke manual**.
 
 ---
 
@@ -196,7 +197,7 @@ Queda explícitamente excluido de RF-20 V1:
 | ---- | --------- | ----------- | ------ |
 | **Fase 4A** | Planificación RF-20 | Este plan | **Completada** |
 | **Fase 4B** | Permisos y base RBAC RF-20 | `ver_historial_riesgo` en `PermissionsSeeder.php`; documentación seguridad | **Completada** |
-| **Fase 4C** | Backend historial RF-20 | Controller + consulta `IndiceRiesgo`; tests backend | Pendiente |
+| **Fase 4C** | Backend historial RF-20 | `HistorialRiesgoController`; ruta API; `HistorialRiesgoTest` | **Completada** |
 | **Fase 4D** | Frontend historial RF-20 | `EstudiantePerfilHistorialRiesgo.jsx`, `getHistorialRiesgo()`, integración en perfil, build OK | Pendiente |
 | **Fase 4E** | Pruebas y cierre RF-20 | Smoke manual, docs actualizadas, build, tests, NC-20 cerrada | Pendiente |
 
@@ -204,9 +205,9 @@ Queda explícitamente excluido de RF-20 V1:
 
 ## 10. Conclusión
 
-RF-20 tiene **persistencia lista** (`indices_riesgo`) pero **sin endpoint, permiso específico, UI ni tests dedicados**. Está en condiciones de iniciar una implementación controlada siguiendo este plan.
+RF-20 tiene **persistencia lista** (`indices_riesgo`), **permiso RBAC** (`ver_historial_riesgo`) y **backend** (`HistorialRiesgoController` + ruta + tests) implementados. **Pendiente: UI frontend, smoke manual y cierre**.
 
-La implementación V1 debe ser mínima: consulta de registros existentes, presentación simple en perfil estudiante, y permiso RBAC nuevo. No debe tocar Flask ni `RiesgoAcademicoService`.
+La implementación V1 debe ser mínima: consulta de registros existentes, presentación simple en perfil estudiante. No debe tocar Flask ni `RiesgoAcademicoService`.
 
 ---
 
