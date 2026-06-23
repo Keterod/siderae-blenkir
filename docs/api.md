@@ -65,6 +65,53 @@ Permiso: `ver_dashboard`
 
 ---
 
+## 4.1 Reportes de riesgo académico (RF-16C)
+
+Permiso: `ver_reportes_riesgo`
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/reportes/riesgo-academico` | Listado paginado de índices de riesgo con filtros |
+
+**Filtros query (opcionales):**
+- `anio_escolar`
+- `bimestre`
+- `grado`
+- `seccion`
+- `nivel` (Bajo, Medio, Alto)
+- `per_page` (por defecto 15)
+- `page`
+
+**Respuesta:** paginación estándar Laravel con `data` transformada:
+
+```json
+{
+  "data": [
+    {
+      "id": 10,
+      "estudiante_id": 1,
+      "estudiante": "Pérez, Juan",
+      "grado": "5",
+      "seccion": "A",
+      "anio_escolar": "2026",
+      "bimestre": "2",
+      "indice": 0.75,
+      "nivel": "Alto",
+      "fecha": "2026-06-23"
+    }
+  ],
+  "current_page": 1,
+  "per_page": 15,
+  "total": 1
+}
+```
+
+- Solo sede **Chilca** (sin selector de sede).
+- No recalcula riesgo; no llama Flask.
+- PDF/exportación fuera de V1.
+
+---
+
 ## 5. Materias (legacy)
 
 | Método | Ruta | Permiso |
@@ -283,7 +330,7 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 | RF-18 Reentrenamiento ML | **Planificado** | Sin endpoints |
 | RF-19 Semáforo completitud | **Implementado V1** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`; UI en perfil estudiante |
 | RF-20 Historial evolutivo riesgo | **Backend V1** | `GET /api/estudiantes/{estudiante}/historial-riesgo`; UI pendiente |
-| RF-16 Reportes de riesgo (zona dedicada) | **Planificado** | PDF dashboard = parcial |
+| RF-16 Reportes de riesgo (zona dedicada) | **RF-16C Backend implementado** | `GET /api/reportes/riesgo-academico` paginado + filtros. Frontend pendiente. PDF/exportación fuera de V1 |
 | RF-03 Fast Test | **Retirado del alcance** | — |
 | SIAGIE import global | **Fuera del alcance** | Plantilla RF-32 en su lugar |
 
@@ -300,6 +347,8 @@ Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSe
 **Conductuales RF-04 (2):** `ver_reportes_conductuales`, `registrar_reportes_conductuales`.
 
 **Historial riesgo RF-20 (1):** `ver_historial_riesgo`.
+
+**Reportes de riesgo RF-16B (1):** `ver_reportes_riesgo`.
 
 ---
 

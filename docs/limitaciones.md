@@ -139,7 +139,8 @@ Cada ítem incluye evidencia por ruta.
 - Dashboard con filtros y KPIs (subset académico/riesgo): confirmado (`DashboardPanel`, `DashboardTest`).
 - Export PDF del dashboard vía DomPDF: confirmado — **antecedente parcial** de RF-16, no zona completa de reportes de riesgo.
 - **RF-16B completada:** permiso `ver_reportes_riesgo` implementado en seeder y asignado a administrador, coordinador_academico, directivo.
-- **Pendiente RF-16C/D/E:** endpoint API, controller, UI frontend, pruebas y cierre. PDF/exportación (`generar_reportes_riesgo`) queda fuera de V1.
+- **RF-16C completada:** endpoint `GET /api/reportes/riesgo-academico` implementado, paginado, con filtros (`anio_escolar`, `bimestre`, `grado`, `seccion`, `nivel`), solo sede Chilca, sin recalcular riesgo, sin Flask. `ReporteRiesgoAcademicoTest`: 13 passed.
+- **Pendiente RF-16D/E:** UI frontend, pruebas frontend, smoke manual y cierre. PDF/exportación (`generar_reportes_riesgo`) queda fuera de V1.
 
 ### RF-17 — Auditoría (`activity_log`) — **Implementado parcialmente**
 
