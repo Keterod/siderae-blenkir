@@ -13,6 +13,7 @@ use App\Models\Curricular\PeriodoAcademico;
 use App\Models\Curricular\SemanaAcademica;
 use App\Models\Curricular\TemaSemanal;
 use App\Models\Estudiante;
+use App\Models\ReporteConductual;
 use App\Models\User;
 use App\Models\VariableSocioeconomica;
 use App\Services\Curricular\EquivalenciaGradoService;
@@ -183,6 +184,70 @@ trait RiesgoCurricularFixtures
                 'nota_tarea' => $ceCalculado,
                 'ce_calculado' => $ceCalculado,
                 'fecha_registro' => '2026-05-15',
+            ],
+        );
+    }
+
+    protected function crearReporteConductualRiesgo(
+        Estudiante $estudiante,
+        User $user,
+        string $gravedad = 'leve',
+        string $tipo = 'indisciplina',
+        ?string $fecha = null,
+    ): ReporteConductual {
+        return ReporteConductual::query()->create([
+            'estudiante_id' => $estudiante->id,
+            'registrado_por' => $user->id,
+            'fecha' => $fecha ?? now()->format('Y-m-d'),
+            'tipo_conducta' => $tipo,
+            'nivel_gravedad' => $gravedad,
+            'descripcion' => 'Reporte de prueba RF-06D.',
+            'estado' => 'activo',
+        ]);
+    }
+
+    protected function asegurarMallaCursoAlternativo(Estudiante $estudiante): MallaCurso
+    {
+        $gradoCurricular = (new EquivalenciaGradoService)->aCurricular(
+            (string) $estudiante->nivel,
+            (string) $estudiante->grado,
+        ) ?? $estudiante->grado;
+
+        return MallaCurso::query()
+            ->whereHas('mallaCurricular', fn ($q) => $q
+                ->where('anio_escolar', $estudiante->anio_escolar)
+                ->where('nivel', $estudiante->nivel)
+                ->where('grado', $gradoCurricular))
+            ->where('activo', true)
+            ->where('id', '!=', $this->asegurarMallaCursoParaEstudiante($estudiante)->id)
+            ->firstOr(fn () => $this->asegurarMallaCursoParaEstudiante($estudiante));
+    }
+
+    protected function crearSegundoEvalBimResultadoRiesgo(
+        Estudiante $estudiante,
+        float $nivelLogroNumerico = 8.0,
+    ): EvalBimResultado {
+        $mallaCurso = $this->asegurarMallaCursoAlternativo($estudiante);
+
+        $periodo = PeriodoAcademico::query()
+            ->where('anio_escolar', $estudiante->anio_escolar)
+            ->where('bimestre', '1')
+            ->firstOrFail();
+
+        return EvalBimResultado::query()->updateOrCreate(
+            [
+                'estudiante_id' => $estudiante->id,
+                'malla_curso_id' => $mallaCurso->id,
+                'periodo_academico_id' => $periodo->id,
+                'sede' => $estudiante->sede,
+                'grado' => $estudiante->grado,
+                'seccion' => $estudiante->seccion,
+            ],
+            [
+                'nivel_logro_numerico' => $nivelLogroNumerico,
+                'nivel_logro_literal' => 'C',
+                'estado_calculo' => EvalBimEstadoCalculo::Completo,
+                'promedio_criterios' => $nivelLogroNumerico,
             ],
         );
     }

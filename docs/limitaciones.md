@@ -70,7 +70,7 @@ Cada ítem incluye evidencia por ruta.
 - Orquestación Laravel → Flask: [`backend/app/Services/MlRiskService.php`](../backend/app/Services/MlRiskService.php), [`backend/app/Services/RiesgoAcademicoService.php`](../backend/app/Services/RiesgoAcademicoService.php).
 - UI en perfil: [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx).
 - Tests: [`backend/tests/Feature/RiesgoTest.php`](../backend/tests/Feature/RiesgoTest.php) — **20 passed** (RF-06C, 2026-06-23).
-- **RF-06C:** VSE y Fast Test retirados como requisito. Mínimos: notas curriculares + asistencia. Reportes conductuales: opcional. Pesos temporales: notas 55%, asistencia 30%, reportes 15%.
+- **RF-06D:** Payload enriquecido con detalle académico (nota_minima, cursos_en_riesgo, cursos_desaprobados), asistencia (inasistencias, inasistencias_recientes) y conductual (reportes_graves, gravedad_maxima, reportes_recientes, reincidencia). Pesos globales: académico 55%, asistencia 30%, conductual 15%. VSE/Fast Test retirados.
 
 ### Alertas, intervenciones y cierre — **Confirmado en código**
 

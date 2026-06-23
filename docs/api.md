@@ -120,7 +120,7 @@ Permiso: `registrar_datos_academicos`
 
 Orquesta llamada a Flask — ver [`ml-service.md`](ml-service.md).
 
-**RF-06C:** Variables socioeconómicas y Fast Test retirados del requisito mínimo. Datos obligatorios: notas curriculares y asistencia curricular. Reportes conductuales: opcionales. Pesos RF-06C: notas 55%, asistencia 30%, reportes 15%.
+**RF-06D:** Payload enriquecido con detalle académico, asistencia y conductual. Pesos globales: académico 55%, asistencia 30%, conductual 15%. Variables socioeconómicas y Fast Test retirados. Cálculo determinístico sin ML real.
 
 ---
 

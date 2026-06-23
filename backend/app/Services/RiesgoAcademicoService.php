@@ -121,6 +121,9 @@ class RiesgoAcademicoService
                 'reportes_conductuales' => $payload['reportes_conductuales'] > 0,
                 'variables_socioeconomicas' => false,
                 'fast_test' => false,
+                'detalle_academico' => $payload['nota_minima'] !== null,
+                'detalle_asistencia' => true,
+                'detalle_conductual' => $payload['reportes_conductuales'] > 0,
             ];
 
             $registro = IndiceRiesgo::create([
@@ -163,22 +166,76 @@ class RiesgoAcademicoService
             throw new \RuntimeException('No hay datos académicos curriculares para construir el payload de riesgo.');
         }
 
+        // Academic details from evaluation results if available
+        $resultados = $this->queryResultadosBimestralesCompletos($estudiante, $anio)->get();
+
+        $notaMinima = null;
+        $cursosEnRiesgo = 0;
+        $cursosDesaprobados = 0;
+
+        foreach ($resultados as $r) {
+            $valor = (float) $r->nivel_logro_numerico;
+            if ($notaMinima === null || $valor < $notaMinima) {
+                $notaMinima = $valor;
+            }
+            if ($valor < 11) {
+                $cursosDesaprobados++;
+            }
+            if ($valor < 13) {
+                $cursosEnRiesgo++;
+            }
+        }
+
+        // Attendance details
         $resumenAsistencia = $this->asistenciaDiariaResumenService->construirPorEstudiante([
             'estudiante_id' => $estudiante->id,
             'anio_escolar' => $anio,
         ]);
 
         $porcentajeAsistencia = (float) ($resumenAsistencia['totales']['porcentaje_asistencia_efectiva'] ?? 0.0);
+        $inasistencias = (int) ($resumenAsistencia['totales']['falta'] ?? 0);
 
-        $reportesCount = ReporteConductual::query()
+        $treintaDiasAtras = now()->subDays(30)->format('Y-m-d');
+        $inasistenciasRecientes = AsistenciaDiaria::query()
             ->where('estudiante_id', $estudiante->id)
-            ->activos()
+            ->where('anio_escolar', $anio)
+            ->where('estado', 'falta')
+            ->where('fecha', '>=', $treintaDiasAtras)
             ->count();
+
+        // Behavioral details
+        $reportesBase = ReporteConductual::query()
+            ->where('estudiante_id', $estudiante->id)
+            ->activos();
+
+        $reportesCount = (clone $reportesBase)->count();
+        $reportesGraves = (clone $reportesBase)->where('nivel_gravedad', 'grave')->count();
+        $gravedadMaxima = (clone $reportesBase)->max('nivel_gravedad') ?? '';
+
+        $reportesRecientes = (clone $reportesBase)
+            ->where('fecha', '>=', now()->subDays(30))
+            ->count();
+
+        $tiposDuplicados = (clone $reportesBase)
+            ->selectRaw('tipo_conducta, COUNT(*) as total')
+            ->groupBy('tipo_conducta')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
+        $reincidencia = $tiposDuplicados->count();
 
         return [
             'promedio_notas' => round($promedioNotas, 4),
+            'nota_minima' => $notaMinima !== null ? round($notaMinima, 4) : null,
+            'cursos_en_riesgo' => $cursosEnRiesgo,
+            'cursos_desaprobados' => $cursosDesaprobados,
             'porcentaje_asistencia' => round($porcentajeAsistencia, 4),
+            'inasistencias' => $inasistencias,
+            'inasistencias_recientes' => $inasistenciasRecientes,
             'reportes_conductuales' => $reportesCount,
+            'reportes_graves' => $reportesGraves,
+            'gravedad_maxima' => $gravedadMaxima,
+            'reportes_recientes' => $reportesRecientes,
+            'reincidencia_conductual' => $reincidencia,
         ];
     }
 

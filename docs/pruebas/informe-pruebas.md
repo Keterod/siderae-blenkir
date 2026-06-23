@@ -120,7 +120,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 ### Dashboard, riesgo, alertas, auditoría, conductuales
 
 - `Feature/DashboardTest.php`
-- `Feature/RiesgoTest.php` — **20 passed** (RF-06C, 101 assertions total con HistorialRiesgoTest)
+- `Feature/RiesgoTest.php` — **38 passed** (RF-06D, 125 assertions total con HistorialRiesgoTest)
 - `Feature/AlertaIntervencionTest.php`
 - `Feature/ReporteConductualTest.php` — **8 passed** Fase 2E
 - `Feature/SemaforoCompletitudTest.php` — **11 passed** Fase 3C

@@ -220,6 +220,21 @@ El plan define variables oficiales coherentes con el alcance V1: notas y asisten
 
 **Próximo:** RF-06D — mejorar cálculo académico/asistencia/conductual.
 
+## Apéndice: RF-06D ejecutado (2026-06-23)
+
+**RF-06D completado.** Cálculo determinístico enriquecido implementado:
+
+1. ✅ Payload ampliado con detalle académico (`nota_minima`, `cursos_en_riesgo`, `cursos_desaprobados` desde `EvalBimResultado`).
+2. ✅ Payload ampliado con detalle asistencia (`inasistencias` desde resumen; `inasistencias_recientes` últimos 30 días).
+3. ✅ Payload ampliado con detalle conductual (`reportes_graves`, `gravedad_maxima`, `reportes_recientes` últimos 30 días, `reincidencia_conductual` por tipo duplicado).
+4. ✅ Flask RF-06D: fórmula determinística enriquecida dentro de cada componente, manteniendo pesos globales 55/30/15. Backward compatible con payload antiguo.
+5. ✅ `variables_utilizadas` incluye `detalle_academico`, `detalle_asistencia`, `detalle_conductual`.
+6. ✅ Tests: `RiesgoTest` ampliado a **38 passed** (125 assertions) con cobertura de payload, detalle académico con dos EvalBimResultados, detalle conductual con múltiples reportes, flags de metadata. `SemaforoCompletitudTest` 11 passed, `HistorialRiesgoTest` 12 passed. Total **61 tests, 180 assertions**.
+7. ✅ Flask validado con 5 escenarios: bajo, medio, alto, sin reportes, backward compatibility.
+8. ✅ Documentación actualizada (api, limitaciones, manual-tecnico, matriz, informe-pruebas).
+
+**Próximo:** RF-06E — cierre, smoke manual y documentación final.
+
 ---
 
 *Plan AI-DLC Fase RF-06B — 2026-06-23.*
