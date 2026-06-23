@@ -802,3 +802,7 @@ export function getResumenAsistenciaDiaria(params = {}) {
   return getAsistenciaDiariaResumen(params);
 }
 
+export function getSemaforoCompletitud(estudianteId) {
+  return request(`/api/estudiantes/${estudianteId}/semaforo-completitud`);
+}
+

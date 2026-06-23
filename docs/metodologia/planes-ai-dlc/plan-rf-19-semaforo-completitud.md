@@ -47,7 +47,7 @@ Resumen según DRS v2.1 §RF-19:
 | Endpoint RF-19 | **Implementado Fase 3C** | [`backend/routes/api.php`](../../../backend/routes/api.php) |
 | `CompletitudDatosService` | **Implementado Fase 3C** | [`backend/app/Services/CompletitudDatosService.php`](../../../backend/app/Services/CompletitudDatosService.php) |
 | `SemaforoCompletitudController` | **Implementado Fase 3C** | [`backend/app/Http/Controllers/Api/SemaforoCompletitudController.php`](../../../backend/app/Http/Controllers/Api/SemaforoCompletitudController.php) |
-| UI RF-19 | No existe; perfil riesgo en pausa | `frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx` |
+| UI RF-19 | **Implementada Fase 3D** | `frontend/src/components/estudiantes/EstudiantePerfilSemaforoCompletitud.jsx` |
 | Tests RF-19 | **Implementados Fase 3C — 11 passed, 55 assertions** | [`backend/tests/Feature/SemaforoCompletitudTest.php`](../../../backend/tests/Feature/SemaforoCompletitudTest.php) |
 | Servicio relacionado | `RiesgoAcademicoService::validarDatosMinimos()` existe, pero valida VSE (inconsistente con v2.1) | [`backend/app/Services/RiesgoAcademicoService.php`](../../../backend/app/Services/RiesgoAcademicoService.php) |
 
@@ -226,14 +226,14 @@ Seeder actualizado en Fase 3B. `psicologo_tutor` y `directivo` **no** reciben el
 | Documento | Cuándo actualizar | Motivo |
 | --------- | ----------------- | ------ |
 | [`docs/api.md`](../../api.md) | Fase 3C ✅ | Endpoint documentado |
-| [`docs/manual-usuario.md`](../../manual-usuario.md) | Fase 3D–3E | Flujo por rol |
-| [`docs/manual-tecnico.md`](../../manual-tecnico.md) | Fase 3E | Servicio y pruebas |
+| [`docs/manual-usuario.md`](../../manual-usuario.md) | Fase 3D ✅ | Flujo por rol y sección perfil |
+| [`docs/manual-tecnico.md`](../../manual-tecnico.md) | Fase 3D ✅ | Servicio, UI y build |
 | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) | Fase 3B ✅ | Permiso implementado |
-| [`docs/matriz-rf-sprint-test.md`](../../matriz-rf-sprint-test.md) | Fase 3C ✅ | Estado RF-19 actualizado |
-| [`docs/limitaciones.md`](../../limitaciones.md) | Fase 3C ✅ | Backend RF-19 documentado |
+| [`docs/matriz-rf-sprint-test.md`](../../matriz-rf-sprint-test.md) | Fase 3D ✅ | Estado RF-19 actualizado |
+| [`docs/limitaciones.md`](../../limitaciones.md) | Fase 3D ✅ | Backend y frontend RF-19 documentados |
 | [`docs/calidad/no-conformidades-y-mejora.md`](../../calidad/no-conformidades-y-mejora.md) | Fase 3E | Cerrar/matizar NC-19 |
-| [`docs/pruebas/informe-pruebas.md`](../../pruebas/informe-pruebas.md) | Fase 3C ✅ | Resultados tests |
-| Este plan | Fase 3C ✅ | Fases 3B–3C marcadas completadas |
+| [`docs/pruebas/informe-pruebas.md`](../../pruebas/informe-pruebas.md) | Fase 3D ✅ | Resultados tests + build frontend |
+| Este plan | Fase 3D ✅ | Fases 3B–3D marcadas completadas |
 
 ---
 
@@ -274,8 +274,8 @@ Seeder actualizado en Fase 3B. `psicologo_tutor` y `directivo` **no** reciben el
 | ---- | --------- | ----------- | ------ |
 | **Fase 3B** | Permisos y base RBAC RF-19 | `ver_semaforo_completitud` en seeder; asignación de roles; `seguridad-roles-permisos.md` actualizado | **Completada** (2026-06-23) |
 | **Fase 3C** | Backend semáforo RF-19 | `CompletitudDatosService`; endpoint; `SemaforoCompletitudController`; tests iniciales | **Completada** (2026-06-23) |
-| **Fase 3D** | Frontend semáforo en perfil estudiante | Componente; `api.js`; visibilidad por permiso | Pendiente |
-| **Fase 3E** | Pruebas finales, smoke manual y cierre RF-19 | Smoke manual UI; docs actualizados; NC-19 matizada | Pendiente |
+| **Fase 3D** | Frontend semáforo en perfil estudiante | `EstudiantePerfilSemaforoCompletitud.jsx`; `getSemaforoCompletitud()` en `api.js`; visibilidad por permiso; build frontend OK | **Completada** (2026-06-23) |
+| **Fase 3E** | Pruebas finales, smoke manual y cierre RF-19 | Smoke manual UI; docs actualizados; NC-19 matizada; posible Cypress/Playwright | Pendiente |
 
 Orden: 3B → 3C → 3D → 3E.
 
@@ -306,12 +306,12 @@ Fuentes: DRS v2.1 RF-19, AGENTS.md, .cursorrules
 
 ## 17. Conclusión
 
-RF-19 tiene **backend V1 implementado y probado** (Fases 3B–3C). El permiso `ver_semaforo_completitud` está en el seeder asignado a `administrador`, `docente` y `coordinador_academico`; el servicio `CompletitudDatosService`, el endpoint `GET /api/estudiantes/{estudiante}/semaforo-completitud` y los tests `SemaforoCompletitudTest` (11 passed, 55 assertions) están en el repositorio. La **UI en perfil estudiante** y el cierre documental final corresponden a las fases 3D–3E.
+RF-19 tiene **backend y frontend V1 implementados** (Fases 3B–3D). El permiso `ver_semaforo_completitud` está en el seeder asignado a `administrador`, `docente` y `coordinador_academico`; el servicio `CompletitudDatosService`, el endpoint `GET /api/estudiantes/{estudiante}/semaforo-completitud`, los tests `SemaforoCompletitudTest` (11 passed, 55 assertions) y el componente `EstudiantePerfilSemaforoCompletitud.jsx` están en el repositorio. El build frontend fue exitoso. El cierre documental final, smoke manual UI y posibles pruebas E2E corresponden a la **Fase 3E**.
 
 **Brecha técnica documentada:** `RiesgoAcademicoService::validarDatosMinimos()` sigue exigiendo variables socioeconómicas, lo cual es inconsistente con DRS v2.1. Esta corrección no forma parte de RF-19 y deberá tratarse como corrección aprobada de RF-06 si el equipo lo decide.
 
-**Próxima fase recomendada:** **Fase 3D — Frontend semáforo RF-19 en perfil estudiante**.
+**Próxima fase recomendada:** **Fase 3E — pruebas, documentación y cierre RF-19**.
 
 ---
 
-*Plan AI-DLC — Fases 3A–3C completadas; 3D–3E pendientes — 2026-06-23.*
+*Plan AI-DLC — Fases 3A–3D completadas; 3E pendiente — 2026-06-23.*

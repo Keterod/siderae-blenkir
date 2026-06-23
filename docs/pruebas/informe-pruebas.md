@@ -67,6 +67,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `docker compose exec app-backend php artisan test --filter=ReporteConductualTest` | Fase 2E RF-04 | Exit 0 — **8 passed**, **26 assertions** | ~15.5 s |
 | `docker compose exec app-frontend npm run build` | Fase 2E RF-04 | Exit 0 — Vite build | ~7.7 s, 108 módulos |
 | `docker compose exec app-backend php artisan test --filter=SemaforoCompletitudTest` | Fase 3C RF-19 | Exit 0 — **11 passed**, **55 assertions** | ~19.4 s |
+| `docker compose exec app-frontend npm run build` | Fase 3D RF-19 | Exit 0 — Vite build | ~7.8 s, 109 módulos |
 
 ---
 
@@ -316,9 +317,9 @@ Estado funcional: **Implementado V1 mínimo** (perfil estudiante Chilca; sin mó
 | Servicio | `backend/app/Services/CompletitudDatosService.php` | Cálculo determinístico; sin Flask |
 | Endpoint | `GET /api/estudiantes/{estudiante}/semaforo-completitud` | Protegido por Sanctum + `ver_semaforo_completitud` |
 | Sede V1 | `SemaforoCompletitudController.php` | Solo Chilca; Auquimarca rechazada 403 |
-| Frontend | Componente en perfil estudiante | **Pendiente Fase 3D** |
+| Frontend | Componente en perfil estudiante | **Implementado Fase 3D** |
 
-Estado funcional: **Backend V1 cerrado; UI pendiente**.
+Estado funcional: **Backend y frontend V1 implementados; cierre/pruebas finales pendientes**.
 
 ---
 

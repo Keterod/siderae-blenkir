@@ -93,13 +93,15 @@ Cada ítem incluye evidencia por ruta.
 - UI: [`frontend/src/components/DashboardPanel.jsx`](../frontend/src/components/DashboardPanel.jsx).
 - Tests: [`backend/tests/Feature/DashboardTest.php`](../backend/tests/Feature/DashboardTest.php).
 
-### RF-19 — Semáforo de completitud de datos — **Backend implementado; UI pendiente**
+### RF-19 — Semáforo de completitud de datos — **Implementado V1 (backend + frontend); cierre Fase 3E pendiente**
 
 - Servicio: [`backend/app/Services/CompletitudDatosService.php`](../backend/app/Services/CompletitudDatosService.php).
 - API: `GET /api/estudiantes/{estudiante}/semaforo-completitud` — [`backend/routes/api.php`](../backend/routes/api.php).
 - Permiso: `ver_semaforo_completitud` — [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php).
-- Tests: [`backend/tests/Feature/SemaforoCompletitudTest.php`](../backend/tests/Feature/SemaforoCompletitudTest.php) — **11 passed**, 55 assertions (Fase 3C, 2026-06-23).
-- **UI:** no hay componente en perfil estudiante todavía (Fase 3D pendiente).
+- Tests backend: [`backend/tests/Feature/SemaforoCompletitudTest.php`](../backend/tests/Feature/SemaforoCompletitudTest.php) — **11 passed**, 55 assertions (Fase 3C, 2026-06-23).
+- UI: [`frontend/src/components/estudiantes/EstudiantePerfilSemaforoCompletitud.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilSemaforoCompletitud.jsx) integrado en `EstudiantesPanel.jsx` (Fase 3D, 2026-06-23).
+- Build frontend verde (Fase 3D).
+- **Pendiente:** smoke manual UI, Cypress/Playwright si se define, y cierre documental final (Fase 3E).
 
 ### Infraestructura Docker local — **Confirmado en código**
 
@@ -179,7 +181,7 @@ Cada ítem incluye evidencia por ruta.
 
 | Tema | Estado | Notas |
 |------|--------|-------|
-| **RF-19** — Semáforo completitud | **Backend implementado; UI pendiente** | Backend listo Fase 3C: `CompletitudDatosService`, endpoint `GET /api/estudiantes/{estudiante}/semaforo-completitud`, permiso y tests (`SemaforoCompletitudTest` 11 passed). Pendiente: componente UI en perfil estudiante (Fase 3D). |
+| **RF-19** — Semáforo completitud | **Implementado V1; cierre Fase 3E pendiente** | Backend Fase 3C (`CompletitudDatosService`, endpoint, tests 11 passed) + frontend Fase 3D (`EstudiantePerfilSemaforoCompletitud.jsx`, build OK). Pendiente: smoke manual UI y cierre documental final. |
 
 ### Planificado (DRS v2.1 — por implementar en código)
 
@@ -284,7 +286,7 @@ Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
-- Implementar en código RF planificados: RF-04 (V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F — ver §3); RF-10, RF-16, RF-18, RF-20 (historial evolutivo UI). **RF-19** backend cerrado Fase 3C; UI Fase 3D pendiente.
+- Implementar en código RF planificados: RF-04 (V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F — ver §3); RF-10, RF-16, RF-18, RF-20 (historial evolutivo UI). **RF-19** backend y frontend V1 implementados; cierre/pruebas finales Fase 3E pendiente.
 
 **Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 
@@ -292,4 +294,4 @@ Pendientes menores:
 
 ---
 
-*Documento generado en Fase 1 del plan de actualización documental. Fecha de verificación técnica: 2026-06-09. RF-19 backend actualizado Fase 3C — 2026-06-23.*
+*Documento generado en Fase 1 del plan de actualización documental. Fecha de verificación técnica: 2026-06-09. RF-19 backend actualizado Fase 3C — 2026-06-23. RF-19 frontend actualizado Fase 3D — 2026-06-23.*

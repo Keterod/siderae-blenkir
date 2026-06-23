@@ -23,6 +23,7 @@ import { useOpcionesSeccionAula } from '../../lib/seccionesAula';
 import EstudiantePerfilDatos from './EstudiantePerfilDatos';
 import EstudiantePerfilReportesConductuales from './EstudiantePerfilReportesConductuales';
 import EstudiantePerfilRiesgo from './EstudiantePerfilRiesgo';
+import EstudiantePerfilSemaforoCompletitud from './EstudiantePerfilSemaforoCompletitud';
 import Badge from '../ui/Badge';
 import AlertMessage from '../ui/AlertMessage';
 import Button from '../ui/Button';
@@ -841,6 +842,10 @@ export default function EstudiantesPanel({ onClose = null }) {
           </Card>
 
           <EstudiantePerfilRiesgo />
+
+          {permissions.includes('ver_semaforo_completitud') ? (
+            <EstudiantePerfilSemaforoCompletitud estudianteId={detalle.id} />
+          ) : null}
 
           {permissions.includes('ver_reportes_conductuales')
           || permissions.includes('registrar_reportes_conductuales') ? (

@@ -96,7 +96,7 @@ Nombres RF según DRS (tabla §3 de [`contexto-drs-requerimientos.md`](arquitect
 | RF-16 | Generación reportes de riesgo académico | 6B | Implementado parcialmente | `GET /api/dashboard/export` (PDF parcial) | Botón export dashboard | `DashboardTest`, `ActivityLogTest` | No re-ejecutado Fase 5 | Zona reportes riesgo **planificada**; PDF dashboard = antecedente parcial |
 | RF-17 | Log auditoría / trazabilidad | 7.5A, 8 | Implementado parcialmente | `activity_log` | Sin UI consulta | `ActivityLogTest` | No re-ejecutado Fase 5 | Apoya alineación ISO progresiva; sin certificación |
 | RF-18 | Reentrenamiento modelo ML | — | **Planificado** | Sin endpoint ML/Laravel | No visible | — | — | ML real cuando exista dataset; no implementado |
-| RF-19 | Semáforo completitud datos | AI-DLC 3B–3C | **Implementado parcialmente (backend)** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, `CompletitudDatosService` | No visible | `SemaforoCompletitudTest.php` | **11 passed**, 55 assertions (2026-06-23) | Backend V1 listo Fase 3C; UI perfil estudiante pendiente Fase 3D |
+| RF-19 | Semáforo completitud datos | AI-DLC 3B–3D | **Implementado V1** (backend + frontend) | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, `CompletitudDatosService`, `EstudiantePerfilSemaforoCompletitud.jsx` | Perfil estudiante → **Completitud de datos** | `SemaforoCompletitudTest.php` | **11 passed**, 55 assertions (2026-06-23) | Backend Fase 3C; UI Fase 3D; cierre/pruebas finales pendientes Fase 3E |
 | RF-20 | Historial riesgo evolutivo | 4, 6A | Implementado parcialmente | Tabla `indices_riesgo` | Perfil riesgo **pausado** | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` | — | **Planificado:** evolución por periodo/bimestre |
 
 ### 5.1 Módulo curricular — RF-21 a RF-35
@@ -145,7 +145,7 @@ Incluye sub-sprints documentados en `sprints/` vinculados al sprint principal. E
 | **8.5C** | Evaluación bimestral | Config bimestral, CE | `EvaluacionBimestral*` | `EvaluacionBimestralApiTest`, `EvaluacionBimestralTest` | Confirmado en código | — |
 | **AI-DLC 3B** | RF-19 permisos base | `ver_semaforo_completitud` en `PermissionsSeeder.php` | Seeder actualizado | — | Completado | Asignado a `administrador`, `docente`, `coordinador_academico` |
 | **AI-DLC 3C** | RF-19 backend semáforo | Endpoint + servicio + tests | `CompletitudDatosService`, `SemaforoCompletitudController`, ruta API | `SemaforoCompletitudTest` — 11 passed | Completado | Sin Flask; no recalcula riesgo; sede Chilca |
-| **AI-DLC 3D** | RF-19 frontend semáforo | Componente perfil estudiante | — | — | Pendiente | UI bloque de semáforo junto a riesgo |
+| **AI-DLC 3D** | RF-19 frontend semáforo | Componente perfil estudiante | `EstudiantePerfilSemaforoCompletitud.jsx`, `api.js` | Build frontend OK | Completado | UI bloque junto a riesgo; permiso `ver_semaforo_completitud` |
 | **9** | Pruebas integrales + regresión | Campaña pytest + Cypress planeado | Cypress infraestructura 2H en `frontend/cypress/` | Ejecución Fase 1 documentada; Cypress 2H ejecutado parcialmente sin credenciales | Implementado parcialmente | No hay suite Cypress global; suite PHPUnit OOM 128M |
 | **10** | Documentación + cierre calidad | Manuales, matriz RF, informe | `docs/*` Fases 1–5 | Informe consolidado Fase 5 | En progreso | ISO solo referencia; sin certificación |
 
@@ -270,7 +270,7 @@ Archivos en [`backend/tests/`](../backend/tests/) (49 archivos `.php` detectados
 El DRS v2.1 consolidado está en [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md). Esta matriz cubre **RF-01 a RF-35**.
 
 2. Marcar como **retirado / fuera de alcance**: SIAGIE, Fast Test (RF-03), VSE en riesgo (RF-05), comunicación familiar (RF-12).
-3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-20 (historial evolutivo), RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E). **RF-19:** backend implementado (Fase 3C); UI perfil estudiante pendiente (Fase 3D).
+3. Marcar como **planificado**: RF-10, RF-16 (zona reportes), RF-18, RF-20 (historial evolutivo), RF-11 (perfil integral). **RF-04:** implementado V1 mínimo (Fase 2E). **RF-19:** implementado V1 (Fases 3B–3D); cierre/pruebas finales pendientes (Fase 3E).
 4. **Consolidar** RF parciales (RF-14 dashboard académico-institucional; RF-16 PDF dashboard parcial).
 5. RF-21–RF-35: módulo curricular confirmado en código según §5.1.
 
