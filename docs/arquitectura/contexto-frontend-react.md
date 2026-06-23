@@ -126,7 +126,7 @@ El frontend **no** llama a `:5000` (Flask); riesgo vía backend.
 | RF-15 | **Confirmado** — panel usuarios |
 | RF-17 | **N/A UI** — activity log solo backend |
 | RF-19 | **Implementado V1** — `EstudiantePerfilSemaforoCompletitud.jsx` en perfil estudiante; render condicional por permiso; build OK |
-| RF-20 | **Parcial** — persistencia backend; perfil riesgo pausado |
+| RF-20 | **Implementado V1** — componente `EstudiantePerfilHistorialRiesgo.jsx` en perfil estudiante; smoke manual navegador pendiente |
 
 ---
 

@@ -163,7 +163,7 @@ Tests: [`SemaforoCompletitudTest.php`](../backend/tests/Feature/SemaforoCompleti
 
 ---
 
-## 12. Historial evolutivo de riesgo (RF-20 — backend V1)
+## 12. Historial evolutivo de riesgo (RF-20 — V1)
 
 Solo estudiantes con `sede = chilca` (V1 operativa). El endpoint es **informativo**: consulta registros existentes de `indices_riesgo`, no recalcula el riesgo, no modifica datos y no llama a Flask. `variables_utilizadas` se devuelve solo si existe en el registro.
 
@@ -173,7 +173,7 @@ Solo estudiantes con `sede = chilca` (V1 operativa). El endpoint es **informativ
 
 **Respuesta 200:** `estudiante_id`, `historial[]` con `id`, `indice`, `nivel`, `anio_escolar`, `bimestre`, `fecha`, `variables_utilizadas`.
 
-Tests: [`HistorialRiesgoTest.php`](../backend/tests/Feature/HistorialRiesgoTest.php). UI: pendiente (Fase 4D).
+Tests: [`HistorialRiesgoTest.php`](../backend/tests/Feature/HistorialRiesgoTest.php) — **12 passed**, 30 assertions. UI: [`EstudiantePerfilHistorialRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilHistorialRiesgo.jsx) integrado en perfil estudiante.
 
 ---
 

@@ -157,7 +157,7 @@ Orden recomendado para desarrollo posterior a Fase 1B. Estados según [`matriz-r
 | ----: | -- | ------ | ------ | --------------- |
 | 1 | **RF-04** | Registro reportes conductuales | Núcleo del flujo de riesgo; migración `reportes_conductuales` existe; sin API/UI | Backend API + permisos + tests + UI |
 | 2 | **RF-19** | Semáforo de completitud de datos | Apoya RF-06 con datos parciales; planificado; sin UI/lógica hoy | Lógica backend + componente UI + tests |
-| 3 | **RF-20** | Historial evolutivo de riesgo | Persistencia en `indices_riesgo` sí; evolución por periodo **planificada**; perfil riesgo en pausa (NC-11) | Backend consulta + UI perfil + tests |
+| 3 | **RF-20** | Historial evolutivo de riesgo | **Implementado V1**: backend consulta + UI perfil tabla simple + tests; smoke manual navegador pendiente | Cierre documental y backlog RF-10/RF-16/RF-18 |
 | 4 | **RF-10** | Escalamiento directivo casos críticos | Depende de alertas y datos de riesgo más completos; sin API hoy | API + permisos + UI + tests |
 | 5 | **RF-11** | Perfil integral psicólogo/tutor | Parcial (solo alertas); lectura integrada notas/asistencia/riesgo/conductuales **planificada** | Backend agregación + UI perfil + tests |
 | 6 | **RF-16** | Reportes de riesgo académico | PDF dashboard parcial; zona reportes dedicada **planificada** | Backend reportes + UI + tests |

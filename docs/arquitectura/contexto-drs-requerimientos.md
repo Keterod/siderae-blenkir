@@ -55,7 +55,7 @@ Origen de **nombre, actor y prioridad**: **Tabla «7. Requerimientos Funcionales
 | RF-17 | Registro de auditoría de acciones | Sistema | Alta | **Implementado parcialmente** — activitylog parcial |
 | RF-18 | Reentrenamiento del modelo ML | Administrador | Media | **Pendiente** |
 | RF-19 | Semáforo de completitud de datos | Docente / Administrador | Media | **Implementado V1** (Fases 3B–3E); smoke manual navegador pendiente |
-| RF-20 | Historial de riesgo por estudiante | Docente / Directivo | Media | **Implementado parcialmente** — persistencia; UI/timeline **pausada** |
+| RF-20 | Historial de riesgo por estudiante | Docente / Directivo | Media | **Implementado V1** — backend + frontend tabla simple en perfil estudiante; smoke manual navegador pendiente |
 
 ---
 

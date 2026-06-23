@@ -146,14 +146,14 @@ Cada ítem incluye evidencia por ruta.
 - Tests parciales: [`backend/tests/Feature/ActivityLogTest.php`](../backend/tests/Feature/ActivityLogTest.php).
 - **No confirmado:** cobertura total REQ-17.x ni UI de consulta de logs.
 
-### RF-20 — Historial de riesgo — **Parcial / en avance**
+### RF-20 — Historial de riesgo — **Implementado V1**
 
 - Persistencia en `indices_riesgo`: migración [`backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php`](../backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php).
 - Base RBAC implementada (Fase 4B): permiso `ver_historial_riesgo` en [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php).
-- Backend (Fase 4C): endpoint `GET /api/estudiantes/{estudiante}/historial-riesgo`, [`HistorialRiesgoController.php`](../backend/app/Http/Controllers/Api/HistorialRiesgoController.php), tests [`HistorialRiesgoTest.php`](../backend/tests/Feature/HistorialRiesgoTest.php).
+- Backend (Fase 4C): endpoint `GET /api/estudiantes/{estudiante}/historial-riesgo`, [`HistorialRiesgoController.php`](../backend/app/Http/Controllers/Api/HistorialRiesgoController.php), tests [`HistorialRiesgoTest.php`](../backend/tests/Feature/HistorialRiesgoTest.php) — 12 passed, 30 assertions.
 - Frontend (Fase 4D): componente [`EstudiantePerfilHistorialRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilHistorialRiesgo.jsx) integrado en perfil estudiante, función `getHistorialRiesgo()` en [`frontend/src/lib/api.js`](../frontend/src/lib/api.js), build frontend OK.
-- Visualización del último índice en perfil: `EstudiantePerfilRiesgo`.
-- **Pendientes:** smoke manual en navegador y cierre final RF-20.
+- Cierre documental (Fase 4E): matriz RF, manuales, API, seguridad, informe de pruebas y plan RF-20 actualizados.
+- **Limitaciones V1:** visible solo en perfil estudiante; tabla simple (sin gráficos); sin dashboard RF-14; sin reportes RF-16; sin escalamiento directivo RF-10; sin perfil integral psicólogo/tutor RF-11; sin ML real; sin multi-sede; smoke manual navegador pendiente; Cypress global no ejecutado.
 
 ### Registro académico legacy (materias, lotes) — **Implementado parcialmente**
 
@@ -194,7 +194,7 @@ Cada ítem incluye evidencia por ruta.
 | **RF-11** — Perfil integral psicólogo (lectura) | **Planificado** | Alertas operativas hoy |
 | **RF-16** — Zona reportes de riesgo | **Planificado** | PDF dashboard = parcial |
 | **RF-18** — Reentrenamiento ML | **Planificado** | Requiere dataset histórico; no implementado |
-| **RF-20** — Historial evolutivo | **Parcial / en avance** | Fase 4B: base RBAC implementada; pendiente endpoint, UI, tests y smoke manual |
+| **RF-20** — Historial evolutivo | **Implementado V1** | Backend + frontend + documentación + pruebas; smoke manual navegador pendiente; Cypress global no ejecutado |
 
 ### Otros pendientes técnicos
 
@@ -289,7 +289,7 @@ Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
-- Implementar en código RF planificados: RF-04 (V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F — ver §3); RF-10, RF-16, RF-18. **RF-19** implementado V1 (backend + frontend + smoke manual aprobado). **RF-20** parcial / en avance (Fases 4B–4D: RBAC, backend y frontend V1; pendiente smoke manual y cierre).
+- Implementar en código RF planificados: RF-04 (V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F — ver §3); RF-10, RF-16, RF-18. **RF-19** implementado V1 (backend + frontend + smoke manual aprobado). **RF-20** implementado V1 (Fases 4B–4E: RBAC, backend, frontend y cierre documental); smoke manual navegador pendiente; Cypress global no ejecutado.
 
 **Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 

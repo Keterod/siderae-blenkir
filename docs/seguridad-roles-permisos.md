@@ -1,6 +1,6 @@
 # Seguridad, roles y permisos — SIDERAE-Blenkir
 
-Documento vigente (Fase 3 documental; actualización Fase 2B RF-04; Fase 3B–3C RF-19; Fase 4B RF-20). Fecha de verificación en código: **2026-06-23**.
+Documento vigente (Fase 3 documental; actualización Fase 2B RF-04; Fase 3B–3C RF-19; Fases 4B–4E RF-20). Fecha de verificación en código: **2026-06-23**.
 
 **Fuentes primarias:** [`backend/routes/api.php`](../backend/routes/api.php), [`backend/routes/auth.php`](../backend/routes/auth.php), [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php), [`backend/database/seeders/RolesSeeder.php`](../backend/database/seeders/RolesSeeder.php), [`frontend/src/App.jsx`](../frontend/src/App.jsx), [`frontend/src/context/AuthContext.jsx`](../frontend/src/context/AuthContext.jsx), [`backend/composer.json`](../backend/composer.json).
 

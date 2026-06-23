@@ -44,7 +44,7 @@ Centralizar brechas conocidas con fuente, impacto, prioridad y acción recomenda
 | NC-17 | RF-10 escalamiento directivo crítico | DRS v2.1 | Solo casos extremos | Alta | API + UI + permisos | Backend | Abierta |
 | NC-18 | RF-16 reportes de riesgo | DRS v2.1 | PDF dashboard parcial | Media | Zona reportes dedicada | Backend + doc | Abierta |
 | NC-19 | RF-19 semáforo completitud | DRS v2.1 | Calidad datos riesgo | Media | Backend + frontend + docs + pruebas | Backend / Frontend | **Cerrada V1** (Fases 3B–3E); smoke manual navegador pendiente |
-| NC-20 | RF-20 historial evolutivo | DRS v2.1 | Timeline por periodo | Media | UI perfil riesgo | Frontend | Abierta |
+| NC-20 | RF-20 historial evolutivo | DRS v2.1 | Timeline por periodo | Media | UI perfil riesgo | Frontend | **Cerrada V1** (Fases 4B–4E); smoke manual navegador pendiente; Cypress global no ejecutado |
 | NC-21 | RF-21–RF-35 documentados | DRS v2.1 §8.21 | Trazabilidad curricular | Media | Matriz actualizada | Documentación | Documentada v2.1 |
 | NC-14 | Pruebas **401/403** no exhaustivas | [`seguridad-roles-permisos.md`](../seguridad-roles-permisos.md) §12 | Riesgo seguridad no medido total | Media | Ampliar Feature tests | Backend | Abierta |
 | NC-15 | **Sin auditoría externa** ni certificación ISO | [`limitaciones.md`](../limitaciones.md) §9 | No evaluación independiente | No aplica V1 | Declarar en sustentación | Equipo | Documentada |

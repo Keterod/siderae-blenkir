@@ -98,7 +98,7 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 | RF-17 Auditoria | Si | Parcial | Implementado parcialmente | `activity_log` + registros manuales `activity()` en controladores API (Sprint 7.5A); consulta UI de logs y cobertura total REQ-17.x **pendiente de verificar** |
 | RF-18 Reentrenamiento ML | Si | No | Pendiente de desarrollo | No se detectan endpoints/flujo de reentrenamiento |
 | RF-19 Semaforo de completitud | Si | Si | Confirmado en codigo V1 | `CompletitudDatosService`, endpoint API, tests (`SemaforoCompletitudTest` 11 passed) y UI perfil estudiante (`EstudiantePerfilSemaforoCompletitud.jsx`) |
-| RF-20 Historial de riesgo | Si | Parcial | Implementado parcialmente | Persistencia historica en `indices_riesgo`; visualizacion historica en UI no confirmada completa |
+| RF-20 Historial de riesgo | Si | V1 | Implementado V1 | Backend + frontend tabla simple en perfil estudiante; smoke manual navegador pendiente |
 
 ## Limites actuales del prototipo
 - El ML actual es un prototipo deterministico en `ml-service/main.py`; no se confirma ejecucion real de Random Forest, SVM y XGBoost en codigo actual (DRS RF-06 REQ-06.2).

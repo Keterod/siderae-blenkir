@@ -71,6 +71,10 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `docker compose exec app-frontend npm run build` | Fase 3D/E RF-19 | Exit 0 — Vite build | ~5.7 s, 109 módulos |
 | `docker compose exec app-backend php artisan test --filter=HistorialRiesgoTest` | Fase 4C RF-20 | Exit 0 — **12 passed**, **30 assertions** | ~17.4 s |
 | `docker compose exec app-frontend npm run build` | Fase 4D RF-20 | Exit 0 — Vite build | ~8.2 s, 110 módulos |
+| `docker compose exec app-backend php artisan db:seed --class=PermissionsSeeder` | Fase 4E RF-20 | Exit 0 — INFO Seeding database | — |
+| `docker compose exec app-backend php artisan test --filter=HistorialRiesgoTest` | Fase 4E RF-20 | Exit 0 — **12 passed**, **30 assertions** | ~38.0 s |
+| `docker compose exec app-backend php artisan route:list --path=historial-riesgo` | Fase 4E RF-20 | Ruta listada correctamente | — |
+| `docker compose exec app-frontend npm run build` | Fase 4E RF-20 | Exit 0 — Vite build | ~10.6 s, 110 módulos |
 
 ---
 
@@ -87,10 +91,10 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | Pruebas manuales por rol | **Recomendadas** | RF-04 smoke **pendiente navegador** | [`smoke-rf04-reportes-conductuales.md`](smoke-rf04-reportes-conductuales.md) | API/build verdes Fase 2E |
 | `ReporteConductualTest` aislado | **Ejecutado (Fase 2E)** | 8 passed, 26 assertions | Fase 2E | RF-04 cierre |
 | `SemaforoCompletitudTest` aislado | **Ejecutado (Fase 3C)** | 11 passed, 55 assertions | Fase 3C | RF-19 backend |
-| `HistorialRiesgoTest` aislado | **Ejecutado (Fase 4C)** | 12 passed, 30 assertions | Fase 4C | RF-20 backend |
-| Build frontend RF-20 | **Ejecutado (Fase 4D)** | Vite build OK, 110 módulos | Fase 4D | RF-20 frontend |
+| `HistorialRiesgoTest` aislado | **Ejecutado (Fases 4C–4E)** | 12 passed, 30 assertions | Fase 4E | RF-20 backend |
+| Build frontend RF-20 | **Ejecutado (Fases 4D–4E)** | Vite build OK, 110 módulos | Fase 4E | RF-20 frontend |
 | Smoke manual RF-19 navegador | **Ejecutado** | Bloque visible, estado amarillo, razones correctas, sin selector sede, perfil estable | Registro manual | RF-19 UI |
-| Smoke manual RF-20 navegador | **Pendiente** | Verificar tabla historial en perfil estudiante | — | RF-20 UI |
+| Smoke manual RF-20 navegador | **Pendiente** | No se dispone de navegador/E2E en este entorno; validar visualmente tabla historial en perfil estudiante | — | RF-20 UI |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
 
 ---

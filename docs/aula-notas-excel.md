@@ -324,7 +324,7 @@ Al actualizar el DRS:
 1. **RF-01:** implementado parcialmente — curricular RF-21–RF-35 + plantilla Excel RF-32; **SIAGIE fuera del alcance**.
 2. **RF-02 / RF-31:** vincular a **asistencia curricular** (`/asistencias-diarias/*`).
 3. **RF-16:** distinguir PDF dashboard (parcial) de zona **reportes de riesgo** planificada y de **Excel por aula** RF-33.
-4. **RF-20:** historial evolutivo por periodo — planificado; persistencia parcial.
+4. **RF-20:** historial evolutivo por periodo — **implementado V1**; smoke manual navegador pendiente.
 5. Nombrar: **«Plantilla curricular propia»** vs **«SIAGIE fuera del alcance actual»**.
 6. Documentar sede única **Chilca** en operación V1.
 

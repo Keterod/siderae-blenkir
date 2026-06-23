@@ -108,7 +108,7 @@ Recomendaciones:
 | RF-16 zona reportes dedicada | Planificado | Fuera de Cypress por ahora | PDF dashboard es antecedente parcial |
 | RF-18 ML real / reentrenamiento | Planificado | Fuera de Cypress | No validar ML interno con Cypress |
 | RF-19 semáforo completitud | Implementado V1 | Fuera de Cypress hasta definición de suite global | Backend probado (`SemaforoCompletitudTest` 11 passed); UI en perfil estudiante build OK; E2E UI pendiente |
-| RF-20 historial evolutivo | Planificado / persistencia parcial | Fuera de Cypress por ahora | No hay timeline completo |
+| RF-20 historial evolutivo | Implementado V1 (backend + frontend tabla simple) | Fuera de Cypress por ahora | Smoke manual navegador pendiente |
 | SIAGIE | Fuera del alcance vigente | No aplica | Plantillas propias RF-32/RF-33 |
 | Fast Test | Retirado del alcance | No aplica | No crear spec |
 | Comunicación familiar | Eliminado del alcance | No aplica | No crear spec |

@@ -20,8 +20,8 @@ RF-20 **no recalcula el riesgo** ni llama a Flask. Solo consulta y presenta los 
 | Elemento | Estado | Evidencia |
 | -------- | ------ | --------- |
 | DRS v2.1 §RF-20 | Planificado / parcial | [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](../../drs/DRS_SIDERAE_Blenkir_v2.md) §RF-20 |
-| Matriz RF–Sprint–Test | Implementado parcialmente; persistencia confirmada | [`docs/matriz-rf-sprint-test.md`](../../matriz-rf-sprint-test.md) fila RF-20 |
-| `docs/limitaciones.md` | Persistencia `indices_riesgo`; timeline UI no | [`docs/limitaciones.md`](../../limitaciones.md) §RF-20 |
+| Matriz RF–Sprint–Test | **Implementado V1**; smoke manual navegador pendiente | [`docs/matriz-rf-sprint-test.md`](../../matriz-rf-sprint-test.md) fila RF-20 |
+| `docs/limitaciones.md` | **Implementado V1** con limitaciones documentadas | [`docs/limitaciones.md`](../../limitaciones.md) §RF-20 |
 | `docs/api.md` | Sin endpoint de historial | [`docs/api.md`](../../api.md) |
 | `docs/seguridad-roles-permisos.md` | Permiso `ver_historial_riesgo` implementado Fase 4B | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) |
 | Modelo `IndiceRiesgo` | Existe con campos `indice`, `nivel`, `anio_escolar`, `bimestre`, `variables_utilizadas`, `modelos_scores` | [`backend/app/Models/IndiceRiesgo.php`](../../../backend/app/Models/IndiceRiesgo.php) |
@@ -33,7 +33,7 @@ RF-20 **no recalcula el riesgo** ni llama a Flask. Solo consulta y presenta los 
 | Tests relacionados | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` (persistencia); `HistorialRiesgoTest` (RF-20) | [`backend/tests/`](../../../backend/tests/) |
 | Permiso específico | **Implementado** — `ver_historial_riesgo` asignado a `administrador`, `docente` y `coordinador_academico` | [`PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) |
 
-**Resumen:** RF-20 está **implementado en backend y frontend V1. Pendiente: smoke manual en navegador y cierre final (Fase 4E)**.
+**Resumen:** RF-20 está **implementado V1** (backend, frontend, permisos y cierre documental). **Smoke manual en navegador pendiente; Cypress global no ejecutado**.
 
 ---
 
@@ -200,15 +200,17 @@ Queda explícitamente excluido de RF-20 V1:
 | **Fase 4B** | Permisos y base RBAC RF-20 | `ver_historial_riesgo` en `PermissionsSeeder.php`; documentación seguridad | **Completada** |
 | **Fase 4C** | Backend historial RF-20 | `HistorialRiesgoController`; ruta API; `HistorialRiesgoTest` | **Completada** |
 | **Fase 4D** | Frontend historial RF-20 | `EstudiantePerfilHistorialRiesgo.jsx`, `getHistorialRiesgo()`, integración en perfil, build OK | **Completada** |
-| **Fase 4E** | Pruebas y cierre RF-20 | Smoke manual, docs actualizadas, build, tests, NC-20 cerrada | Pendiente |
+| **Fase 4E** | Pruebas y cierre RF-20 | Validaciones backend/frontend, docs actualizadas, build OK, tests 12 passed, NC-20 cerrada V1 | **Completada** |
 
 ---
 
 ## 10. Conclusión
 
-RF-20 tiene **persistencia lista** (`indices_riesgo`), **permiso RBAC** (`ver_historial_riesgo`), **backend** (`HistorialRiesgoController` + ruta + tests) y **frontend** (`EstudiantePerfilHistorialRiesgo.jsx` + `getHistorialRiesgo()`) implementados. **Pendiente: smoke manual en navegador y cierre final (Fase 4E)**.
+RF-20 está **implementado V1**: persistencia (`indices_riesgo`), permiso RBAC (`ver_historial_riesgo`), backend (`HistorialRiesgoController` + ruta + tests 12 passed), frontend (`EstudiantePerfilHistorialRiesgo.jsx` + `getHistorialRiesgo()` + build OK) y cierre documental (Fase 4E).
 
-La implementación V1 es mínima: consulta de registros existentes, presentación simple en perfil estudiante. No toca Flask ni `RiesgoAcademicoService`; no recalcula ni predice riesgo.
+**Restricciones V1 honestas:** smoke manual en navegador pendiente; Cypress global no ejecutado. No se afirma ML real, multi-sede, ISO certificado ni funcionalidades fuera de alcance (RF-10/RF-11/RF-14/RF-16/RF-18).
+
+La implementación es mínima: consulta de registros existentes, presentación simple en perfil estudiante. No toca Flask ni `RiesgoAcademicoService`; no recalcula ni predice riesgo.
 
 ---
 
