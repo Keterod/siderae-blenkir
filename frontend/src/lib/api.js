@@ -806,3 +806,8 @@ export function getSemaforoCompletitud(estudianteId) {
   return request(`/api/estudiantes/${estudianteId}/semaforo-completitud`);
 }
 
+export function getHistorialRiesgo(estudianteId, params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `/api/estudiantes/${estudianteId}/historial-riesgo?${qs}` : `/api/estudiantes/${estudianteId}/historial-riesgo`);
+}
+

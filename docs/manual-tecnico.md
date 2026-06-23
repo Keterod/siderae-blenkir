@@ -19,7 +19,7 @@ Describir stack, servicios, configuración, flujos técnicos y pruebas **confirm
 | Frontend | React 18, Vite, Tailwind | `frontend/package.json` |
 | Backend | PHP 8.3, Laravel ^13 | `backend/composer.json` |
 | Auth | Laravel Sanctum + Breeze | `routes/auth.php`, Sanctum |
-| RBAC | Spatie Permission (5 roles, 23 permisos) | `PermissionsSeeder.php` |
+| RBAC | Spatie Permission (5 roles, 27 permisos) | `PermissionsSeeder.php` |
 | BD | MySQL 8 | `docker-compose.yml` |
 | ML | Flask (determinístico) | `ml-service/main.py` |
 | PDF | DomPDF | `DashboardController` export |
@@ -102,6 +102,7 @@ Matriz rol–permiso vigente: [`seguridad-roles-permisos.md`](seguridad-roles-pe
 | Módulo | Prefijo / rutas | Estado |
 |--------|-----------------|--------|
 | Core (estudiantes, riesgo, alertas) | `/api/*` | Confirmado |
+| Historial riesgo (RF-20) | `GET /api/estudiantes/{estudiante}/historial-riesgo` | Confirmado |
 | Legacy materias/lotes | `/api/materias`, lotes | API sí; UI menú no |
 | Curricular | `/api/curricular/*` | Confirmado |
 | Usuarios | `/api/usuarios/*` | Confirmado |
@@ -114,7 +115,7 @@ Contexto ampliado: [`arquitectura/contexto-backend-laravel.md`](arquitectura/con
 
 ## 8. Frontend
 
-SPA por módulos en [`App.jsx`](../frontend/src/App.jsx). Sin llamadas directas a Flask.
+SPA por módulos en [`App.jsx`](../frontend/src/App.jsx). Sin llamadas directas a Flask. Componente de historial de riesgo en perfil estudiante: [`EstudiantePerfilHistorialRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilHistorialRiesgo.jsx).
 
 Contexto: [`arquitectura/contexto-frontend-react.md`](arquitectura/contexto-frontend-react.md).
 

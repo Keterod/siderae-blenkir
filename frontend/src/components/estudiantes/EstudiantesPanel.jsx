@@ -21,6 +21,7 @@ import {
 } from '../../lib/sedeOperativa';
 import { useOpcionesSeccionAula } from '../../lib/seccionesAula';
 import EstudiantePerfilDatos from './EstudiantePerfilDatos';
+import EstudiantePerfilHistorialRiesgo from './EstudiantePerfilHistorialRiesgo';
 import EstudiantePerfilReportesConductuales from './EstudiantePerfilReportesConductuales';
 import EstudiantePerfilRiesgo from './EstudiantePerfilRiesgo';
 import EstudiantePerfilSemaforoCompletitud from './EstudiantePerfilSemaforoCompletitud';
@@ -845,6 +846,10 @@ export default function EstudiantesPanel({ onClose = null }) {
 
           {permissions.includes('ver_semaforo_completitud') ? (
             <EstudiantePerfilSemaforoCompletitud estudianteId={detalle.id} />
+          ) : null}
+
+          {permissions.includes('ver_historial_riesgo') ? (
+            <EstudiantePerfilHistorialRiesgo estudianteId={detalle.id} />
           ) : null}
 
           {permissions.includes('ver_reportes_conductuales')

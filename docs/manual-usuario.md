@@ -303,6 +303,16 @@ Módulos visibles: **todos** los del menú lateral.
 - **Importante:** El semáforo **no es el nivel de riesgo** (bajo/medio/alto); solo indica la completitud de los datos. No bloquea el procesamiento de riesgo. No aparece selector de sede. V1: solo sede Chilca.
 - *Permiso:* `ver_semaforo_completitud` (asignado en V1 a administrador, docente y coordinador académico).
 
+### 7.20 Historial de riesgo evolutivo (perfil de estudiante)
+
+- **Objetivo:** Ver la evolución del índice de riesgo académico del estudiante por periodo.
+- **Navegación:** Menú → **Estudiantes** → abra perfil → bloque **Historial de riesgo académico**, debajo de **Completitud de datos**.
+- **Datos mostrados:** fecha, año escolar, bimestre, índice, nivel (Alto/Medio/Bajo) y variables utilizadas cuando existen.
+- **Resultado esperado:** Tabla simple ordenada del registro más reciente al más antiguo. Mensaje de vacío si no hay registros.
+- **Errores comunes:** «Sin permiso para ver el historial de riesgo» (403); «No se pudo cargar» ante fallo de red. El error se muestra aislado y no rompe el resto del perfil.
+- **Importante:** El historial **muestra registros existentes** generados previamente; **no recalcula** el riesgo, **no predice** ni entrena modelos. No aparece selector de sede. V1: solo sede Chilca.
+- *Permiso:* `ver_historial_riesgo` (asignado en V1 a administrador, docente y coordinador académico).
+
 ---
 
 ## 8. Manual por rol: Docente
@@ -329,7 +339,7 @@ Igual que §7.2–7.3 si tiene `ver_dashboard` (confirmado en seed para docente)
 - **Objetivo:** Consultar y, si corresponde, actualizar datos de estudiantes; ver resumen académico en perfil.
 - **Navegación:** **Estudiantes**.
 - **Pasos:** Busque estudiante → abra perfil → revise datos, resumen curricular y asistencia; **Editar estudiante** si tiene permiso de gestión.
-- **Nota:** La sección **Riesgo académico** en perfil muestra aviso de **actualización pendiente** — no hay botón «Procesar riesgo» en pantalla (§15). Junto a riesgo se muestra el **Semáforo de completitud de datos** (RF-19) cuando el rol tiene permiso.
+- **Nota:** La sección **Riesgo académico** en perfil muestra aviso de **actualización pendiente** — no hay botón «Procesar riesgo» en pantalla (§15). Junto a riesgo se muestran el **Semáforo de completitud de datos** (RF-19) y el **Historial de riesgo académico** (RF-20) cuando el rol tiene permiso.
 - *Permisos:* `gestionar_estudiantes`, `ver_notas_academicas`, `registrar_asistencia_curricular` / `ver_asistencia_curricular`.
 
 ### 8.4 Registrar notas semanales
@@ -572,6 +582,7 @@ Detalle técnico y diferencia con plantilla/import curricular: [`docs/aula-notas
 | Variables socioeconómicas | API existe; **pestaña no visible** en perfil de estudiante |
 | Reportes conductuales | Solo en **perfil de estudiante**; sin menú global ni listado por grado/sección |
 | Semáforo de completitud | En **perfil de estudiante**; indica completitud de datos, **no** nivel de riesgo |
+| Historial de riesgo | En **perfil de estudiante**; muestra evolución del índice de riesgo por periodo, **sin** recalcular |
 | Riesgo en perfil de estudiante | Mensaje de **pausa/rediseño**; sin botón «Procesar riesgo» en UI |
 | Procesar riesgo manual | Permiso backend para admin/coordinador; **sin acción de pantalla** habitual |
 | Módulos legacy | Materias, notas masivas y asistencia masiva **sin menú** — fuera del flujo V1 |
