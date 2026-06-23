@@ -1,6 +1,6 @@
 # Seguridad, roles y permisos — SIDERAE-Blenkir
 
-Documento vigente (Fase 3 documental; actualización Fase 2B RF-04; Fase 3B–3C RF-19). Fecha de verificación en código: **2026-06-23**.
+Documento vigente (Fase 3 documental; actualización Fase 2B RF-04; Fase 3B–3C RF-19; Fase 4B RF-20). Fecha de verificación en código: **2026-06-23**.
 
 **Fuentes primarias:** [`backend/routes/api.php`](../backend/routes/api.php), [`backend/routes/auth.php`](../backend/routes/auth.php), [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php), [`backend/database/seeders/RolesSeeder.php`](../backend/database/seeders/RolesSeeder.php), [`frontend/src/App.jsx`](../frontend/src/App.jsx), [`frontend/src/context/AuthContext.jsx`](../frontend/src/context/AuthContext.jsx), [`backend/composer.json`](../backend/composer.json).
 
@@ -74,9 +74,9 @@ Fuente: [`RolesSeeder.php`](../backend/database/seeders/RolesSeeder.php) + asign
 
 | Rol | Fuente | Descripción funcional | Estado |
 |-----|--------|----------------------|--------|
-| `administrador` | Seeder | Acceso total a permisos definidos (26) | Confirmado |
-| `docente` | Seeder | Estudiantes, datos académicos legacy, alertas/intervenciones, malla lectura, notas/asistencia curricular, RF-04, RF-19 lectura | Confirmado |
-| `coordinador_academico` | Seeder | Configuración curricular, riesgo, asignaciones, calendario, Excel aula, RF-04, RF-19 lectura | Confirmado |
+| `administrador` | Seeder | Acceso total a permisos definidos (27) | Confirmado |
+| `docente` | Seeder | Estudiantes, datos académicos legacy, alertas/intervenciones, malla lectura, notas/asistencia curricular, RF-04, RF-19 lectura, RF-20 lectura | Confirmado |
+| `coordinador_academico` | Seeder | Configuración curricular, riesgo, asignaciones, calendario, Excel aula, RF-04, RF-19 lectura, RF-20 lectura | Confirmado |
 | `psicologo_tutor` | Seeder | Alertas, intervenciones, lectura académica/asistencia | Confirmado |
 | `directivo` | Seeder | Dashboard, alertas, lectura malla/notas/asistencia; excepción UI en «Notas semanales» | Confirmado |
 
@@ -86,9 +86,9 @@ Usuarios demo: [`DemoUsersSeeder.php`](../backend/database/seeders/DemoUsersSeed
 
 ## 6. Permisos confirmados
 
-Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **26 permisos implementados actualmente**, `guard_name` = `web` (8 legacy + 15 curriculares + 2 conductuales RF-04 + 1 semáforo RF-19 base).
+Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **27 permisos implementados actualmente**, `guard_name` = `web` (8 legacy + 15 curriculares + 2 conductuales RF-04 + 1 semáforo RF-19 base + 1 historial RF-20 base).
 
-> **Permisos adicionales sugeridos/planificados:** 5 permisos para RF-10, RF-11, RF-16 y RF-18 documentados en §16 — **no** están en `PermissionsSeeder`. Los permisos RF-04 **sí** están en seeder (Fase 2B), **rutas API** (Fase 2C) y **UI perfil** (Fase 2D); cierre pruebas Fase 2E (2026-06-10). El permiso RF-19 `ver_semaforo_completitud` **sí** está en seeder (Fase 3B, 2026-06-23); la **API backend** fue implementada en Fase 3C (`CompletitudDatosService`, `SemaforoCompletitudController`, `SemaforoCompletitudTest` 11 passed); la **UI en perfil estudiante** fue implementada en Fase 3D (`EstudiantePerfilSemaforoCompletitud.jsx`, build frontend OK).
+> **Permisos adicionales sugeridos/planificados:** 4 permisos para RF-10, RF-11, RF-16 y RF-18 documentados en §16 — **no** están en `PermissionsSeeder`. Los permisos RF-04 **sí** están en seeder (Fase 2B), **rutas API** (Fase 2C) y **UI perfil** (Fase 2D); cierre pruebas Fase 2E (2026-06-10). El permiso RF-19 `ver_semaforo_completitud` **sí** está en seeder (Fase 3B, 2026-06-23); la **API backend** fue implementada en Fase 3C (`CompletitudDatosService`, `SemaforoCompletitudController`, `SemaforoCompletitudTest` 11 passed); la **UI en perfil estudiante** fue implementada en Fase 3D (`EstudiantePerfilSemaforoCompletitud.jsx`, build frontend OK).
 
 ### Legacy (8)
 
@@ -136,6 +136,12 @@ Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.
 |---------|---------------|----------------|--------|
 | `ver_semaforo_completitud` | Consultar semáforo de completitud de datos por estudiante | `GET /api/estudiantes/{id}/semaforo-completitud` | Implementado V1 — API + UI perfil estudiante |
 
+### Historial riesgo RF-20 (1)
+
+| Permiso | Uso funcional | Módulo / rutas | Estado |
+|---------|---------------|----------------|--------|
+| `ver_historial_riesgo` | Consultar historial evolutivo de riesgo por estudiante | Sin endpoint ni UI todavía | **Base RBAC implementada** — API y frontend pendientes |
+
 ---
 
 ## 7. Matriz rol–permiso
@@ -144,9 +150,9 @@ Fuente: `$rolePermissionMap` en [`PermissionsSeeder.php`](../backend/database/se
 
 | Rol | Cantidad permisos | Observación |
 |-----|-------------------|-------------|
-| `administrador` | **26** (todos) | Confirmado |
-| `docente` | **14** | Con `ver_dashboard`; incluye RF-04 ver + registrar; RF-19 ver | Confirmado |
-| `coordinador_academico` | **22** | Sin gestionar_usuarios, gestionar_materias, registrar_intervencion; incluye RF-04; RF-19 ver | Confirmado |
+| `administrador` | **27** (todos) | Confirmado |
+| `docente` | **15** | Con `ver_dashboard`; incluye RF-04 ver + registrar; RF-19 ver; RF-20 ver | Confirmado |
+| `coordinador_academico` | **23** | Sin gestionar_usuarios, gestionar_materias, registrar_intervencion; incluye RF-04; RF-19 ver; RF-20 ver | Confirmado |
 | `psicologo_tutor` | **6** | Alertas + lectura académica + RF-04 ver + registrar | Confirmado |
 | `directivo` | **8** | Lectura dashboard/alertas/malla/notas/asistencia + intervención + **solo ver** RF-04 | Confirmado |
 

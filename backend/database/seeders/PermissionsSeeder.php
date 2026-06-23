@@ -48,7 +48,11 @@ class PermissionsSeeder extends Seeder
             'ver_semaforo_completitud',
         ];
 
-        $permissions = array_merge($legacyPermissions, $curricularPermissions, $conductualPermissions, $semaforoPermissions);
+        $historialPermissions = [
+            'ver_historial_riesgo',
+        ];
+
+        $permissions = array_merge($legacyPermissions, $curricularPermissions, $conductualPermissions, $semaforoPermissions, $historialPermissions);
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
@@ -70,6 +74,7 @@ class PermissionsSeeder extends Seeder
                 'ver_reportes_conductuales',
                 'registrar_reportes_conductuales',
                 'ver_semaforo_completitud',
+                'ver_historial_riesgo',
             ],
             'coordinador_academico' => [
                 'ver_dashboard',
@@ -94,6 +99,7 @@ class PermissionsSeeder extends Seeder
                 'ver_reportes_conductuales',
                 'registrar_reportes_conductuales',
                 'ver_semaforo_completitud',
+                'ver_historial_riesgo',
             ],
             'psicologo_tutor' => [
                 'ver_alertas',

@@ -23,15 +23,15 @@ RF-20 **no recalcula el riesgo** ni llama a Flask. Solo consulta y presenta los 
 | Matriz RF–Sprint–Test | Implementado parcialmente; persistencia confirmada | [`docs/matriz-rf-sprint-test.md`](../../matriz-rf-sprint-test.md) fila RF-20 |
 | `docs/limitaciones.md` | Persistencia `indices_riesgo`; timeline UI no | [`docs/limitaciones.md`](../../limitaciones.md) §RF-20 |
 | `docs/api.md` | Sin endpoint de historial | [`docs/api.md`](../../api.md) |
-| `docs/seguridad-roles-permisos.md` | Sin permiso `ver_historial_riesgo` | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) |
+| `docs/seguridad-roles-permisos.md` | Permiso `ver_historial_riesgo` implementado Fase 4B | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) |
 | Modelo `IndiceRiesgo` | Existe con campos `indice`, `nivel`, `anio_escolar`, `bimestre`, `variables_utilizadas`, `modelos_scores` | [`backend/app/Models/IndiceRiesgo.php`](../../../backend/app/Models/IndiceRiesgo.php) |
 | Tabla `indices_riesgo` | Migración existente | [`backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php`](../../../backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php) |
 | Procesamiento de riesgo | Backend `POST /api/estudiantes/{id}/procesar-riesgo` crea registros | [`backend/routes/api.php`](../../../backend/routes/api.php), [`RiesgoAcademicoService`](../../../backend/app/Services/RiesgoAcademicoService.php) |
 | UI perfil estudiante | `EstudiantePerfilRiesgo.jsx` pausado; sin timeline | [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../../../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx) |
 | Tests relacionados | `RiesgoTest`, `ActivoUniqueKeyHistorialTest` (persistencia) | [`backend/tests/`](../../../backend/tests/) |
-| Permiso específico | **No existe** | — |
+| Permiso específico | **Implementado** — `ver_historial_riesgo` asignado a `administrador`, `docente` y `coordinador_academico` | [`PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) |
 
-**Resumen:** RF-20 está **parcialmente cubierto por persistencia histórica en `indices_riesgo`; sin endpoint, permiso específico, UI ni tests dedicados**.
+**Resumen:** RF-20 está **parcialmente cubierto por persistencia histórica en `indices_riesgo`; base RBAC implementada Fase 4B. Aún sin endpoint, UI ni tests dedicados**.
 
 ---
 
@@ -55,17 +55,17 @@ RF-20 **no recalcula el riesgo** ni llama a Flask. Solo consulta y presenta los 
 
 ---
 
-## 4. Permiso sugerido (futuro)
+## 4. Permiso implementado (Fase 4B)
 
-**Permiso nuevo sugerido:** `ver_historial_riesgo`
+**Permiso:** `ver_historial_riesgo`
 
-**Roles sugeridos V1** (solo planificación, no implementar todavía):
+**Roles asignados V1:**
 
 - `administrador`
 - `docente`
 - `coordinador_academico`
 
-**No asignar V1 a:**
+**Roles no asignados V1:**
 
 - `psicologo_tutor` (se evaluará con RF-11 perfil integral).
 - `directivo` (se evaluará con RF-10 escalamiento / RF-16 reportes).
@@ -195,7 +195,7 @@ Queda explícitamente excluido de RF-20 V1:
 | Fase | Contenido | Entregables | Estado |
 | ---- | --------- | ----------- | ------ |
 | **Fase 4A** | Planificación RF-20 | Este plan | **Completada** |
-| **Fase 4B** | Permisos y base RBAC RF-20 | `ver_historial_riesgo` en `PermissionsSeeder.php`; documentación seguridad | **Pendiente — no iniciar todavía** |
+| **Fase 4B** | Permisos y base RBAC RF-20 | `ver_historial_riesgo` en `PermissionsSeeder.php`; documentación seguridad | **Completada** |
 | **Fase 4C** | Backend historial RF-20 | Controller + consulta `IndiceRiesgo`; tests backend | Pendiente |
 | **Fase 4D** | Frontend historial RF-20 | `EstudiantePerfilHistorialRiesgo.jsx`, `getHistorialRiesgo()`, integración en perfil, build OK | Pendiente |
 | **Fase 4E** | Pruebas y cierre RF-20 | Smoke manual, docs actualizadas, build, tests, NC-20 cerrada | Pendiente |
@@ -210,4 +210,4 @@ La implementación V1 debe ser mínima: consulta de registros existentes, presen
 
 ---
 
-*Plan AI-DLC Fase 4A — 2026-06-23.*
+*Plan AI-DLC Fases 4A–4B — 2026-06-23.*

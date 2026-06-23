@@ -146,11 +146,12 @@ Cada ítem incluye evidencia por ruta.
 - Tests parciales: [`backend/tests/Feature/ActivityLogTest.php`](../backend/tests/Feature/ActivityLogTest.php).
 - **No confirmado:** cobertura total REQ-17.x ni UI de consulta de logs.
 
-### RF-20 — Historial de riesgo — **Implementado parcialmente**
+### RF-20 — Historial de riesgo — **Parcial / en avance**
 
 - Persistencia en `indices_riesgo`: migración [`backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php`](../backend/database/migrations/2026_04_23_024405_create_indices_riesgo_table.php).
+- Base RBAC implementada (Fase 4B): permiso `ver_historial_riesgo` en [`backend/database/seeders/PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php), asignado a `administrador`, `docente` y `coordinador_academico`.
 - Visualización del último índice en perfil: `EstudiantePerfilRiesgo`.
-- **No confirmado:** línea de tiempo completa ni export PDF de historial (REQ-20 DRS).
+- **Pendientes:** endpoint de historial completo, UI de línea de tiempo/tabla, tests automatizados y smoke manual.
 
 ### Registro académico legacy (materias, lotes) — **Implementado parcialmente**
 
@@ -191,7 +192,7 @@ Cada ítem incluye evidencia por ruta.
 | **RF-11** — Perfil integral psicólogo (lectura) | **Planificado** | Alertas operativas hoy |
 | **RF-16** — Zona reportes de riesgo | **Planificado** | PDF dashboard = parcial |
 | **RF-18** — Reentrenamiento ML | **Planificado** | Requiere dataset histórico; no implementado |
-| **RF-20** — Historial evolutivo | **Planificado** | Persistencia sí; timeline UI no |
+| **RF-20** — Historial evolutivo | **Parcial / en avance** | Fase 4B: base RBAC implementada; pendiente endpoint, UI, tests y smoke manual |
 
 ### Otros pendientes técnicos
 
@@ -286,7 +287,7 @@ Documentación principal **completada** (Fases 1–9). Paquete **Markdown** v2.1
 Pendientes menores:
 
 - Corregir [`docs/pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md`](pruebas/Fichas_Pruebas_Automatizadas_SIDERAE_Blenkir.md) (`ImportarDatosTest` inexistente).
-- Implementar en código RF planificados: RF-04 (V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F — ver §3); RF-10, RF-16, RF-18, RF-20 (historial evolutivo UI). **RF-19** implementado V1 (backend + frontend + smoke manual aprobado).
+- Implementar en código RF planificados: RF-04 (V1 mínimo cerrado Fase 2E; Cypress mínimo agregado en Fase 2F — ver §3); RF-10, RF-16, RF-18. **RF-19** implementado V1 (backend + frontend + smoke manual aprobado). **RF-20** parcial / en avance (Fase 4B base RBAC; pendiente endpoint, UI, tests y smoke manual).
 
 **Etapa posterior (opcional):** conversión formal DRS v2.1 y anexos a PDF/Word tras revisión humana.
 
