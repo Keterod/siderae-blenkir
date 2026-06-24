@@ -88,7 +88,7 @@ Usuarios demo: [`DemoUsersSeeder.php`](../backend/database/seeders/DemoUsersSeed
 
 Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **30 permisos implementados actualmente**, `guard_name` = `web` (8 legacy + 15 curriculares + 2 conductuales RF-04 + 1 semáforo RF-19 base + 1 historial RF-20 base + 1 reportes riesgo RF-16B base + 1 dashboard institucional RF-14B base + 1 perfil psicólogo/tutor RF-11B base).
 
-> **Permisos adicionales sugeridos/planificados:** 4 permisos para RF-10, RF-11, RF-16 (`generar_reportes_riesgo`) y RF-18 documentados en §16 — **no** están en `PermissionsSeeder`. Los permisos RF-04 **sí** están en seeder (Fase 2B), **rutas API** (Fase 2C) y **UI perfil** (Fase 2D); cierre pruebas Fase 2E (2026-06-10). El permiso RF-19 `ver_semaforo_completitud` **sí** está en seeder (Fase 3B, 2026-06-23); la **API backend** fue implementada en Fase 3C (`CompletitudDatosService`, `SemaforoCompletitudController`, `SemaforoCompletitudTest` 11 passed); la **UI en perfil estudiante** fue implementada en Fase 3D (`EstudiantePerfilSemaforoCompletitud.jsx`, build frontend OK). El permiso RF-11 `ver_perfil_psicologo_tutor` **sí** está en seeder (Fase RF-11B, 2026-06-24); **endpoint, controller, UI y tests funcionales aún pendientes**.
+> **Permisos adicionales sugeridos/planificados:** 4 permisos para RF-10, RF-11, RF-16 (`generar_reportes_riesgo`) y RF-18 documentados en §16 — **no** están en `PermissionsSeeder`. Los permisos RF-04 **sí** están en seeder (Fase 2B), **rutas API** (Fase 2C) y **UI perfil** (Fase 2D); cierre pruebas Fase 2E (2026-06-10). El permiso RF-19 `ver_semaforo_completitud` **sí** está en seeder (Fase 3B, 2026-06-23); la **API backend** fue implementada en Fase 3C (`CompletitudDatosService`, `SemaforoCompletitudController`, `SemaforoCompletitudTest` 11 passed); la **UI en perfil estudiante** fue implementada en Fase 3D (`EstudiantePerfilSemaforoCompletitud.jsx`, build frontend OK). El permiso RF-11 `ver_perfil_psicologo_tutor` **sí** está en seeder (Fase RF-11B, 2026-06-24); **endpoint, controller, tests backend y UI implementados en RF-11C/D**.
 
 ### Legacy (8)
 
@@ -158,7 +158,7 @@ Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.
 
 | Permiso | Uso funcional | Módulo / rutas | Estado |
 |---------|---------------|----------------|--------|
-| `ver_perfil_psicologo_tutor` | Consultar panel de seguimiento psicólogo/tutor (no clínico) | Sin endpoint ni UI todavía | **Base RBAC implementada (RF-11B)** — endpoint, controller, frontend y tests pendientes. No habilita diagnóstico psicológico clínico ni historia médica. |
+| `ver_perfil_psicologo_tutor` | Consultar panel de seguimiento psicólogo/tutor (no clínico) | `GET /api/psicologo-tutor/seguimiento`; UI `PerfilPsicologoTutorPanel.jsx` | **Implementado V1 (RF-11B/C/D)** — base RBAC, backend paginado + filtros, frontend y tests. No habilita diagnóstico psicológico clínico ni historia médica. |
 
 ---
 
@@ -206,6 +206,7 @@ Leyenda control: **Sí** = middleware/permiso confirmado; **Parcial** = UI disti
 | Malla / criterios / competencias / secciones / asignación / calendario | CRUD según módulo | `/api/curricular/*` | varios | permisos `gestionar_*` / `ver_*` | Según §7 | Sí | Sí | Confirmado |
 | Usuarios | Gestión | `/api/usuarios*` | GET/POST/PATCH | `gestionar_usuarios` | admin | Sí | Sí | Confirmado |
 | Reportes conductuales | Ver / registrar | `GET/POST …/reportes-conductuales`, `PATCH …/anular` | GET/POST/PATCH | `ver_reportes_conductuales` / `registrar_reportes_conductuales` | admin, docente, coord, psicólogo (ver+reg); directivo (solo ver backend) | Sí | **Sí** (perfil) | V1 mínimo Fase 2E; directivo sin menú Estudiantes |
+| Seguimiento psicólogo/tutor | Ver listado | `GET /api/psicologo-tutor/seguimiento` | GET | `ver_perfil_psicologo_tutor` | admin, coord, psicólogo | Sí | **Sí** (menú lateral) | RF-11B/C/D; docente/directivo fuera de V1 |
 | Materias legacy | Catálogo | `/api/materias*` | varios | `gestionar_materias` / `registrar_datos_academicos` | admin / docente+coord lectura | Sí | **No menú** | API sí |
 
 \* Docente tiene `ver_dashboard` en seed — confirmado en seeder.
@@ -230,6 +231,7 @@ Leyenda control: **Sí** = middleware/permiso confirmado; **Parcial** = UI disti
 | `GET /api/estudiantes/{id}/reportes-conductuales` | sanctum | `ver_reportes_conductuales` | Sí | Sí | `ReporteConductualTest.php` |
 | `POST /api/estudiantes/{id}/reportes-conductuales` | sanctum | `registrar_reportes_conductuales` | Sí | Sí | `ReporteConductualTest.php` |
 | `PATCH /api/reportes-conductuales/{id}/anular` | sanctum | `registrar_reportes_conductuales` | Sí | Sí | `ReporteConductualTest.php` |
+| `GET /api/psicologo-tutor/seguimiento` | sanctum | `ver_perfil_psicologo_tutor` | Sí | Sí | `PsicologoTutorSeguimientoTest.php` |
 | `POST /register` | guest | — | N/A | N/A | `RegistrationTest.php` (público) |
 | `GET /api/health` | ninguno | — | N/A | N/A | Pendiente de verificar |
 
@@ -326,7 +328,7 @@ La documentación de seguridad de este prototipo aporta evidencias (roles, permi
 | UI oculta vs API legacy activa | Medio | Materias/notas legacy sin menú | Documentar; restringir permisos en prod si no se usa | Media |
 | Directivo ve «Notas» sin permiso registro | Bajo | `App.jsx` excepción rol | Lectura institucional documentada | Media |
 | Directivo actor inicial de alertas | Medio | DRS v2.1 RF-10 | **Planificado:** solo escalamiento casos críticos | Media |
-| Psicólogo sin perfil integral | Medio | RF-11 planificado | **Planificado:** lectura académica completa | Media |
+| Psicólogo sin perfil integral | Medio | RF-11 implementado V1 | **Implementado V1:** panel de seguimiento psicólogo/tutor; acceso a perfil/historial/reportes como acciones futuras | Media |
 | Cobertura 401/403 incompleta | Medio | §12 | Ampliar Feature Tests por ruta crítica | Media |
 | Activity log parcial | Medio | `ActivityLogTest` | Extender logging + UI consulta si RF-17 exige | Media |
 | Datos Auquimarca en BD local | Bajo (V1) | Fase 1 audit | No confundir con multi-sede operativa; Chilca en UI | Baja |
@@ -351,7 +353,7 @@ Los siguientes permisos **no existen** aún en código; se documentan como objet
 
 | Permiso sugerido | RF | Estado |
 |------------------|-----|--------|
-| `ver_perfil_psicologo_tutor` | RF-11 | **Base RBAC implementada V1 (RF-11B)** — endpoint/controller/UI/tests pendientes. No es permiso clínico. |
+| `ver_perfil_psicologo_tutor` | RF-11 | **Implementado V1 (RF-11B/C/D)** — base RBAC, endpoint `GET /api/psicologo-tutor/seguimiento`, frontend `PerfilPsicologoTutorPanel.jsx` y tests. No es permiso clínico. |
 | `escalar_alerta_directivo` | RF-10 | Planificado |
 | `generar_reportes_riesgo` | RF-16 | Planificado (PDF/exportación fuera de V1) |
 | `gestionar_reentrenamiento_ml` | RF-18 | Planificado |

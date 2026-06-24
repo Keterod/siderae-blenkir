@@ -46,7 +46,7 @@ Origen de **nombre, actor y prioridad**: **Tabla «7. Requerimientos Funcionales
 | RF-08 | Emisión de alertas tempranas accionables | Sistema | Alta | **Confirmado en código** — RN-03 completa (dos disparadores) **pendiente verificar** |
 | RF-09 | Intervención preventiva del docente | Docente | Alta | **Confirmado en código** |
 | RF-10 | Decisión de derivación por el directivo | Directivo | Alta | **Pendiente** |
-| RF-11 | Atención psicológica preventiva con perfil integrado | Psicólogo / Tutor | Media | **Implementado parcialmente** — alertas; sin RF-10 ni perfil integrado completo |
+| RF-11 | Atención psicológica preventiva con perfil integrado | Psicólogo / Tutor | Media | **Implementado V1 con smoke manual pendiente** — panel de seguimiento psicólogo/tutor con riesgo, reportes conductuales activos, alertas activas y semáforo de completitud; no diagnóstico clínico |
 | RF-12 | Comunicación formal y trazable con la familia | Docente / Directivo | Media | **Pendiente** |
 | RF-13 | Registro de acción tomada y cierre de alerta | Docente / Directivo / Psicólogo | Alta | **Implementado parcialmente** — cierre vía intervención; derivación/comunicación familiar **pendientes** |
 | RF-14 | Panel de visualización (dashboard) de riesgo | Docente / Directivo | Alta | **Implementado parcialmente** — subset REQ-14; multi-sede directivo **fuera V1** |

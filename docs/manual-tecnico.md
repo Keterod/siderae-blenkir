@@ -19,7 +19,7 @@ Describir stack, servicios, configuración, flujos técnicos y pruebas **confirm
 | Frontend | React 18, Vite, Tailwind | `frontend/package.json` |
 | Backend | PHP 8.3, Laravel ^13 | `backend/composer.json` |
 | Auth | Laravel Sanctum + Breeze | `routes/auth.php`, Sanctum |
-| RBAC | Spatie Permission (5 roles, 27 permisos) | `PermissionsSeeder.php` |
+| RBAC | Spatie Permission (5 roles, 30 permisos) | `PermissionsSeeder.php` |
 | BD | MySQL 8 | `docker-compose.yml` |
 | ML | Flask (determinístico) | `ml-service/main.py` |
 | PDF | DomPDF | `DashboardController` export |
@@ -103,6 +103,7 @@ Matriz rol–permiso vigente: [`seguridad-roles-permisos.md`](seguridad-roles-pe
 |--------|-----------------|--------|
 | Core (estudiantes, riesgo, alertas) | `/api/*` | Confirmado |
 | Historial riesgo (RF-20) | `GET /api/estudiantes/{estudiante}/historial-riesgo` | Confirmado |
+| Seguimiento psicólogo/tutor (RF-11) | `GET /api/psicologo-tutor/seguimiento` | Confirmado |
 | Legacy materias/lotes | `/api/materias`, lotes | API sí; UI menú no |
 | Curricular | `/api/curricular/*` | Confirmado |
 | Usuarios | `/api/usuarios/*` | Confirmado |
@@ -139,6 +140,16 @@ Decisión sede Chilca: [`../AGENTS.md`](../AGENTS.md), `sedeOperativa.js`. V1 no
 - Permiso frontend/backend: `procesar_riesgo` (administrador, coordinador académico).
 - Comportamiento: no recalcula automáticamente al abrir el perfil; el usuario debe pulsar **Procesar/Actualizar riesgo**. Tras éxito, emite evento `siderae-riesgo-procesado` para refrescar `EstudiantePerfilHistorialRiesgo.jsx` (RF-20) y `EstudiantePerfilSemaforoCompletitud.jsx` (RF-19).
 - No requiere VSE ni Fast Test. Sin selector de sede. Smoke manual navegador pendiente.
+
+### RF-11D — Seguimiento psicólogo/tutor
+
+- Componente: [`PerfilPsicologoTutorPanel.jsx`](../frontend/src/components/psicologo-tutor/PerfilPsicologoTutorPanel.jsx).
+- API helper: `getSeguimientoPsicologoTutor(params)` en [`api.js`](../frontend/src/lib/api.js).
+- Ruta UI: módulo `psicologo_tutor_seguimiento` registrado en [`App.jsx`](../frontend/src/App.jsx), menú lateral **Seguimiento psicólogo/tutor**.
+- Permiso frontend/backend: `ver_perfil_psicologo_tutor` (administrador, coordinador_academico, psicologo_tutor).
+- Filtros: año escolar, nivel, grado, sección, nivel de riesgo, solo con reportes activos, solo con alertas activas.
+- Tabla: estudiante, grado/sección, último nivel de riesgo con índice, fecha del último riesgo, reportes conductuales activos, alertas activas, semáforo de completitud.
+- Sin PDF/exportación. Sin selector de sede. Sin diagnóstico clínico ni historia médica. No recalcula riesgo ni llama a Flask.
 
 ---
 
@@ -256,7 +267,8 @@ docker compose exec app-backend php artisan migrate:status
 | **RF-04** reportes conductuales (perfil estudiante) | **Implementado V1 mínimo** — Fases 2B–2E |
 | **RF-19** semáforo de completitud (perfil estudiante) | **Implementado V1** — Fases 3B–3E; backend + UI + tests + build verde |
 | SIAGIE, Fast Test, VSE en riesgo, comunicación familiar | **Fuera del alcance vigente** |
-| Escalamiento directivo RF-10, perfil integral psicólogo RF-11, reentrenamiento ML RF-18 | **Planificado** |
+| Escalamiento directivo RF-10, reentrenamiento ML RF-18 | **Planificado** |
+| Perfil psicólogo/tutor RF-11 | **Implementado V1** — backend `GET /api/psicologo-tutor/seguimiento` (`PsicologoTutorSeguimientoController`), UI `PerfilPsicologoTutorPanel.jsx`, permiso `ver_perfil_psicologo_tutor`, función `getSeguimientoPsicologoTutor()` en `api.js`; smoke manual navegador pendiente |
 | Dashboard académico-institucional RF-14 | **Implementado V1** — backend `GET /api/dashboard/institucional` (`DashboardInstitucionalController`), UI `DashboardInstitucionalPanel.jsx`, permiso `ver_dashboard_institucional`, función `getDashboardInstitucional()` en `api.js`; smoke manual navegador pendiente |
 | Reportes de riesgo académico RF-16 | **Implementado V1** — backend + UI + tests; smoke manual pendiente |
 

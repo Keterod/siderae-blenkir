@@ -821,3 +821,8 @@ export function getReportesRiesgoAcademico(params = {}) {
   return request(qs ? `/api/reportes/riesgo-academico?${qs}` : '/api/reportes/riesgo-academico');
 }
 
+export function getSeguimientoPsicologoTutor(params = {}) {
+  const qs = buildQueryString(conSedeOperativa(params));
+  return request(qs ? `/api/psicologo-tutor/seguimiento?${qs}` : '/api/psicologo-tutor/seguimiento');
+}
+

@@ -203,8 +203,8 @@ Cada ítem incluye evidencia por ruta.
 | Tema | Estado | Notas |
 |------|--------|-------|
 | **RF-10** — Escalamiento directivo crítico | **Planificado** | Solo casos críticos/extremos |
-| **RF-11** — Perfil psicólogo/tutor (seguimiento no clínico) | **Parcial / en avance** | Base RBAC RF-11B + backend RF-11C implementados (`ver_perfil_psicologo_tutor`; `GET /api/psicologo-tutor/seguimiento`; `PsicologoTutorSeguimientoTest`). UI, smoke manual y cierre RF-11E pendientes. No diagnóstico clínico, no historia médica, no PDF/exportación, no selector de sede. |
-| **RF-16** — Zona reportes de riesgo | **Planificado** | PDF dashboard = parcial |
+| **RF-11** — Perfil psicólogo/tutor (seguimiento no clínico) | **Implementado V1 con smoke manual pendiente** | RF-11B/C/D completadas: permiso `ver_perfil_psicologo_tutor`, endpoint `GET /api/psicologo-tutor/seguimiento`, controller + tests (`PsicologoTutorSeguimientoTest` 20 passed), frontend `PerfilPsicologoTutorPanel.jsx` + helper API + menú lateral. Smoke manual navegador y cierre RF-11E pendientes. No diagnóstico clínico, no historia médica, no PDF/exportación, no selector de sede. |
+| **RF-16** — Zona reportes de riesgo | **Implementado V1 con smoke manual pendiente** | Listado filtrable sin PDF/exportación; `ver_reportes_riesgo` asignado a admin/coord/directivo |
 | **RF-18** — Reentrenamiento ML | **Planificado** | Requiere dataset histórico; no implementado |
 | **RF-20** — Historial evolutivo | **Implementado V1** | Backend + frontend + documentación + pruebas; smoke manual navegador pendiente; Cypress global no ejecutado |
 
@@ -246,7 +246,7 @@ Cada ítem incluye evidencia por ruta.
 | Legacy sin menú | Materias, notas masivas y asistencia masiva legacy existen en código pero **no** están en el menú principal. |
 | VSE retiradas del flujo de riesgo | API legacy puede existir; pestaña UI oculta; **no** insumo obligatorio RF-06 (v2.1) |
 | Directivo y alertas | Directivo **no** es actor inicial de todas las alertas; escalamiento RF-10 planificado solo casos críticos |
-| Psicólogo perfil seguimiento | **Parcial / en avance** RF-11: base RBAC RF-11B + backend RF-11C implementados; UI y cierre RF-11E pendientes; solo Chilca; no clínico |
+| Psicólogo perfil seguimiento | **Implementado V1** RF-11: base RBAC RF-11B + backend RF-11C + frontend RF-11D implementados; smoke manual y cierre RF-11E pendientes; solo Chilca; no clínico |
 | Comunicación familiar | **Fuera del sistema** — RF-12 eliminado |
 | Fast Test / VSE en riesgo | **No** aparecen como flujos de usuario vigentes |
 | Pesos C/L/T ocultos | Panel `PesosEvaluacionPanel` con `visible: false` en sidebar. |

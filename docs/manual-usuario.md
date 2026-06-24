@@ -87,6 +87,7 @@ A la izquierda aparecen los **módulos permitidos para su rol**, agrupados así:
 | Configuración curricular | Malla curricular, Criterios de evaluación, Componentes de calificación, Configuración bimestral |
 | Configuración avanzada | Competencias y capacidades, Periodos académicos |
 | Administración | Usuarios |
+| Reportes | Reportes de riesgo académico, Seguimiento psicólogo/tutor |
 
 Solo verá los ítems para los que su cuenta tiene permiso. En pantallas pequeñas use el botón **Menú** del encabezado.
 
@@ -119,10 +120,10 @@ Resumen basado en [`docs/seguridad-roles-permisos.md`](seguridad-roles-permisos.
 
 | Rol | Qué puede hacer en V1 (menú visible) | Qué no tiene o no debe usar | Observaciones |
 |-----|--------------------------------------|-----------------------------|---------------|
-| **Administrador** | Todos los módulos del menú: dashboard, dashboard institucional, estudiantes, curricular completo (RF-21–RF-35), alertas, usuarios, Excel por aula | — | Acceso total a los **29 permisos implementados** (ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md)) |
+| **Administrador** | Todos los módulos del menú: dashboard, dashboard institucional, estudiantes, curricular completo (RF-21–RF-35), alertas, usuarios, Excel por aula, seguimiento psicólogo/tutor | — | Acceso total a los **30 permisos implementados** (ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md)) |
 | **Docente** | Dashboard, estudiantes, malla (consulta), notas semanales, asistencia, alertas e intervenciones | Dashboard institucional, configuración curricular avanzada, usuarios, Excel por aula, procesar riesgo desde pantalla | Puede registrar notas y asistencia de sus aulas asignadas |
 | **Coordinador académico** | Dashboard, **dashboard institucional**, estudiantes, configuración curricular, asignaciones, notas (**consulta institucional**), asistencia, Excel por aula, alertas (solo lectura de intervención) | Usuarios; registrar intervenciones/cierre de alertas | Puede **procesar riesgo** desde el perfil de estudiante si tiene permiso `procesar_riesgo` (§7.21) |
-| **Psicólogo / tutor** | Alertas (ver e intervenir), asistencia (**consulta**) | Dashboard, dashboard institucional, estudiantes, notas, configuración curricular | **Planificado RF-11:** perfil integral del estudiante en **modo lectura** (notas, asistencia, riesgo, conductuales) — hoy solo alertas |
+| **Psicólogo / tutor** | **Seguimiento psicólogo/tutor**, alertas (ver e intervenir), asistencia (**consulta**) | Dashboard, dashboard institucional, estudiantes, notas, configuración curricular | **RF-11 V1:** listado de seguimiento tutorial con riesgo, reportes conductuales activos, alertas activas y semáforo de completitud |
 | **Directivo** | Dashboard, **dashboard institucional**, alertas e intervenciones, malla (consulta), notas (**solo lectura institucional**), asistencia (consulta) | Estudiantes, configuración, usuarios, Excel por aula; **no** es actor inicial de todas las alertas | **Planificado RF-10:** intervención solo en casos **críticos/extremos** escalados |
 
 ---
@@ -333,6 +334,17 @@ Módulos visibles: **todos** los del menú lateral.
 - **Importante:** El historial **muestra registros existentes** generados previamente; **no recalcula** el riesgo, **no predice** ni entrena modelos. No aparece selector de sede. V1: solo sede Chilca.
 - *Permiso:* `ver_historial_riesgo` (asignado en V1 a administrador, docente y coordinador académico).
 
+### 7.21 Seguimiento psicólogo/tutor (RF-11D)
+
+- **Objetivo:** Consultar el listado de estudiantes de Chilca con señales de seguimiento tutorial (riesgo académico registrado, reportes conductuales activos o alertas activas).
+- **Navegación:** Menú → **Seguimiento psicólogo/tutor**.
+- **Pasos:** Ajuste filtros (año escolar, nivel, grado, sección, nivel de riesgo, solo con reportes activos, solo con alertas activas) → **Buscar** → revise la tabla paginada.
+- **Datos mostrados:** estudiante, grado/sección, último nivel de riesgo con índice, fecha del último riesgo, cantidad de reportes conductuales activos, cantidad de alertas activas y semáforo de completitud de datos.
+- **Resultado esperado:** Listado paginado con casos priorizados para seguimiento institucional.
+- **Errores comunes:** «Sin casos de seguimiento» — no hay estudiantes con señales para los filtros seleccionados.
+- **Restricciones V1:** Solo sede Chilca. Sin selector de sede. Sin PDF/exportación. Sin diagnóstico clínico ni historia médica. Docente y directivo no acceden.
+- *Permiso:* `ver_perfil_psicologo_tutor` (administrador, coordinador_academico y psicologo_tutor).
+
 ---
 
 ## 8. Manual por rol: Docente
@@ -440,29 +452,36 @@ Tiene permiso `procesar_riesgo` en backend, pero **no hay acción visible** en e
 
 ### Módulos visibles
 
-**Alertas**, **Asistencia** (consulta).
+**Seguimiento psicólogo/tutor**, **Alertas**, **Asistencia** (consulta).
 
 **No ve:** Dashboard, Estudiantes, Notas, configuración curricular, usuarios, Excel.
 
-### 10.1 Alertas
+### 10.1 Seguimiento psicólogo/tutor
+
+- **Objetivo:** Consultar el listado de estudiantes de Chilca con señales de seguimiento tutorial para priorizar atención.
+- **Navegación:** **Seguimiento psicólogo/tutor**.
+- **Pasos:** Use los filtros (año escolar, nivel, grado, sección, nivel de riesgo, reportes activos, alertas activas) → **Buscar** → revise la tabla paginada.
+- *Permiso:* `ver_perfil_psicologo_tutor`.
+
+### 10.2 Alertas
 
 - **Objetivo:** Seguimiento psicopedagógico vía alertas.
-- **Navegación:** **Alertas** (módulo principal de este rol).
+- **Navegación:** **Alertas**.
 - **Pasos:** Revise listado → abra detalle → **registre intervención** → **cierre** cuando el caso esté resuelto.
 - *Permisos:* `ver_alertas`, `registrar_intervencion`.
 
-### 10.2 Asistencia (consulta)
+### 10.3 Asistencia (consulta)
 
 - **Objetivo:** Consultar asistencia de estudiantes como apoyo al seguimiento.
 - **Navegación:** **Asistencia**.
 - **Comportamiento:** Formulario en **solo lectura** si el servidor no concede registro.
 - *Permiso:* `ver_asistencia_curricular`.
 
-### 10.3 Estudiantes y perfil
+### 10.4 Estudiantes y perfil
 
 **No tiene** menú Estudiantes. No accede al padrón desde la UI V1.
 
-### 10.4 Variables socioeconómicas
+### 10.5 Variables socioeconómicas
 
 **No disponibles** en interfaz — pestaña pausada (§15).
 
@@ -608,6 +627,7 @@ Detalle técnico y diferencia con plantilla/import curricular: [`docs/aula-notas
 | Historial de riesgo | En **perfil de estudiante**; muestra evolución del índice de riesgo por periodo, **sin** recalcular |
 | Riesgo en perfil de estudiante | Muestra último índice y nivel; botón **Procesar/Actualizar riesgo** con permiso `procesar_riesgo`. Backend RF-06 validado (38 tests, 125 assertions). No usa VSE ni Fast Test |
 | Procesar riesgo manual | Botón **Procesar/Actualizar riesgo** en perfil de estudiante para roles con permiso `procesar_riesgo`. Sin requerir VSE ni Fast Test |
+| Seguimiento psicólogo/tutor | Módulo **Seguimiento psicólogo/tutor** en menú lateral para roles con permiso `ver_perfil_psicologo_tutor`. Solo lectura; no diagnóstico clínico |
 | Módulos legacy | Materias, notas masivas y asistencia masiva **sin menú** — fuera del flujo V1 |
 | Pesos C/L/T | Módulo **oculto** en menú (transición curricular) |
 | Recuperación de contraseña | Enlace visual **pendiente de desarrollo** |

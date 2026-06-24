@@ -89,7 +89,7 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 | RF-08 Alertas tempranas | Si | Si | Confirmado en codigo | Generacion y listado de alertas presentes |
 | RF-09 Intervencion preventiva | Si | Si | Confirmado en codigo | Registro de intervenciones presente |
 | RF-10 Derivacion por directivo | Si | No | Pendiente | Sin rutas API de derivacion |
-| RF-11 Atencion psicologica perfil integrado | Si | Parcial | Pendiente de verificar | Depende RF-10; acceso perfil estudiante parcialmente cubierto en otros RF segun contexto proyecto |
+| RF-11 Atencion psicologica perfil integrado | Si | V1 | Implementado con smoke manual pendiente | Panel de seguimiento psicologo/tutor (`PerfilPsicologoTutorPanel.jsx`); no diagnostico clinico |
 | RF-12 Comunicacion familia | Si | No | Pendiente de desarrollo | Modulo comunicacion trazable DRS REQ-12.x |
 | RF-13 Cierre de alerta | Si | Parcial | Implementado parcialmente | Cierre con intervencion confirmado; derivacion (RF-10) y comunicacion (RF-12) pendientes |
 | RF-14 Dashboard | Si | Parcial | Implementado parcialmente | DRS REQ-14.1-14.5 (graficos, filtros directivo, export PNG/PDF, % alertas, actualizacion automatica); API dashboard minima puede existir sin cerrar RF-14 |

@@ -37,10 +37,10 @@ El alcance V1 es **lectura** de datos ya existentes, con una vista/listado propi
 | Frontend de alertas | Implementado V1 (`AlertasPanel.jsx`) | [`frontend/src/components/alertas/AlertasPanel.jsx`](../../../frontend/src/components/alertas/AlertasPanel.jsx) |
 | Frontend de perfil estudiante | Existente; acceso restringido por `gestionar_estudiantes` | [`frontend/src/components/estudiantes/EstudiantesPanel.jsx`](../../../frontend/src/components/estudiantes/EstudiantesPanel.jsx) |
 | Frontend helpers API | Funciones existentes para historial, semáforo, reportes conductuales, alertas | [`frontend/src/lib/api.js`](../../../frontend/src/lib/api.js) |
-| UI específica RF-11 | **No existe** (RF-11D pendiente) | — |
-| Tests RF-11 | **RF-11C backend tests creados** | [`PsicologoTutorSeguimientoTest.php`](../../../backend/tests/Feature/PsicologoTutorSeguimientoTest.php) |
+| UI específica RF-11 | **Implementada V1** (RF-11D) | [`PerfilPsicologoTutorPanel.jsx`](../../../frontend/src/components/psicologo-tutor/PerfilPsicologoTutorPanel.jsx) |
+| Tests RF-11 | **RF-11C backend tests creados** — 20 passed | [`PsicologoTutorSeguimientoTest.php`](../../../backend/tests/Feature/PsicologoTutorSeguimientoTest.php) |
 
-**Resumen:** RF-11B (base RBAC) y RF-11C (backend) están **implementadas V1**. El permiso `ver_perfil_psicologo_tutor`, el endpoint `GET /api/psicologo-tutor/seguimiento` y los tests backend existen. Faltan componente React, helper API y cierre documental/pruebas manuales (RF-11D–RF-11E).
+**Resumen:** RF-11B (base RBAC), RF-11C (backend) y RF-11D (frontend) están **implementadas V1**. El permiso `ver_perfil_psicologo_tutor`, el endpoint `GET /api/psicologo-tutor/seguimiento`, el controlador, los tests backend y el componente React existen. Pendiente: smoke manual navegador y cierre documental final (RF-11E).
 
 ---
 
@@ -330,10 +330,9 @@ Queda explícitamente excluido de RF-11 V1:
 | Fase | Objetivo | Entregables |
 | ---- | -------- | ----------- |
 | **RF-11B** | ✅ **Completada V1** — Permiso y base RBAC | `ver_perfil_psicologo_tutor` agregado en `PermissionsSeeder.php`; asignado a `administrador`, `coordinador_academico` y `psicologo_tutor`; documentación actualizada. |
-| **RF-11C** | ✅ **Completada V1** — Backend seguimiento psicólogo/tutor | `PsicologoTutorSeguimientoController`, ruta `GET /api/psicologo-tutor/seguimiento`, `PsicologoTutorSeguimientoTest`. |
-| **RF-11D** | Frontend seguimiento psicólogo/tutor | `PerfilPsicologoTutorPanel.jsx`, helper en `api.js`, entrada en `App.jsx`, build OK. |
-| **RF-11D** | Frontend seguimiento psicólogo/tutor | `PerfilPsicologoTutorPanel.jsx`, helper en `api.js`, entrada en `App.jsx`, build OK. |
-| **RF-11E** | Pruebas, smoke manual y cierre documental | Tests 401/403/filtros, smoke manual navegador, actualización de manuales, API, matriz y cierre de RF-11 en `limitaciones.md` y `no-conformidades-y-mejora.md`. |
+| **RF-11C** | ✅ **Completada V1** — Backend seguimiento psicólogo/tutor | `PsicologoTutorSeguimientoController`, ruta `GET /api/psicologo-tutor/seguimiento`, `PsicologoTutorSeguimientoTest` 20 passed. |
+| **RF-11D** | ✅ **Completada V1** — Frontend seguimiento psicólogo/tutor | `PerfilPsicologoTutorPanel.jsx`, helper `getSeguimientoPsicologoTutor()` en `api.js`, entrada en `App.jsx`, icono en `navIcons.jsx`, build OK. |
+| **RF-11E** | Smoke manual navegador y cierre documental final | Smoke manual, actualización de manuales, API, matriz, limitaciones e informe de pruebas. |
 
 ---
 
@@ -348,4 +347,4 @@ RF-11 está **listo para implementación controlada** en cuatro fases (B–E). L
 
 No requiere modificaciones a Flask, fórmula de riesgo, migraciones, VSE, Fast Test ni datos médicos sensibles.
 
-**Próxima fase recomendada:** **RF-11D — Frontend seguimiento psicólogo/tutor**.
+**Próxima fase recomendada:** **RF-11E — Smoke manual navegador y cierre documental**.

@@ -26,6 +26,7 @@ const AsistenciaCurricularPanel = lazy(() => import('./components/curricular/asi
 const AlertasPanel = lazy(() => import('./components/alertas/AlertasPanel'));
 const UsuariosPanel = lazy(() => import('./components/usuarios/UsuariosPanel'));
 const ReporteRiesgoAcademicoPanel = lazy(() => import('./components/reportes/ReporteRiesgoAcademicoPanel'));
+const PerfilPsicologoTutorPanel = lazy(() => import('./components/psicologo-tutor/PerfilPsicologoTutorPanel'));
 
 const SIDEBAR_COLLAPSED_KEY = 'siderae-sidebar-collapsed';
 
@@ -54,7 +55,7 @@ const SIDEBAR_NAV_GROUPS = [
     keys: ['curricular_competencias', 'curricular_calendario'],
   },
   { title: 'Administración', keys: ['usuarios'] },
-  { title: 'Reportes', keys: ['reportes_riesgo_academico'] },
+  { title: 'Reportes', keys: ['reportes_riesgo_academico', 'psicologo_tutor_seguimiento'] },
 ];
 
 /** Ítems fuera de grupos visibles (p. ej. ocultos por transición). */
@@ -189,6 +190,13 @@ function construirNavItemsSidebar(permissions, roles, moduloVista, setModuloActi
       active: moduloVista === 'reportes_riesgo_academico',
       onSelect: () => setModuloActivo('reportes_riesgo_academico'),
     },
+    psicologo_tutor_seguimiento: {
+      key: 'psicologo_tutor_seguimiento',
+      label: 'Seguimiento psicólogo/tutor',
+      visible: moduloPermitido('psicologo_tutor_seguimiento', permissions, roles),
+      active: moduloVista === 'psicologo_tutor_seguimiento',
+      onSelect: () => setModuloActivo('psicologo_tutor_seguimiento'),
+    },
   };
 
   const items = [];
@@ -245,6 +253,8 @@ function moduloPermitido(key, permissions, roles) {
       return permissions.includes('ver_alertas');
     case 'reportes_riesgo_academico':
       return permissions.includes('ver_reportes_riesgo');
+    case 'psicologo_tutor_seguimiento':
+      return permissions.includes('ver_perfil_psicologo_tutor');
     case 'curricular_asistencia':
       return (
         permissions.includes('registrar_asistencia_curricular')
@@ -297,11 +307,15 @@ function moduloPorDefecto(permissions, roles) {
   if (permissions.includes('gestionar_estudiantes')) {
     return 'estudiantes';
   }
-  if (permissions.includes('ver_alertas')) {
-    return 'alertas';
+    if (permissions.includes('ver_alertas')) {
+      return 'alertas';
+    }
+    if (permissions.includes('ver_perfil_psicologo_tutor')) {
+      return 'psicologo_tutor_seguimiento';
+    }
+    return null;
   }
-  return null;
-}
+
 
 function tituloModulo(key) {
   const titulos = {
@@ -311,6 +325,7 @@ function tituloModulo(key) {
     usuarios: 'Usuarios',
     alertas: 'Alertas',
     reportes_riesgo_academico: 'Reportes de riesgo académico',
+    psicologo_tutor_seguimiento: 'Seguimiento psicólogo/tutor',
     curricular_malla: 'Malla curricular',
     curricular_temas: 'Criterios de evaluación',
     curricular_competencias: 'Competencias y capacidades',
@@ -380,6 +395,8 @@ function PanelModulo({ modulo }) {
       return <AlertasPanel />;
     case 'reportes_riesgo_academico':
       return <ReporteRiesgoAcademicoPanel />;
+    case 'psicologo_tutor_seguimiento':
+      return <PerfilPsicologoTutorPanel />;
     default:
       return null;
   }

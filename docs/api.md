@@ -297,7 +297,7 @@ Solo estudiantes con `sede = chilca` (V1 operativa). El endpoint es **informativ
 
 **Respuesta 200:** `data[]` con `estudiante_id`, `estudiante`, `grado`, `seccion`, `ultimo_indice`, `ultimo_nivel`, `fecha_ultimo_riesgo`, `reportes_conductuales_activos`, `alertas_activas`, `semaforo_completitud`; `meta` con paginación.
 
-Tests: [`PsicologoTutorSeguimientoTest.php`](../backend/tests/Feature/PsicologoTutorSeguimientoTest.php). UI: pendiente (RF-11D).
+Tests: [`PsicologoTutorSeguimientoTest.php`](../backend/tests/Feature/PsicologoTutorSeguimientoTest.php) — 20 passed. UI: [`PerfilPsicologoTutorPanel.jsx`](../frontend/src/components/psicologo-tutor/PerfilPsicologoTutorPanel.jsx) (RF-11D).
 
 ---
 
@@ -401,12 +401,12 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 | RF | Estado | Notas |
 |----|--------|-------|
 | RF-10 Escalamiento directivo | **Planificado** | Sin rutas |
-| RF-11 Seguimiento psicólogo/tutor | **RF-11C Backend implementado** | `GET /api/psicologo-tutor/seguimiento` paginado + filtros. Frontend RF-11D pendiente. No es funcionalidad clínica | Docente y directivo fuera de V1 |
+| RF-11 Seguimiento psicólogo/tutor | **Implementado V1** | `GET /api/psicologo-tutor/seguimiento` paginado + filtros; UI `PerfilPsicologoTutorPanel.jsx`. Smoke manual pendiente. No es funcionalidad clínica | Docente y directivo fuera de V1 |
 | RF-12 Comunicación familiar | **Eliminado del alcance** | Esquema BD histórico |
 | RF-18 Reentrenamiento ML | **Planificado** | Sin endpoints |
 | RF-19 Semáforo completitud | **Implementado V1** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`; UI en perfil estudiante |
 | RF-20 Historial evolutivo riesgo | **Backend V1** | `GET /api/estudiantes/{estudiante}/historial-riesgo`; UI pendiente |
-| RF-16 Reportes de riesgo (zona dedicada) | **RF-16C Backend implementado** | `GET /api/reportes/riesgo-academico` paginado + filtros. Frontend pendiente. PDF/exportación fuera de V1 |
+| RF-16 Reportes de riesgo (zona dedicada) | **Implementado V1** | `GET /api/reportes/riesgo-academico` paginado + filtros; UI `ReporteRiesgoAcademicoPanel.jsx`. PDF/exportación fuera de V1 |
 | RF-03 Fast Test | **Retirado del alcance** | — |
 | SIAGIE import global | **Fuera del alcance** | Plantilla RF-32 en su lugar |
 

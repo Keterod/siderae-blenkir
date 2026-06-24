@@ -82,6 +82,11 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `docker compose exec app-backend php artisan test --filter=DashboardTest` | RF-14C regresión | Exit 0 — **12 passed**, 76 assertions | Dashboard legacy intacto |
 | `docker compose exec app-frontend npm run build` | RF-14D | Exit 0 — Vite build, chunk `DashboardInstitucionalPanel` generado | — |
 | `docker compose exec app-frontend npm run lint` | RF-14D | Exit 1 — **88 problemas preexistentes**; `DashboardInstitucionalPanel.jsx` sin errores nuevos | Lint global no limpio; componente RF-14 limpio |
+| `docker compose exec app-backend php artisan test --filter=PsicologoTutorSeguimientoTest` | RF-11C | Exit 0 — **20 passed** | — |
+| `docker compose exec app-backend php artisan test --filter=RiesgoTest` | RF-11C regresión | Exit 0 — **38 passed**, 125 assertions | Riesgo intacto |
+| `docker compose exec app-backend php artisan test --filter=ReporteRiesgoAcademicoTest` | RF-11C regresión | Exit 0 — **13 passed**, 36 assertions | RF-16 intacto |
+| `docker compose exec app-frontend npm run build` | RF-11D | Exit 0 — Vite build, chunk `PerfilPsicologoTutorPanel` generado | — |
+| `docker compose exec app-frontend npm run lint` | RF-11D | Exit 1 — **88 problemas preexistentes**; `PerfilPsicologoTutorPanel.jsx` sin errores nuevos | Lint global no limpio; componente RF-11 limpio |
 
 ---
 
@@ -106,6 +111,9 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | Build frontend RF-14D/E | **Ejecutado** | Vite build OK, chunk `DashboardInstitucionalPanel` generado | RF-14E | RF-14 frontend |
 | Smoke manual RF-19 navegador | **Ejecutado** | Bloque visible, estado amarillo, razones correctas, sin selector sede, perfil estable | Registro manual | RF-19 UI |
 | Smoke manual RF-20 navegador | **Pendiente** | No se dispone de navegador/E2E en este entorno; validar visualmente tabla historial en perfil estudiante | — | RF-20 UI |
+| `PsicologoTutorSeguimientoTest` aislado | **Ejecutado (RF-11C)** | **20 passed** | RF-11C | Backend RF-11 |
+| Build frontend RF-11D | **Ejecutado** | Vite build OK, chunk `PerfilPsicologoTutorPanel` generado | RF-11D | Frontend RF-11 |
+| Smoke manual RF-11 navegador | **Pendiente** | No se dispone de navegador/E2E en este entorno; validar visualmente menú, filtros y tabla | — | RF-11 UI |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
 
 ---
@@ -366,7 +374,25 @@ Estado funcional: **Implementado V1 con smoke manual aprobado**. Cypress global 
 
 ---
 
-## 14. Conclusión
+## 14. RF-11 — Seguimiento psicólogo/tutor (RF-11C/D)
+
+| Evidencia | Archivo / comando | Resultado 2026-06-24 |
+|-----------|-------------------|----------------------|
+| Tests Feature | `PsicologoTutorSeguimientoTest.php` | **20 passed** |
+| Controller | `backend/app/Http/Controllers/Api/PsicologoTutorSeguimientoController.php` | Listado paginado con filtros; sede Chilca; sin Flask; sin VSE ni Fast Test |
+| Endpoint | `GET /api/psicologo-tutor/seguimiento` | Protegido por Sanctum + `ver_perfil_psicologo_tutor` |
+| Frontend | `frontend/src/components/psicologo-tutor/PerfilPsicologoTutorPanel.jsx` | **Implementado RF-11D** |
+| Helper API | `getSeguimientoPsicologoTutor()` en `frontend/src/lib/api.js` | Confirmado |
+| Menú lateral | `frontend/src/App.jsx` + `frontend/src/components/layout/navIcons.jsx` | Ítem **Seguimiento psicólogo/tutor** |
+| Build frontend | `npm run build` en `app-frontend` | Exit 0; chunk `PerfilPsicologoTutorPanel` generado |
+| Lint frontend | `npm run lint` | 88 problemas preexistentes; componente RF-11 sin errores nuevos |
+| Smoke manual navegador | Seguimiento psicólogo/tutor Chilca | **Pendiente** — no se dispone de navegador en el entorno |
+
+Estado funcional: **Implementado V1 con smoke manual pendiente**. Cypress global no ejecutado.
+
+---
+
+## 15. Conclusión
 
 SIDERAE-Blenkir V1 dispone de una **biblioteca considerable de pruebas backend PHPUnit** (auth, estudiantes, dashboard, riesgo, alertas, módulo curricular, Excel, seeders y servicios unitarios), con evidencia de **401/403** en módulos principales.
 

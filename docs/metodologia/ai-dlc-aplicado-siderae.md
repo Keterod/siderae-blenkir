@@ -159,7 +159,7 @@ Orden recomendado para desarrollo posterior a Fase 1B. Estados según [`matriz-r
 | 2 | **RF-19** | Semáforo de completitud de datos | Apoya RF-06 con datos parciales; planificado; sin UI/lógica hoy | Lógica backend + componente UI + tests |
 | 3 | **RF-20** | Historial evolutivo de riesgo | **Implementado V1**: backend consulta + UI perfil tabla simple + tests; smoke manual navegador pendiente | Cierre documental y backlog RF-10/RF-16/RF-18 |
 | 4 | **RF-10** | Escalamiento directivo casos críticos | Depende de alertas y datos de riesgo más completos; sin API hoy | API + permisos + UI + tests |
-| 5 | **RF-11** | Perfil integral psicólogo/tutor | Parcial (solo alertas); lectura integrada notas/asistencia/riesgo/conductuales **planificada** | Backend agregación + UI perfil + tests |
+| 5 | **RF-11** | Perfil integral psicólogo/tutor | **Implementado V1** — panel de seguimiento psicólogo/tutor con riesgo, reportes, alertas y semáforo; smoke manual pendiente | Backend agregación + UI perfil + tests |
 | 6 | **RF-16** | Reportes de riesgo académico | PDF dashboard parcial; zona reportes dedicada **planificada** | Backend reportes + UI + tests |
 | 7 | **RF-14** | Dashboard académico-institucional | Subset operativo; ampliar indicadores académicos | Backend KPIs + UI dashboard + tests |
 | 8 | **RF-18** | ML real / reentrenamiento | ML **determinístico** hoy; requiere dataset histórico, métricas, versionado; **último** en la cola | MLOps básico + Flask + Laravel + docs ML |
