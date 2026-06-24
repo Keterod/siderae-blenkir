@@ -112,11 +112,13 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | Build frontend RF-16E | **Ejecutado** | Vite build OK, chunk `ReporteRiesgoAcademicoPanel` generado | RF-16E | RF-16 frontend |
 | `DashboardInstitucionalTest` aislado | **Ejecutado (RF-14E)** | 16 passed, 57 assertions | RF-14E | RF-14 backend |
 | Build frontend RF-14D/E | **Ejecutado** | Vite build OK, chunk `DashboardInstitucionalPanel` generado | RF-14E | RF-14 frontend |
-| Smoke manual RF-19 navegador | **Ejecutado** | Bloque visible, estado amarillo, razones correctas, sin selector sede, perfil estable | Registro manual | RF-19 UI |
-| Smoke manual RF-20 navegador | **Pendiente** | No se dispone de navegador/E2E en este entorno; validar visualmente tabla historial en perfil estudiante | — | RF-20 UI |
+| Smoke manual RF-19 navegador | **Aprobado con observaciones menores** | Bloque visible, estado amarillo, razones correctas, sin selector sede, perfil estable | [`smoke-manual-v1.md`](smoke-manual-v1.md) | RF-19 UI |
+| Smoke manual RF-20 navegador | **Aprobado con observaciones menores** | Tabla historial visible en perfil estudiante; orden correcto; sin selector sede | [`smoke-manual-v1.md`](smoke-manual-v1.md) | RF-20 UI |
 | `PsicologoTutorSeguimientoTest` aislado | **Ejecutado (RF-11C)** | **20 passed** | RF-11C | Backend RF-11 |
 | Build frontend RF-11D | **Ejecutado** | Vite build OK, chunk `PerfilPsicologoTutorPanel` generado | RF-11D | Frontend RF-11 |
-| Smoke manual RF-11 navegador | **Pendiente** | No se dispone de navegador/E2E en este entorno; validar visualmente menú, filtros y tabla | — | RF-11 UI |
+| Smoke manual RF-11 navegador | **Aprobado con observaciones menores** | Menú visible, filtros funcionan, tabla muestra estudiantes con señales, semáforo visible; sin datos clínicos/médicos | [`smoke-manual-v1.md`](smoke-manual-v1.md) | RF-11 UI |
+| Smoke manual RF-14 navegador | **Aprobado con observaciones menores** | Dashboard institucional separado del legacy; filtros y tabla funcionan; solo Chilca | [`smoke-manual-v1.md`](smoke-manual-v1.md) | RF-14 UI |
+| Smoke manual RF-16 navegador | **Aprobado con observaciones menores** | Listado filtrable paginado; solo Chilca; sin PDF/exportación nueva | [`smoke-manual-v1.md`](smoke-manual-v1.md) | RF-16 UI |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
 
 ---
@@ -395,9 +397,9 @@ Estado funcional: **Implementado V1 con smoke manual aprobado**. Cypress global 
 | Regresión RF-16 | `ReporteRiesgoAcademicoTest` | **13 passed** (36 assertions) |
 | Regresión RF-19 | `SemaforoCompletitudTest` | **11 passed** (55 assertions) |
 | Regresión RF-20 | `HistorialRiesgoTest` | **12 passed** (30 assertions) |
-| Smoke manual navegador | Seguimiento psicólogo/tutor Chilca | **Pendiente** — no se dispone de navegador en el entorno |
+| Smoke manual navegador | Seguimiento psicólogo/tutor Chilca | **Aprobado con observaciones menores** — menú, filtros, tabla y semáforo visibles; sin datos clínicos/médicos (ver [`smoke-manual-v1.md`](smoke-manual-v1.md)) |
 
-Estado funcional: **RF-11 implementado V1 con cierre documental RF-11E completado y smoke manual pendiente**. Cypress global no ejecutado.
+Estado funcional: **RF-11 implementado V1 con cierre documental RF-11E completado y smoke manual aprobado con observaciones menores**. Cypress global no ejecutado.
 
 ---
 
