@@ -331,8 +331,8 @@ Queda explícitamente excluido de RF-11 V1:
 | ---- | -------- | ----------- |
 | **RF-11B** | ✅ **Completada V1** — Permiso y base RBAC | `ver_perfil_psicologo_tutor` agregado en `PermissionsSeeder.php`; asignado a `administrador`, `coordinador_academico` y `psicologo_tutor`; documentación actualizada. |
 | **RF-11C** | ✅ **Completada V1** — Backend seguimiento psicólogo/tutor | `PsicologoTutorSeguimientoController`, ruta `GET /api/psicologo-tutor/seguimiento`, `PsicologoTutorSeguimientoTest` 20 passed. |
-| **RF-11D** | ✅ **Completada V1** — Frontend seguimiento psicólogo/tutor | `PerfilPsicologoTutorPanel.jsx`, helper `getSeguimientoPsicologoTutor()` en `api.js`, entrada en `App.jsx`, icono en `navIcons.jsx`, build OK. |
-| **RF-11E** | Smoke manual navegador y cierre documental final | Smoke manual, actualización de manuales, API, matriz, limitaciones e informe de pruebas. |
+| **RF-11D** | ✅ **Completada V1** — Frontend seguimiento psicólogo/tutor | `PerfilPsicologoTutorPanel.jsx`, helper `getSeguimientoPsicologoTutor()` en `api.js`, entrada en `App.jsx`, icono en `navIcons.jsx`, build OK, lint sin errores nuevos. |
+| **RF-11E** | ✅ **Cierre documental completado V1** — Smoke manual pendiente | Tests backend 20 passed; regresión RF-06/RF-14/RF-16/RF-19/RF-20 OK; build/lint OK; ruta y middleware verificados; manuales, API, matriz, limitaciones, informe de pruebas, seguridad y no-conformidades actualizados. Smoke manual navegador pendiente por falta de navegador en el entorno. |
 
 ---
 
@@ -347,4 +347,4 @@ RF-11 está **listo para implementación controlada** en cuatro fases (B–E). L
 
 No requiere modificaciones a Flask, fórmula de riesgo, migraciones, VSE, Fast Test ni datos médicos sensibles.
 
-**Próxima fase recomendada:** **RF-11E — Smoke manual navegador y cierre documental**.
+**Próxima fase recomendada:** **Smoke manual RF-11 en navegador** cuando haya un entorno con navegador disponible; luego commit de cierre RF-11 V1.

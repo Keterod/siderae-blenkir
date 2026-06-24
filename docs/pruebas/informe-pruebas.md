@@ -82,11 +82,14 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `docker compose exec app-backend php artisan test --filter=DashboardTest` | RF-14C regresión | Exit 0 — **12 passed**, 76 assertions | Dashboard legacy intacto |
 | `docker compose exec app-frontend npm run build` | RF-14D | Exit 0 — Vite build, chunk `DashboardInstitucionalPanel` generado | — |
 | `docker compose exec app-frontend npm run lint` | RF-14D | Exit 1 — **88 problemas preexistentes**; `DashboardInstitucionalPanel.jsx` sin errores nuevos | Lint global no limpio; componente RF-14 limpio |
-| `docker compose exec app-backend php artisan test --filter=PsicologoTutorSeguimientoTest` | RF-11C | Exit 0 — **20 passed** | — |
-| `docker compose exec app-backend php artisan test --filter=RiesgoTest` | RF-11C regresión | Exit 0 — **38 passed**, 125 assertions | Riesgo intacto |
-| `docker compose exec app-backend php artisan test --filter=ReporteRiesgoAcademicoTest` | RF-11C regresión | Exit 0 — **13 passed**, 36 assertions | RF-16 intacto |
-| `docker compose exec app-frontend npm run build` | RF-11D | Exit 0 — Vite build, chunk `PerfilPsicologoTutorPanel` generado | — |
-| `docker compose exec app-frontend npm run lint` | RF-11D | Exit 1 — **88 problemas preexistentes**; `PerfilPsicologoTutorPanel.jsx` sin errores nuevos | Lint global no limpio; componente RF-11 limpio |
+| `docker compose exec app-backend php artisan test --filter=PsicologoTutorSeguimientoTest` | RF-11C | Exit 0 — **20 passed**, 82 assertions | — |
+| `docker compose exec app-backend php artisan test --filter=RiesgoTest` | RF-11E regresión | Exit 0 — **38 passed**, 125 assertions | Riesgo intacto |
+| `docker compose exec app-backend php artisan test --filter=ReporteRiesgoAcademicoTest` | RF-11E regresión | Exit 0 — **13 passed**, 36 assertions | RF-16 intacto |
+| `docker compose exec app-backend php artisan test --filter=DashboardInstitucionalTest` | RF-11E regresión | Exit 0 — **16 passed**, 57 assertions | RF-14 intacto |
+| `docker compose exec app-backend php artisan test --filter=SemaforoCompletitudTest` | RF-11E regresión | Exit 0 — **11 passed**, 55 assertions | RF-19 intacto |
+| `docker compose exec app-backend php artisan route:list --path=psicologo-tutor/seguimiento -v` | RF-11E validación | Ruta listada con `auth:sanctum` + `permission:ver_perfil_psicologo_tutor` | — |
+| `docker compose exec app-frontend npm run build` | RF-11D/E | Exit 0 — Vite build, chunk `PerfilPsicologoTutorPanel` generado | — |
+| `docker compose exec app-frontend npm run lint` | RF-11D/E | Exit 1 — **88 problemas preexistentes**; `PerfilPsicologoTutorPanel.jsx` sin errores nuevos | Lint global no limpio; componente RF-11 limpio |
 
 ---
 
@@ -374,21 +377,27 @@ Estado funcional: **Implementado V1 con smoke manual aprobado**. Cypress global 
 
 ---
 
-## 14. RF-11 — Seguimiento psicólogo/tutor (RF-11C/D)
+## 14. RF-11 — Seguimiento psicólogo/tutor (RF-11E cierre V1)
 
 | Evidencia | Archivo / comando | Resultado 2026-06-24 |
 |-----------|-------------------|----------------------|
-| Tests Feature | `PsicologoTutorSeguimientoTest.php` | **20 passed** |
+| Tests Feature | `PsicologoTutorSeguimientoTest.php` | **20 passed** (82 assertions) |
 | Controller | `backend/app/Http/Controllers/Api/PsicologoTutorSeguimientoController.php` | Listado paginado con filtros; sede Chilca; sin Flask; sin VSE ni Fast Test |
-| Endpoint | `GET /api/psicologo-tutor/seguimiento` | Protegido por Sanctum + `ver_perfil_psicologo_tutor` |
+| Endpoint | `GET /api/psicologo-tutor/seguimiento` | Protegido por `auth:sanctum` + `permission:ver_perfil_psicologo_tutor` |
+| Ruta verificada | `php artisan route:list --path=psicologo-tutor/seguimiento -v` | GET `api/psicologo-tutor/seguimiento` → `PsicologoTutorSeguimientoController@index` |
 | Frontend | `frontend/src/components/psicologo-tutor/PerfilPsicologoTutorPanel.jsx` | **Implementado RF-11D** |
 | Helper API | `getSeguimientoPsicologoTutor()` en `frontend/src/lib/api.js` | Confirmado |
 | Menú lateral | `frontend/src/App.jsx` + `frontend/src/components/layout/navIcons.jsx` | Ítem **Seguimiento psicólogo/tutor** |
 | Build frontend | `npm run build` en `app-frontend` | Exit 0; chunk `PerfilPsicologoTutorPanel` generado |
 | Lint frontend | `npm run lint` | 88 problemas preexistentes; componente RF-11 sin errores nuevos |
+| Regresión RF-06 | `RiesgoTest` | **38 passed** (125 assertions) |
+| Regresión RF-14 | `DashboardInstitucionalTest` | **16 passed** (57 assertions) |
+| Regresión RF-16 | `ReporteRiesgoAcademicoTest` | **13 passed** (36 assertions) |
+| Regresión RF-19 | `SemaforoCompletitudTest` | **11 passed** (55 assertions) |
+| Regresión RF-20 | `HistorialRiesgoTest` | **12 passed** (30 assertions) |
 | Smoke manual navegador | Seguimiento psicólogo/tutor Chilca | **Pendiente** — no se dispone de navegador en el entorno |
 
-Estado funcional: **Implementado V1 con smoke manual pendiente**. Cypress global no ejecutado.
+Estado funcional: **RF-11 implementado V1 con cierre documental RF-11E completado y smoke manual pendiente**. Cypress global no ejecutado.
 
 ---
 
@@ -401,7 +410,7 @@ Sin embargo:
 - La **suite completa no finalizó** en Fase 1 por límite de memoria PHP (128M).
 - **`ExcelAulaTest` pasó aisladamente** con 512M (8 tests).
 - Cypress existe solo como smoke mínimo RF-04; no hay suite E2E completa confirmada.
-- Varios **RF del DRS** permanecen **pendientes o parciales** (SIAGIE, derivación, comunicación familia, semáforo, reentrenamiento ML, UI riesgo).
+- Varios **RF del DRS** permanecen **pendientes o parciales** (SIAGIE, derivación, comunicación familia, reentrenamiento ML). **RF-11** implementado V1 con smoke manual pendiente.
 - La BD auditada refleja **entorno local** con datos históricos (incl. Auquimarca), **no** un seed oficial único.
 
 El conjunto es **evidencia académica válida para prototipo V1** si se presentan estas limitaciones de forma explícita ante tribunal o asesoría. **No** constituye certificación de calidad ISO ni aprobación formal de producto.
