@@ -134,14 +134,15 @@ Cada ítem incluye evidencia por ruta.
 - **No** es insumo obligatorio del cálculo de riesgo (RF-06) en alcance vigente v2.1.
 - UI pausada en perfil estudiante.
 
-### RF-14 / RF-16 — Dashboard académico-institucional y reportes de riesgo — **Implementado parcialmente / en avance**
+### RF-14 / RF-16 — Dashboard académico-institucional y reportes de riesgo — **RF-16 implementado V1 con smoke manual pendiente**
 
 - Dashboard con filtros y KPIs (subset académico/riesgo): confirmado (`DashboardPanel`, `DashboardTest`).
 - Export PDF del dashboard vía DomPDF: confirmado — **antecedente parcial** de RF-16, no zona completa de reportes de riesgo.
 - **RF-16B completada:** permiso `ver_reportes_riesgo` implementado en seeder y asignado a administrador, coordinador_academico, directivo.
 - **RF-16C completada:** endpoint `GET /api/reportes/riesgo-academico` implementado, paginado, con filtros (`anio_escolar`, `bimestre`, `grado`, `seccion`, `nivel`), solo sede Chilca, sin recalcular riesgo, sin Flask. `ReporteRiesgoAcademicoTest`: 13 passed.
-- **RF-16D completada:** frontend `ReporteRiesgoAcademicoPanel.jsx`, helper `getReportesRiesgoAcademico`, menú lateral **Reportes de riesgo** protegido por permiso `ver_reportes_riesgo`. Build frontend OK.
-- **Pendiente RF-16E:** smoke manual, cierre documental y posibles pruebas E2E. PDF/exportación (`generar_reportes_riesgo`) queda fuera de V1.
+- **RF-16D completada:** frontend `ReporteRiesgoAcademicoPanel.jsx`, helper `getReportesRiesgoAcademico`, menú lateral **Reportes de riesgo** protegido por permiso `ver_reportes_riesgo`. Build frontend OK; lint propio limpio.
+- **RF-16E completada:** pruebas backend RF-16 (13 passed), regresión RF-06/RF-19/RF-20 (61 tests), validación de ruta, build frontend OK, lint ejecutado. **Smoke manual navegador pendiente.**
+- **RF-16 V1:** listado filtrable de riesgo académico. Sin PDF/exportación (`generar_reportes_riesgo` planificado para fases futuras). Sin dashboard RF-14. Sin variables socioeconómicas. Sin selector de sede. Docente fuera de V1.
 
 ### RF-17 — Auditoría (`activity_log`) — **Implementado parcialmente**
 
