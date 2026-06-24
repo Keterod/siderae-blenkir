@@ -54,16 +54,16 @@ Permiso: `gestionar_usuarios`
 
 ---
 
-## 4. Dashboard (RF-14 parcial)
+## 4. Dashboard (RF-14 V1)
 
 Permiso: `ver_dashboard`
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/api/dashboard` | KPIs y filtros |
-| GET | `/api/dashboard/export` | PDF (DomPDF) |
+| GET | `/api/dashboard` | KPIs y filtros (legacy) |
+| GET | `/api/dashboard/export` | PDF (DomPDF) (legacy) |
 
-### 4.1 Dashboard institucional (RF-14C)
+### 4.1 Dashboard institucional (RF-14)
 
 Permiso: `ver_dashboard_institucional`
 

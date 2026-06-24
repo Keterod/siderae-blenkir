@@ -215,11 +215,24 @@ Alternativa menor: ampliar el existente `GET /api/dashboard` (requiere mantener 
 | RF-14B | Permiso/base RBAC | Crear `ver_dashboard_institucional`, asignar a administrador, coordinador_academico, directivo; actualizar seeder si aplica | **Completada** |
 | RF-14C | Backend dashboard institucional | Crear/ampliar endpoint `GET /api/dashboard/institucional`, controller, consultas agregadas, sede Chilca, tests | **Completada** |
 | RF-14D | Frontend dashboard institucional | Crear `DashboardInstitucionalPanel.jsx`, registrar en `App.jsx`, tarjetas, tablas, filtros, estados | **Completada** |
-| RF-14E | Pruebas, smoke manual y cierre | Tests backend extendidos, build frontend, smoke manual, documentación final | Pendiente |
+| RF-14E | Pruebas, smoke manual y cierre | Tests backend extendidos, build frontend, smoke manual, documentación final | **Completada** |
 
 ## 10. Conclusión
 
-RF-14 está **avanzado**. Ya existe una base funcional (`DashboardController`, `DashboardPanel`, `ver_dashboard`, `DashboardTest`), la base RBAC institucional (`ver_dashboard_institucional`), el backend institucional (`GET /api/dashboard/institucional`, `DashboardInstitucionalController`, 16 tests passed) y el frontend institucional (`DashboardInstitucionalPanel.jsx`, build OK, lint propio limpio). El permiso legacy `ver_dashboard` se mantiene sin cambios. Pendiente: smoke manual navegador y cierre documental RF-14E. Todo el alcance V1 respeta sede única Chilca, no recalcula riesgo y no llama a Flask.
+RF-14 V1 está **implementado y cerrado documentalmente**. Se cuenta con una base funcional (`DashboardController`, `DashboardPanel`, `ver_dashboard`, `DashboardTest`), la base RBAC institucional (`ver_dashboard_institucional`), el backend institucional (`GET /api/dashboard/institucional`, `DashboardInstitucionalController`, 16 tests passed) y el frontend institucional (`DashboardInstitucionalPanel.jsx`, build OK, lint propio limpio). El permiso legacy `ver_dashboard` se mantiene sin cambios.
+
+**Validaciones RF-14E:**
+
+- `DashboardInstitucionalTest`: 16 passed, 57 assertions.
+- `DashboardTest` legacy: 12 passed, 76 assertions.
+- Regresión RF-06/RF-16/RF-19/RF-20: 74 tests, 246 assertions.
+- Build frontend OK.
+- Lint: 88 problemas preexistentes; `DashboardInstitucionalPanel.jsx` sin errores nuevos.
+- Ruta `GET /api/dashboard/institucional` verificada.
+
+**Pendiente honesto:** smoke manual navegador por falta de navegador en el entorno.
+
+Todo el alcance V1 respeta sede única Chilca, no recalcula riesgo, no llama a Flask, no implementa PDF/exportación ni gráficos complejos.
 
 ---
 
@@ -338,7 +351,7 @@ docker compose exec app-backend php artisan test --filter=DashboardTest
 
 ### Estado RF-14
 
-**Parcial / en avance; backend institucional implementado, frontend institucional pendiente.**
+**Implementado V1 con smoke manual pendiente; frontend institucional implementado, cierre RF-14E en progreso.**
 
 ---
 
@@ -394,4 +407,104 @@ Pendiente por falta de navegador en el entorno.
 
 ### Estado RF-14
 
-**Parcial / en avance; frontend institucional implementado, cierre RF-14E pendiente.**
+**Implementado V1 con smoke manual pendiente; frontend institucional implementado, cierre RF-14E completado.**
+
+---
+
+## RF-14E completada — Cierre dashboard institucional V1
+
+### Validaciones ejecutadas
+
+Backend RF-14:
+
+```bash
+docker compose exec app-backend php artisan test --filter=DashboardInstitucionalTest
+```
+
+**Resultado:** 16 passed, 57 assertions.
+
+```bash
+docker compose exec app-backend php artisan test --filter=DashboardTest
+```
+
+**Resultado:** 12 passed, 76 assertions (dashboard legacy intacto).
+
+Regresión:
+
+```bash
+docker compose exec app-backend php artisan test --filter=ReporteRiesgoAcademicoTest
+```
+
+**Resultado:** 13 passed, 36 assertions.
+
+```bash
+docker compose exec app-backend php artisan test --filter=RiesgoTest
+```
+
+**Resultado:** 38 passed, 125 assertions.
+
+```bash
+docker compose exec app-backend php artisan test --filter=SemaforoCompletitudTest
+```
+
+**Resultado:** 11 passed, 55 assertions.
+
+```bash
+docker compose exec app-backend php artisan test --filter=HistorialRiesgoTest
+```
+
+**Resultado:** 12 passed, 30 assertions.
+
+Ruta:
+
+```bash
+docker compose exec app-backend php artisan route:list --path=dashboard/institucional
+```
+
+**Resultado:** `GET /api/dashboard/institucional` listada correctamente.
+
+Frontend RF-14:
+
+```bash
+docker compose exec app-frontend npm run build
+```
+
+**Resultado:** build OK.
+
+```bash
+docker compose exec app-frontend npm run lint
+```
+
+**Resultado:** 88 problemas preexistentes (71 errores, 17 warnings); `DashboardInstitucionalPanel.jsx` sin errores nuevos.
+
+### Smoke manual
+
+Pendiente por falta de navegador en el entorno.
+
+### Documentación actualizada
+
+- `docs/matriz-rf-sprint-test.md`
+- `docs/limitaciones.md`
+- `docs/pruebas/informe-pruebas.md`
+- `docs/manual-usuario.md`
+- `docs/manual-tecnico.md`
+- `docs/api.md`
+- `docs/metodologia/planes-ai-dlc/plan-rf14-dashboard-institucional.md`
+- `docs/calidad/no-conformidades-y-mejora.md` (NC-22)
+
+### Alcance V1 confirmado
+
+- No se implementó PDF nuevo.
+- No se implementó exportación.
+- No se implementaron gráficos complejos.
+- No se recalculó riesgo.
+- No se llamó a Flask.
+- No se usaron variables socioeconómicas.
+- No se creó selector de sede.
+- Sede operativa V1: Chilca.
+- Docente y psicólogo/tutor quedan fuera del dashboard institucional V1.
+- Dashboard legacy `GET /api/dashboard` se mantiene sin cambios.
+
+### Estado final RF-14
+
+**RF-14 implementado V1 con smoke manual pendiente.**

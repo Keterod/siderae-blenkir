@@ -100,6 +100,10 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `SemaforoCompletitudTest` aislado | **Ejecutado (Fase 3C)** | 11 passed, 55 assertions | Fase 3C | RF-19 backend |
 | `HistorialRiesgoTest` aislado | **Ejecutado (Fases 4C–4E)** | 12 passed, 30 assertions | Fase 4E | RF-20 backend |
 | Build frontend RF-20 | **Ejecutado (Fases 4D–4E)** | Vite build OK, 110 módulos | Fase 4E | RF-20 frontend |
+| `ReporteRiesgoAcademicoTest` aislado | **Ejecutado (RF-16E)** | 13 passed, 36 assertions | RF-16E | RF-16 backend |
+| Build frontend RF-16E | **Ejecutado** | Vite build OK, chunk `ReporteRiesgoAcademicoPanel` generado | RF-16E | RF-16 frontend |
+| `DashboardInstitucionalTest` aislado | **Ejecutado (RF-14E)** | 16 passed, 57 assertions | RF-14E | RF-14 backend |
+| Build frontend RF-14D/E | **Ejecutado** | Vite build OK, chunk `DashboardInstitucionalPanel` generado | RF-14E | RF-14 frontend |
 | Smoke manual RF-19 navegador | **Ejecutado** | Bloque visible, estado amarillo, razones correctas, sin selector sede, perfil estable | Registro manual | RF-19 UI |
 | Smoke manual RF-20 navegador | **Pendiente** | No se dispone de navegador/E2E en este entorno; validar visualmente tabla historial en perfil estudiante | — | RF-20 UI |
 | Conteos BD tinker | **Ejecutado (Fase 1)** | Ver §10 | Solo lectura | BD no seed oficial |
@@ -126,9 +130,17 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 
 ### Dashboard, riesgo, alertas, auditoría, conductuales
 
-- `Feature/DashboardTest.php` — **12 passed** (RF-14C regresión, 76 assertions)
-- `Feature/DashboardInstitucionalTest.php` — **16 passed** (RF-14C, 57 assertions) — 401/403, permiso separado, sede Chilca, resumen, completitud, distribución por grado/sección, últimos riesgos, filtros, no recalcula riesgo, no llama Flask, dashboard legacy intacto.
+- `Feature/DashboardTest.php` — **12 passed** (RF-14 regresión, 76 assertions)
+- `Feature/DashboardInstitucionalTest.php` — **16 passed** (RF-14, 57 assertions) — 401/403, permiso separado, sede Chilca, resumen, completitud, distribución por grado/sección, últimos riesgos, filtros, no recalcula riesgo, no llama Flask, dashboard legacy intacto.
 - `Feature/RiesgoTest.php` — **38 passed** (RF-06D/E, 125 assertions)
+
+### Dashboard institucional RF-14
+
+- `Feature/DashboardInstitucionalTest.php` — **16 passed**, 57 assertions.
+- `Feature/DashboardTest.php` regresión — **12 passed**, 76 assertions.
+- Build frontend RF-14D — **OK** (chunk `DashboardInstitucionalPanel` generado).
+- Lint frontend RF-14D — **88 problemas preexistentes**; `DashboardInstitucionalPanel.jsx` sin errores nuevos.
+- Smoke manual RF-14 navegador — **pendiente** por falta de navegador en el entorno.
 - `Feature/SemaforoCompletitudTest.php` — **11 passed** (RF-06E regresión)
 - `Feature/HistorialRiesgoTest.php` — **12 passed** (RF-06E regresión)
 - **Total RF-06E:** 61 tests, 210 assertions. Flask `/predict` validado 5 escenarios manuales (bajo/medio/alto/sin reportes/backward compat).
