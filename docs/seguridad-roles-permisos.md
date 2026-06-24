@@ -86,7 +86,7 @@ Usuarios demo: [`DemoUsersSeeder.php`](../backend/database/seeders/DemoUsersSeed
 
 ## 6. Permisos confirmados
 
-Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **28 permisos implementados actualmente**, `guard_name` = `web` (8 legacy + 15 curriculares + 2 conductuales RF-04 + 1 semáforo RF-19 base + 1 historial RF-20 base + 1 reportes riesgo RF-16B base).
+Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.php) — **29 permisos implementados actualmente**, `guard_name` = `web` (8 legacy + 15 curriculares + 2 conductuales RF-04 + 1 semáforo RF-19 base + 1 historial RF-20 base + 1 reportes riesgo RF-16B base + 1 dashboard institucional RF-14B base).
 
 > **Permisos adicionales sugeridos/planificados:** 4 permisos para RF-10, RF-11, RF-16 (`generar_reportes_riesgo`) y RF-18 documentados en §16 — **no** están en `PermissionsSeeder`. Los permisos RF-04 **sí** están en seeder (Fase 2B), **rutas API** (Fase 2C) y **UI perfil** (Fase 2D); cierre pruebas Fase 2E (2026-06-10). El permiso RF-19 `ver_semaforo_completitud` **sí** está en seeder (Fase 3B, 2026-06-23); la **API backend** fue implementada en Fase 3C (`CompletitudDatosService`, `SemaforoCompletitudController`, `SemaforoCompletitudTest` 11 passed); la **UI en perfil estudiante** fue implementada en Fase 3D (`EstudiantePerfilSemaforoCompletitud.jsx`, build frontend OK).
 
@@ -146,7 +146,13 @@ Fuente: [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSeeder.
 
 | Permiso | Uso funcional | Módulo / rutas | Estado |
 |---------|---------------|----------------|--------|
-| `ver_reportes_riesgo` | Consultar reportes de riesgo académico | Sin endpoint ni UI todavía | **Base RBAC implementada** — API y frontend pendientes |
+| `ver_reportes_riesgo` | Consultar reportes de riesgo académico | `GET /api/reportes/riesgo-academico` | **Implementado V1** — API + frontend + tests |
+
+### Dashboard institucional RF-14B (1)
+
+| Permiso | Uso funcional | Módulo / rutas | Estado |
+|---------|---------------|----------------|--------|
+| `ver_dashboard_institucional` | Consultar dashboard institucional ampliado | Sin endpoint ni UI todavía | **Base RBAC implementada (RF-14B)** — endpoint y frontend institucional pendientes |
 
 ---
 
@@ -156,11 +162,11 @@ Fuente: `$rolePermissionMap` en [`PermissionsSeeder.php`](../backend/database/se
 
 | Rol | Cantidad permisos | Observación |
 |-----|-------------------|-------------|
-| `administrador` | **28** (todos) | Confirmado |
+| `administrador` | **29** (todos) | Confirmado |
 | `docente` | **15** | Con `ver_dashboard`; incluye RF-04 ver + registrar; RF-19 ver; RF-20 ver | Confirmado |
-| `coordinador_academico` | **24** | Sin gestionar_usuarios, gestionar_materias, registrar_intervencion; incluye RF-04; RF-19 ver; RF-20 ver; RF-16B `ver_reportes_riesgo` | Confirmado |
+| `coordinador_academico` | **25** | Sin gestionar_usuarios, gestionar_materias, registrar_intervencion; incluye RF-04; RF-19 ver; RF-20 ver; RF-16B `ver_reportes_riesgo`; RF-14B `ver_dashboard_institucional` | Confirmado |
 | `psicologo_tutor` | **6** | Alertas + lectura académica + RF-04 ver + registrar | Confirmado |
-| `directivo` | **9** | Lectura dashboard/alertas/malla/notas/asistencia + intervención + **solo ver** RF-04 + RF-16B `ver_reportes_riesgo` | Confirmado |
+| `directivo` | **10** | Lectura dashboard/alertas/malla/notas/asistencia + intervención + **solo ver** RF-04 + RF-16B `ver_reportes_riesgo` + RF-14B `ver_dashboard_institucional` | Confirmado |
 
 Detalle exacto por rol: ejecutar seed y consultar `model_has_permissions` o revisar array en seeder (`PermissionsSeeder.php`).
 
@@ -361,7 +367,13 @@ Los siguientes permisos **no existen** aún en código; se documentan como objet
 
 | Permiso | RF | Estado |
 |---------|-----|--------|
-| `ver_reportes_riesgo` | RF-16 | **Base RBAC implementada (RF-16B)** — seeder + asignación a admin, coordinador_academico, directivo. Sin endpoint ni UI todavía |
+| `ver_reportes_riesgo` | RF-16 | **Implementado V1** — seeder + asignación a admin, coordinador_academico, directivo + endpoint + UI + tests |
+
+### Permisos RF-14B implementados en seeder (Fase RF-14B — 2026-06-23)
+
+| Permiso | RF | Estado |
+|---------|-----|--------|
+| `ver_dashboard_institucional` | RF-14 | **Base RBAC implementada (RF-14B)** — seeder + asignación a admin, coordinador_academico, directivo. El permiso legacy `ver_dashboard` se mantiene sin cambios. Endpoint y frontend institucional pendientes |
 
 ---
 
@@ -377,4 +389,4 @@ Documentación técnica del repo cita **Laravel ^13** / PHP 8.3 — **confirmado
 
 ---
 
-*Documento generado en Fase 3 del plan de actualización documental SIDERAE-Blenkir. Actualizado Fases 2B–2E RF-04 — 2026-06-10. Actualizado Fases 3B–3E RF-19 — 2026-06-23. Actualizado RF-16B — 2026-06-23.*
+*Documento generado en Fase 3 del plan de actualización documental SIDERAE-Blenkir. Actualizado Fases 2B–2E RF-04 — 2026-06-10. Actualizado Fases 3B–3E RF-19 — 2026-06-23. Actualizado RF-16B — 2026-06-23. Actualizado RF-14B — 2026-06-23.*

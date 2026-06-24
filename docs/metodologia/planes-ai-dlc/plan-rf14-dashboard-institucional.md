@@ -212,14 +212,14 @@ Alternativa menor: ampliar el existente `GET /api/dashboard` (requiere mantener 
 | Fase | Nombre | Descripción | Estado |
 |------|--------|-------------|--------|
 | RF-14A | Plan dashboard institucional V1 | Crear plan, revisar estado, definir alcance, permiso, backend/frontend futuros | **Completada** |
-| RF-14B | Permiso/base RBAC | Crear `ver_dashboard_institucional`, asignar a administrador, coordinador_academico, directivo; actualizar seeder si aplica | Pendiente |
+| RF-14B | Permiso/base RBAC | Crear `ver_dashboard_institucional`, asignar a administrador, coordinador_academico, directivo; actualizar seeder si aplica | **Completada** |
 | RF-14C | Backend dashboard institucional | Crear/ampliar endpoint `GET /api/dashboard/institucional`, controller, consultas agregadas, sede Chilca, tests | Pendiente |
 | RF-14D | Frontend dashboard institucional | Crear `DashboardInstitucionalPanel.jsx`, registrar en `App.jsx`, tarjetas, tablas, filtros, estados | Pendiente |
 | RF-14E | Pruebas, smoke manual y cierre | Tests backend extendidos, build frontend, smoke manual, documentación final | Pendiente |
 
 ## 10. Conclusión
 
-RF-14 está **listo para implementación controlada**. Ya existe una base funcional (`DashboardController`, `DashboardPanel`, `ver_dashboard`, `DashboardTest`) que puede ampliarse con indicadores institucionales sin recalcular riesgo ni llamar a Flask. La principal decisión pendiente es si se reutiliza `ver_dashboard` o se crea `ver_dashboard_institucional` para restringir el acceso a administrador, coordinador académico y directivo. Se recomienda el permiso nuevo para mantener claro el alcance institucional V1.
+RF-14 está **listo para implementación controlada**. Ya existe una base funcional (`DashboardController`, `DashboardPanel`, `ver_dashboard`, `DashboardTest`) y ahora también la base RBAC institucional (`ver_dashboard_institucional` asignado a administrador, coordinador académico y directivo). El permiso legacy `ver_dashboard` se mantiene sin cambios. Pendientes: endpoint `GET /api/dashboard/institucional`, controller, UI `DashboardInstitucionalPanel.jsx`, tests extendidos y smoke manual. Todo el alcance V1 respeta sede única Chilca, no recalcula riesgo y no llama a Flask.
 
 ---
 

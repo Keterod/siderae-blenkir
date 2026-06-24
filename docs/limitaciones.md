@@ -134,15 +134,19 @@ Cada ítem incluye evidencia por ruta.
 - **No** es insumo obligatorio del cálculo de riesgo (RF-06) en alcance vigente v2.1.
 - UI pausada en perfil estudiante.
 
-### RF-14 / RF-16 — Dashboard académico-institucional y reportes de riesgo — **RF-16 implementado V1 con smoke manual pendiente**
+### RF-14 — Dashboard académico e institucional — **Parcial / en avance**
 
-- Dashboard con filtros y KPIs (subset académico/riesgo): confirmado (`DashboardPanel`, `DashboardTest`).
-- Export PDF del dashboard vía DomPDF: confirmado — **antecedente parcial** de RF-16, no zona completa de reportes de riesgo.
-- **RF-16B completada:** permiso `ver_reportes_riesgo` implementado en seeder y asignado a administrador, coordinador_academico, directivo.
-- **RF-16C completada:** endpoint `GET /api/reportes/riesgo-academico` implementado, paginado, con filtros (`anio_escolar`, `bimestre`, `grado`, `seccion`, `nivel`), solo sede Chilca, sin recalcular riesgo, sin Flask. `ReporteRiesgoAcademicoTest`: 13 passed.
-- **RF-16D completada:** frontend `ReporteRiesgoAcademicoPanel.jsx`, helper `getReportesRiesgoAcademico`, menú lateral **Reportes de riesgo** protegido por permiso `ver_reportes_riesgo`. Build frontend OK; lint propio limpio.
-- **RF-16E completada:** pruebas backend RF-16 (13 passed), regresión RF-06/RF-19/RF-20 (61 tests), validación de ruta, build frontend OK, lint ejecutado. **Smoke manual navegador pendiente.**
-- **RF-16 V1:** listado filtrable de riesgo académico. Sin PDF/exportación (`generar_reportes_riesgo` planificado para fases futuras). Sin dashboard RF-14. Sin variables socioeconómicas. Sin selector de sede. Docente fuera de V1.
+- Dashboard existente con filtros y KPIs (subset académico/riesgo): confirmado (`DashboardPanel`, `DashboardTest`). Usa permiso legacy `ver_dashboard`.
+- Export PDF del dashboard vía DomPDF: confirmado — **antecedente parcial**; no se ampliará en RF-14 V1 institucional.
+- **RF-14B completada:** permiso `ver_dashboard_institucional` implementado en seeder y asignado a administrador, coordinador_academico, directivo. El permiso `ver_dashboard` existente se mantiene sin cambios.
+- **Pendiente RF-14C/D/E:** endpoint `GET /api/dashboard/institucional`, controller, UI institucional `DashboardInstitucionalPanel.jsx`, tests extendidos y smoke manual.
+- **RF-14 V1 institucional:** indicadores agregados simples (estudiantes, riesgo por nivel, distribución grado/sección, últimos riesgos, completitud resumida). Sin PDF/exportación nuevos. Sin gráficos complejos. Sin selector de sede. Solo Chilca.
+
+### RF-16 — Reportes de riesgo académico — **Implementado V1 con smoke manual pendiente**
+
+- **RF-16B/C/D/E completadas:** permiso `ver_reportes_riesgo`, endpoint `GET /api/reportes/riesgo-academico`, frontend `ReporteRiesgoAcademicoPanel.jsx`, tests backend 13 passed, build frontend OK.
+- **Smoke manual navegador pendiente.**
+- **RF-16 V1:** listado filtrable de riesgo académico. Sin PDF/exportación (`generar_reportes_riesgo` planificado para fases futuras). Sin variables socioeconómicas. Sin selector de sede. Docente fuera de V1.
 
 ### RF-17 — Auditoría (`activity_log`) — **Implementado parcialmente**
 
