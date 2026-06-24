@@ -266,7 +266,7 @@ Estado de asistencia **por estudiante y fecha** para un contexto de aula (nivel,
 ## 12. Relación con riesgo académico
 
 - Las **notas semanales** y **asistencia curricular** pueden alimentar agregados académicos usados por servicios de riesgo en backend ([`RiesgoAcademicoService`](../backend/app/Services/RiesgoAcademicoService.php)) — **sin modificar Flask** en esta fase documental.
-- **No** afirmar procesamiento automático continuo: el disparo explícito `POST …/procesar-riesgo` existe en API; la **UI de perfil de riesgo está en pausa** ([`EstudiantePerfilRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx)).
+- **No** afirmar procesamiento automático continuo: el disparo explícito `POST …/procesar-riesgo` existe en API y en UI de perfil de estudiante (botón **Procesar/Actualizar riesgo** con permiso `procesar_riesgo`, NC-11 cerrada V1).
 - Procesamiento masivo post-seed es operación técnica (`demo:procesar-riesgos`), no flujo de usuario de aula/notas.
 
 ---

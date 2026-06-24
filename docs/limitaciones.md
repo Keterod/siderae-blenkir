@@ -68,9 +68,9 @@ Cada ítem incluye evidencia por ruta.
 
 - Endpoint: `POST /api/estudiantes/{estudiante}/procesar-riesgo` — [`backend/routes/api.php`](../backend/routes/api.php) (L113–114).
 - Orquestación Laravel → Flask: [`backend/app/Services/MlRiskService.php`](../backend/app/Services/MlRiskService.php), [`backend/app/Services/RiesgoAcademicoService.php`](../backend/app/Services/RiesgoAcademicoService.php).
-- UI en perfil: [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx) — **en pausa** (sin botón procesar en UI).
+- UI en perfil: [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx) — **activada V1** (NC-11 cerrada): muestra último índice/nivel y botón **Procesar/Actualizar riesgo** para usuarios con permiso `procesar_riesgo`. No recalcula automáticamente al abrir el perfil.
 - Tests: [`backend/tests/Feature/RiesgoTest.php`](../backend/tests/Feature/RiesgoTest.php) — **38 passed** (RF-06D/E, 2026-06-23). Total 61 tests con SemaforoCompletitudTest (11) + HistorialRiesgoTest (12) = 210 assertions.
-- **RF-06E:** Payload enriquecido (nota_minima, cursos_en_riesgo, cursos_desaprobados, inasistencias, inasistencias_recientes, reportes_graves, gravedad_maxima, reportes_recientes, reincidencia). Pesos globales 55/30/15. Sin VSE ni Fast Test. Flask determinístico validado 5 escenarios. Cálculo explicable sin ML real. UI de procesamiento en pausa — backend funcional vía API/comando.
+- **RF-06E:** Payload enriquecido (nota_minima, cursos_en_riesgo, cursos_desaprobados, inasistencias, inasistencias_recientes, reportes_graves, gravedad_maxima, reportes_recientes, reincidencia). Pesos globales 55/30/15. Sin VSE ni Fast Test. Flask determinístico validado 5 escenarios. Cálculo explicable sin ML real. Backend funcional vía API/comando; UI de procesamiento activada en perfil estudiante.
 
 ### Alertas, intervenciones y cierre — **Confirmado en código**
 

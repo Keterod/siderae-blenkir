@@ -842,7 +842,13 @@ export default function EstudiantesPanel({ onClose = null }) {
             </dl>
           </Card>
 
-          <EstudiantePerfilRiesgo />
+          <EstudiantePerfilRiesgo
+            key={`riesgo-${detalle.id}`}
+            estudianteId={detalle.id}
+            anioEscolar={detalle.anio_escolar}
+            ultimoIndiceRiesgo={detalle.ultimo_indice_riesgo}
+            nivel={detalle.nivel}
+          />
 
           {permissions.includes('ver_semaforo_completitud') ? (
             <EstudiantePerfilSemaforoCompletitud estudianteId={detalle.id} />

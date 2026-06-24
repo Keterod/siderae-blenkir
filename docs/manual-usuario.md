@@ -121,7 +121,7 @@ Resumen basado en [`docs/seguridad-roles-permisos.md`](seguridad-roles-permisos.
 |-----|--------------------------------------|-----------------------------|---------------|
 | **Administrador** | Todos los módulos del menú: dashboard, dashboard institucional, estudiantes, curricular completo (RF-21–RF-35), alertas, usuarios, Excel por aula | — | Acceso total a los **29 permisos implementados** (ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md)) |
 | **Docente** | Dashboard, estudiantes, malla (consulta), notas semanales, asistencia, alertas e intervenciones | Dashboard institucional, configuración curricular avanzada, usuarios, Excel por aula, procesar riesgo desde pantalla | Puede registrar notas y asistencia de sus aulas asignadas |
-| **Coordinador académico** | Dashboard, **dashboard institucional**, estudiantes, configuración curricular, asignaciones, notas (**consulta institucional**), asistencia, Excel por aula, alertas (solo lectura de intervención) | Usuarios; registrar intervenciones/cierre de alertas | Puede **procesar riesgo** vía sistema backend; **no hay botón visible** en perfil de estudiante (§15) |
+| **Coordinador académico** | Dashboard, **dashboard institucional**, estudiantes, configuración curricular, asignaciones, notas (**consulta institucional**), asistencia, Excel por aula, alertas (solo lectura de intervención) | Usuarios; registrar intervenciones/cierre de alertas | Puede **procesar riesgo** desde el perfil de estudiante si tiene permiso `procesar_riesgo` (§7.21) |
 | **Psicólogo / tutor** | Alertas (ver e intervenir), asistencia (**consulta**) | Dashboard, dashboard institucional, estudiantes, notas, configuración curricular | **Planificado RF-11:** perfil integral del estudiante en **modo lectura** (notas, asistencia, riesgo, conductuales) — hoy solo alertas |
 | **Directivo** | Dashboard, **dashboard institucional**, alertas e intervenciones, malla (consulta), notas (**solo lectura institucional**), asistencia (consulta) | Estudiantes, configuración, usuarios, Excel por aula; **no** es actor inicial de todas las alertas | **Planificado RF-10:** intervención solo en casos **críticos/extremos** escalados |
 
@@ -359,7 +359,7 @@ Igual que §7.2–7.3 si tiene `ver_dashboard` (confirmado en seed para docente)
 - **Objetivo:** Consultar y, si corresponde, actualizar datos de estudiantes; ver resumen académico en perfil.
 - **Navegación:** **Estudiantes**.
 - **Pasos:** Busque estudiante → abra perfil → revise datos, resumen curricular y asistencia; **Editar estudiante** si tiene permiso de gestión.
-- **Nota:** La sección **Riesgo académico** en perfil muestra aviso de **actualización pendiente** — no hay botón «Procesar riesgo» en pantalla (§15). Junto a riesgo se muestran el **Semáforo de completitud de datos** (RF-19) y el **Historial de riesgo académico** (RF-20) cuando el rol tiene permiso.
+  - **Nota:** La sección **Riesgo académico** en perfil muestra el último índice calculado y un botón **Procesar/Actualizar riesgo** si el usuario tiene permiso `procesar_riesgo`. Junto a riesgo se muestran el **Semáforo de completitud de datos** (RF-19) y el **Historial de riesgo académico** (RF-20) cuando el rol tiene permiso.
 - *Permisos:* `gestionar_estudiantes`, `ver_notas_academicas`, `registrar_asistencia_curricular` / `ver_asistencia_curricular`.
 
 ### 8.4 Registrar notas semanales
@@ -538,7 +538,7 @@ Después, docentes pueden operar **Notas semanales** y **Asistencia**.
 3. **No requiere variables socioeconómicas.** **No requiere Fast Test.**
 4. Los **reportes conductuales** (conducta) son opcionales: si no existen, el componente conductual del riesgo es neutro.
 5. El cálculo usa tres dimensiones con pesos fijos: **académico 55%**, **asistencia 30%**, **conductual 15%**.
-6. En V1, la sección **Riesgo académico** del perfil de estudiante muestra **aviso de actualización pendiente** — no es el flujo operativo principal para usuarios. No hay botón «Procesar riesgo» en la pantalla.
+6. En V1, la sección **Riesgo académico** del perfil de estudiante permite procesar/actualizar el riesgo a usuarios con permiso `procesar_riesgo`. El cálculo usa notas curriculares, asistencia y reportes conductuales opcionales; no requiere variables socioeconómicas ni Fast Test.
 7. Procesamiento masivo post-importación es responsabilidad del **equipo técnico** (comando de consola `demo:procesar-riesgos`), no del usuario de aula.
 
 ### 12.4 Flujo de alertas e intervención
@@ -576,7 +576,7 @@ Detalle técnico y diferencia con plantilla/import curricular: [`docs/aula-notas
 | No hay registros / listado vacío | Filtros restrictivos o BD sin datos | Amplíe filtros; confirme año escolar |
 | No se pudo cargar el dashboard / listado | Error de red o backend caído | Reintente; verifique que Docker/servicios estén activos (entorno local) |
 | Campos obligatorios / 422 | Formulario incompleto o inválido | Complete campos marcados; revise rangos de notas |
-| Riesgo académico pendiente de actualización | Módulo de riesgo en pausa en UI | Use flujo curricular y alertas; consulte coordinación |
+| No se pudo procesar el riesgo | Faltan notas curriculares o asistencia para el año escolar | Registre notas y asistencia curriculares e intente de nuevo |
 | Sin calendario activo | Periodos no configurados | Administrador/coordinador debe configurar **Periodos académicos** |
 | Descarga Excel fallida | Filtros incompletos o error servidor | Complete todos los filtros; reintente |
 | No se pudo registrar la intervención | Validación o alerta ya cerrada | Revise mensaje detallado; actualice página |
@@ -606,8 +606,8 @@ Detalle técnico y diferencia con plantilla/import curricular: [`docs/aula-notas
 | Reportes conductuales | Solo en **perfil de estudiante**; sin menú global ni listado por grado/sección |
 | Semáforo de completitud | En **perfil de estudiante**; indica completitud de datos, **no** nivel de riesgo |
 | Historial de riesgo | En **perfil de estudiante**; muestra evolución del índice de riesgo por periodo, **sin** recalcular |
-| Riesgo en perfil de estudiante | Mensaje de **pausa/rediseño**; sin botón «Procesar riesgo» en UI. Backend RF-06 validado (61 tests). Procesar disponible vía API o comando técnico |
-| Procesar riesgo manual | Permiso backend para admin/coordinador; **sin acción de pantalla** habitual. Sin requerir VSE ni Fast Test |
+| Riesgo en perfil de estudiante | Muestra último índice y nivel; botón **Procesar/Actualizar riesgo** con permiso `procesar_riesgo`. Backend RF-06 validado (38 tests, 125 assertions). No usa VSE ni Fast Test |
+| Procesar riesgo manual | Botón **Procesar/Actualizar riesgo** en perfil de estudiante para roles con permiso `procesar_riesgo`. Sin requerir VSE ni Fast Test |
 | Módulos legacy | Materias, notas masivas y asistencia masiva **sin menú** — fuera del flujo V1 |
 | Pesos C/L/T | Módulo **oculto** en menú (transición curricular) |
 | Recuperación de contraseña | Enlace visual **pendiente de desarrollo** |

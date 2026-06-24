@@ -131,6 +131,15 @@ Decisión sede Chilca: [`../AGENTS.md`](../AGENTS.md), `sedeOperativa.js`. V1 no
 - Tabla: estudiante, grado, sección, año escolar, bimestre, índice, nivel, fecha.
 - Sin PDF/exportación. Sin selector de sede. Sin variables socioeconómicas. Build OK.
 
+### NC-11 — UI de procesamiento de riesgo académico en perfil estudiante
+
+- Componente: [`frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx`](../frontend/src/components/estudiantes/EstudiantePerfilRiesgo.jsx).
+- API helper: `postProcesarRiesgo(estudianteId)` en [`api.js`](../frontend/src/lib/api.js).
+- Endpoint: `POST /api/estudiantes/{estudiante}/procesar-riesgo`.
+- Permiso frontend/backend: `procesar_riesgo` (administrador, coordinador académico).
+- Comportamiento: no recalcula automáticamente al abrir el perfil; el usuario debe pulsar **Procesar/Actualizar riesgo**. Tras éxito, emite evento `siderae-riesgo-procesado` para refrescar `EstudiantePerfilHistorialRiesgo.jsx` (RF-20) y `EstudiantePerfilSemaforoCompletitud.jsx` (RF-19).
+- No requiere VSE ni Fast Test. Sin selector de sede. Smoke manual navegador pendiente.
+
 ---
 
 ## 9. ML Service

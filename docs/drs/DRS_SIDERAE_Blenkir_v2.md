@@ -326,12 +326,12 @@ Estados derivados de [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.
 ### RF-06 — Procesamiento multivariable e índice de riesgo
 
 - **Estado V1:** Implementado parcialmente (prototipo determinístico)
-- **Descripción actualizada:** **Estado actual:** Laravel invoca Flask vía `POST /api/estudiantes/{id}/procesar-riesgo` y `MlRiskService`. El servicio ML V1 es **determinístico** (fórmula o reglas ponderadas), **no** ensemble Random Forest/SVM/XGBoost entrenado. Comando batch `DemoProcesarRiesgosCommand` disponible. **UI perfil riesgo en pausa.** **Evolución planificada:** transición a ML real cuando exista dataset histórico suficiente (RF-18). Si no existen todas las variables (notas, asistencia, reportes conductuales, etc.), el cálculo debe operar con datos disponibles y advertir mediante RF-19 semáforo de completitud.
+- **Descripción actualizada:** **Estado actual:** Laravel invoca Flask vía `POST /api/estudiantes/{id}/procesar-riesgo` y `MlRiskService`. El servicio ML V1 es **determinístico** (fórmula o reglas ponderadas), **no** ensemble Random Forest/SVM/XGBoost entrenado. Comando batch `DemoProcesarRiesgosCommand` disponible. **UI de perfil de riesgo activada V1** (NC-11 cerrada V1): botón **Procesar/Actualizar riesgo** para usuarios con permiso `procesar_riesgo`; no recalcula automáticamente al abrir el perfil. **Evolución planificada:** transición a ML real cuando exista dataset histórico suficiente (RF-18). Si no existen todas las variables (notas, asistencia, reportes conductuales, etc.), el cálculo debe operar con datos disponibles y advertir mediante RF-19 semáforo de completitud.
 - **Actor(es):** Sistema, Coordinador académico (permiso `procesar_riesgo`)
 - **Prioridad:** Alta
-- **Evidencia de implementación:** `RiesgoAcademicoService`, `ml-service/main.py`, `EstudiantePerfilRiesgo.jsx` (pausado)
+- **Evidencia de implementación:** `RiesgoAcademicoService`, `ml-service/main.py`, `EstudiantePerfilRiesgo.jsx` (activado V1)
 - **Evidencia de prueba:** `RiesgoTest`, `DemoProcesarRiesgosCommandTest`
-- **Brechas / pendientes:** No ML real entrenado; UI procesar ausente; RF-04 implementado V1 mínimo; RF-19 implementado V1; operación con datos parciales por definir
+- **Brechas / pendientes:** No ML real entrenado; smoke manual UI pendiente; RF-04 implementado V1 mínimo; RF-19 implementado V1; operación con datos parciales por definir
 - **Observaciones para versión futura:** RF-18 vincula evolución a ML real; no afirmar reentrenamiento implementado
 
 ---
@@ -508,7 +508,7 @@ Estados derivados de [`docs/matriz-rf-sprint-test.md`](../matriz-rf-sprint-test.
 ### RF-20 — Historial de riesgo por estudiante
 
 - **Estado V1:** Implementado parcialmente — **planificado historial evolutivo**
-- **Descripción actualizada:** **No** significa solo guardar el último índice. Debe mostrar **evolución por periodo/bimestre** y permitir ver si el estudiante mejora, empeora o se mantiene. Relaciona: índice de riesgo, nivel de riesgo, notas, asistencia, reportes conductuales, alertas, intervenciones. Puede alimentar reportes RF-16. **Estado actual:** persistencia en tabla `indices_riesgo`; perfil riesgo **UI pausado** — sin timeline ni export.
+- **Descripción actualizada:** **No** significa solo guardar el último índice. Debe mostrar **evolución por periodo/bimestre** y permitir ver si el estudiante mejora, empeora o se mantiene. Relaciona: índice de riesgo, nivel de riesgo, notas, asistencia, reportes conductuales, alertas, intervenciones. Puede alimentar reportes RF-16. **Estado actual:** persistencia en tabla `indices_riesgo`; UI de riesgo activada V1 (NC-11); historial simple implementado en perfil — sin timeline evolutivo ni export.
 - **Actor(es):** Docente, Directivo, Psicólogo / Tutor (lectura)
 - **Prioridad:** Media
 - **Evidencia de implementación:** Migración `indices_riesgo`, `ResumenAcademicoTest`, `ActivoUniqueKeyHistorialTest`
@@ -899,7 +899,7 @@ Referencia académica **sin certificación** ([`docs/calidad/alineacion-iso.md`]
 | Suite PHPUnit | OOM @ **128M**; Excel @ **512M** |
 | Seed oficial | **Pendiente** — conteos locales no oficiales |
 | VSE | **Retiradas del flujo de riesgo**; API legacy puede existir |
-| UI riesgo | Perfil **pausado**; sin botón procesar |
+| UI riesgo | Perfil **activado V1**; botón **Procesar/Actualizar riesgo** con permiso `procesar_riesgo`; smoke manual pendiente |
 | Activity log | **Parcial** |
 | Register guest | **Brecha** pre-producción |
 | Multi-sede | **Fuera de V1** |
@@ -925,7 +925,7 @@ Basado en [`docs/calidad/no-conformidades-y-mejora.md`](../calidad/no-conformida
 | NC-08 | Activity log parcial | RF-17 | Media | Extender logging + UI |
 | NC-09 | Register público | RF-15 | Alta (prod) | Deshabilitar pre-producción |
 | NC-10 | Multi-sede no activa | RF-14 | Media | Documentado — Chilca V1 |
-| NC-11 | UI riesgo pausada | RF-06, RF-20 | Media | Reactivar UI o comando técnico |
+| NC-11 | UI riesgo activada V1 | RF-06, RF-20 | Media | Cerrada V1 (botón procesar en perfil); smoke manual navegador pendiente |
 | NC-12 | **VSE retiradas** del flujo de riesgo | RF-05 | Media | Documentado v2.1; no insumo obligatorio RF-06 | Producto | Documentada v2.1 |
 | NC-13 | RF-04 **implementado V1 mínimo**; RF-10 **planificado**; RF-19 **implementado V1**; RF-03/RF-12 **retirados** | RF-04–13, RF-19 | Alta (RF-10) / Media (RF-04) | Backlog explícito RF-10 | Documentación | Documentada v2.1; RF-04 cerrado V1 mínimo; RF-19 cerrado V1 |
 | NC-16 | RF-16 reportes de riesgo **planificados** | RF-16 | Media | Zona reportes por estudiante/aula/grado | Backend + doc | Abierta |

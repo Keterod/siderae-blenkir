@@ -93,7 +93,7 @@ Módulos y componentes del sistema SIDERAE-Blenkir a probar (alcance **planifica
 - El coordinador importa resultados del Fast Test desde Excel y el sistema los vincula automáticamente. *(RF-03 **pendiente**.)*
 - El psicólogo registra reportes conductuales integrados al perfil de riesgo. *(RF-04 **V1 mínimo cerrado** — API + UI perfil; 8 passed Fase 2E.)*
 - El sistema genera automáticamente alertas tempranas con nivel de riesgo y recomendación. *(RF-08 confirmado en V1.)*
-- El docente ve el perfil completo del estudiante en riesgo y registra la intervención. *(Alertas RF-09 confirmadas; UI riesgo en perfil **pausada** — RF-06 parcial.)*
+- El docente ve el perfil completo del estudiante en riesgo y registra la intervención. *(Alertas RF-09 confirmadas; UI riesgo en perfil **activada V1** con permiso `procesar_riesgo` — NC-11 cerrada V1; smoke manual pendiente.)*
 - El directivo revisa el mapa de riesgo de todas las sedes y registra la derivación. *(Multi-sede y RF-10 **pendientes**; V1 opera sede **Chilca**.)*
 - El administrador gestiona usuarios con roles y permisos diferenciados. *(RF-15 confirmado en V1.)*
 - El sistema valida automáticamente la integridad de los datos antes de procesarlos. *(Parcial; RF-19 semáforo **implementado V1** — backend + UI + build OK; smoke manual pendiente.)*

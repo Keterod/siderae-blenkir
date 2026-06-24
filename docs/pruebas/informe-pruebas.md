@@ -301,7 +301,7 @@ Distribución roles (Fase 1): 2 administrador, 3 docente, 1 coordinador, 1 psic�
 | D-03 | Cypress solo cubre smoke RF-04 | Media (cobertura UI) | `frontend/cypress/` |
 | D-04 | 401/403 no exhaustivos | Media | `seguridad-roles-permisos.md` |
 | D-05 | Activity log parcial | Media | `ActivityLogTest.php` |
-| D-06 | Botón procesar riesgo ausente en UI perfil | Media (trazabilidad RF-06) | `EstudiantePerfilRiesgo.jsx`, manual usuario |
+| D-06 | Botón procesar riesgo **presente** en UI perfil (NC-11 cerrada V1). Smoke manual navegador pendiente | Media (trazabilidad RF-06) | `EstudiantePerfilRiesgo.jsx`, manual usuario |
 | D-07 | Recuperación contraseña UI pendiente | Baja | `LoginForm.jsx` |
 | D-08 | `POST /register` público | Alta (producción) | `RegistrationTest.php` |
 | D-09 | Conteos demo README vs BD desalineados históricamente | Baja | Fase 1, README actualizado parcialmente |

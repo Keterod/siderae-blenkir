@@ -194,7 +194,7 @@ Recomendación V1: contar reportes activos, detectar gravedad máxima y cantidad
 | BR-06-03 | El cálculo académico es un promedio simple | `resolverPromedioNotas()` L212–220 | No distingue cursos críticos, nota mínima ni tendencia. |
 | BR-06-04 | Conducta solo aporta conteo de reportes activos | `construirPayload()` L177–180 | No se usa gravedad, recencia ni reincidencia. |
 | BR-06-05 | Fast Test sigue en payload aunque RF-03 está retirado | `construirPayload()` L196; `ml-service/main.py` L41, L58–69 | Peso pequeño pero código huérfano; confunde trazabilidad. |
-| BR-06-06 | UI de riesgo en pausa; no hay botón “Procesar riesgo” | `EstudiantePerfilRiesgo.jsx` | RF-06 no es operativo para usuario final; requiere comando técnico. |
+| BR-06-06 | UI de riesgo activada V1 (NC-11 cerrada); botón “Procesar/Actualizar riesgo” con permiso `procesar_riesgo` | `EstudiantePerfilRiesgo.jsx` | RF-06 operativo para usuarios con permiso; no requiere comando técnico. |
 | BR-06-07 | Frontend no muestra resultado del riesgo recién calculado | Solo historial RF-20 | El usuario ve historial, pero no el índice actual en el perfil. |
 | BR-06-08 | Tests de `RiesgoTest` asumen VSE obligatoria | `RiesgoTest.php` L123, L155, L164, L180, L191 | Refuerzan la dependencia que se quiere retirar. |
 | BR-06-09 | `ml-service/main.py` aún pondera VSE | `main.py` L43–51, L63–71 | Si se quita VSE del payload, Flask recibiría valores nulos y asignaría defaults fijos. |

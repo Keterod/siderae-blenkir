@@ -41,7 +41,7 @@ Origen de **nombre, actor y prioridad**: **Tabla «7. Requerimientos Funcionales
 | RF-03 | Importación de resultados del Fast Test | Coordinador Académico | Alta | **Pendiente** |
 | RF-04 | Registro digital de reportes conductuales | Psicólogo / Tutor | Alta | **Pendiente** — migración sin API |
 | RF-05 | Integración de variables socioeconómicas | Administrador / Sistema | Alta | **Implementado parcialmente** — API confirmada; **UI pausada** (pestaña no expuesta) |
-| RF-06 | Procesamiento multivariable y cálculo del índice de riesgo | Sistema | Alta | **Implementado parcialmente** — Laravel → Flask **determinístico**; **UI riesgo pausada**; RF/SVM/XGBoost **no implementados** |
+| RF-06 | Procesamiento multivariable y cálculo del índice de riesgo | Sistema | Alta | **Implementado V1** — Laravel → Flask **determinístico**; **UI riesgo activada V1** (NC-11 cerrada V1); RF/SVM/XGBoost **no implementados** |
 | RF-07 | Evaluación automática del nivel de riesgo | Sistema | Alta | **Confirmado en código** — umbrales 0,70 / 0,40; configuración admin **pendiente** |
 | RF-08 | Emisión de alertas tempranas accionables | Sistema | Alta | **Confirmado en código** — RN-03 completa (dos disparadores) **pendiente verificar** |
 | RF-09 | Intervención preventiva del docente | Docente | Alta | **Confirmado en código** |

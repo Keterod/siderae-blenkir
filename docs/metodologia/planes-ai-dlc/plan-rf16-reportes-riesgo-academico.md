@@ -17,7 +17,7 @@ RF-16 permitirá consultar reportes de riesgo académico usando datos ya existen
 | `indices_riesgo`                  | **Poblado**                       | Tabla con registros de riesgo procesados vía API o comando `demo:procesar-riesgos` (RF-06, RF-20)       |
 | Historial riesgo (RF-20)          | **Implementado V1**               | `GET /api/estudiantes/{estudiante}/historial-riesgo`, permiso `ver_historial_riesgo`                    |
 | Semáforo completitud (RF-19)      | **Implementado V1**               | `GET /api/estudiantes/{estudiante}/semaforo-completitud`, permiso `ver_semaforo_completitud`            |
-| Cálculo de riesgo (RF-06)         | **Implementado V1**               | Backend completo, 61 tests, Flask validado. UI en pausa (sin botón procesar)                            |
+| Cálculo de riesgo (RF-06)         | **Implementado V1**               | Backend completo, 61 tests, Flask validado. UI activada V1 (NC-11 cerrada V1); botón **Procesar/Actualizar riesgo** en perfil estudiante con permiso `procesar_riesgo` |
 
 ## 3. Alcance V1 propuesto
 

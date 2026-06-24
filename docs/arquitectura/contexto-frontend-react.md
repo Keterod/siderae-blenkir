@@ -95,7 +95,7 @@ El frontend **no** llama a `:5000` (Flask); riesgo vía backend.
 
 ## Perfil estudiante
 
-- `EstudiantesPanel` + `EstudiantePerfilRiesgo` — sección **riesgo en pausa** en V1: aviso de actualización pendiente; **sin botón «Procesar riesgo»** visible (RF-06 parcial; procesamiento vía API/comando técnico).
+- `EstudiantesPanel` + `EstudiantePerfilRiesgo` — sección **riesgo activada V1** (NC-11 cerrada): muestra último índice/nivel y botón **Procesar/Actualizar riesgo** para usuarios con permiso `procesar_riesgo`; llama `POST /api/estudiantes/{id}/procesar-riesgo` y refresca historial RF-20 y semáforo RF-19. No recalcula automáticamente al abrir el perfil.
 - `EstudiantePerfilDatos`:
   - Notas curriculares (`ver_notas_academicas`)
   - Asistencia curricular
@@ -118,7 +118,7 @@ El frontend **no** llama a `:5000` (Flask); riesgo vía backend.
 | RF-01 | **Parcial** — notas/asistencia curricular; plantilla Excel curricular; Excel aula descarga; **SIAGIE pendiente** |
 | RF-02 | **Confirmado** — asistencia curricular |
 | RF-05 | **Parcial** — API backend; **pestaña VSE pausada** en perfil |
-| RF-06/07 | **Parcial** — UI riesgo **pausada**; sin botón procesar en perfil; backend/API operativo |
+| RF-06/07 | **Implementado V1** — UI riesgo activada; botón procesar en perfil con permiso `procesar_riesgo`; backend/API operativo; smoke manual navegador pendiente |
 | RF-08–09 | **Confirmado** — alertas e intervenciones |
 | RF-13 | **Parcial** — cierre vía intervención; sin derivación/comunicación familiar en UI |
 | RF-14 | **Parcial** — dashboard básico (subset REQ-14) |

@@ -43,6 +43,17 @@ export default function EstudiantePerfilHistorialRiesgo({ estudianteId }) {
   const [historial, setHistorial] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const recargar = () => {
+      if (estudianteId) {
+        setRefreshKey((k) => k + 1);
+      }
+    };
+    window.addEventListener('siderae-riesgo-procesado', recargar);
+    return () => window.removeEventListener('siderae-riesgo-procesado', recargar);
+  }, [estudianteId]);
 
   useEffect(() => {
     let cancelado = false;
@@ -74,7 +85,7 @@ export default function EstudiantePerfilHistorialRiesgo({ estudianteId }) {
     return () => {
       cancelado = true;
     };
-  }, [estudianteId]);
+  }, [estudianteId, refreshKey]);
 
   if (cargando) {
     return (

@@ -84,7 +84,7 @@ SIDERAE-Blenkir es un sistema web para deteccion temprana de riesgo academico y 
 | RF-03 Importacion Fast Test | Si | No | Pendiente | Sin flujo import Fast Test confirmado |
 | RF-04 Reportes conductuales | Si | Si | Confirmado en codigo | API + UI perfil estudiante V1 minimo; **8 passed** Fase 2E |
 | RF-05 Variables socioeconomicas | Si | Parcial | Implementado parcialmente | API confirmada; **UI pausada** (pestaña no expuesta en perfil) |
-| RF-06 Calculo de indice de riesgo | Si | Parcial | Implementado parcialmente | Laravel → Flask **deterministico**; **UI riesgo pausada**; sin RF/SVM/XGBoost |
+| RF-06 Calculo de indice de riesgo | Si | Parcial | Implementado parcialmente | Laravel → Flask **deterministico**; **UI riesgo activada V1** (NC-11 cerrada V1); sin RF/SVM/XGBoost |
 | RF-07 Clasificacion de nivel de riesgo | Si | Si | Confirmado en codigo | Clasificacion Alto/Medio/Bajo en backend |
 | RF-08 Alertas tempranas | Si | Si | Confirmado en codigo | Generacion y listado de alertas presentes |
 | RF-09 Intervencion preventiva | Si | Si | Confirmado en codigo | Registro de intervenciones presente |
