@@ -213,13 +213,13 @@ Alternativa menor: ampliar el existente `GET /api/dashboard` (requiere mantener 
 |------|--------|-------------|--------|
 | RF-14A | Plan dashboard institucional V1 | Crear plan, revisar estado, definir alcance, permiso, backend/frontend futuros | **Completada** |
 | RF-14B | Permiso/base RBAC | Crear `ver_dashboard_institucional`, asignar a administrador, coordinador_academico, directivo; actualizar seeder si aplica | **Completada** |
-| RF-14C | Backend dashboard institucional | Crear/ampliar endpoint `GET /api/dashboard/institucional`, controller, consultas agregadas, sede Chilca, tests | Pendiente |
+| RF-14C | Backend dashboard institucional | Crear/ampliar endpoint `GET /api/dashboard/institucional`, controller, consultas agregadas, sede Chilca, tests | **Completada** |
 | RF-14D | Frontend dashboard institucional | Crear `DashboardInstitucionalPanel.jsx`, registrar en `App.jsx`, tarjetas, tablas, filtros, estados | Pendiente |
 | RF-14E | Pruebas, smoke manual y cierre | Tests backend extendidos, build frontend, smoke manual, documentación final | Pendiente |
 
 ## 10. Conclusión
 
-RF-14 está **listo para implementación controlada**. Ya existe una base funcional (`DashboardController`, `DashboardPanel`, `ver_dashboard`, `DashboardTest`) y ahora también la base RBAC institucional (`ver_dashboard_institucional` asignado a administrador, coordinador académico y directivo). El permiso legacy `ver_dashboard` se mantiene sin cambios. Pendientes: endpoint `GET /api/dashboard/institucional`, controller, UI `DashboardInstitucionalPanel.jsx`, tests extendidos y smoke manual. Todo el alcance V1 respeta sede única Chilca, no recalcula riesgo y no llama a Flask.
+RF-14 está **avanzado**. Ya existe una base funcional (`DashboardController`, `DashboardPanel`, `ver_dashboard`, `DashboardTest`), la base RBAC institucional (`ver_dashboard_institucional`) y el backend institucional (`GET /api/dashboard/institucional`, `DashboardInstitucionalController`, 16 tests passed). El permiso legacy `ver_dashboard` se mantiene sin cambios. Pendientes: UI `DashboardInstitucionalPanel.jsx`, tests extendidos y smoke manual. Todo el alcance V1 respeta sede única Chilca, no recalcula riesgo y no llama a Flask.
 
 ---
 
@@ -260,12 +260,12 @@ Dashboard institucional con: resumen de estudiantes y riesgo, distribución por 
 
 ### Fases futuras
 
-| Fase | Qué incluye |
-|------|-------------|
-| RF-14B | Permiso `ver_dashboard_institucional` + asignación a roles + seeder |
-| RF-14C | Backend `GET /api/dashboard/institucional` + controller + tests |
-| RF-14D | Frontend `DashboardInstitucionalPanel.jsx` + App.jsx + build OK |
-| RF-14E | Tests extendidos + smoke manual + documentación final + cierre |
+| Fase | Qué incluye | Estado |
+|------|-------------|--------|
+| RF-14B | Permiso `ver_dashboard_institucional` + asignación a roles + seeder | **Completada** |
+| RF-14C | Backend `GET /api/dashboard/institucional` + controller + tests | **Completada** |
+| RF-14D | Frontend `DashboardInstitucionalPanel.jsx` + App.jsx + build OK | Pendiente |
+| RF-14E | Tests extendidos + smoke manual + documentación final + cierre | Pendiente |
 
 ### Validaciones
 
@@ -277,4 +277,65 @@ Dashboard institucional con: resumen de estudiantes y riesgo, distribución por 
 
 ### Próxima fase recomendada
 
-**RF-14B — Permiso `ver_dashboard_institucional` y base RBAC.**
+**RF-14D — Frontend dashboard institucional.**
+
+---
+
+## RF-14C completada — Backend dashboard institucional V1
+
+### Archivos creados
+
+- `backend/app/Http/Controllers/Api/DashboardInstitucionalController.php`
+- `backend/tests/Feature/DashboardInstitucionalTest.php`
+
+### Archivos modificados
+
+- `backend/routes/api.php` — ruta `GET /api/dashboard/institucional` con middleware `auth:sanctum` + `permission:ver_dashboard_institucional`
+
+### Endpoint implementado
+
+| Método | Ruta | Middleware | Permiso |
+|--------|------|------------|---------|
+| GET | `/api/dashboard/institucional` | `auth:sanctum` | `ver_dashboard_institucional` |
+
+### Métricas implementadas
+
+- `resumen`: `total_estudiantes`, `con_riesgo`, `riesgo_bajo`, `riesgo_medio`, `riesgo_alto`
+- `completitud`: `con_riesgo`, `sin_riesgo`, `porcentaje_con_riesgo`
+- `por_grado_seccion`: distribución por grado/sección con totales y riesgos por nivel
+- `ultimos_riesgos`: últimos 10 índices con datos del estudiante
+
+### Filtros implementados
+
+- `anio_escolar`
+- `bimestre`
+- `grado`
+- `seccion`
+
+### Restricciones respetadas
+
+- Sede fija **Chilca** (sin selector de sede).
+- No recalcula riesgo.
+- No llama a Flask.
+- No PDF/exportación nueva.
+- No modifica `GET /api/dashboard` ni `ver_dashboard`.
+
+### Pruebas ejecutadas
+
+```bash
+docker compose exec app-backend php artisan test --filter=DashboardInstitucionalTest
+```
+
+**Resultado:** 16 passed, 57 assertions.
+
+Regresión dashboard legacy:
+
+```bash
+docker compose exec app-backend php artisan test --filter=DashboardTest
+```
+
+**Resultado:** 12 passed, 76 assertions.
+
+### Estado RF-14
+
+**Parcial / en avance; backend institucional implementado, frontend institucional pendiente.**

@@ -63,9 +63,70 @@ Permiso: `ver_dashboard`
 | GET | `/api/dashboard` | KPIs y filtros |
 | GET | `/api/dashboard/export` | PDF (DomPDF) |
 
+### 4.1 Dashboard institucional (RF-14C)
+
+Permiso: `ver_dashboard_institucional`
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/dashboard/institucional` | Métricas agregadas institucionales |
+
+**Filtros query (opcionales):**
+
+- `anio_escolar`
+- `bimestre`
+- `grado`
+- `seccion`
+
+**Respuesta 200:**
+
+```json
+{
+  "resumen": {
+    "total_estudiantes": 120,
+    "con_riesgo": 80,
+    "riesgo_bajo": 45,
+    "riesgo_medio": 25,
+    "riesgo_alto": 10
+  },
+  "completitud": {
+    "con_riesgo": 80,
+    "sin_riesgo": 40,
+    "porcentaje_con_riesgo": 66.67
+  },
+  "por_grado_seccion": [
+    {
+      "grado": "2°",
+      "seccion": "B",
+      "total_estudiantes": 20,
+      "riesgo_bajo": 12,
+      "riesgo_medio": 5,
+      "riesgo_alto": 3
+    }
+  ],
+  "ultimos_riesgos": [
+    {
+      "estudiante_id": 1,
+      "estudiante": "María López",
+      "grado": "2°",
+      "seccion": "B",
+      "anio_escolar": "2026",
+      "bimestre": "2",
+      "indice": 0.82,
+      "nivel": "Alto",
+      "fecha": "2026-06-23"
+    }
+  ]
+}
+```
+
+- Solo sede **Chilca** (sin selector de sede).
+- No recalcula riesgo; no llama Flask.
+- No PDF/exportación nueva.
+
 ---
 
-## 4.1 Reportes de riesgo académico (RF-16C)
+## 4.2 Reportes de riesgo académico (RF-16C)
 
 Permiso: `ver_reportes_riesgo`
 

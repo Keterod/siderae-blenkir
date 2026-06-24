@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AlertaController;
 use App\Http\Controllers\Api\AsistenciaBatchController;
 use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\DashboardInstitucionalController;
 use App\Http\Controllers\Api\EstudianteController;
 use App\Http\Controllers\Api\HistorialRiesgoController;
 use App\Http\Controllers\Api\MateriaController;
@@ -72,6 +73,9 @@ Route::middleware(['auth:sanctum', 'permission:ver_dashboard'])
         Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::get('/dashboard/export', [DashboardController::class, 'export']);
     });
+
+Route::middleware(['auth:sanctum', 'permission:ver_dashboard_institucional'])
+    ->get('/dashboard/institucional', [DashboardInstitucionalController::class, 'index']);
 
 Route::middleware(['auth:sanctum', 'permission:gestionar_materias|registrar_datos_academicos'])
     ->group(function (): void {

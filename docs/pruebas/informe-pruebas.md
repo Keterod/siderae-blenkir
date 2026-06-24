@@ -119,7 +119,8 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 
 ### Dashboard, riesgo, alertas, auditoría, conductuales
 
-- `Feature/DashboardTest.php`
+- `Feature/DashboardTest.php` — **12 passed** (RF-14C regresión, 76 assertions)
+- `Feature/DashboardInstitucionalTest.php` — **16 passed** (RF-14C, 57 assertions) — 401/403, permiso separado, sede Chilca, resumen, completitud, distribución por grado/sección, últimos riesgos, filtros, no recalcula riesgo, no llama Flask, dashboard legacy intacto.
 - `Feature/RiesgoTest.php` — **38 passed** (RF-06D/E, 125 assertions)
 - `Feature/SemaforoCompletitudTest.php` — **11 passed** (RF-06E regresión)
 - `Feature/HistorialRiesgoTest.php` — **12 passed** (RF-06E regresión)
