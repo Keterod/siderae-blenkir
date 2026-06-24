@@ -214,12 +214,12 @@ Alternativa menor: ampliar el existente `GET /api/dashboard` (requiere mantener 
 | RF-14A | Plan dashboard institucional V1 | Crear plan, revisar estado, definir alcance, permiso, backend/frontend futuros | **Completada** |
 | RF-14B | Permiso/base RBAC | Crear `ver_dashboard_institucional`, asignar a administrador, coordinador_academico, directivo; actualizar seeder si aplica | **Completada** |
 | RF-14C | Backend dashboard institucional | Crear/ampliar endpoint `GET /api/dashboard/institucional`, controller, consultas agregadas, sede Chilca, tests | **Completada** |
-| RF-14D | Frontend dashboard institucional | Crear `DashboardInstitucionalPanel.jsx`, registrar en `App.jsx`, tarjetas, tablas, filtros, estados | Pendiente |
+| RF-14D | Frontend dashboard institucional | Crear `DashboardInstitucionalPanel.jsx`, registrar en `App.jsx`, tarjetas, tablas, filtros, estados | **Completada** |
 | RF-14E | Pruebas, smoke manual y cierre | Tests backend extendidos, build frontend, smoke manual, documentación final | Pendiente |
 
 ## 10. Conclusión
 
-RF-14 está **avanzado**. Ya existe una base funcional (`DashboardController`, `DashboardPanel`, `ver_dashboard`, `DashboardTest`), la base RBAC institucional (`ver_dashboard_institucional`) y el backend institucional (`GET /api/dashboard/institucional`, `DashboardInstitucionalController`, 16 tests passed). El permiso legacy `ver_dashboard` se mantiene sin cambios. Pendientes: UI `DashboardInstitucionalPanel.jsx`, tests extendidos y smoke manual. Todo el alcance V1 respeta sede única Chilca, no recalcula riesgo y no llama a Flask.
+RF-14 está **avanzado**. Ya existe una base funcional (`DashboardController`, `DashboardPanel`, `ver_dashboard`, `DashboardTest`), la base RBAC institucional (`ver_dashboard_institucional`), el backend institucional (`GET /api/dashboard/institucional`, `DashboardInstitucionalController`, 16 tests passed) y el frontend institucional (`DashboardInstitucionalPanel.jsx`, build OK, lint propio limpio). El permiso legacy `ver_dashboard` se mantiene sin cambios. Pendiente: smoke manual navegador y cierre documental RF-14E. Todo el alcance V1 respeta sede única Chilca, no recalcula riesgo y no llama a Flask.
 
 ---
 
@@ -339,3 +339,59 @@ docker compose exec app-backend php artisan test --filter=DashboardTest
 ### Estado RF-14
 
 **Parcial / en avance; backend institucional implementado, frontend institucional pendiente.**
+
+---
+
+## RF-14D completada — Frontend dashboard institucional V1
+
+### Archivos creados
+
+- `frontend/src/components/dashboard/DashboardInstitucionalPanel.jsx`
+
+### Archivos modificados
+
+- `frontend/src/lib/api.js` — función `getDashboardInstitucional(params)`
+- `frontend/src/App.jsx` — módulo `dashboard_institucional`, menú lateral **Dashboard institucional**, `PanelModulo`, `moduloPorDefecto`, `tituloModulo`, listener para navegación a reportes de riesgo
+- `frontend/src/components/layout/navIcons.jsx` — icono `dashboard_institucional`
+
+### Vista implementada
+
+- Título: **Dashboard institucional**.
+- Descripción del alcance V1 (Chilca, datos existentes, sin recalcular riesgo).
+- Filtros: año escolar, bimestre, grado, sección.
+- Botones **Buscar** y **Limpiar filtros**.
+- Tarjetas resumen: total estudiantes, con riesgo, riesgo bajo, riesgo medio, riesgo alto.
+- Bloque completitud: con riesgo, sin riesgo, porcentaje con riesgo.
+- Tabla por grado/sección.
+- Tabla últimos riesgos.
+- Botón **Ir a Reportes de riesgo** solo si el usuario tiene `ver_reportes_riesgo`.
+- Estados de carga, vacío y error.
+- Mensaje 403 amigable si falta permiso.
+
+### Permisos frontend
+
+- Menú visible solo con `ver_dashboard_institucional`.
+- Asignado en V1 a: administrador, coordinador_academico, directivo.
+- Docente y psicólogo/tutor no ven el menú ni acceden al panel.
+
+### Validaciones ejecutadas
+
+```bash
+docker compose exec app-frontend npm run build
+```
+
+**Resultado:** build OK, chunk `DashboardInstitucionalPanel` generado.
+
+```bash
+docker compose exec app-frontend npm run lint
+```
+
+**Resultado:** 88 problemas preexistentes en otros componentes; `DashboardInstitucionalPanel.jsx` sin errores nuevos.
+
+### Smoke manual
+
+Pendiente por falta de navegador en el entorno.
+
+### Estado RF-14
+
+**Parcial / en avance; frontend institucional implementado, cierre RF-14E pendiente.**

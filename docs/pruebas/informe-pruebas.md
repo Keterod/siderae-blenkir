@@ -75,6 +75,13 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 | `docker compose exec app-backend php artisan test --filter=HistorialRiesgoTest` | Fase 4E RF-20 | Exit 0 — **12 passed**, **30 assertions** | ~38.0 s |
 | `docker compose exec app-backend php artisan route:list --path=historial-riesgo` | Fase 4E RF-20 | Ruta listada correctamente | — |
 | `docker compose exec app-frontend npm run build` | Fase 4E RF-20 | Exit 0 — Vite build | ~10.6 s, 110 módulos |
+| `docker compose exec app-backend php artisan test --filter=ReporteRiesgoAcademicoTest` | RF-16E | Exit 0 — **13 passed**, 36 assertions | — |
+| `docker compose exec app-frontend npm run build` | RF-16E | Exit 0 — Vite build, chunk `ReporteRiesgoAcademicoPanel` generado | — |
+| `docker compose exec app-frontend npm run lint` | RF-16E | Exit 1 — **88 problemas preexistentes**; `ReporteRiesgoAcademicoPanel.jsx` sin errores nuevos | Lint global no limpio; componente RF-16 limpio |
+| `docker compose exec app-backend php artisan test --filter=DashboardInstitucionalTest` | RF-14C | Exit 0 — **16 passed**, 57 assertions | — |
+| `docker compose exec app-backend php artisan test --filter=DashboardTest` | RF-14C regresión | Exit 0 — **12 passed**, 76 assertions | Dashboard legacy intacto |
+| `docker compose exec app-frontend npm run build` | RF-14D | Exit 0 — Vite build, chunk `DashboardInstitucionalPanel` generado | — |
+| `docker compose exec app-frontend npm run lint` | RF-14D | Exit 1 — **88 problemas preexistentes**; `DashboardInstitucionalPanel.jsx` sin errores nuevos | Lint global no limpio; componente RF-14 limpio |
 
 ---
 
@@ -130,6 +137,9 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 - Build frontend RF-16E — **OK** (`npm run build` exitoso, chunk `ReporteRiesgoAcademicoPanel` generado).
 - Lint frontend RF-16E — ejecutado; **88 problemas preexistentes** en otros componentes; `ReporteRiesgoAcademicoPanel.jsx` sin errores nuevos.
 - Smoke manual RF-16E navegador — **pendiente** por falta de navegador en el entorno.
+- Build frontend RF-14D — **OK** (`npm run build` exitoso, chunk `DashboardInstitucionalPanel` generado).
+- Lint frontend RF-14D — ejecutado; **88 problemas preexistentes** en otros componentes; `DashboardInstitucionalPanel.jsx` sin errores nuevos.
+- Smoke manual RF-14D navegador — **pendiente** por falta de navegador en el entorno.
 - `Feature/AlertaIntervencionTest.php`
 - `Feature/ReporteConductualTest.php` — **8 passed** Fase 2E
 - `Feature/DemoProcesarRiesgosCommandTest.php`

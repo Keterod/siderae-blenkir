@@ -95,6 +95,11 @@ export function getDashboard(params = {}) {
   return request(qs ? `/api/dashboard?${qs}` : '/api/dashboard');
 }
 
+export function getDashboardInstitucional(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `/api/dashboard/institucional?${qs}` : '/api/dashboard/institucional');
+}
+
 /**
  * Descarga PDF del dashboard con los mismos filtros que GET /api/dashboard (Sprint 6B).
  * Devuelve Blob; el caller puede revocar URL al terminar.

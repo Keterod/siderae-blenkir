@@ -81,7 +81,7 @@ A la izquierda aparecen los **módulos permitidos para su rol**, agrupados así:
 
 | Grupo | Módulos posibles |
 |-------|------------------|
-| Inicio | Dashboard |
+| Inicio | Dashboard, Dashboard institucional |
 | Gestión académica | Estudiantes, Notas semanales, Excel por aula, Asistencia, Alertas |
 | Gestión docente y aulas | Secciones / Aulas, Asignación docente |
 | Configuración curricular | Malla curricular, Criterios de evaluación, Componentes de calificación, Configuración bimestral |
@@ -119,11 +119,11 @@ Resumen basado en [`docs/seguridad-roles-permisos.md`](seguridad-roles-permisos.
 
 | Rol | Qué puede hacer en V1 (menú visible) | Qué no tiene o no debe usar | Observaciones |
 |-----|--------------------------------------|-----------------------------|---------------|
-| **Administrador** | Todos los módulos del menú: dashboard académico-institucional, estudiantes, curricular completo (RF-21–RF-35), alertas, usuarios, Excel por aula | — | Acceso total a los **23 permisos implementados** (+ 8 sugeridos/planificados — ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md) §16) |
-| **Docente** | Dashboard, estudiantes, malla (consulta), notas semanales, asistencia, alertas e intervenciones | Configuración curricular avanzada, usuarios, Excel por aula, procesar riesgo desde pantalla | Puede registrar notas y asistencia de sus aulas asignadas |
-| **Coordinador académico** | Dashboard, estudiantes, configuración curricular, asignaciones, notas (**consulta institucional**), asistencia, Excel por aula, alertas (solo lectura de intervención) | Usuarios; registrar intervenciones/cierre de alertas | Puede **procesar riesgo** vía sistema backend; **no hay botón visible** en perfil de estudiante (§15) |
-| **Psicólogo / tutor** | Alertas (ver e intervenir), asistencia (**consulta**) | Dashboard, estudiantes, notas, configuración curricular | **Planificado RF-11:** perfil integral del estudiante en **modo lectura** (notas, asistencia, riesgo, conductuales) — hoy solo alertas |
-| **Directivo** | Dashboard, alertas e intervenciones, malla (consulta), notas (**solo lectura institucional**), asistencia (consulta) | Estudiantes, configuración, usuarios, Excel por aula; **no** es actor inicial de todas las alertas | **Planificado RF-10:** intervención solo en casos **críticos/extremos** escalados |
+| **Administrador** | Todos los módulos del menú: dashboard, dashboard institucional, estudiantes, curricular completo (RF-21–RF-35), alertas, usuarios, Excel por aula | — | Acceso total a los **29 permisos implementados** (ver [`seguridad-roles-permisos.md`](seguridad-roles-permisos.md)) |
+| **Docente** | Dashboard, estudiantes, malla (consulta), notas semanales, asistencia, alertas e intervenciones | Dashboard institucional, configuración curricular avanzada, usuarios, Excel por aula, procesar riesgo desde pantalla | Puede registrar notas y asistencia de sus aulas asignadas |
+| **Coordinador académico** | Dashboard, **dashboard institucional**, estudiantes, configuración curricular, asignaciones, notas (**consulta institucional**), asistencia, Excel por aula, alertas (solo lectura de intervención) | Usuarios; registrar intervenciones/cierre de alertas | Puede **procesar riesgo** vía sistema backend; **no hay botón visible** en perfil de estudiante (§15) |
+| **Psicólogo / tutor** | Alertas (ver e intervenir), asistencia (**consulta**) | Dashboard, dashboard institucional, estudiantes, notas, configuración curricular | **Planificado RF-11:** perfil integral del estudiante en **modo lectura** (notas, asistencia, riesgo, conductuales) — hoy solo alertas |
+| **Directivo** | Dashboard, **dashboard institucional**, alertas e intervenciones, malla (consulta), notas (**solo lectura institucional**), asistencia (consulta) | Estudiantes, configuración, usuarios, Excel por aula; **no** es actor inicial de todas las alertas | **Planificado RF-10:** intervención solo en casos **críticos/extremos** escalados |
 
 ---
 
@@ -148,6 +148,16 @@ Módulos visibles: **todos** los del menú lateral.
 - **Resultado esperado:** Resumen numérico y gráficos simples según filtros.
 - **Errores comunes:** «No se pudo cargar el dashboard.» — reintente; verifique conexión.
 - *Permiso:* `ver_dashboard`.
+
+### 7.2.1 Consultar Dashboard institucional (RF-14D)
+
+- **Objetivo:** Ver métricas agregadas institucionales de riesgo académico por grado/sección, limitado a la sede Chilca.
+- **Navegación:** Menú → **Dashboard institucional**.
+- **Pasos:** Ajuste filtros (año escolar, bimestre, grado, sección) si lo desea → **Buscar** → revise tarjetas de resumen, completitud, tabla por grado/sección y últimos riesgos.
+- **Resultado esperado:** Indicadores simples y tablas sin gráficos complejos.
+- **Errores comunes:** «No se pudo cargar el dashboard institucional.» — reintente; verifique conexión.
+- *Permiso:* `ver_dashboard_institucional`.
+- **Restricciones V1:** Solo sede Chilca. Sin PDF/exportación. Sin gráficos complejos. Sin selector de sede. Docente y psicólogo/tutor no acceden.
 
 ### 7.3 Exportar reporte PDF del Dashboard
 
@@ -331,7 +341,7 @@ Módulos visibles: **todos** los del menú lateral.
 
 Dashboard, Estudiantes, Malla curricular (consulta), Notas semanales, Asistencia, Alertas.
 
-**No ve:** Usuarios, Excel por aula, configuración curricular (criterios, componentes, bimestral, secciones, asignación, periodos, competencias).
+**No ve:** Dashboard institucional, Usuarios, Excel por aula, configuración curricular (criterios, componentes, bimestral, secciones, asignación, periodos, competencias).
 
 ### 8.1 Ingreso
 

@@ -247,9 +247,9 @@ docker compose exec app-backend php artisan migrate:status
 | **RF-04** reportes conductuales (perfil estudiante) | **Implementado V1 mínimo** — Fases 2B–2E |
 | **RF-19** semáforo de completitud (perfil estudiante) | **Implementado V1** — Fases 3B–3E; backend + UI + tests + build verde |
 | SIAGIE, Fast Test, VSE en riesgo, comunicación familiar | **Fuera del alcance vigente** |
-| Escalamiento directivo, reportes riesgo RF-16, historial evolutivo | **Planificado** |
-| Dashboard académico-institucional | Parcial (riesgo subset hoy) |
-| ML ensemble, reentrenamiento RF-18 | **Planificado** — no implementado |
+| Escalamiento directivo RF-10, perfil integral psicólogo RF-11, reentrenamiento ML RF-18 | **Planificado** |
+| Dashboard académico-institucional | **Parcial / en avance** — backend `GET /api/dashboard/institucional` (RF-14C) + UI `DashboardInstitucionalPanel.jsx` (RF-14D) implementados; smoke manual pendiente |
+| Reportes de riesgo académico RF-16 | **Implementado V1** — backend + UI + tests; smoke manual pendiente |
 
 RF vigentes: **RF-01 a RF-35**. Detalle: [`drs/DRS_SIDERAE_Blenkir_v2.md`](drs/DRS_SIDERAE_Blenkir_v2.md) v2.1, [`limitaciones.md`](limitaciones.md).
 

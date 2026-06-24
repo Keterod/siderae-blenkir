@@ -8,6 +8,13 @@ export function NavIcon({ name, className = iconClass }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z" />
         </svg>
       );
+    case 'dashboard_institucional':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-6h6v6" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10 9h4M10 12h4" />
+        </svg>
+      );
     case 'estudiantes':
       return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>

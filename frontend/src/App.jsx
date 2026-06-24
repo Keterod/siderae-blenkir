@@ -9,6 +9,7 @@ import { useAuth } from './context/AuthContext';
 import { EVENTO_ABRIR_COMPETENCIAS } from './lib/api';
 
 const DashboardPanel = lazy(() => import('./components/DashboardPanel'));
+const DashboardInstitucionalPanel = lazy(() => import('./components/dashboard/DashboardInstitucionalPanel'));
 const EstudiantesPanel = lazy(() => import('./components/estudiantes/EstudiantesPanel'));
 const MallaCurricularPanel = lazy(() => import('./components/curricular/MallaCurricularPanel'));
 const TemasSemanalesPanel = lazy(() => import('./components/curricular/TemasSemanalesPanel'));
@@ -30,7 +31,7 @@ const SIDEBAR_COLLAPSED_KEY = 'siderae-sidebar-collapsed';
 
 /** Orden y agrupación visual del menú lateral (sin cambiar permisos ni módulos). */
 const SIDEBAR_NAV_GROUPS = [
-  { title: 'Inicio', keys: ['dashboard'] },
+  { title: 'Inicio', keys: ['dashboard', 'dashboard_institucional'] },
   {
     title: 'Gestión académica',
     keys: ['estudiantes', 'curricular_notas', 'curricular_excel_aula', 'curricular_asistencia', 'alertas'],
@@ -67,6 +68,13 @@ function construirNavItemsSidebar(permissions, roles, moduloVista, setModuloActi
       visible: moduloPermitido('dashboard', permissions, roles),
       active: moduloVista === 'dashboard',
       onSelect: () => setModuloActivo('dashboard'),
+    },
+    dashboard_institucional: {
+      key: 'dashboard_institucional',
+      label: 'Dashboard institucional',
+      visible: moduloPermitido('dashboard_institucional', permissions, roles),
+      active: moduloVista === 'dashboard_institucional',
+      onSelect: () => setModuloActivo('dashboard_institucional'),
     },
     estudiantes: {
       key: 'estudiantes',
@@ -227,6 +235,8 @@ function moduloPermitido(key, permissions, roles) {
   switch (key) {
     case 'dashboard':
       return permissions.includes('ver_dashboard');
+    case 'dashboard_institucional':
+      return permissions.includes('ver_dashboard_institucional');
     case 'estudiantes':
       return permissions.includes('gestionar_estudiantes');
     case 'usuarios':
@@ -272,8 +282,11 @@ function moduloPermitido(key, permissions, roles) {
 }
 
 function moduloPorDefecto(permissions, roles) {
-  if (permissions.includes('registrar_notas_semanales') && !permissions.includes('ver_dashboard')) {
+  if (permissions.includes('registrar_notas_semanales') && !permissions.includes('ver_dashboard') && !permissions.includes('ver_dashboard_institucional')) {
     return 'curricular_notas';
+  }
+  if (permissions.includes('ver_dashboard_institucional')) {
+    return 'dashboard_institucional';
   }
   if (permissions.includes('ver_dashboard')) {
     return 'dashboard';
@@ -293,6 +306,7 @@ function moduloPorDefecto(permissions, roles) {
 function tituloModulo(key) {
   const titulos = {
     dashboard: 'Dashboard',
+    dashboard_institucional: 'Dashboard institucional',
     estudiantes: 'Estudiantes',
     usuarios: 'Usuarios',
     alertas: 'Alertas',
@@ -332,6 +346,8 @@ function PanelModulo({ modulo }) {
   switch (modulo) {
     case 'dashboard':
       return <DashboardPanel />;
+    case 'dashboard_institucional':
+      return <DashboardInstitucionalPanel />;
     case 'estudiantes':
       return <EstudiantesPanel />;
     case 'usuarios':
@@ -405,8 +421,17 @@ function App() {
         setModuloActivo('curricular_competencias');
       }
     };
+    const abrirReportesRiesgo = () => {
+      if (moduloPermitido('reportes_riesgo_academico', permissions, roles)) {
+        setModuloActivo('reportes_riesgo_academico');
+      }
+    };
     window.addEventListener(EVENTO_ABRIR_COMPETENCIAS, abrirCompetencias);
-    return () => window.removeEventListener(EVENTO_ABRIR_COMPETENCIAS, abrirCompetencias);
+    window.addEventListener('siderae-nav-reportes-riesgo', abrirReportesRiesgo);
+    return () => {
+      window.removeEventListener(EVENTO_ABRIR_COMPETENCIAS, abrirCompetencias);
+      window.removeEventListener('siderae-nav-reportes-riesgo', abrirReportesRiesgo);
+    };
   }, [permissions, roles]);
 
   const navItems = useMemo(
