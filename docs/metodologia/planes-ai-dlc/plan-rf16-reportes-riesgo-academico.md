@@ -185,12 +185,12 @@ getReportesRiesgo(filtros = {}) {
 | ------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
 | RF-16B | Permiso y base RBAC             | Crear permiso `ver_reportes_riesgo`, asignarlo a roles (admin, coord. académico, directivo). Actualizar seeder de permisos                                     | **Completada** |
 | RF-16C | Backend reportes de riesgo | Crear `ReporteRiesgoAcademicoController`, endpoint `GET /api/reportes/riesgo-academico`, ruta, validación de filtros, paginación, sede Chilca | **Completada** |
-| RF-16D | Frontend vista de reportes | Crear `ReporteRiesgoAcademicoPanel.jsx`, registrar en `App.jsx` como nuevo módulo, agregar `getReportesRiesgo` a `api.js`, filtros, tabla, paginación, estados | Pendiente |
-| RF-16E | Pruebas, documentación y cierre | Tests backend (13 passed), build frontend, smoke manual, documentar en api.md, manual-usuario.md, matriz, informe-pruebas | Pendiente parcial — backend tests done, frontend pendiente |
+| RF-16D | Frontend vista de reportes | Crear `ReporteRiesgoAcademicoPanel.jsx`, registrar en `App.jsx` como nuevo módulo, agregar `getReportesRiesgoAcademico` a `api.js`, filtros, tabla, paginación, estados | **Completada** |
+| RF-16E | Pruebas, documentación y cierre | Tests backend (13 passed), build frontend OK, smoke manual, documentar en api.md, manual-usuario.md, matriz, informe-pruebas, cierre | Pendiente |
 
 ## 10. Conclusión
 
-RF-16 avanza de forma controlada. El alcance V1 es mínimo: un endpoint de consulta a `indices_riesgo` con filtros y paginación, sin PDF, sin Flask, sin multi-sede. La base RBAC (RF-16B) y el backend (RF-16C) están completos. Pendientes: frontend (RF-16D) y cierre con pruebas/documentación (RF-16E). No hay dependencias bloqueantes: RF-06, RF-19 y RF-20 ya están implementados y poblados.
+RF-16 avanza de forma controlada. El alcance V1 es mínimo: un endpoint de consulta a `indices_riesgo` con filtros y paginación, sin PDF, sin Flask, sin multi-sede. La base RBAC (RF-16B), el backend (RF-16C) y el frontend (RF-16D) están completos. Pendiente: cierre con smoke manual y documentación final (RF-16E). No hay dependencias bloqueantes: RF-06, RF-19 y RF-20 ya están implementados y poblados.
 
 ---
 
@@ -202,7 +202,7 @@ RF-16 avanza de forma controlada. El alcance V1 es mínimo: un endpoint de consu
 
 ### Estado encontrado
 
-RF-16 está en estado **"Parcial / en avance"** en la matriz. El backend `GET /api/reportes/riesgo-academico` está implementado con `ReporteRiesgoAcademicoController`, filtros, paginación, sede Chilca y 13 tests passed (RF-16C). No hay UI todavía; el permiso `ver_reportes_riesgo` fue implementado en RF-16B. El permiso `generar_reportes_riesgo` (PDF/exportación) sigue planificado para fases futuras.
+RF-16 está en estado **"Parcial / en avance"** en la matriz. El backend `GET /api/reportes/riesgo-academico` está implementado con `ReporteRiesgoAcademicoController`, filtros, paginación, sede Chilca y 13 tests passed (RF-16C). El frontend `ReporteRiesgoAcademicoPanel.jsx` está registrado en `App.jsx` con menú lateral **Reportes de riesgo** y build OK (RF-16D). El permiso `ver_reportes_riesgo` fue implementado en RF-16B. El permiso `generar_reportes_riesgo` (PDF/exportación) sigue planificado para fases futuras.
 
 ### Alcance V1 propuesto
 
@@ -223,8 +223,8 @@ RF-16 está en estado **"Parcial / en avance"** en la matriz. El backend `GET /a
 | ------ | --------------------------------------------------------------------------- |
 | RF-16B | Permiso `ver_reportes_riesgo` + asignación a roles + seeder |
 | RF-16C | `ReporteRiesgoAcademicoController` + endpoint + ruta + filtros + paginación + 13 tests backend |
-| RF-16D | `ReporteRiesgoAcademicoPanel.jsx` + registro en App.jsx + api.js |
-| RF-16E | Tests frontend + build + smoke manual + documentación final + cierre |
+| RF-16D | `ReporteRiesgoAcademicoPanel.jsx` + registro en App.jsx + api.js + build OK |
+| RF-16E | Smoke manual + documentación final + cierre |
 
 ### Validaciones
 
@@ -237,6 +237,6 @@ RF-16 está en estado **"Parcial / en avance"** en la matriz. El backend `GET /a
 
 ### Próxima fase recomendada
 
-**RF-16D — Frontend reportes de riesgo académico.**
+**RF-16E — Smoke manual, pruebas finales y cierre documental.**
 
 > **Nota:** `generar_reportes_riesgo` queda planificado para fases futuras (PDF/exportación fuera de V1).

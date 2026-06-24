@@ -151,14 +151,24 @@ Módulos visibles: **todos** los del menú lateral.
 
 ### 7.3 Exportar reporte PDF del Dashboard
 
-- **Objetivo:** Descargar un PDF con el resumen del dashboard (antecedente parcial; zona de **reportes de riesgo** RF-16 planificada).
+- **Objetivo:** Descargar un PDF con el resumen del dashboard (antecedente parcial; zona de **reportes de riesgo** RF-16 separada).
 - **Navegación:** **Dashboard** → botón **Exportar PDF**.
 - **Pasos:** Configure filtros → **Exportar PDF** → espere la descarga.
 - **Resultado esperado:** Archivo PDF en su equipo.
 - **Errores comunes:** «No se pudo exportar el PDF.» — reintente; filtros sin datos pueden dar archivo vacío o error.
 - *Permiso:* `ver_dashboard`.
 
-### 7.4 Gestionar estudiantes (listar, crear, editar, perfil)
+### 7.4 Reportes de riesgo académico
+
+- **Objetivo:** Consultar el listado de estudiantes con riesgo académico ya calculado.
+- **Navegación:** Menú → **Reportes de riesgo**.
+- **Pasos:** Seleccione filtros (año escolar, bimestre, grado, sección, nivel de riesgo) → **Buscar** → revise la tabla paginada.
+- **Resultado esperado:** Tabla con estudiante, grado, sección, año, bimestre, índice, nivel y fecha.
+- **Errores comunes:** «Sin resultados» — no hay índices de riesgo con esos filtros; procese riesgo primero (vía equipo técnico).
+- *Permiso:* `ver_reportes_riesgo` (administrador, coordinador_academico, directivo).
+- **Restricciones V1:** Solo sede Chilca. Sin PDF/exportación. Sin selector de sede. Docente no accede.
+
+### 7.5 Gestionar estudiantes (listar, crear, editar, perfil)
 
 - **Objetivo:** Mantener el padrón de estudiantes de Chilca.
 - **Navegación:** Menú → **Estudiantes**.

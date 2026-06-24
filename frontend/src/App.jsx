@@ -24,6 +24,7 @@ const PeriodosAcademicosPanel = lazy(() => import('./components/curricular/calen
 const AsistenciaCurricularPanel = lazy(() => import('./components/curricular/asistencia/AsistenciaCurricularPanel'));
 const AlertasPanel = lazy(() => import('./components/alertas/AlertasPanel'));
 const UsuariosPanel = lazy(() => import('./components/usuarios/UsuariosPanel'));
+const ReporteRiesgoAcademicoPanel = lazy(() => import('./components/reportes/ReporteRiesgoAcademicoPanel'));
 
 const SIDEBAR_COLLAPSED_KEY = 'siderae-sidebar-collapsed';
 
@@ -52,6 +53,7 @@ const SIDEBAR_NAV_GROUPS = [
     keys: ['curricular_competencias', 'curricular_calendario'],
   },
   { title: 'Administración', keys: ['usuarios'] },
+  { title: 'Reportes', keys: ['reportes_riesgo_academico'] },
 ];
 
 /** Ítems fuera de grupos visibles (p. ej. ocultos por transición). */
@@ -172,6 +174,13 @@ function construirNavItemsSidebar(permissions, roles, moduloVista, setModuloActi
       active: moduloVista === 'alertas',
       onSelect: () => setModuloActivo('alertas'),
     },
+    reportes_riesgo_academico: {
+      key: 'reportes_riesgo_academico',
+      label: 'Reportes de riesgo',
+      visible: moduloPermitido('reportes_riesgo_academico', permissions, roles),
+      active: moduloVista === 'reportes_riesgo_academico',
+      onSelect: () => setModuloActivo('reportes_riesgo_academico'),
+    },
   };
 
   const items = [];
@@ -224,6 +233,8 @@ function moduloPermitido(key, permissions, roles) {
       return permissions.includes('gestionar_usuarios');
     case 'alertas':
       return permissions.includes('ver_alertas');
+    case 'reportes_riesgo_academico':
+      return permissions.includes('ver_reportes_riesgo');
     case 'curricular_asistencia':
       return (
         permissions.includes('registrar_asistencia_curricular')
@@ -285,6 +296,7 @@ function tituloModulo(key) {
     estudiantes: 'Estudiantes',
     usuarios: 'Usuarios',
     alertas: 'Alertas',
+    reportes_riesgo_academico: 'Reportes de riesgo académico',
     curricular_malla: 'Malla curricular',
     curricular_temas: 'Criterios de evaluación',
     curricular_competencias: 'Competencias y capacidades',
@@ -350,6 +362,8 @@ function PanelModulo({ modulo }) {
       return <AsistenciaCurricularPanel />;
     case 'alertas':
       return <AlertasPanel />;
+    case 'reportes_riesgo_academico':
+      return <ReporteRiesgoAcademicoPanel />;
     default:
       return null;
   }

@@ -121,6 +121,16 @@ Contexto: [`arquitectura/contexto-frontend-react.md`](arquitectura/contexto-fron
 
 Decisión sede Chilca: [`../AGENTS.md`](../AGENTS.md), `sedeOperativa.js`. V1 no expone selectores de sede; la BD local puede contener registros Auquimarca por historial previo — no implica operación multi-sede en V1.
 
+### RF-16D — Reportes de riesgo académico
+
+- Componente: [`ReporteRiesgoAcademicoPanel.jsx`](../frontend/src/components/reportes/ReporteRiesgoAcademicoPanel.jsx).
+- API helper: `getReportesRiesgoAcademico(params)` en [`api.js`](../frontend/src/lib/api.js).
+- Ruta UI: módulo `reportes_riesgo_academico` registrado en [`App.jsx`](../frontend/src/App.jsx), menú lateral **Reportes de riesgo**.
+- Permiso frontend: `ver_reportes_riesgo`. Oculto para docente y psicólogo/tutor en V1.
+- Filtros: año escolar, bimestre, grado, sección, nivel de riesgo.
+- Tabla: estudiante, grado, sección, año escolar, bimestre, índice, nivel, fecha.
+- Sin PDF/exportación. Sin selector de sede. Sin variables socioeconómicas. Build OK.
+
 ---
 
 ## 9. ML Service

@@ -125,6 +125,7 @@ Solo comandos registrados en Fase 1 (2026-06-09) y **Fase 2E RF-04** (2026-06-10
 - `Feature/HistorialRiesgoTest.php` — **12 passed** (RF-06E regresión)
 - **Total RF-06E:** 61 tests, 210 assertions. Flask `/predict` validado 5 escenarios manuales (bajo/medio/alto/sin reportes/backward compat).
 - `Feature/ReporteRiesgoAcademicoTest.php` — **13 passed** (RF-16C) — 401/403, consulta, filtros, paginación, orden, sede Chilca, no recalcula riesgo, no llama Flask.
+- Build frontend RF-16D — **OK** (`npm run build` exitoso, chunk `ReporteRiesgoAcademicoPanel` generado). Smoke manual navegador pendiente.
 - `Feature/AlertaIntervencionTest.php`
 - `Feature/ReporteConductualTest.php` — **8 passed** Fase 2E
 - `Feature/SemaforoCompletitudTest.php` — **11 passed** Fase 3C

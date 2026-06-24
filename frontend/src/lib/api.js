@@ -811,3 +811,8 @@ export function getHistorialRiesgo(estudianteId, params = {}) {
   return request(qs ? `/api/estudiantes/${estudianteId}/historial-riesgo?${qs}` : `/api/estudiantes/${estudianteId}/historial-riesgo`);
 }
 
+export function getReportesRiesgoAcademico(params = {}) {
+  const qs = buildQueryString(params);
+  return request(qs ? `/api/reportes/riesgo-academico?${qs}` : '/api/reportes/riesgo-academico');
+}
+
