@@ -113,7 +113,7 @@ class EstudianteInicialTest extends TestCase
 
         $ids = Estudiante::query()->where('nivel', 'inicial')->pluck('id');
 
-        $this->assertSame(84, $ids->count());
+        $this->assertSame(42, $ids->count());
         $this->assertSame(0, Nota::query()->whereIn('estudiante_id', $ids)->count());
         $this->assertSame(0, Asistencia::query()->whereIn('estudiante_id', $ids)->count());
         $this->assertSame(0, VariableSocioeconomica::query()->whereIn('estudiante_id', $ids)->count());

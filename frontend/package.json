@@ -8,6 +8,8 @@
     "build": "vite build",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
     "lint": "eslint .",
     "preview": "vite preview"
   },

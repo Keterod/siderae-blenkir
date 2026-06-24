@@ -53,7 +53,7 @@ Reportes conductuales (RF-04), escalamiento directivo crítico (RF-10), perfil i
 
 ### Otros pendientes
 
-Cypress/E2E, modelos ML entrenados, despliegue productivo, certificación ISO.
+Modelos ML entrenados en producción, despliegue productivo.
 
 ---
 
@@ -274,7 +274,9 @@ Proyecto/
 - Usuarios y datos demo son **ficticios** y solo para local.
 - `POST /register` (Breeze) sigue **público** — restringir antes de producción.
 - **No** se afirma certificación ISO; normas ISO se usan solo como referencia orientativa académica ([`docs/limitaciones.md`](docs/limitaciones.md) §9).
-- Cypress/E2E: **no confirmado** (sin carpeta `cypress/`).
+- Cypress/E2E: **Implementado** para flujos críticos mediante pruebas automatizadas (mocks/intercepts).
+- SonarQube: Fue ejecutado exitosamente, obteniendo **Quality Gate Passed**.
+- Coverage: En SonarQube figura 0.0% por no integrar los reportes de cobertura (`coverage.xml` / `lcov.info`), no por ausencia de pruebas.
 - No eliminar estudiantes (integridad referencial).
 
 ---
@@ -307,3 +309,58 @@ Proyecto/
 | [`docs/drs/DRS_SIDERAE_Blenkir_v2.md`](docs/drs/DRS_SIDERAE_Blenkir_v2.md) | DRS vigente — estado V1 real (Markdown) |
 
 **Formato de entrega:** paquete documental en **Markdown** listo para revisión humana. Conversión a PDF/Word = etapa posterior opcional.
+
+---
+
+## 15. Revisión final del proyecto
+
+### Estado general del proyecto
+El proyecto es un prototipo académico V1 que se encuentra estable y listo para la revisión final. Cuenta con análisis estático de código ejecutado y métricas validadas, así como pruebas funcionales en backend y frontend.
+
+### Pruebas Backend (PHPUnit)
+El sistema valida la integridad de sus rutas, reglas de negocio y bases de datos.
+- **Estado:** 559 tests aprobados y 2646 assertions.
+- **Evidencia:** `docs/evidencias/pruebas_backend/`
+- **Comando recomendado (Docker):**
+  ```bash
+  docker compose exec app-backend php -d memory_limit=512M artisan test
+  ```
+
+### Pruebas Frontend (Cypress)
+El sistema incluye pruebas automatizadas orientadas a flujos críticos, aislados mediante mocks/intercepts para validación de interfaces.
+- **Flujos críticos cubiertos:** Notas, asistencia, importación/exportación de Excel, dashboard institucional, alertas e intervenciones.
+- **Evidencia:** `docs/evidencias/pruebas_frontend/`
+- **Comando recomendado:**
+  ```bash
+  cd frontend
+  npm run cypress:run
+  ```
+
+### Análisis Estático (SonarQube)
+Se ejecutó un análisis integral de calidad de código abarcando el backend, frontend y ml-service.
+- **Herramienta:** SonarQube Community
+- **Resultado:** EXECUTION SUCCESS
+- **Quality Gate:** Passed
+- **Líneas de código aproximadas:** 38k
+- **Duplicación:** 4.4%
+- **Coverage:** 0.0% (Esto se debe a la falta de integración técnica de los reportes `coverage.xml` y `lcov.info` en el flujo de escaneo, sin embargo, no invalida las pruebas ya que éstas se encuentran ejecutadas y registradas como evidencia independiente).
+- **Evidencia:** `docs/evidencias/sonarqube/` y `docs/evidencias/sonarqube/capturas/`
+
+**Comando de análisis (PowerShell):**
+```powershell
+docker run --rm `
+  -e SONAR_HOST_URL="http://host.docker.internal:9000" `
+  -e SONAR_TOKEN="$env:SONAR_TOKEN" `
+  -v "D:\siderae-blenkir\sonar-project.properties:/usr/src/sonar-project.properties:ro" `
+  -v "D:\siderae-blenkir\backend:/usr/src/backend:ro" `
+  -v "D:\siderae-blenkir\frontend:/usr/src/frontend:ro" `
+  -v "D:\siderae-blenkir\ml-service:/usr/src/ml-service:ro" `
+  sonarsource/sonar-scanner-cli
+```
+
+### Ubicación de Evidencias
+Toda la traza documental de calidad se encuentra consolidada en la carpeta `docs/evidencias/`:
+* [Resumen General de Calidad](docs/evidencias/RESUMEN_GENERAL_CALIDAD.md)
+* `docs/evidencias/pruebas_backend/`
+* `docs/evidencias/pruebas_frontend/`
+* `docs/evidencias/sonarqube/`
