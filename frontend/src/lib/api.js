@@ -1,8 +1,8 @@
 import { conSedeOperativa } from './sedeOperativa';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
-function getCookie(name) {
+export function getCookie(name) {
   const cookie = document.cookie
     .split('; ')
     .find((item) => item.startsWith(`${name}=`));

@@ -39,6 +39,10 @@ export function AuthProvider({ children }) {
 
     try {
       await loginRequest({ email, password });
+      // En entornos de prueba E2E el navegador puede aplicar la cookie de sesión
+      // (HttpOnly) de forma asíncrona tras la respuesta de /login. Esta pausa corta
+      // asegura que /api/me la reciba en el siguiente request.
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       await loadSession();
       return true;
     } catch (err) {

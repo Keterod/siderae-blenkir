@@ -2,13 +2,13 @@
 
 const MAIN_NAV_SELECTOR = '[data-testid="main-sidebar"], aside[aria-label="Navegación principal"]';
 const E2E_STATE_TIMEOUT = 30000;
+const DEFAULT_E2E_EMAIL = 'admin@siderae.test';
+const DEFAULT_E2E_PASSWORD = 'password';
 
-function requiredEnv(name, description) {
+function envOrDefault(name, defaultValue) {
   const value = Cypress.env(name);
-  if (!value) {
-    throw new Error(
-      `Debe definir CYPRESS_${name}${description ? ` (${description})` : ''} para ejecutar los specs E2E.`,
-    );
+  if (value === undefined || value === null || value === '') {
+    return defaultValue;
   }
   return value;
 }
@@ -32,8 +32,8 @@ Cypress.Commands.add('visitApp', (options = {}) => {
 
 Cypress.Commands.add('requireE2ECredentials', () => {
   return cy.then(() => ({
-    email: requiredEnv('E2E_EMAIL', 'correo del usuario E2E'),
-    password: requiredEnv('E2E_PASSWORD', 'contraseña del usuario E2E'),
+    email: envOrDefault('E2E_EMAIL', DEFAULT_E2E_EMAIL),
+    password: envOrDefault('E2E_PASSWORD', DEFAULT_E2E_PASSWORD),
   }));
 });
 
@@ -68,18 +68,17 @@ Cypress.Commands.add('loginAsE2EUser', () => {
     cy.getByTestId('login-email').clear().type(email);
     cy.getByTestId('login-password').clear().type(password, { log: false });
     cy.getByTestId('login-submit').click();
+    // Esperar a que el flujo de login complete: desaparece el login y aparece el workspace.
     cy.get('body', { timeout: E2E_STATE_TIMEOUT }).should(($body) => {
-      expect(
-        $body.find('[data-testid="workspace-main"], [data-testid="login-screen"]').length,
-        'layout autenticado o login visible tras enviar credenciales',
-      ).to.be.greaterThan(0);
-    });
-    cy.get('body').then(($body) => {
-      if ($body.find('[data-testid="login-screen"]').length > 0) {
-        throw new Error(
-          'Login E2E no llegó al layout autenticado. Revise que el usuario local exista, que /api/me devuelva sesión válida y que las cookies Sanctum sean aceptadas.',
-        );
+      const hasWorkspace = $body.find('[data-testid="workspace-main"]').length > 0;
+      const hasLogin = $body.find('[data-testid="login-screen"]').length > 0;
+      if (!hasWorkspace && !hasLogin) {
+        throw new Error('No se ve ni login ni workspace durante el ingreso.');
       }
+      expect(
+        hasWorkspace,
+        'workspace visible tras login (login aún visible indica que el flujo no terminó)',
+      ).to.be.true;
     });
     cy.assertAuthenticated();
   });
@@ -129,4 +128,23 @@ Cypress.Commands.add('openRf04StudentProfile', () => {
   cy.getByTestId('perfil-reportes-conductuales', { timeout: E2E_STATE_TIMEOUT })
     .should('be.visible')
     .and('contain', 'Reportes conductuales');
+});
+
+Cypress.Commands.add('openFirstStudentProfile', () => {
+  cy.openModule('estudiantes', 'estudiantes-panel');
+
+  cy.get('[data-testid="estudiantes-tabla"]', { timeout: 15000 }).should('be.visible');
+  cy.get('[data-testid^="estudiante-perfil-"]').then(($buttons) => {
+    if (!$buttons.length) {
+      throw new Error('No se encontró ningún estudiante Chilca visible para abrir perfil.');
+    }
+  });
+  cy.get('[data-testid^="estudiante-perfil-"]').first().click();
+
+  cy.getByTestId('perfil-datos-academicos', { timeout: E2E_STATE_TIMEOUT }).should('be.visible');
+});
+
+Cypress.Commands.add('assertSedeUnicaChilca', () => {
+  cy.get('body').should('not.contain', 'Auquimarca');
+  cy.get('body').should('not.contain', 'Selector de sede');
 });
