@@ -60,7 +60,11 @@ class PermissionsSeeder extends Seeder
             'ver_dashboard_institucional',
         ];
 
-        $permissions = array_merge($legacyPermissions, $curricularPermissions, $conductualPermissions, $semaforoPermissions, $historialPermissions, $reportesRiesgoPermissions, $dashboardInstitucionalPermissions);
+        $psicologoTutorPermissions = [
+            'ver_perfil_psicologo_tutor',
+        ];
+
+        $permissions = array_merge($legacyPermissions, $curricularPermissions, $conductualPermissions, $semaforoPermissions, $historialPermissions, $reportesRiesgoPermissions, $dashboardInstitucionalPermissions, $psicologoTutorPermissions);
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
@@ -110,6 +114,7 @@ class PermissionsSeeder extends Seeder
                 'ver_historial_riesgo',
                 'ver_reportes_riesgo',
                 'ver_dashboard_institucional',
+                'ver_perfil_psicologo_tutor',
             ],
             'psicologo_tutor' => [
                 'ver_alertas',
@@ -118,6 +123,7 @@ class PermissionsSeeder extends Seeder
                 'ver_asistencia_curricular',
                 'ver_reportes_conductuales',
                 'registrar_reportes_conductuales',
+                'ver_perfil_psicologo_tutor',
             ],
             'directivo' => [
                 'ver_dashboard',

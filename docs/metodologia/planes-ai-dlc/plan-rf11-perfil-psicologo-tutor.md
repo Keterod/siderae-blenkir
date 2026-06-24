@@ -26,8 +26,8 @@ El alcance V1 es **lectura** de datos ya existentes, con una vista/listado propi
 | `docs/limitaciones.md` | Planificado; hoy solo alertas | [`docs/limitaciones.md`](../../limitaciones.md) §4 y §7 |
 | `docs/api.md` | Sin endpoint específico de seguimiento psicólogo/tutor | [`docs/api.md`](../../api.md) |
 | `docs/seguridad-roles-permisos.md` | Permiso `ver_perfil_integral_estudiante` sugerido/planificado; **no está en seeder** | [`docs/seguridad-roles-permisos.md`](../../seguridad-roles-permisos.md) §16 |
-| `PermissionsSeeder.php` | **No existe permiso RF-11** | [`backend/database/seeders/PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) |
-| Rol `psicologo_tutor` en seeder | Existe con 6 permisos (alertas + lectura académica + RF-04) | [`backend/database/seeders/PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) L114–L121 |
+| `PermissionsSeeder.php` | **Permiso `ver_perfil_psicologo_tutor` implementado RF-11B** | [`backend/database/seeders/PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) |
+| Rol `psicologo_tutor` en seeder | Existe con 7 permisos (alertas + lectura académica + RF-04 + RF-11B) | [`backend/database/seeders/PermissionsSeeder.php`](../../../backend/database/seeders/PermissionsSeeder.php) L114–L121 |
 | Backend de riesgo | Implementado V1 (`POST /api/estudiantes/{id}/procesar-riesgo`) | [`backend/routes/api.php`](../../../backend/routes/api.php), [`RiesgoAcademicoService`](../../../backend/app/Services/RiesgoAcademicoService.php) |
 | Backend de historial RF-20 | Implementado V1 (`GET /api/estudiantes/{id}/historial-riesgo`) | [`HistorialRiesgoController.php`](../../../backend/app/Http/Controllers/Api/HistorialRiesgoController.php) |
 | Backend de semáforo RF-19 | Implementado V1 (`GET /api/estudiantes/{id}/semaforo-completitud`) | [`SemaforoCompletitudController.php`](../../../backend/app/Http/Controllers/Api/SemaforoCompletitudController.php) |
@@ -39,7 +39,7 @@ El alcance V1 es **lectura** de datos ya existentes, con una vista/listado propi
 | UI específica RF-11 | **No existe** | — |
 | Tests RF-11 | **No existen** | — |
 
-**Resumen:** RF-11 está en estado **planificado**. El rol `psicologo_tutor` ya opera alertas y tiene lectura académica/asistencia y reportes conductuales, pero no dispone de un panel propio de seguimiento de casos. Faltan permiso, endpoint, controller, componente React y tests.
+**Resumen:** RF-11B (base RBAC) está **implementada V1**. El permiso `ver_perfil_psicologo_tutor` existe en el seeder y está asignado a `administrador`, `coordinador_academico` y `psicologo_tutor`. Faltan endpoint, controller, componente React y tests funcionales (RF-11C–RF-11E).
 
 ---
 
@@ -328,7 +328,7 @@ Queda explícitamente excluido de RF-11 V1:
 
 | Fase | Objetivo | Entregables |
 | ---- | -------- | ----------- |
-| **RF-11B** | Permiso y base RBAC | Agregar `ver_perfil_psicologo_tutor` en `PermissionsSeeder.php`; actualizar `seguridad-roles-permisos.md` y `matriz-rf-sprint-test.md`. |
+| **RF-11B** | ✅ **Completada V1** — Permiso y base RBAC | `ver_perfil_psicologo_tutor` agregado en `PermissionsSeeder.php`; asignado a `administrador`, `coordinador_academico` y `psicologo_tutor`; documentación actualizada. |
 | **RF-11C** | Backend seguimiento psicólogo/tutor | `PsicologoTutorSeguimientoController`, ruta `GET /api/psicologo-tutor/seguimiento`, tests backend. |
 | **RF-11D** | Frontend seguimiento psicólogo/tutor | `PerfilPsicologoTutorPanel.jsx`, helper en `api.js`, entrada en `App.jsx`, build OK. |
 | **RF-11E** | Pruebas, smoke manual y cierre documental | Tests 401/403/filtros, smoke manual navegador, actualización de manuales, API, matriz y cierre de RF-11 en `limitaciones.md` y `no-conformidades-y-mejora.md`. |
