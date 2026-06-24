@@ -33,13 +33,14 @@ El alcance V1 es **lectura** de datos ya existentes, con una vista/listado propi
 | Backend de semáforo RF-19 | Implementado V1 (`GET /api/estudiantes/{id}/semaforo-completitud`) | [`SemaforoCompletitudController.php`](../../../backend/app/Http/Controllers/Api/SemaforoCompletitudController.php) |
 | Backend de reportes conductuales RF-04 | Implementado V1 (`GET/POST /api/estudiantes/{id}/reportes-conductuales`) | [`ReporteConductualController.php`](../../../backend/app/Http/Controllers/Api/ReporteConductualController.php) |
 | Backend de alertas/intervenciones | Implementado V1 | [`backend/routes/api.php`](../../../backend/routes/api.php) L142–L151 |
+| Backend RF-11C | **Implementado V1** — endpoint + controller + tests | [`PsicologoTutorSeguimientoController.php`](../../../backend/app/Http/Controllers/Api/PsicologoTutorSeguimientoController.php), [`PsicologoTutorSeguimientoTest.php`](../../../backend/tests/Feature/PsicologoTutorSeguimientoTest.php) |
 | Frontend de alertas | Implementado V1 (`AlertasPanel.jsx`) | [`frontend/src/components/alertas/AlertasPanel.jsx`](../../../frontend/src/components/alertas/AlertasPanel.jsx) |
 | Frontend de perfil estudiante | Existente; acceso restringido por `gestionar_estudiantes` | [`frontend/src/components/estudiantes/EstudiantesPanel.jsx`](../../../frontend/src/components/estudiantes/EstudiantesPanel.jsx) |
 | Frontend helpers API | Funciones existentes para historial, semáforo, reportes conductuales, alertas | [`frontend/src/lib/api.js`](../../../frontend/src/lib/api.js) |
-| UI específica RF-11 | **No existe** | — |
-| Tests RF-11 | **No existen** | — |
+| UI específica RF-11 | **No existe** (RF-11D pendiente) | — |
+| Tests RF-11 | **RF-11C backend tests creados** | [`PsicologoTutorSeguimientoTest.php`](../../../backend/tests/Feature/PsicologoTutorSeguimientoTest.php) |
 
-**Resumen:** RF-11B (base RBAC) está **implementada V1**. El permiso `ver_perfil_psicologo_tutor` existe en el seeder y está asignado a `administrador`, `coordinador_academico` y `psicologo_tutor`. Faltan endpoint, controller, componente React y tests funcionales (RF-11C–RF-11E).
+**Resumen:** RF-11B (base RBAC) y RF-11C (backend) están **implementadas V1**. El permiso `ver_perfil_psicologo_tutor`, el endpoint `GET /api/psicologo-tutor/seguimiento` y los tests backend existen. Faltan componente React, helper API y cierre documental/pruebas manuales (RF-11D–RF-11E).
 
 ---
 
@@ -329,7 +330,8 @@ Queda explícitamente excluido de RF-11 V1:
 | Fase | Objetivo | Entregables |
 | ---- | -------- | ----------- |
 | **RF-11B** | ✅ **Completada V1** — Permiso y base RBAC | `ver_perfil_psicologo_tutor` agregado en `PermissionsSeeder.php`; asignado a `administrador`, `coordinador_academico` y `psicologo_tutor`; documentación actualizada. |
-| **RF-11C** | Backend seguimiento psicólogo/tutor | `PsicologoTutorSeguimientoController`, ruta `GET /api/psicologo-tutor/seguimiento`, tests backend. |
+| **RF-11C** | ✅ **Completada V1** — Backend seguimiento psicólogo/tutor | `PsicologoTutorSeguimientoController`, ruta `GET /api/psicologo-tutor/seguimiento`, `PsicologoTutorSeguimientoTest`. |
+| **RF-11D** | Frontend seguimiento psicólogo/tutor | `PerfilPsicologoTutorPanel.jsx`, helper en `api.js`, entrada en `App.jsx`, build OK. |
 | **RF-11D** | Frontend seguimiento psicólogo/tutor | `PerfilPsicologoTutorPanel.jsx`, helper en `api.js`, entrada en `App.jsx`, build OK. |
 | **RF-11E** | Pruebas, smoke manual y cierre documental | Tests 401/403/filtros, smoke manual navegador, actualización de manuales, API, matriz y cierre de RF-11 en `limitaciones.md` y `no-conformidades-y-mejora.md`. |
 
@@ -346,4 +348,4 @@ RF-11 está **listo para implementación controlada** en cuatro fases (B–E). L
 
 No requiere modificaciones a Flask, fórmula de riesgo, migraciones, VSE, Fast Test ni datos médicos sensibles.
 
-**Próxima fase recomendada:** **RF-11B — permiso/base RBAC**, porque el permiso es el primer paso para desbloquear las fases C y D sin ambigüedad de autorización.
+**Próxima fase recomendada:** **RF-11D — Frontend seguimiento psicólogo/tutor**.

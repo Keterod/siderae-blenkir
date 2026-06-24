@@ -287,6 +287,20 @@ Tests: [`HistorialRiesgoTest.php`](../backend/tests/Feature/HistorialRiesgoTest.
 
 ---
 
+## 13. Seguimiento psicólogo/tutor (RF-11C — backend V1)
+
+Solo estudiantes con `sede = chilca` (V1 operativa). El endpoint es **informativo**: consulta estudiantes con señales de seguimiento (riesgo registrado, reportes conductuales activos o alertas activas). No recalcula riesgo, no llama a Flask, no usa VSE ni Fast Test y no expone información clínica ni médica.
+
+| Método | Ruta | Permiso | Descripción |
+|--------|------|---------|-------------|
+| GET | `/api/psicologo-tutor/seguimiento` | `ver_perfil_psicologo_tutor` | Listado paginado de estudiantes con señales de seguimiento; filtros: `anio_escolar`, `nivel`, `grado`, `seccion`, `nivel_riesgo`, `con_reportes_activos`, `con_alertas_activas` |
+
+**Respuesta 200:** `data[]` con `estudiante_id`, `estudiante`, `grado`, `seccion`, `ultimo_indice`, `ultimo_nivel`, `fecha_ultimo_riesgo`, `reportes_conductuales_activos`, `alertas_activas`, `semaforo_completitud`; `meta` con paginación.
+
+Tests: [`PsicologoTutorSeguimientoTest.php`](../backend/tests/Feature/PsicologoTutorSeguimientoTest.php). UI: pendiente (RF-11D).
+
+---
+
 ## 14. Módulo curricular (`/api/curricular/*`)
 
 Todas requieren `auth:sanctum` + permiso indicado. Prefijo base: `/api/curricular`.
@@ -387,6 +401,7 @@ Tests: `ExcelAulaTest`, `PlantillaRegistroAuxiliarExcelTest`. Documentación: [`
 | RF | Estado | Notas |
 |----|--------|-------|
 | RF-10 Escalamiento directivo | **Planificado** | Sin rutas |
+| RF-11 Seguimiento psicólogo/tutor | **RF-11C Backend implementado** | `GET /api/psicologo-tutor/seguimiento` paginado + filtros. Frontend RF-11D pendiente. No es funcionalidad clínica | Docente y directivo fuera de V1 |
 | RF-12 Comunicación familiar | **Eliminado del alcance** | Esquema BD histórico |
 | RF-18 Reentrenamiento ML | **Planificado** | Sin endpoints |
 | RF-19 Semáforo completitud | **Implementado V1** | `GET /api/estudiantes/{estudiante}/semaforo-completitud`; UI en perfil estudiante |
@@ -406,6 +421,8 @@ Definidos en [`PermissionsSeeder.php`](../backend/database/seeders/PermissionsSe
 **Curricular (15):** `ver_malla_curricular`, `gestionar_malla_curricular`, `gestionar_temas_semanales`, `configurar_pesos_evaluacion`, `gestionar_componentes_calificacion`, `gestionar_asignaciones_docente`, `registrar_notas_semanales`, `ver_notas_academicas`, `configurar_evaluacion_bimestral`, `registrar_asistencia_curricular`, `ver_asistencia_curricular`, `gestionar_calendario_academico`, `gestionar_competencias_capacidades`, `gestionar_secciones_aulas`, `descargar_excel_aula`.
 
 **Conductuales RF-04 (2):** `ver_reportes_conductuales`, `registrar_reportes_conductuales`.
+
+**RF-11B (1):** `ver_perfil_psicologo_tutor`.
 
 **Historial riesgo RF-20 (1):** `ver_historial_riesgo`.
 

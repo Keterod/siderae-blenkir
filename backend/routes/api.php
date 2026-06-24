@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\IntervencionController;
 use App\Http\Controllers\Api\NotaBatchController;
 use App\Http\Controllers\Api\NotaController;
 use App\Http\Controllers\Api\ProcesarRiesgoController;
+use App\Http\Controllers\Api\PsicologoTutorSeguimientoController;
 use App\Http\Controllers\Api\ReporteConductualController;
 use App\Http\Controllers\Api\SemaforoCompletitudController;
 use App\Http\Controllers\Api\Curricular\AsignacionDocenteController;
@@ -138,6 +139,9 @@ Route::middleware(['auth:sanctum', 'permission:ver_historial_riesgo'])
 
 Route::middleware(['auth:sanctum', 'permission:ver_reportes_riesgo'])
     ->get('reportes/riesgo-academico', [ReporteRiesgoAcademicoController::class, 'index']);
+
+Route::middleware(['auth:sanctum', 'permission:ver_perfil_psicologo_tutor'])
+    ->get('psicologo-tutor/seguimiento', [PsicologoTutorSeguimientoController::class, 'index']);
 
 Route::middleware(['auth:sanctum', 'permission:ver_alertas'])
     ->group(function (): void {

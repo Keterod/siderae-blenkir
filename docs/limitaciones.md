@@ -203,7 +203,7 @@ Cada ítem incluye evidencia por ruta.
 | Tema | Estado | Notas |
 |------|--------|-------|
 | **RF-10** — Escalamiento directivo crítico | **Planificado** | Solo casos críticos/extremos |
-| **RF-11** — Perfil psicólogo/tutor (seguimiento no clínico) | **Parcial / en avance** | Base RBAC implementada RF-11B (`ver_perfil_psicologo_tutor` para administrador, coordinador_academico, psicologo_tutor). Endpoint, controller, UI, tests y smoke manual pendientes. No diagnóstico clínico, no historia médica, no PDF/exportación, no selector de sede. |
+| **RF-11** — Perfil psicólogo/tutor (seguimiento no clínico) | **Parcial / en avance** | Base RBAC RF-11B + backend RF-11C implementados (`ver_perfil_psicologo_tutor`; `GET /api/psicologo-tutor/seguimiento`; `PsicologoTutorSeguimientoTest`). UI, smoke manual y cierre RF-11E pendientes. No diagnóstico clínico, no historia médica, no PDF/exportación, no selector de sede. |
 | **RF-16** — Zona reportes de riesgo | **Planificado** | PDF dashboard = parcial |
 | **RF-18** — Reentrenamiento ML | **Planificado** | Requiere dataset histórico; no implementado |
 | **RF-20** — Historial evolutivo | **Implementado V1** | Backend + frontend + documentación + pruebas; smoke manual navegador pendiente; Cypress global no ejecutado |
@@ -246,7 +246,7 @@ Cada ítem incluye evidencia por ruta.
 | Legacy sin menú | Materias, notas masivas y asistencia masiva legacy existen en código pero **no** están en el menú principal. |
 | VSE retiradas del flujo de riesgo | API legacy puede existir; pestaña UI oculta; **no** insumo obligatorio RF-06 (v2.1) |
 | Directivo y alertas | Directivo **no** es actor inicial de todas las alertas; escalamiento RF-10 planificado solo casos críticos |
-| Psicólogo perfil seguimiento | **Parcial / en avance** RF-11: base RBAC RF-11B implementada; endpoint, controller, UI y tests pendientes; solo Chilca; no clínico |
+| Psicólogo perfil seguimiento | **Parcial / en avance** RF-11: base RBAC RF-11B + backend RF-11C implementados; UI y cierre RF-11E pendientes; solo Chilca; no clínico |
 | Comunicación familiar | **Fuera del sistema** — RF-12 eliminado |
 | Fast Test / VSE en riesgo | **No** aparecen como flujos de usuario vigentes |
 | Pesos C/L/T ocultos | Panel `PesosEvaluacionPanel` con `visible: false` en sidebar. |
