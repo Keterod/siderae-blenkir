@@ -45,3 +45,20 @@ docker/mysql_data/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Coverage reports
+backend/coverage.xml
+backend/coverage-sonar.xml
+frontend/coverage/
+frontend/.nyc_output/
+
+# Cypress generated files
+frontend/cypress/screenshots/
+frontend/cypress/videos/
+
+# Word temporary files
+~$*.docx
+docs/~$*.docx
+
+# Node dependencies
+node_modules/

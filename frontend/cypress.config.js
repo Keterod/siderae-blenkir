@@ -1,4 +1,7 @@
 import { defineConfig } from 'cypress';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 export default defineConfig({
   e2e: {
@@ -9,6 +12,7 @@ export default defineConfig({
     screenshotOnRunFailure: false,
     chromeWebSecurity: false,
     setupNodeEvents(on, config) {
+      require('@cypress/code-coverage/task')(on, config);
       on('task', {
         log(message) {
           console.log(message);
