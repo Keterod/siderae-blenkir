@@ -148,8 +148,9 @@ export default function ReporteRiesgoAcademicoPanel() {
         <h3 className="text-sm font-semibold text-[var(--text)]">Filtros</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Año escolar</label>
+            <label className="text-xs font-medium text-muted" htmlFor="rra-anio">Año escolar</label>
             <input
+              id="rra-anio"
               type="text"
               inputMode="numeric"
               className="sb-field min-w-0"
@@ -159,8 +160,9 @@ export default function ReporteRiesgoAcademicoPanel() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Bimestre</label>
+            <label className="text-xs font-medium text-muted" htmlFor="rra-bimestre">Bimestre</label>
             <select
+              id="rra-bimestre"
               className="sb-field"
               value={filtros.bimestre}
               onChange={(e) => actualizarFiltro('bimestre', e.target.value)}
@@ -173,8 +175,9 @@ export default function ReporteRiesgoAcademicoPanel() {
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Grado</label>
+            <label className="text-xs font-medium text-muted" htmlFor="rra-grado">Grado</label>
             <input
+              id="rra-grado"
               type="text"
               className="sb-field min-w-0"
               placeholder="Ej: 5°"
@@ -183,8 +186,9 @@ export default function ReporteRiesgoAcademicoPanel() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Sección</label>
+            <label className="text-xs font-medium text-muted" htmlFor="rra-seccion">Sección</label>
             <input
+              id="rra-seccion"
               type="text"
               className="sb-field min-w-0"
               placeholder="Ej: A"
@@ -193,8 +197,9 @@ export default function ReporteRiesgoAcademicoPanel() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Nivel de riesgo</label>
+            <label className="text-xs font-medium text-muted" htmlFor="rra-riesgo">Nivel de riesgo</label>
             <select
+              id="rra-riesgo"
               className="sb-field"
               value={filtros.nivel}
               onChange={(e) => actualizarFiltro('nivel', e.target.value)}

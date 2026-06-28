@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 
+# API JSON interna sin estado. No usa cookies, sesiones de navegador
+# ni autenticación basada en cookies, por lo que CSRF no aplica.
 app = Flask(__name__)
 
 
@@ -106,4 +108,7 @@ def predict():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    import os
+    host = os.getenv("ML_HOST", "127.0.0.1")
+    port = int(os.getenv("ML_PORT", "5000"))
+    app.run(host=host, port=port)

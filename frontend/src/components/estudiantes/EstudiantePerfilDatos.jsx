@@ -10,7 +10,7 @@ import EmptyState from '../ui/EmptyState';
 
 function parseNumero(valor) {
   if (valor === null || valor === undefined || valor === '') {
-    return NaN;
+    return Number.NaN;
   }
   return Number(valor);
 }
@@ -200,8 +200,9 @@ export default function EstudiantePerfilDatos({
                 <p className="mb-4 text-sm font-medium text-[var(--text)]">Registrar o actualizar</p>
                 <form onSubmit={(event) => void guardarSocioeconomicas(event)} className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1 sm:col-span-2">
-                    <label className="text-sm font-medium text-[var(--text)]">Composición familiar</label>
+                    <label className="text-sm font-medium text-[var(--text)]" htmlFor="var-composicion">Composición familiar</label>
                     <select
+                      id="var-composicion"
                       className="sb-field min-w-0"
                       value={fmVar.composicion_familiar}
                       onChange={(event) =>
@@ -216,8 +217,9 @@ export default function EstudiantePerfilDatos({
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[var(--text)]">Nivel socioeconómico</label>
+                    <label className="text-sm font-medium text-[var(--text)]" htmlFor="var-nivel-socio">Nivel socioeconómico</label>
                     <select
+                      id="var-nivel-socio"
                       className="sb-field min-w-0"
                       value={fmVar.nivel_socioeconomico}
                       onChange={(event) =>
@@ -244,8 +246,9 @@ export default function EstudiantePerfilDatos({
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[var(--text)]">Distancia al colegio (km)</label>
+                    <label className="text-sm font-medium text-[var(--text)]" htmlFor="var-distancia">Distancia al colegio (km)</label>
                     <input
+                      id="var-distancia"
                       type="number"
                       step="0.01"
                       min="0"
@@ -261,8 +264,9 @@ export default function EstudiantePerfilDatos({
                   </div>
 
                   <div className="flex flex-col gap-1 sm:col-span-2">
-                    <label className="text-sm font-medium text-[var(--text)]">Año escolar (clave de fila)</label>
+                    <label className="text-sm font-medium text-[var(--text)]" htmlFor="var-anio">Año escolar (clave de fila)</label>
                     <input
+                      id="var-anio"
                       required
                       className="sb-field min-w-0"
                       value={fmVar.anio_escolar}

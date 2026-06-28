@@ -366,8 +366,9 @@ export default function EstudiantesPanel({ onClose = null }) {
             <h3 className="text-sm font-semibold text-[var(--text)]">Búsqueda y filtros</h3>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1 sm:col-span-2">
-                <label className="text-xs font-medium text-muted">Buscar (código, nombres o apellidos)</label>
+                <label className="text-xs font-medium text-muted" htmlFor="est-buscar">Buscar (código, nombres o apellidos)</label>
                 <input
+                  id="est-buscar"
                   className="sb-field min-w-0"
                   value={filtros.q}
                   onChange={(event) => setFiltros((prev) => ({ ...prev, q: event.target.value }))}
@@ -378,8 +379,9 @@ export default function EstudiantesPanel({ onClose = null }) {
                 <p className="sb-field min-w-0 bg-[var(--background)] text-sm text-[var(--text)]">{ETIQUETA_SEDE_OPERATIVA}</p>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted">Nivel</label>
+                <label className="text-xs font-medium text-muted" htmlFor="est-nivel-filtro">Nivel</label>
                 <select
+                  id="est-nivel-filtro"
                   className="sb-field min-w-0"
                   value={filtros.nivel}
                   onChange={(event) =>
@@ -399,8 +401,9 @@ export default function EstudiantesPanel({ onClose = null }) {
                 </select>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted">Grado</label>
+                <label className="text-xs font-medium text-muted" htmlFor="est-grado-filtro">Grado</label>
                 <select
+                  id="est-grado-filtro"
                   className="sb-field min-w-0"
                   value={filtros.grado}
                   onChange={(event) => setFiltros((prev) => ({ ...prev, grado: event.target.value }))}
@@ -415,16 +418,18 @@ export default function EstudiantesPanel({ onClose = null }) {
                 </select>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted">Sección</label>
+                <label className="text-xs font-medium text-muted" htmlFor="est-seccion-filtro">Sección</label>
                 <input
+                  id="est-seccion-filtro"
                   className="sb-field min-w-0"
                   value={filtros.seccion}
                   onChange={(event) => setFiltros((prev) => ({ ...prev, seccion: event.target.value }))}
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted">Año escolar</label>
+                <label className="text-xs font-medium text-muted" htmlFor="est-anio-filtro">Año escolar</label>
                 <input
+                  id="est-anio-filtro"
                   className="sb-field min-w-0"
                   value={filtros.anio_escolar}
                   onChange={(event) => setFiltros((prev) => ({ ...prev, anio_escolar: event.target.value }))}
@@ -616,8 +621,9 @@ export default function EstudiantesPanel({ onClose = null }) {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Código</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-codigo">Código</label>
                 <input
+                  id="est-codigo"
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.codigo}
@@ -627,8 +633,9 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Fecha de nacimiento</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-fecha-nac">Fecha de nacimiento</label>
                 <input
+                  id="est-fecha-nac"
                   type="date"
                   className="sb-field w-full min-w-0"
                   value={formulario.fecha_nacimiento}
@@ -638,8 +645,9 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
 
               <div className="flex flex-col gap-1 sm:col-span-2">
-                <label className="text-sm font-medium text-[var(--text)]">Nombres</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-nombres">Nombres</label>
                 <input
+                  id="est-nombres"
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.nombres}
@@ -649,8 +657,9 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
 
               <div className="flex flex-col gap-1 sm:col-span-2">
-                <label className="text-sm font-medium text-[var(--text)]">Apellidos</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-apellidos">Apellidos</label>
                 <input
+                  id="est-apellidos"
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.apellidos}
@@ -660,8 +669,9 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Sexo</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-sexo">Sexo</label>
                 <select
+                  id="est-sexo"
                   className="sb-field w-full min-w-0"
                   value={formulario.sexo}
                   onChange={(event) => setFormulario((valor) => ({ ...valor, sexo: event.target.value }))}
@@ -694,8 +704,9 @@ export default function EstudiantesPanel({ onClose = null }) {
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Año escolar</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-anio">Año escolar</label>
                 <input
+                  id="est-anio"
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.anio_escolar}
@@ -705,8 +716,9 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Nivel</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-nivel">Nivel</label>
                 <select
+                  id="est-nivel"
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.nivel}
@@ -728,8 +740,9 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Grado</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-grado">Grado</label>
                 <select
+                  id="est-grado"
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.grado}
@@ -749,8 +762,9 @@ export default function EstudiantesPanel({ onClose = null }) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[var(--text)]">Sección</label>
+                <label className="text-sm font-medium text-[var(--text)]" htmlFor="est-seccion">Sección</label>
                 <select
+                  id="est-seccion"
                   required
                   className="sb-field w-full min-w-0"
                   value={formulario.seccion}

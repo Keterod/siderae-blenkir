@@ -342,7 +342,9 @@ export function construirPayloadAula(matriz, estudiantes, criterios, formulario 
 export function filtrarEntradaNota(valor) {
   if (valor === '') return '';
   const normalizado = String(valor).replace(',', '.');
-  if (!/^\d*\.?\d*$/.test(normalizado)) return null;
+  const partes = normalizado.split('.');
+  if (partes.length > 2) return null;
+  if (partes.some((parte) => parte !== '' && [...parte].some((c) => c < '0' || c > '9'))) return null;
   return normalizado;
 }
 

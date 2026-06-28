@@ -997,7 +997,7 @@ class PlantillaRegistroAuxiliarExcelService
         foreach ($payload['columnas_criterios'] ?? [] as $_) {
             foreach ($columnasNota as $def) {
                 $letter = Coordinate::stringFromColumnIndex($col++);
-                $width = (($def['tipo'] ?? '') === 'ce') ? 5.5 : 5.5;
+                $width = 5.5;
                 if (($def['tipo'] ?? '') === 'componente') {
                     $width = 7.5;
                 }

@@ -29,11 +29,12 @@ export default function ConclusionDescriptivaModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="conclusion-bim-titulo"
-      onClick={onCerrar}
+      tabIndex={-1}
+      onKeyDown={(e) => { if (e.key === 'Escape') onCerrar(); }}
+      onClick={(e) => { if (e.target === e.currentTarget) onCerrar(); }}
     >
       <div
         className="w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 shadow-lg"
-        onClick={(e) => e.stopPropagation()}
       >
         <h3 id="conclusion-bim-titulo" className="text-sm font-semibold text-[var(--text)]">
           Conclusión descriptiva

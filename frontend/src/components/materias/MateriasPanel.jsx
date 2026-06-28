@@ -233,8 +233,9 @@ export default function MateriasPanel() {
         <p className="mt-2 text-xs text-muted">Sede: {ETIQUETA_SEDE_OPERATIVA}</p>
         <form className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(e) => aplicarFiltros(e)}>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Nivel</label>
+            <label className="text-xs font-medium text-muted" htmlFor="mat-nivel-filtro">Nivel</label>
             <select
+              id="mat-nivel-filtro"
               className="sb-field min-w-0"
               value={filtros.nivel}
               onChange={(e) =>
@@ -251,8 +252,9 @@ export default function MateriasPanel() {
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Grado</label>
+            <label className="text-xs font-medium text-muted" htmlFor="mat-grado-filtro">Grado</label>
             <select
+              id="mat-grado-filtro"
               className="sb-field min-w-0"
               value={filtros.grado}
               onChange={(e) => setFiltros((f) => ({ ...f, grado: e.target.value }))}
@@ -267,8 +269,9 @@ export default function MateriasPanel() {
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Año escolar</label>
+            <label className="text-xs font-medium text-muted" htmlFor="mat-anio-filtro">Año escolar</label>
             <input
+              id="mat-anio-filtro"
               className="sb-field min-w-0"
               value={filtros.anio_escolar}
               onChange={(e) => setFiltros((f) => ({ ...f, anio_escolar: e.target.value }))}
@@ -276,8 +279,9 @@ export default function MateriasPanel() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Activo</label>
+            <label className="text-xs font-medium text-muted" htmlFor="mat-activo-filtro">Activo</label>
             <select
+              id="mat-activo-filtro"
               className="sb-field min-w-0"
               value={filtros.activo}
               onChange={(e) => setFiltros((f) => ({ ...f, activo: e.target.value }))}
@@ -300,8 +304,9 @@ export default function MateriasPanel() {
         <p className="mt-1 text-xs text-muted">Sede: {ETIQUETA_SEDE_OPERATIVA}</p>
         <form className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(e) => void crear(e)}>
           <div className="flex flex-col gap-1 sm:col-span-2">
-            <label className="text-xs font-medium text-muted">Nombre</label>
+            <label className="text-xs font-medium text-muted" htmlFor="mat-nombre">Nombre</label>
             <input
+              id="mat-nombre"
               required
               className="sb-field min-w-0"
               value={formulario.nombre}
@@ -310,8 +315,9 @@ export default function MateriasPanel() {
             {formErr.nombre?.[0] ? <p className="text-xs text-red-600">{formErr.nombre[0]}</p> : null}
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Nivel</label>
+            <label className="text-xs font-medium text-muted" htmlFor="mat-nivel">Nivel</label>
             <select
+              id="mat-nivel"
               required
               className="sb-field min-w-0"
               value={formulario.nivel}
@@ -328,8 +334,9 @@ export default function MateriasPanel() {
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Grado</label>
+            <label className="text-xs font-medium text-muted" htmlFor="mat-grado">Grado</label>
             <select
+              id="mat-grado"
               required
               className="sb-field min-w-0"
               value={formulario.grado}
@@ -345,8 +352,9 @@ export default function MateriasPanel() {
             {formErr.grado?.[0] ? <p className="text-xs text-red-600">{formErr.grado[0]}</p> : null}
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Año escolar</label>
+            <label className="text-xs font-medium text-muted" htmlFor="mat-anio">Año escolar</label>
             <input
+              id="mat-anio"
               required
               className="sb-field min-w-0"
               value={formulario.anio_escolar}
@@ -427,8 +435,9 @@ export default function MateriasPanel() {
           <h3 className="text-sm font-semibold text-[var(--text)]">Editar materia #{editId}</h3>
           <form className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" onSubmit={(e) => void guardarEdicion(e)}>
             <div className="flex flex-col gap-1 sm:col-span-2">
-              <label className="text-xs font-medium text-muted">Nombre</label>
+              <label className="text-xs font-medium text-muted" htmlFor="mat-nombre-editar">Nombre</label>
               <input
+                id="mat-nombre-editar"
                 required
                 className="sb-field min-w-0"
                 value={formEdicion.nombre}
@@ -437,8 +446,9 @@ export default function MateriasPanel() {
               {errEdicion.nombre?.[0] ? <p className="text-xs text-red-600">{errEdicion.nombre[0]}</p> : null}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Nivel</label>
+              <label className="text-xs font-medium text-muted" htmlFor="mat-nivel-editar">Nivel</label>
               <select
+                id="mat-nivel-editar"
                 required
                 className="sb-field min-w-0"
                 value={formEdicion.nivel}
@@ -455,8 +465,9 @@ export default function MateriasPanel() {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Grado</label>
+              <label className="text-xs font-medium text-muted" htmlFor="mat-grado-editar">Grado</label>
               <select
+                id="mat-grado-editar"
                 required
                 className="sb-field min-w-0"
                 value={formEdicion.grado}
@@ -471,8 +482,9 @@ export default function MateriasPanel() {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Año escolar</label>
+              <label className="text-xs font-medium text-muted" htmlFor="mat-anio-editar">Año escolar</label>
               <input
+                id="mat-anio-editar"
                 required
                 className="sb-field min-w-0"
                 value={formEdicion.anio_escolar}

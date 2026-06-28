@@ -292,7 +292,7 @@ export default function RegistroNotasSemanalesPanel() {
         : contextosConsulta;
 
       const uniq = (arr, key) => [...new Set(arr.map(key).filter(Boolean))];
-      const anios = uniq(contextosConsulta, (c) => c.anio_escolar).sort();
+      const anios = uniq(contextosConsulta, (c) => c.anio_escolar).sort((a, b) => Number(a) - Number(b));
 
       const niveles = uniq(base, (c) => c.nivel);
       const grados = uniq(base, (c) => c.grado);
@@ -353,7 +353,7 @@ export default function RegistroNotasSemanalesPanel() {
 
     return {
       modo: 'docente',
-      anios: [...new Set(aulas.map((a) => a.anio_escolar))].filter(Boolean).sort(),
+      anios: [...new Set(aulas.map((a) => a.anio_escolar))].filter(Boolean).sort((a, b) => Number(a) - Number(b)),
       niveles,
       sedes: [SEDE_OPERATIVA],
       grados,

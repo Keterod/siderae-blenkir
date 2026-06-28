@@ -258,16 +258,18 @@ export default function UsuariosPanel() {
             <h3 className="text-sm font-semibold text-[var(--text)]">Búsqueda y filtros</h3>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1 sm:col-span-2">
-                <label className="text-xs font-medium text-muted">Buscar (nombre o correo)</label>
+                <label className="text-xs font-medium text-muted" htmlFor="usr-buscar">Buscar (nombre o correo)</label>
                 <input
+                  id="usr-buscar"
                   className="sb-field min-w-0"
                   value={filtros.q}
                   onChange={(event) => actualizarFiltros((prev) => ({ ...prev, q: event.target.value }))}
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-muted">Rol</label>
+                <label className="text-xs font-medium text-muted" htmlFor="usr-rol-filtro">Rol</label>
                 <select
+                  id="usr-rol-filtro"
                   className="sb-field"
                   value={filtros.rol}
                   onChange={(event) => actualizarFiltros((prev) => ({ ...prev, rol: event.target.value }))}
@@ -400,8 +402,9 @@ export default function UsuariosPanel() {
         <Card className="space-y-4 shadow-sm">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Nombre</label>
+              <label className="text-xs font-medium text-muted" htmlFor="usr-nombre">Nombre</label>
               <input
+                id="usr-nombre"
                 className="sb-field"
                 value={formulario.name}
                 onChange={(event) => setFormulario((prev) => ({ ...prev, name: event.target.value }))}
@@ -411,8 +414,9 @@ export default function UsuariosPanel() {
               ) : null}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Correo</label>
+              <label className="text-xs font-medium text-muted" htmlFor="usr-correo">Correo</label>
               <input
+                id="usr-correo"
                 type="email"
                 className="sb-field"
                 value={formulario.email}
@@ -423,8 +427,9 @@ export default function UsuariosPanel() {
               ) : null}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Rol</label>
+              <label className="text-xs font-medium text-muted" htmlFor="usr-rol">Rol</label>
               <select
+                id="usr-rol"
                 className="sb-field"
                 value={formulario.rol}
                 onChange={(event) => setFormulario((prev) => ({ ...prev, rol: event.target.value }))}
@@ -442,8 +447,9 @@ export default function UsuariosPanel() {
             {vista === 'crear' ? (
               <>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted">Contraseña</label>
+                  <label className="text-xs font-medium text-muted" htmlFor="usr-password">Contraseña</label>
                   <input
+                    id="usr-password"
                     type="password"
                     className="sb-field"
                     value={formulario.password}
@@ -454,8 +460,9 @@ export default function UsuariosPanel() {
                   ) : null}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-muted">Confirmar contraseña</label>
+                  <label className="text-xs font-medium text-muted" htmlFor="usr-password-confirm">Confirmar contraseña</label>
                   <input
+                    id="usr-password-confirm"
                     type="password"
                     className="sb-field"
                     value={formulario.password_confirmation}
@@ -492,8 +499,9 @@ export default function UsuariosPanel() {
               Restablecer contraseña — {modalPassword.name}
             </h3>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Nueva contraseña</label>
+              <label className="text-xs font-medium text-muted" htmlFor="usr-nueva-password">Nueva contraseña</label>
               <input
+                id="usr-nueva-password"
                 type="password"
                 className="sb-field"
                 value={passwordForm.password}
@@ -507,8 +515,9 @@ export default function UsuariosPanel() {
               ) : null}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted">Confirmar contraseña</label>
+              <label className="text-xs font-medium text-muted" htmlFor="usr-confirmar-password">Confirmar contraseña</label>
               <input
+                id="usr-confirmar-password"
                 type="password"
                 className="sb-field"
                 value={passwordForm.password_confirmation}

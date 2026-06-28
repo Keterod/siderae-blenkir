@@ -402,8 +402,9 @@ export default function AlertasPanel({ onClose = null }) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[var(--text)]">Tipo de intervención</label>
+                    <label className="text-sm font-medium text-[var(--text)]" htmlFor="inter-tipo">Tipo de intervención</label>
                     <select
+                      id="inter-tipo"
                       className="sb-field min-w-0"
                       value={fmInter.tipo}
                       onChange={(e) => setFmInter((v) => ({ ...v, tipo: e.target.value }))}
@@ -415,8 +416,9 @@ export default function AlertasPanel({ onClose = null }) {
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[var(--text)]">Fecha</label>
+                    <label className="text-sm font-medium text-[var(--text)]" htmlFor="inter-fecha">Fecha</label>
                     <input
+                      id="inter-fecha"
                       type="date"
                       required
                       className="sb-field min-w-0"
@@ -426,8 +428,9 @@ export default function AlertasPanel({ onClose = null }) {
                   </div>
 
                   <div className="flex flex-col gap-1 sm:col-span-2">
-                    <label className="text-sm font-medium text-[var(--text)]">Descripción</label>
+                    <label className="text-sm font-medium text-[var(--text)]" htmlFor="inter-descripcion">Descripción</label>
                     <textarea
+                      id="inter-descripcion"
                       required
                       className="sb-field min-w-0"
                       rows={3}
@@ -464,8 +467,9 @@ export default function AlertasPanel({ onClose = null }) {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[var(--text)]">Resultado del cierre</label>
+                  <label className="text-sm font-medium text-[var(--text)]" htmlFor="cierre-resultado">Resultado del cierre</label>
                   <textarea
+                    id="cierre-resultado"
                     required
                     className="sb-field min-w-0"
                     rows={3}

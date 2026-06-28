@@ -164,8 +164,9 @@ export default function PerfilPsicologoTutorPanel() {
         <h3 className="text-sm font-semibold text-[var(--text)]">Filtros</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Año escolar</label>
+            <label className="text-xs font-medium text-muted" htmlFor="ppt-anio">Año escolar</label>
             <input
+              id="ppt-anio"
               type="text"
               inputMode="numeric"
               className="sb-field min-w-0"
@@ -175,8 +176,9 @@ export default function PerfilPsicologoTutorPanel() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Nivel</label>
+            <label className="text-xs font-medium text-muted" htmlFor="ppt-nivel">Nivel</label>
             <select
+              id="ppt-nivel"
               className="sb-field"
               value={filtros.nivel}
               onChange={(e) => actualizarFiltro('nivel', e.target.value)}
@@ -189,8 +191,9 @@ export default function PerfilPsicologoTutorPanel() {
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Grado</label>
+            <label className="text-xs font-medium text-muted" htmlFor="ppt-grado">Grado</label>
             <input
+              id="ppt-grado"
               type="text"
               className="sb-field min-w-0"
               placeholder="Ej: 5°"
@@ -199,8 +202,9 @@ export default function PerfilPsicologoTutorPanel() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Sección</label>
+            <label className="text-xs font-medium text-muted" htmlFor="ppt-seccion">Sección</label>
             <input
+              id="ppt-seccion"
               type="text"
               className="sb-field min-w-0"
               placeholder="Ej: A"
@@ -209,8 +213,9 @@ export default function PerfilPsicologoTutorPanel() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted">Nivel de riesgo</label>
+            <label className="text-xs font-medium text-muted" htmlFor="ppt-riesgo">Nivel de riesgo</label>
             <select
+              id="ppt-riesgo"
               className="sb-field"
               value={filtros.nivel_riesgo}
               onChange={(e) => actualizarFiltro('nivel_riesgo', e.target.value)}

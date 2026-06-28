@@ -21,7 +21,7 @@ class ImportPlantillaNotasSemanalesRequest extends FormRequest
         return [
             'asignacion_docente_id' => ['required', 'integer', 'exists:docente_curso_aulas,id'],
             'periodo_academico_id' => ['required', 'integer', 'exists:periodos_academicos,id'],
-            'archivo' => ['required', 'file', 'mimes:xlsx', 'max:10240'],
+            'archivo' => ['required', 'file', 'mimes:xlsx', 'max:5120'],
         ];
     }
 

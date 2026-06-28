@@ -12,7 +12,7 @@ const SONAR_PROJECT_KEY = process.env.SONAR_PROJECT_KEY || 'SIDERAE-Blenkir';
 const HEADLESS = process.env.HEADLESS !== 'false';
 
 const OUTPUT_DIR = path.resolve(
-  __dirname, '..', 'docs', 'evidencias', 'sonarqube', '02_revision_con_coverage', 'capturas',
+  __dirname, '..', 'docs', 'evidencias', 'sonarqube', '03_revision_final',
 );
 const DEBUG_DIR = path.resolve(__dirname, '..', 'docs', 'evidencias', 'sonarqube');
 
@@ -40,7 +40,8 @@ async function clickOverallCode(page) {
 }
 
 const PAGES = [
-  { name: '01_overview_quality_gate_coverage.png', url: `/dashboard?id=${SONAR_PROJECT_KEY}`,            label: 'Overview / Quality Gate / Coverage',
+  { name: '01_overview.png',  url: `/dashboard?id=${SONAR_PROJECT_KEY}`,            label: 'Overview — Dashboard con Quality Gate, Reliability, Security, Security Review, Maintainability, Coverage' },
+  { name: '02_overall_code.png', url: `/dashboard?id=${SONAR_PROJECT_KEY}`,         label: 'Overall Code',
     beforeCapture: async (page) => {
       const clicked = await clickOverallCode(page);
       if (clicked) {
@@ -50,11 +51,10 @@ const PAGES = [
       }
     },
   },
-  { name: '02_issues_sonarqube.png',              url: `/project/issues?id=${SONAR_PROJECT_KEY}`,         label: 'Issues' },
-  { name: '03_security_hotspots.png',             url: `/security_hotspots?id=${SONAR_PROJECT_KEY}`,      label: 'Security Hotspots' },
-  { name: '04_measures_metricas.png',             url: `/component_measures?id=${SONAR_PROJECT_KEY}`,     label: 'Measures / Métricas' },
-  { name: '05_coverage_detail.png',               url: `/component_measures?id=${SONAR_PROJECT_KEY}&metric=coverage`, label: 'Coverage detail' },
-  { name: '06_duplications.png',                  url: `/component_measures?id=${SONAR_PROJECT_KEY}&metric=duplicated_lines_density`, label: 'Duplications' },
+  { name: '03_issues.png',     url: `/project/issues?id=${SONAR_PROJECT_KEY}`,       label: 'Issues' },
+  { name: '04_security.png',   url: `/component_measures?id=${SONAR_PROJECT_KEY}&metric=security_rating`, label: 'Security Rating' },
+  { name: '05_reliability.png',url: `/component_measures?id=${SONAR_PROJECT_KEY}&metric=reliability_rating`, label: 'Reliability Rating' },
+  { name: '06_coverage.png',   url: `/component_measures?id=${SONAR_PROJECT_KEY}&metric=coverage`,        label: 'Coverage' },
 ];
 
 function fatal(msg)  { console.error(`[ERROR] ${msg}`);  process.exit(1); }
