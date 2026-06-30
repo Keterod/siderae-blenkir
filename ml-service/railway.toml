@@ -1,0 +1,12 @@
+# railway.toml — ML Service Flask (Railway root directory: ml-service/)
+
+[build]
+builder = "nixpacks"
+# Railway detecta Python automáticamente desde requirements.txt.
+
+[deploy]
+# GET / devuelve {"status": "ok", "service": "SIDERAE-ML"} — endpoint de healthcheck.
+healthcheckPath = "/"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

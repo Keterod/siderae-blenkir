@@ -19,7 +19,21 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    /*
+     * DESARROLLO LOCAL: FRONTEND_URL=http://localhost:5173
+     * PRODUCCIÓN (Vercel + Railway):
+     *   FRONTEND_URL=https://siderae-app.vercel.app
+     *   CORS_ALLOWED_ORIGINS=https://siderae-app.vercel.app,https://tu-dominio.com
+     *
+     * CORS_ALLOWED_ORIGINS permite añadir múltiples orígenes separados por coma
+     * sin modificar este archivo. Si no se define, se usa FRONTEND_URL como único origen.
+     */
+    'allowed_origins' => array_values(array_filter(
+        array_map(
+            'trim',
+            explode(',', env('CORS_ALLOWED_ORIGINS', env('FRONTEND_URL', 'http://localhost:5173')))
+        )
+    )),
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +43,7 @@ return [
 
     'max_age' => 0,
 
+    // Debe ser true para Sanctum SPA (cookies de sesión cross-origin)
     'supports_credentials' => true,
 
 ];

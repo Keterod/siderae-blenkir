@@ -14,6 +14,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Proxies de confianza — necesario para Railway (TLS terminación en balanceador).
+        // TRUSTED_PROXIES=* en .env de producción; vacío en desarrollo local.
+        if (env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(
+                at: env('TRUSTED_PROXIES'),
+                headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+                         \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+                         \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+                         \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO |
+                         \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB
+            );
+        }
+
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);

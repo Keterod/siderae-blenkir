@@ -1,0 +1,12 @@
+# railway.toml — Backend Laravel (Railway root directory: backend/)
+
+[build]
+builder = "nixpacks"
+# nixpacks.toml en este mismo directorio declara las extensiones PHP.
+
+[deploy]
+# GET /up es el health endpoint nativo de Laravel 13 (declarado en bootstrap/app.php)
+healthcheckPath = "/up"
+healthcheckTimeout = 60
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
