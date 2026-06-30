@@ -6,7 +6,7 @@ const API_PROXY_TARGET = process.env.VITE_API_PROXY_TARGET || 'http://host.docke
 export default defineConfig(async () => {
   const plugins = [react()]
 
-  if (process.env.VITE_COVERAGE === 'true') {
+  if (process.env.NODE_ENV !== 'production' && process.env.VITE_COVERAGE === 'true') {
     const { default: istanbul } = await import('vite-plugin-istanbul')
     plugins.push(istanbul({ include: 'src/**/*' }))
   }
