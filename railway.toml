@@ -1,0 +1,28 @@
+# railway.toml — Configuración de despliegue para Railway
+# Repositorio: SIDERAE-Blenkir (monorepo)
+#
+# En Railway se crean DOS servicios separados apuntando al mismo repositorio:
+#   1. siderae-backend  → directorio: backend/
+#   2. siderae-ml       → directorio: ml-service/
+#
+# Cada servicio en Railway tiene su propia configuración de "Root Directory".
+# Este archivo define los parámetros por defecto para ambos.
+# Railway lee railway.toml del directorio raíz del servicio que está construyendo.
+#
+# Para que Railway detecte el archivo correcto, configura en el panel:
+#   siderae-backend → Root Directory: backend
+#   siderae-ml      → Root Directory: ml-service
+#
+# Luego copia el bloque [deploy] correspondiente como railway.toml dentro
+# de cada subdirectorio (ya hecho — ver backend/railway.toml y ml-service/railway.toml).
+
+[build]
+# Railway detectará automáticamente Laravel (Nixpacks) o usará el Dockerfile.
+# La preferencia es Nixpacks con nixpacks.toml → Dockerfile como fallback.
+builder = "nixpacks"
+
+[deploy]
+healthcheckPath = "/up"
+healthcheckTimeout = 60
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

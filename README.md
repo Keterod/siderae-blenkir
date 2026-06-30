@@ -364,3 +364,178 @@ Toda la traza documental de calidad se encuentra consolidada en la carpeta `docs
 * `docs/evidencias/pruebas_backend/`
 * `docs/evidencias/pruebas_frontend/`
 * `docs/evidencias/sonarqube/`
+
+---
+
+## 16. Despliegue en la nube (Vercel + Railway)
+
+El proyecto puede desplegarse con esta arquitectura de producción manteniendo Docker Compose intacto para desarrollo local:
+
+```
+GitHub
+│
+├── Frontend → Vercel (React + Vite)
+│
+└── Railway
+      ├── siderae-backend  (Laravel 13 + PHP 8.3)
+      ├── siderae-ml       (Flask Python)
+      └── MySQL Plugin
+```
+
+### 16.1 Prerequisitos
+
+- Cuenta en [Vercel](https://vercel.com) (gratuita)
+- Cuenta en [Railway](https://railway.app) (Hobby $5/mes o free tier)
+- Repositorio en GitHub (`github.com/Keterod/siderae-blenkir`)
+
+---
+
+### 16.2 Despliegue del Frontend en Vercel
+
+**Paso 1 — Conectar repositorio**
+
+1. Ir a [vercel.com/new](https://vercel.com/new)
+2. Importar `Keterod/siderae-blenkir`
+3. En **"Root Directory"** escribir: `frontend`
+4. Framework: **Vite** (Vercel lo detecta automáticamente)
+5. Build Command: `npm run build`
+6. Output Directory: `dist`
+
+**Paso 2 — Variables de entorno en Vercel**
+
+En el panel de Vercel → Settings → Environment Variables:
+
+| Variable | Valor |
+|----------|-------|
+| `VITE_API_URL` | `https://siderae-backend.up.railway.app` |
+| `VITE_ML_URL` | `https://siderae-ml.up.railway.app` (opcional) |
+
+> **Nota:** Usar las URLs reales que Railway asigna a cada servicio.
+
+**Paso 3 — Verificar**
+
+- Vercel desplegará automáticamente con cada `git push` a la rama principal.
+- El archivo `frontend/vercel.json` ya está configurado para SPA (rutas React).
+- URL esperada: `https://siderae-blenkir.vercel.app` (o la que Vercel asigne).
+
+---
+
+### 16.3 Despliegue del Backend (Laravel) en Railway
+
+**Paso 1 — Crear servicio**
+
+1. Ir a [railway.app/new](https://railway.app/new)
+2. **New Project** → **Deploy from GitHub repo**
+3. Seleccionar `Keterod/siderae-blenkir`
+4. En **Settings → Source → Root Directory** escribir: `backend`
+5. Railway detectará `nixpacks.toml` y construirá automáticamente.
+
+**Paso 2 — Agregar MySQL**
+
+1. En el proyecto Railway → **+ New** → **Database** → **MySQL**
+2. Esperar a que el plugin esté listo
+3. Ir a las variables del plugin MySQL y copiar:
+   - `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, `MYSQLPASSWORD`
+
+**Paso 3 — Variables de entorno del backend**
+
+En el servicio `siderae-backend` → Variables:
+
+| Variable | Valor |
+|----------|-------|
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_KEY` | *(generar: `php artisan key:generate --show`)* |
+| `APP_URL` | `https://siderae-backend.up.railway.app` |
+| `DB_CONNECTION` | `mysql` |
+| `DB_HOST` | *(valor de `MYSQLHOST`)* |
+| `DB_PORT` | *(valor de `MYSQLPORT`)* |
+| `DB_DATABASE` | *(valor de `MYSQLDATABASE`)* |
+| `DB_USERNAME` | *(valor de `MYSQLUSER`)* |
+| `DB_PASSWORD` | *(valor de `MYSQLPASSWORD`)* |
+| `SESSION_DRIVER` | `database` |
+| `SESSION_DOMAIN` | `siderae-backend.up.railway.app` |
+| `SESSION_SECURE_COOKIE` | `true` |
+| `SESSION_SAME_SITE` | `none` |
+| `SANCTUM_STATEFUL_DOMAINS` | `siderae-blenkir.vercel.app` |
+| `FRONTEND_URL` | `https://siderae-blenkir.vercel.app` |
+| `CORS_ALLOWED_ORIGINS` | `https://siderae-blenkir.vercel.app` |
+| `ML_SERVICE_URL` | `https://siderae-ml.up.railway.app` |
+| `LOG_CHANNEL` | `stderr` |
+| `LOG_LEVEL` | `error` |
+| `TRUSTED_PROXIES` | `*` |
+
+**Paso 4 — Primer seed (opcional)**
+
+Desde el panel Railway → Shell del servicio backend:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+> **Advertencia:** `migrate:fresh` borra y reconstruye la base de datos. Solo para primera configuración.
+
+**Paso 5 — Verificar**
+
+- Health endpoint: `https://siderae-backend.up.railway.app/up` → `{"status":"up"}`
+- Railway redespliega automáticamente con cada `git push`.
+
+---
+
+### 16.4 Despliegue del ML Service (Flask) en Railway
+
+**Paso 1 — Crear segundo servicio en el mismo proyecto**
+
+1. En el mismo proyecto Railway → **+ New** → **GitHub Repo**
+2. Seleccionar `Keterod/siderae-blenkir` nuevamente
+3. En **Settings → Source → Root Directory** escribir: `ml-service`
+
+**Paso 2 — Variables de entorno del ML Service**
+
+| Variable | Valor |
+|----------|-------|
+| `FLASK_ENV` | `production` |
+
+> `PORT` es inyectada automáticamente por Railway. No definirla manualmente.
+
+**Paso 3 — Verificar**
+
+- Health endpoint: `https://siderae-ml.up.railway.app/` → `{"service":"SIDERAE-ML","status":"ok"}`
+- Endpoint de predicción: `POST https://siderae-ml.up.railway.app/predict`
+
+---
+
+### 16.5 URLs esperadas en producción
+
+| Servicio | URL |
+|----------|-----|
+| Frontend | `https://siderae-blenkir.vercel.app` |
+| Backend API | `https://siderae-backend.up.railway.app` |
+| ML Service | `https://siderae-ml.up.railway.app` |
+| Health Backend | `https://siderae-backend.up.railway.app/up` |
+| Health ML | `https://siderae-ml.up.railway.app/` |
+
+> Las URLs exactas dependen del nombre que Railway y Vercel asignen. Actualizar las variables de entorno con las URLs reales tras el primer despliegue.
+
+---
+
+### 16.6 CI/CD automático (sin GitHub Actions)
+
+Una vez conectados los repositorios:
+
+- **Vercel**: cada `git push` a `main` redespliega el frontend automáticamente.
+- **Railway**: cada `git push` a `main` redespliega ambos servicios automáticamente.
+
+No se requiere configuración adicional de CI/CD.
+
+---
+
+### 16.7 Compatibilidad con Docker Compose (desarrollo local)
+
+El despliegue en la nube **no afecta** el entorno local. Docker Compose sigue siendo el método recomendado para desarrollo:
+
+```bash
+docker compose up -d --build
+```
+
+Todos los archivos nuevos son aditivos (`railway.toml`, `vercel.json`, `Procfile`, `nixpacks.toml`) y no interfieren con Docker Compose.
