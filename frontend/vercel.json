@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://siderae-blenkir-production.up.railway.app/api/$1" },
+    { "source": "/sanctum/csrf-cookie", "destination": "https://siderae-blenkir-production.up.railway.app/sanctum/csrf-cookie" },
+    { "source": "/login", "destination": "https://siderae-blenkir-production.up.railway.app/login" },
+    { "source": "/logout", "destination": "https://siderae-blenkir-production.up.railway.app/logout" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
