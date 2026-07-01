@@ -1,6 +1,5 @@
 import { conSedeOperativa } from './sedeOperativa';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export function getCookie(name) {
   const cookie = document.cookie
@@ -26,7 +25,7 @@ async function request(path, options = {}) {
     headers['X-XSRF-TOKEN'] = xsrfToken;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${path}`, {
     credentials: 'include',
     ...options,
     headers,
@@ -48,7 +47,7 @@ async function request(path, options = {}) {
 }
 
 async function getCsrfCookie() {
-  await fetch(`${API_BASE_URL}/sanctum/csrf-cookie`, {
+  await fetch(`/sanctum/csrf-cookie`, {
     credentials: 'include',
     headers: {
       Accept: 'application/json',
@@ -117,7 +116,7 @@ export async function exportDashboardPdf(filters = {}) {
     headers['X-XSRF-TOKEN'] = xsrfToken;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${path}`, {
     method: 'GET',
     credentials: 'include',
     headers,
@@ -680,7 +679,7 @@ export async function descargarExcelAula(params = {}) {
     headers['X-XSRF-TOKEN'] = xsrfToken;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${path}`, {
     method: 'GET',
     credentials: 'include',
     headers,
@@ -718,7 +717,7 @@ export async function descargarPlantillaRegistroAuxiliarExcel(params = {}) {
     headers['X-XSRF-TOKEN'] = xsrfToken;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${path}`, {
     method: 'GET',
     credentials: 'include',
     headers,
@@ -757,7 +756,7 @@ export async function importarPlantillaRegistroAuxiliarExcel(formData) {
     headers['X-XSRF-TOKEN'] = xsrfToken;
   }
 
-  const response = await fetch(`${API_BASE_URL}${CURRICULAR}/notas-semanales/importar-excel`, {
+  const response = await fetch(`${CURRICULAR}/notas-semanales/importar-excel`, {
     method: 'POST',
     credentials: 'include',
     headers,

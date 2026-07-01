@@ -1,4 +1,3 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 function getCookie(name) {
   const cookie = document.cookie
@@ -38,7 +37,7 @@ async function request(path, options = {}) {
     headers['X-XSRF-TOKEN'] = xsrfToken;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${path}`, {
     credentials: 'include',
     ...options,
     headers,
