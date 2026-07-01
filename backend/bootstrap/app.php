@@ -15,10 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Proxies de confianza — necesario para Railway (TLS terminación en balanceador).
-        // TRUSTED_PROXIES=* en .env de producción; vacío en desarrollo local.
-        if (env('TRUSTED_PROXIES')) {
+        // En producción confiamos en todos los proxies por defecto; en desarrollo se
+        // puede sobrescribir con TRUSTED_PROXIES en .env.
+        $trustedProxies = env('TRUSTED_PROXIES', env('APP_ENV') === 'production' ? '*' : '');
+        if ($trustedProxies) {
             $middleware->trustProxies(
-                at: env('TRUSTED_PROXIES'),
+                at: $trustedProxies,
                 headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
                          \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
                          \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |

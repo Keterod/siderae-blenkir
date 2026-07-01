@@ -167,9 +167,11 @@ return [
     | to the server if the browser has a HTTPS connection. This will keep
     | the cookie from being sent to you when it can't be done securely.
     |
+    | PRODUCCIÓN (Vercel + Railway): obligatorio true para SameSite=None.
+    | DESARROLLO LOCAL: false si no se usa HTTPS.
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') === 'production'),
 
     /*
     |--------------------------------------------------------------------------
@@ -197,9 +199,11 @@ return [
     |
     | Supported: "lax", "strict", "none", null
     |
+    | PRODUCCIÓN (Vercel + Railway): debe ser "none" para enviar cookies
+    | cross-site. DESARROLLO LOCAL: usar "lax" (HTTP sin certificado).
     */
 
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    'same_site' => env('SESSION_SAME_SITE', env('APP_ENV') === 'production' ? 'none' : 'lax'),
 
     /*
     |--------------------------------------------------------------------------
