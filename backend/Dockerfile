@@ -14,7 +14,7 @@ RUN apt-get update \
         libonig-dev \
         libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql zip gd mbstring xml bcmath tokenizer ctype \
+    && docker-php-ext-install pdo pdo_mysql zip gd mbstring xml bcmath \
     && rm -rf /var/lib/apt/lists/*
 
 # Xdebug: solo se instala si XDEBUG_INSTALL=true (desarrollo local)
@@ -50,4 +50,4 @@ EXPOSE 8000
 CMD php artisan config:cache && \
     php artisan route:cache && \
     php artisan migrate --force && \
-    php artisan serve --host=0.0.0.0 --port=8000
+    php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
